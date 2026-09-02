@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BloodPrincess.vcxproj" Id="d0ade690-bbbd-4a52-a4b8-c2093010f83c" />
+</Solution>
