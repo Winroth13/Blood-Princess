@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -147,8 +147,10 @@
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\rendering\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -162,7 +164,7 @@
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\editor.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
-    <ClInclude Include="src\core\window.h" />
+    <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\resources\asset_manager.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/window.h"
+#include "core/window.hpp"
 #include "rendering/renderer.hpp"
 #include "resources/asset_manager.hpp"
 #include "scene/scene_manager.hpp"
@@ -19,6 +19,12 @@ class Application
 	bool isRunning = false;
 
 public:
+    Application() = default;
+    ~Application() = default;
+
+    Application(const Application &other) = delete;
+    Application &operator=(const Application &other) = delete;
+
 	bool Initialize();
 	void Run();
 	void Shutdown();

@@ -5,10 +5,10 @@ Files: snake_case, folders are files
 Constants: SCREAMING_SNAKE_CASE
 Functions: PascalCase
 Get and Set rather than direct access in classes.
-Structs do not have that.
-Is- and Has- for bool functions.
+Structs do not have Get and Set.
+Is- and Has- for bool-functions.
 { on a new line.
-Single-line Get and Set in the .hpp file.
+Single-line Get and Set in the .hpp-file.
 .hpp, not .h
 No custom namespaces.
 Using is okay in .cpp, but not for std.
@@ -25,3 +25,8 @@ Include for DirectX.
 GitHub Commits
 Try to keep up with our documentation of classes.
 Commits to main must build.
+
+To discuss
+* and & on left or rihgt side of variable name?
+* British (correct) spelling?
+* Capital letters in names in comments and logger?

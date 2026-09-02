@@ -1,19 +1,35 @@
 #include "application.hpp"
-#include <iostream>
+#include "core/logging.hpp"
 
-#include "sdl3/include/SDL3/SDL.h"
+#include <iostream>
+#include <d3d11.h>
 
 bool Application::Initialize()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        std::cout << "SDL could not be initialized!" << std::endl
-            << "SDL_Error: " << SDL_GetError() << std::endl;
+    LogInfo("Initializing...");
+    LogIndent();
 
+    if (!SDL_Init(SDL_INIT_VIDEO))
+    {
+        LogError("SDL could not be initialized! SDL_Error: %s", SDL_GetError());
         return false;
     }
 
-    isRunning = true;
+    if (!this->window.Initialize("Blood Princess", 800, 600, SDL_WINDOW_RESIZABLE))
+    {
+        LogError("Failed to create window!");
+        return false;
+    }
+
+    if (!this->renderer.Initialize(this->window))
+    {
+        LogError("Failed to create renderer!");
+        return false;
+    }
+
+    this->isRunning = true;
+
+    LogUnindent();
     return true;
 }
 
@@ -21,23 +37,28 @@ void Application::Run()
 {
     auto prevTime = std::chrono::high_resolution_clock::now();
 
-    SDL_Window* sdlWindow = SDL_CreateWindow("Engine", 800, 600, 0);
-
-    while (isRunning)
+    while (this->isRunning && !this->window.ShouldClose())
     {
-        window.PollEvents();
+        this->window.PollEvents();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
-        sceneManager.Update(deltaTime);
-        renderer.Render();
+        this->sceneManager.Update(deltaTime);
+        this->renderer.Render();
     }
 }
 
 void Application::Shutdown()
 {
+    LogBlank();
+    LogInfo("Shutting down...");
+    LogIndent();
 
+    this->renderer.Shutdown();
+    this->window.Shutdown();
+
+    LogUnindent();
 }
