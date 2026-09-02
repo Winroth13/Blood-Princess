@@ -6,7 +6,7 @@
 
 class Window
 {
-	SDL_Window* sdlWindow = nullptr;
+	SDL_Window *sdlWindow = nullptr;
 	bool shouldClose = true;
 
 	uint32_t width = 0;
