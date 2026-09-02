@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)src;$(ProjectDir)external;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,10 +114,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -143,11 +146,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
+    <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
+    <ClInclude Include="src\audio\audio_manager.hpp" />
+    <ClInclude Include="src\collision\collision_manager.hpp" />
+    <ClInclude Include="src\components\transform.hpp" />
+    <ClInclude Include="src\core\application.hpp" />
+    <ClInclude Include="src\core\app_context.hpp" />
+    <ClInclude Include="src\core\input.hpp" />
+    <ClInclude Include="src\core\logging.hpp" />
+    <ClInclude Include="src\editor\editor.hpp" />
+    <ClInclude Include="src\rendering\renderer.hpp" />
+    <ClInclude Include="src\core\window.h" />
+    <ClInclude Include="src\resources\asset_manager.hpp" />
+    <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scene_manager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
