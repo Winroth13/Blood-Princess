@@ -31,7 +31,7 @@ namespace LogImpl {
     } while (0)
 
 #define LogWarn(format, ...) \
-        printf(LogColourYellow("[Warning]") " %s:%d in %s(): " format "\n", LogImpl::GetFilename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+        printf(LogColourYellow("[Warn]") " %s:%d in %s(): " format "\n", LogImpl::GetFilename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
 
 #define LogError(format, ...) \
     do { \

@@ -2,8 +2,6 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
 
-#define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
-
 bool Renderer::CreateInterface(HWND hWnd)
 {
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};

@@ -5,6 +5,8 @@
 #include <d3d11.h>
 #include <Windows.h>
 
+#define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
+
 class Renderer
 {
 	ID3D11Device *device = nullptr;
@@ -24,4 +26,7 @@ public:
 	bool Initialize(const Window &window);
 	void Shutdown();
 	void Render() {}
+
+	ID3D11Device *GetDevice() { return device; }
+	ID3D11DeviceContext *GetDeviceContext() { return deviceContext; }
 };

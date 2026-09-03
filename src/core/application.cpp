@@ -1,5 +1,6 @@
 #include "application.hpp"
 #include "core/logging.hpp"
+#include "core/app_context.hpp"
 
 #include <iostream>
 #include <d3d11.h>
@@ -15,19 +16,32 @@ bool Application::Initialize()
         return false;
     }
 
+    this->appContext = std::make_unique<AppContext>();
+
     if (!this->window.Initialize("Blood Princess", 800, 600, SDL_WINDOW_RESIZABLE))
     {
-        LogError("Failed to create window!");
+        LogError("Failed to create Window!");
         return false;
     }
+    this->appContext->window = &this->window;
 
     if (!this->renderer.Initialize(this->window))
     {
-        LogError("Failed to create renderer!");
+        LogError("Failed to create Renderer!");
+        return false;
+    }
+    this->appContext->renderer = &this->renderer;
+
+    if (!this->assetManager.Initialize(this->appContext.get()))
+    {
+        LogError("Failed to create Asset Manager!");
         return false;
     }
 
     this->isRunning = true;
+
+    Texture2D *texture = assetManager.GetTexture2D("princess.png");
+    Texture2D *texture2 = assetManager.GetTexture2D("princess2.png");
 
     LogUnindent();
     return true;
@@ -57,6 +71,7 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown();
 
