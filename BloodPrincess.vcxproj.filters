@@ -42,7 +42,7 @@
     <ClCompile Include="src\assets\types\texture_2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\assets\loaders\texture_2d_loader.cpp">
+    <ClCompile Include="src\assets\asset_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <ClInclude Include="src\assets\types\texture_2d.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\assets\loaders\texture_2d_loader.hpp">
+    <ClInclude Include="src\assets\asset_loader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -150,7 +150,7 @@
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="src\assets\asset.cpp" />
-    <ClCompile Include="src\assets\loaders\texture_2d_loader.cpp" />
+    <ClCompile Include="src\assets\asset_loader.cpp" />
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
@@ -163,7 +163,7 @@
     <ClInclude Include="external\stb_image\stb_image.h" />
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="src\assets\asset.hpp" />
-    <ClInclude Include="src\assets\loaders\texture_2d_loader.hpp" />
+    <ClInclude Include="src\assets\asset_loader.hpp" />
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />

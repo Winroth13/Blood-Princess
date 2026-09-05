@@ -40,8 +40,8 @@ bool Application::Initialize()
 
     this->isRunning = true;
 
-    Texture2D *texture = assetManager.GetTexture2D("princess.png");
-    Texture2D *texture2 = assetManager.GetTexture2D("princess2.png");
+    auto texture = assetManager.Get<Texture2D>("princess.png");
+    auto texture2 = assetManager.Get<Texture2D>("princess2.png");
 
     LogUnindent();
     return true;

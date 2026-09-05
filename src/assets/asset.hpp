@@ -1,11 +1,14 @@
 #pragma once
-
 #include <string>
 
-// TODO: Asset should store filepath since all assets have a path
 class Asset
 {
+protected:
+	std::string path;
+
 public:
 	Asset() = default;
 	~Asset() = default;
+
+	void SetPath(const std::string &path);
 };

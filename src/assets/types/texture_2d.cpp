@@ -98,6 +98,14 @@ Texture2D::Texture2D(
 
 Texture2D::~Texture2D()
 {
+	LogInfo("Unloading %s", this->path.c_str());
+	LogIndent();
+
+	LogInfo("Releasing Shader Resource View");
 	SafeRelease(shaderResourceView);
+	LogInfo("Releasing DirectX Texture");
+
+	LogUnindent();
+
 	SafeRelease(texture);
 }
