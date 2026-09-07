@@ -13,7 +13,8 @@ enum class MouseMode {
 	Hidden,
 	Captured
 };
-static struct MouseState
+
+struct MouseState
 {
 	DirectX::XMFLOAT2 position{0, 0};
 	SDL_MouseButtonFlags buttonFlags = 0;

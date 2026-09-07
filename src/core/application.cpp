@@ -1,14 +1,12 @@
 #include "application.hpp"
 #include "core/logging.hpp"
-<<<<<<< HEAD
 #include "input.hpp"
-=======
 #include "core/app_context.hpp"
 
->>>>>>> 222003bb546654bd43bdb39c5b6e97009a91ca25
 #include <iostream>
 #include <d3d11.h>
 #include "SDL3/SDL.h"
+
 bool Application::Initialize()
 {
     LogInfo("Initializing...");
