@@ -135,10 +135,13 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -146,16 +149,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
+    <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\asset.cpp" />
+    <ClCompile Include="src\assets\asset_loader.cpp" />
+    <ClCompile Include="src\assets\types\model.cpp" />
+    <ClCompile Include="src\assets\types\texture_2d.cpp" />
+    <ClCompile Include="src\components\transform.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\core\input.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
+    <ClCompile Include="src\assets\asset_manager.cpp" />
+    <ClCompile Include="src\scene\entity.cpp" />
+    <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\scene\scene_loader.cpp" />
+    <ClCompile Include="src\scene\scene_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
+    <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
+    <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="src\assets\asset.hpp" />
+    <ClInclude Include="src\assets\asset_loader.hpp" />
+    <ClInclude Include="src\assets\types\model.hpp" />
+    <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />
     <ClInclude Include="src\components\transform.hpp" />
@@ -166,8 +186,11 @@
     <ClInclude Include="src\editor\editor.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
-    <ClInclude Include="src\resources\asset_manager.hpp" />
+    <ClInclude Include="src\assets\asset_manager.hpp" />
+    <ClInclude Include="src\scene\component.hpp" />
+    <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

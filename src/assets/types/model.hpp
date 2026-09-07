@@ -1,0 +1,106 @@
+#pragma once
+#include "assets/asset.hpp"
+
+#include <vector>
+#include <memory>
+#include <DirectXMath.h>
+
+struct ID3D11Buffer;
+struct ID3D11Device;
+
+#pragma region Vertex
+struct Vertex
+{
+	DirectX::XMFLOAT3 position = { 0, 0, 0 };
+	DirectX::XMFLOAT3 normal = { 0, 0, 0 };
+	DirectX::XMFLOAT2 uv = { 0, 0 };
+	DirectX::XMFLOAT3 tangent = { 0, 0, 0 };
+
+	Vertex(
+		const DirectX::XMFLOAT3 position,
+		const DirectX::XMFLOAT3 normal,
+		const DirectX::XMFLOAT2 uv
+	) : position(position), normal(normal), uv(uv)
+	{
+	}
+};
+
+bool operator== (const Vertex &v1, const Vertex &v2);
+
+/*
+* We need to define a hash function for our Vertex struct so we can
+* detect duplicates when loading models.
+*/
+namespace std {
+	template <>
+	struct hash<Vertex>
+	{
+		size_t operator()(const Vertex &v) const
+		{
+			size_t seed = 0;
+			std::hash<float> hasher;
+			auto combine = [&](float f)
+				{
+					seed ^= hasher(f) + (seed << 6) + (seed >> 2) + 0x9e3779b9;
+				};
+
+			combine(v.position.x);
+			combine(v.position.y);
+			combine(v.position.z);
+
+			combine(v.normal.x);
+			combine(v.normal.y);
+			combine(v.normal.z);
+
+			combine(v.uv.x);
+			combine(v.uv.y);
+
+			return seed;
+		}
+	};
+}
+
+#pragma endregion
+
+#pragma region Mesh
+class Mesh : public Asset
+{
+	size_t numVertices = 0;
+	size_t numIndicies = 0;
+
+	ID3D11Buffer *vertexBuffer = nullptr;
+	ID3D11Buffer *indexBuffer = nullptr;
+
+public:
+	Mesh() = default;
+	~Mesh();
+
+	bool Create(
+		const std::vector<Vertex> &vertices,
+		const std::vector<uint32_t> &indicies,
+		ID3D11Device *device
+	);
+
+	size_t GetNumVertices() const { return this->numVertices; }
+	size_t GetNumIndicies() const { return this->numIndicies; }
+
+	ID3D11Buffer *GetVertexBuffer() { return this->vertexBuffer; }
+	ID3D11Buffer *GetIndexBuffer() { return this->indexBuffer; }
+
+};
+#pragma endregion
+
+#pragma region Model
+
+class Model : public Asset
+{
+	std::vector<std::unique_ptr<Mesh>> meshes;
+
+public:
+	Model() = default;
+	~Model() = default;
+
+	bool Create(const std::vector<Mesh*> &meshes);
+};
+
+#pragma endregion

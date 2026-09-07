@@ -1,6 +1,11 @@
 #include "application.hpp"
 #include "core/logging.hpp"
+<<<<<<< HEAD
 #include "input.hpp"
+=======
+#include "core/app_context.hpp"
+
+>>>>>>> 222003bb546654bd43bdb39c5b6e97009a91ca25
 #include <iostream>
 #include <d3d11.h>
 #include "SDL3/SDL.h"
@@ -17,18 +22,34 @@ bool Application::Initialize()
 
     if (!this->window.Initialize("Blood Princess", 800, 600, SDL_WINDOW_RESIZABLE))
     {
-        LogError("Failed to create window!");
+        LogError("Failed to create Window!");
         return false;
     }
 
-    if (!this->renderer.Initialize(this->window))
+    if (!this->renderer.Initialize(&this->window))
     {
-        LogError("Failed to create renderer!");
+        LogError("Failed to create Renderer!");
+        return false;
+    }
+
+    if (!this->assetManager.Initialize(&this->renderer))
+    {
+        LogError("Failed to create Asset Manager!");
+        return false;
+    }
+
+    if (!this->sceneManager.Initialize(this->appContext, "demo_0")) {
+        LogError("Failed to create Scene Manager!");
         return false;
     }
 
     Input::Initialize();
     this->isRunning = true;
+
+    auto texture = assetManager.Get<Texture2D>("princess.png");
+    auto texture2 = assetManager.Get<Texture2D>("princess2.png");
+
+    //auto model = assetManager.Get<Model>("princess.glb");
 
     LogUnindent();
     return true;
@@ -60,7 +81,7 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
-        this->sceneManager.Update(deltaTime);
+        this->sceneManager.Update(this->appContext, deltaTime);
         this->renderer.Render();
     }
 }
@@ -71,6 +92,8 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+    this->sceneManager.Shutdown();
+    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown();
 

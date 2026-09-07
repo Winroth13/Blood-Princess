@@ -21,12 +21,9 @@ Error messages in headers.
 Forward declare rather than include in .hpp.
 Include for DirectX.
 // for comments.
+Capital letters in names in comments and logger.
+* and & on rihgt side of variable name.
 
 GitHub Commits
 Try to keep up with our documentation of classes.
 Commits to main must build.
-
-To discuss
-* and & on left or rihgt side of variable name?
-* British (correct) spelling?
-* Capital letters in names in comments and logger?
