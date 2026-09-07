@@ -26,6 +26,7 @@ public:
 
 	bool ShouldClose() const { return this->shouldClose; }
 	HWND GetHWNDPointer() const;
+	SDL_Window* GetSdlWindow() const { return this->sdlWindow; }
 
 	uint32_t GetWidth() const { return this->width; }
 	uint32_t GetHeight() const { return this->height; }

@@ -1,9 +1,9 @@
 #include "application.hpp"
 #include "core/logging.hpp"
-
+#include "input.hpp"
 #include <iostream>
 #include <d3d11.h>
-
+#include "SDL3/SDL.h"
 bool Application::Initialize()
 {
     LogInfo("Initializing...");
@@ -27,6 +27,7 @@ bool Application::Initialize()
         return false;
     }
 
+    Input::Initialize();
     this->isRunning = true;
 
     LogUnindent();
@@ -39,7 +40,20 @@ void Application::Run()
 
     while (this->isRunning && !this->window.ShouldClose())
     {
+        Input::Update(this->window.GetSdlWindow());
+
         this->window.PollEvents();
+
+       
+        if (Input::IsKeyPressed(SDL_SCANCODE_F))
+        {
+			LogInfo("F key is pressed");
+        }
+
+        if (Input::IsKeyReleased(SDL_SCANCODE_F))
+        {
+            LogInfo("F key is released");
+        }
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;

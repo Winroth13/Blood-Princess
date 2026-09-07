@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\core\input.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\main.cpp" />
