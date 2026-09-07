@@ -31,7 +31,11 @@ namespace LogImpl {
     } while (0)
 
 #define LogWarn(format, ...) \
-        printf(LogColourYellow("[Warn]") " %s:%d in %s(): " format "\n", LogImpl::GetFilename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+    do { \
+        printf(LogColourYellow("[Warn]") " "); \
+        if (LogImpl::GetIndent() > 0) printf("%*s> ", LogImpl::GetIndent() * LogImpl::SPACES_PER_INDENT, ""); \
+        printf("%s:%d in %s(): " format "\n", LogImpl::GetFilename(__FILE__), __LINE__, __func__, ##__VA_ARGS__); \
+    } while (0)
 
 #define LogError(format, ...) \
     do { \
