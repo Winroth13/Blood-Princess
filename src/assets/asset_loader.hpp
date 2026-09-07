@@ -1,19 +1,22 @@
 #pragma once
+
 #include <memory>
 #include <string>
 
-struct AppContext;
+class Renderer;
+
 class Texture2D;
 
 class AssetLoader
 {
-	AppContext *appContext;
+    // TODO: Just store device and deviceContext directly instead?
+    const Renderer *renderer;
 
 public:
 	AssetLoader() = default;
 	~AssetLoader() = default;
 
-	bool Initialize(AppContext *appContext);
+	bool Initialize(const Renderer *renderer);
 
 	template<class T>
 	std::shared_ptr<T> Load(const std::string &path);

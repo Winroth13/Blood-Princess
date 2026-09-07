@@ -5,7 +5,6 @@
 #include "rendering/renderer.hpp"
 
 #include <d3d11.h>
-#include <stdexcept>
 
 // Convert STBI channels to DXGI Texture Format.
 DXGI_FORMAT const Texture2D::GetDXGITextureFormat(uint32_t stbiChannels)
@@ -31,11 +30,11 @@ Texture2D::Texture2D(
 	const uint32_t height,
 	const uint32_t channels,
 	const std::string &filePath,
-	AppContext* appContext
+	const Renderer *renderer
 )
 {
-	ID3D11Device *device = appContext->renderer->GetDevice();
-	ID3D11DeviceContext *deviceContext = appContext->renderer->GetDeviceContext();
+	ID3D11Device *device = renderer->GetDevice();
+	ID3D11DeviceContext *deviceContext = renderer->GetDeviceContext();
 
 	this->width = width;
 	this->height = height;
@@ -63,8 +62,7 @@ Texture2D::Texture2D(
 	if (FAILED(hr))
 	{
 		LogError("DirectX failed to create Texture2D for texture: %s", filePath.c_str());
-		// TODO: Don't know if we should throw here or not. The program can't continue after this so stopping it makes sense.
-		throw std::runtime_error("");
+        return;
 	}
 
 	LogInfo("DirectX Texture created");
@@ -87,8 +85,7 @@ Texture2D::Texture2D(
 	if (FAILED(hr))
 	{
 		LogError("DirectX failed to shader resource view for texture: %s", filePath.c_str());
-		// TODO: Don't know if we should throw here or not. The program can't continue after this so stopping it makes sense.
-		throw std::runtime_error("");
+        return;
 	}
 
 	LogInfo("Shader Resource View created");

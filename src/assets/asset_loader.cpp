@@ -27,23 +27,23 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 		}
 	}
 
-	auto texture = std::make_shared<Texture2D>(data, width, height, channels, path, this->appContext);
+	auto texture = std::make_shared<Texture2D>(data, width, height, channels, path, this->renderer);
 
 	return texture;
 }
 
-bool AssetLoader::Initialize(AppContext *appContext)
+bool AssetLoader::Initialize(const Renderer *renderer)
 {
 	LogInfo("Creating Asset Loader...");
 	LogIndent();
 
-	if (!appContext)
+	if (!renderer)
 	{
-		LogError("App Context is nullptr!");
+		LogError("Renderer is nullptr!");
 		return false;
 	}
 
-	this->appContext = appContext;
+    this->renderer = renderer;
 
 	LogUnindent();
 

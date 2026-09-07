@@ -19,7 +19,15 @@ class Application
 	AudioManager audioManager;
 
 	bool isRunning = false;
-	std::unique_ptr<AppContext> appContext = nullptr;
+
+    const AppContext appContext = {
+        this,
+        &this->window,
+        &this->renderer,
+        &this->assetManager,
+        &this->sceneManager,
+        &this->audioManager
+    };
 
 public:
     Application() = default;

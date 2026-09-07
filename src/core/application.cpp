@@ -16,23 +16,19 @@ bool Application::Initialize()
         return false;
     }
 
-    this->appContext = std::make_unique<AppContext>();
-
     if (!this->window.Initialize("Blood Princess", 800, 600, SDL_WINDOW_RESIZABLE))
     {
         LogError("Failed to create Window!");
         return false;
     }
-    this->appContext->window = &this->window;
 
-    if (!this->renderer.Initialize(this->window))
+    if (!this->renderer.Initialize(&this->window))
     {
         LogError("Failed to create Renderer!");
         return false;
     }
-    this->appContext->renderer = &this->renderer;
 
-    if (!this->assetManager.Initialize(this->appContext.get()))
+    if (!this->assetManager.Initialize(&this->renderer))
     {
         LogError("Failed to create Asset Manager!");
         return false;

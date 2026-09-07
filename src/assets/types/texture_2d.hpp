@@ -1,9 +1,12 @@
 #pragma once
+
 #include "assets/asset.hpp"
 #include "core/app_context.hpp"
 
 #include <cstdint>
 #include <d3d11.h>
+
+class Renderer;
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -26,7 +29,7 @@ public:
 		const uint32_t height, 
 		const uint32_t channels,
 		const std::string &filePath,
-		AppContext* appContext
+		const Renderer *renderer
 	);
 	~Texture2D();
 

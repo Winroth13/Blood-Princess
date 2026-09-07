@@ -7,7 +7,7 @@
 #include <string>
 #include <memory>
 
-struct AppContext;
+class Renderer;
 
 class AssetManager
 {
@@ -16,7 +16,7 @@ private:
 	std::unordered_map<std::string, std::weak_ptr<Asset>> assets;
 
 public:
-	bool Initialize(AppContext* appContext);
+	bool Initialize(const Renderer *renderer);
 	void Shutdown();
 
 	template<class T>

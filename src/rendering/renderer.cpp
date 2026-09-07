@@ -85,15 +85,15 @@ bool Renderer::CreateRenderTargetView()
     return true;
 }
 
-bool Renderer::Initialize(const Window &window)
+bool Renderer::Initialize(const Window *window)
 {
     LogInfo("Creating Renderer...");
     LogIndent();
 
-    this->width = window.GetWidth();
-    this->height = window.GetHeight();
+    this->width = window->GetWidth();
+    this->height = window->GetHeight();
 
-    if (!this->CreateInterface(window.GetHWNDPointer()))
+    if (!this->CreateInterface(window->GetHWNDPointer()))
         return false;
 
     if (!this->CreateRenderTargetView())
