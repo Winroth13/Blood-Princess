@@ -3,7 +3,7 @@
 #include "core/logging.hpp"
 #include "scene/scene.hpp"
 #include "assets/types/texture_2d.hpp"
-#include "assets/types/mesh.hpp"
+#include "assets/types/model.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>

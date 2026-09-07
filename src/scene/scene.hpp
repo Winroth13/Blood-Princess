@@ -1,6 +1,6 @@
 #pragma once
 
-#include "assets/types/mesh.hpp"
+#include "assets/types/model.hpp"
 #include <DirectXMath.h>
 #include <memory>
 #include <vector>

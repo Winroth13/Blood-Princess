@@ -6,6 +6,7 @@
 class Renderer;
 
 class Texture2D;
+class Model;
 
 class AssetLoader
 {
@@ -24,3 +25,6 @@ public:
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path);
+
+template<>
+std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path);

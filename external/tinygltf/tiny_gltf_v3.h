@@ -1282,7 +1282,7 @@ ParseGenerator tg3_parse_coro(
 } /* namespace tinygltf3 */
 
 #endif /* coroutines */
-#endif /* __cplusplus */
+#endif /* __cplusplus */+
 
 /* ======================================================================
  * Section 18: Implementation

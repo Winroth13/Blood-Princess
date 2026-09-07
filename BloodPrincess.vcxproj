@@ -149,9 +149,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
+    <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
     <ClCompile Include="src\assets\asset.cpp" />
     <ClCompile Include="src\assets\asset_loader.cpp" />
-    <ClCompile Include="src\assets\types\mesh.cpp" />
     <ClCompile Include="src\assets\types\model.cpp" />
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
     <ClCompile Include="src\core\application.cpp" />
@@ -164,9 +164,10 @@
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
+    <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
+    <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
     <ClInclude Include="src\assets\asset.hpp" />
     <ClInclude Include="src\assets\asset_loader.hpp" />
-    <ClInclude Include="src\assets\types\mesh.hpp" />
     <ClInclude Include="src\assets\types\model.hpp" />
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
