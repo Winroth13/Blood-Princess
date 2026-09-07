@@ -3,9 +3,13 @@
 #include "scene/entity.hpp"
 #include "components/transform.hpp"
 
-bool SceneLoader::Load(const std::string &name, Scene &outScene) {
+static void TestScene(Scene &outScene) {
     Entity *testEntity = outScene.AddEntity("test_entity");
     testEntity->AddComponent<Transform>();
+}
+
+bool SceneLoader::Load(const std::string &name, Scene &outScene) {
+    TestScene(outScene);
 
     LogInfo("Loaded scene '%s'", name.c_str());
 

@@ -290,63 +290,63 @@ void Renderer::Shutdown()
     LogUnindent();
 }
 
-void Renderer::Render(const Scene *scene)
+void Renderer::Render(/*const Scene *scene*/)
 {
-    this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
-    this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    //this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
+    //this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    if (!scene)
-    {
-        this->swapChain->Present(0, 0);
-        return;
-    }
+    //if (!scene)
+    //{
+    //    this->swapChain->Present(0, 0);
+    //    return;
+    //}
 
-    auto mesh = scene->GetMesh();
-    if (!mesh || !mesh->GetVertexBuffer() || !mesh->GetIndexBuffer())
-    {
-        this->swapChain->Present(0, 0);
-        return;
-    }
+    //auto mesh = scene->GetMesh();
+    //if (!mesh || !mesh->GetVertexBuffer() || !mesh->GetIndexBuffer())
+    //{
+    //    this->swapChain->Present(0, 0);
+    //    return;
+    //}
 
-    // Update Matrix constant buffer with the scene's transform
-    XMMATRIX worldT = XMMatrixTranspose(scene->GetWorldMatrix());
-    XMMATRIX viewProjT = XMMatrixTranspose(VIEW_PROJ);
+    //// Update Matrix constant buffer with the scene's transform
+    //XMMATRIX worldT = XMMatrixTranspose(scene->GetWorldMatrix());
+    //XMMATRIX viewProjT = XMMatrixTranspose(VIEW_PROJ);
 
-    D3D11_MAPPED_SUBRESOURCE mapped;
-    if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-    {
-        MatrixPair data;
-        XMStoreFloat4x4(&data.world, worldT);
-        XMStoreFloat4x4(&data.viewProj, viewProjT);
-        memcpy(mapped.pData, &data, sizeof(MatrixPair));
-        this->deviceContext->Unmap(constantBuffer, 0);
-    }
+    //D3D11_MAPPED_SUBRESOURCE mapped;
+    //if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+    //{
+    //    MatrixPair data;
+    //    XMStoreFloat4x4(&data.world, worldT);
+    //    XMStoreFloat4x4(&data.viewProj, viewProjT);
+    //    memcpy(mapped.pData, &data, sizeof(MatrixPair));
+    //    this->deviceContext->Unmap(constantBuffer, 0);
+    //}
 
-    this->deviceContext->RSSetViewports(1, &this->viewport);
-    this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
+    //this->deviceContext->RSSetViewports(1, &this->viewport);
+    //this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
 
-    ID3D11Buffer *vBuffer = mesh->GetVertexBuffer();
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-    this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-    this->deviceContext->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-    this->deviceContext->IASetInputLayout(inputLayout);
-    this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //ID3D11Buffer *vBuffer = mesh->GetVertexBuffer();
+    //UINT stride = sizeof(Vertex);
+    //UINT offset = 0;
+    //this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+    //this->deviceContext->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+    //this->deviceContext->IASetInputLayout(inputLayout);
+    //this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    this->deviceContext->VSSetShader(vShader, nullptr, 0);
-    this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+    //this->deviceContext->VSSetShader(vShader, nullptr, 0);
+    //this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
 
-    this->deviceContext->PSSetShader(pShader, nullptr, 0);
+    //this->deviceContext->PSSetShader(pShader, nullptr, 0);
 
-    ID3D11ShaderResourceView *srv = nullptr;
-    if (auto texture = scene->GetTexture())
-    {
-        srv = texture->GetShaderResourceView();
-    }
-    this->deviceContext->PSSetShaderResources(0, 1, &srv);
-    this->deviceContext->PSSetSamplers(0, 1, &samplerState);
+    //ID3D11ShaderResourceView *srv = nullptr;
+    //if (auto texture = scene->GetTexture())
+    //{
+    //    srv = texture->GetShaderResourceView();
+    //}
+    //this->deviceContext->PSSetShaderResources(0, 1, &srv);
+    //this->deviceContext->PSSetSamplers(0, 1, &samplerState);
 
-    this->deviceContext->DrawIndexed(static_cast<UINT>(mesh->GetNumIndicies()), 0, 0);
+    //this->deviceContext->DrawIndexed(static_cast<UINT>(mesh->GetNumIndicies()), 0, 0);
 
-    this->swapChain->Present(0, 0);
+    //this->swapChain->Present(0, 0);
 }
