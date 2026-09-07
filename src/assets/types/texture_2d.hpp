@@ -36,4 +36,5 @@ public:
 	uint32_t GetWidth() const { return this->width; }
 	uint32_t GetHeight() const { return this->height; }
 	uint32_t GetChannels() const { return this->channels; }
+	ID3D11ShaderResourceView *GetShaderResourceView() const { return this->shaderResourceView; }
 };
