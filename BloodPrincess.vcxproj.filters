@@ -45,10 +45,26 @@
     <ClCompile Include="src\assets\asset_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="src\assets\types\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c">
+=======
+    <ClCompile Include="src\scene\entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\scene_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\scene_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\components\transform.cpp">
+>>>>>>> ed152166057d587e96635739a4edccab9bcf5b42
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,6 +123,7 @@
     <ClInclude Include="src\assets\asset_loader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="src\assets\types\model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -114,6 +131,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h">
+=======
+    <ClInclude Include="src\scene\component.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\scene_loader.hpp">
+>>>>>>> ed152166057d587e96635739a4edccab9bcf5b42
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

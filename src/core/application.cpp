@@ -34,11 +34,14 @@ bool Application::Initialize()
         return false;
     }
 
+    if (!this->sceneManager.Initialize(this->appContext, "demo_0")) {
+        LogError("Failed to create Scene Manager!");
+        return false;
+    }
+
     this->isRunning = true;
 
-    this->sceneManager.GetActiveScene()->Initialize(this->renderer.GetDevice());
     auto texture = assetManager.Get<Texture2D>("princess.png");
-    this->sceneManager.GetActiveScene()->SetTexture(texture);
     auto texture2 = assetManager.Get<Texture2D>("princess2.png");
 
     //auto model = assetManager.Get<Model>("princess.glb");
@@ -60,8 +63,8 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
-        this->sceneManager.Update(deltaTime);
-        this->renderer.Render(this->sceneManager.GetActiveScene());
+        this->sceneManager.Update(this->appContext, deltaTime);
+        this->renderer.Render();
     }
 }
 
@@ -71,7 +74,7 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
-    this->sceneManager.GetActiveScene()->Shutdown();
+    this->sceneManager.Shutdown();
     this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown();

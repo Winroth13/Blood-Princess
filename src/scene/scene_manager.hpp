@@ -1,16 +1,37 @@
 #pragma once
 
 #include "scene/scene.hpp"
+#include "scene/scene_loader.hpp"
+#include "core/app_context.hpp"
+
+#include <string>
 
 class SceneManager
 {
+    SceneLoader loader;
+
 	Scene scene;
+    std::string currentSceneName;
+    std::string targetSceneName;
+    bool shouldReload = false;
+
+    void ChangeScene(const std::string &name);
 
 public:
-	Scene *GetActiveScene() { return &this->scene; }
+    SceneManager() = default;
+    ~SceneManager() = default;
 
-	void Update(float deltaTime)
-	{
-		scene.Update(deltaTime);
-	}
+    SceneManager(const SceneManager &other) = delete;
+    SceneManager &operator=(const SceneManager &other) = delete;
+
+    bool Initialize(const AppContext &context, const std::string &startSceneName);
+    void Shutdown();
+
+    void RequestSceneChange(const std::string &name);
+    void ReloadCurrentScene();
+
+    void Update(const AppContext &context, float deltaTime);
+
+    Scene *GetCurrentScene() { return &this->scene; }
+    const std::string &GetCurrentSceneName() const { return this->currentSceneName; }
 };
