@@ -32,6 +32,8 @@ public:
 	void Shutdown();
 	void Render(/*const Scene *scene*/);
 
+    void Resize(uint32_t width, uint32_t height);
+
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }
 };
