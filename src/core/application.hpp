@@ -5,6 +5,7 @@
 #include "assets/asset_manager.hpp"
 #include "scene/scene_manager.hpp"
 #include "audio/audio_manager.hpp"
+#include "editor/imgui_window.hpp"
 
 #include <chrono>
 
@@ -17,6 +18,7 @@ class Application
 	AssetManager assetManager;
 	SceneManager sceneManager;
 	AudioManager audioManager;
+    ImGuiWindow imGuiWindow;
 
 	bool isRunning = false;
 
@@ -26,7 +28,7 @@ class Application
         &this->renderer,
         &this->assetManager,
         &this->sceneManager,
-        &this->audioManager
+        &this->audioManager,
     };
 
 public:

@@ -43,6 +43,8 @@ void Window::PollEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+        imGuiWindow->PollEvent(&event);
+
         switch (event.type)
         {
         case SDL_EVENT_QUIT:

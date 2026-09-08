@@ -41,6 +41,17 @@ bool Application::Initialize()
         return false;
     }
 
+    if (!this->imGuiWindow.Initialize(
+        this->window.GetSdlWindow(), 
+        this->renderer.GetDevice(), 
+        this->renderer.GetDeviceContext())
+    )
+    {
+        LogError("Failed to create ImGui Window");
+        return false;
+    }
+    this->window.SetImGuiWindow(&this->imGuiWindow);
+
     Input::Initialize();
     this->isRunning = true;
 
@@ -63,6 +74,7 @@ void Application::Run()
 		Input::Update(this->window.GetSdlWindow()); //Has to be called before PollEvents()
 
         this->window.PollEvents();
+
         if (Input::IsKeyPressed(SDL_SCANCODE_F))
         {
 			LogInfo("F key is pressed");
@@ -78,8 +90,9 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
+
         this->sceneManager.Update(deltaTime);
-        this->renderer.Render();
+        this->renderer.Render(this->imGuiWindow);
     }
 }
 

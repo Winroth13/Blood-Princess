@@ -4,6 +4,7 @@
 #include "scene/scene.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/model.hpp"
+#include "editor/imgui_window.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -290,10 +291,12 @@ void Renderer::Shutdown()
     LogUnindent();
 }
 
-void Renderer::Render(/*const Scene *scene*/)
+void Renderer::Render(ImGuiWindow &imGuiWindow)
 {
-    //this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
-    //this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
+    this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+    this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, nullptr);
 
     //if (!scene)
     //{
@@ -348,5 +351,7 @@ void Renderer::Render(/*const Scene *scene*/)
 
     //this->deviceContext->DrawIndexed(static_cast<UINT>(mesh->GetNumIndicies()), 0, 0);
 
-    //this->swapChain->Present(0, 0);
+    imGuiWindow.Update();
+
+    this->swapChain->Present(0, 0);
 }

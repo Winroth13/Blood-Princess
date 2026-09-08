@@ -1,12 +1,16 @@
 #pragma once
 #include "sdl3/include/SDL3/SDL.h"
 
+#include "editor/imgui_window.hpp"
+
 #include <string>
 #include <Windows.h>
 
 class Window
 {
 	SDL_Window *sdlWindow = nullptr;
+	ImGuiWindow *imGuiWindow = nullptr;
+
 	bool shouldClose = true;
 
 	uint32_t width = 0;
@@ -20,6 +24,7 @@ public:
     Window &operator=(const Window &other) = default;
 
 	bool Initialize(const std::string &title, uint32_t width, uint32_t height, SDL_WindowFlags flags = 0);
+	void SetImGuiWindow(ImGuiWindow *imGuiWindow) { this->imGuiWindow = imGuiWindow; }
 	void Shutdown();
 
 	void PollEvents();
