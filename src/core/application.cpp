@@ -47,7 +47,7 @@ bool Application::Initialize()
     auto texture = assetManager.Get<Texture2D>("princess.png");
     auto texture2 = assetManager.Get<Texture2D>("princess2.png");
 
-    //auto model = assetManager.Get<Model>("princess.glb");
+    auto model = assetManager.Get<Model>("princess.glb");
 
     LogUnindent();
     return true;
