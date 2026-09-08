@@ -80,9 +80,11 @@ void Application::Run()
             this->window.ClearResizeFlag();
         }
 
-        if (Input::IsKeyPressed(SDL_SCANCODE_F))
+        if (Input::IsKeyPressed(SDL_SCANCODE_F11))
         {
-			LogInfo("F key is pressed");
+            static bool isFullscreen = false;
+            isFullscreen = !isFullscreen;
+            SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
 
         if (Input::IsKeyReleased(SDL_SCANCODE_F))
