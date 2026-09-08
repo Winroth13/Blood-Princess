@@ -45,4 +45,5 @@ public:
 
 	std::vector<Mesh*> &GetMeshes() { return this->meshes; }
 	std::vector<Material> &GetMaterials() { return this->materials; }
+	std::vector<Texture2D *> &GetTextures() { return this->textures; }
 };

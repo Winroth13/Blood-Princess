@@ -9,6 +9,8 @@
 struct ID3D11Buffer;
 struct ID3D11Device;
 
+class Texture2D;
+
 #pragma region Vertex
 struct Vertex
 {
@@ -121,6 +123,7 @@ class Model : public Asset
 {
 	std::vector<std::unique_ptr<Mesh>> meshes;
 	std::vector<Material> materials;
+	std::vector<std::unique_ptr<Texture2D>> textures;
 
 public:
 	Model() = default;
@@ -128,7 +131,8 @@ public:
 
 	bool Create(
 		const std::vector<Mesh*> &meshes, 
-		const std::vector<Material> &materials
+		const std::vector<Material> &materials,
+		const std::vector<Texture2D*> &textures
 	);
 };
 

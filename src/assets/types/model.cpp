@@ -1,4 +1,5 @@
 #include "assets/types/model.hpp"
+#include "assets/types/texture_2d.hpp"
 #include "core/logging.hpp"
 
 #include <d3d11.h>
@@ -125,7 +126,8 @@ bool Mesh::Create(
 
 bool Model::Create(
 	const std::vector<Mesh*> &meshes, 
-	const std::vector<Material> &materials
+	const std::vector<Material> &materials,
+	const std::vector<Texture2D *> &textures
 )
 {
 	LogInfo("Creating Model...");
@@ -137,6 +139,11 @@ bool Model::Create(
 	}
 
 	this->materials = materials;
+	
+	for (auto &textures : textures)
+	{
+		this->textures.push_back(std::unique_ptr<Texture2D>(textures));
+	}
 	
 	LogUnindent();
 
