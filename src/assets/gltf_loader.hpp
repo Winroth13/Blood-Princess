@@ -7,6 +7,10 @@
 #include <DirectXMath.h>
 
 struct ID3D11Device;
+struct ID3D11DeviceContext;
+
+class AssetManager;
+class Texture2D;
 
 class GLTFLoader
 {
@@ -17,10 +21,13 @@ class GLTFLoader
 	uint32_t vertexCount = 0;
 	uint32_t indexCount = 0;
 
-	std::vector<Mesh*> meshes = {};
+	std::vector<Mesh *> meshes = {};
 	std::vector<Material> materials = {};
+	std::vector<Texture2D *> textures = {};
 
 	void ReadMaterials(std::vector<Material> &materials);
+
+	void ReadTextures(ID3D11Device* device, ID3D11DeviceContext *deviceContext);
 
 	void ReadPrimitiveAtrributes(
 		const tg3_primitive &primitive,
@@ -34,7 +41,7 @@ public:
 	GLTFLoader() = default;
 	~GLTFLoader() = default;
 
-	bool Load(const std::string &path, ID3D11Device* device);
+	bool Load(const std::string &path, ID3D11Device* device, ID3D11DeviceContext *deviceContext, AssetManager* assetManager);
 
 	std::vector<Mesh*> &GetMeshes() { return this->meshes; }
 	std::vector<Material> &GetMaterials() { return this->materials; }

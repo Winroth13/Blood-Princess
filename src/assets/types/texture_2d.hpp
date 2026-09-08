@@ -29,7 +29,8 @@ public:
 		const uint32_t height, 
 		const uint32_t channels,
 		const std::string &filePath,
-		const Renderer *renderer
+		ID3D11Device* device,
+		ID3D11DeviceContext* deviceContext
 	);
 	~Texture2D();
 
