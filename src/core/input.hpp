@@ -17,6 +17,7 @@ enum class MouseMode {
 struct MouseState
 {
 	DirectX::XMFLOAT2 position{0, 0};
+	DirectX::XMFLOAT2 delta{ 0, 0 };
 	SDL_MouseButtonFlags buttonFlags = 0;
 };
 
@@ -27,7 +28,6 @@ private:
 
 	static MouseMode mouseMode;
 	static MouseState lastMouseState;
-
 public:
 	static void Initialize();
 	static bool UpdateKeyStates(SDL_Window* window);
@@ -59,7 +59,6 @@ public:
 	static bool WasMouseButtonPressed(int button);
 	static bool IsMouseJustPressed(int button);
 
-
 	static MouseMode GetMouseMode();
-	static void SetMouseMode(MouseMode mode);
+	static void SetMouseMode(MouseMode mode, SDL_Window* window);
 };

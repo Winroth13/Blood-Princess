@@ -44,8 +44,9 @@ bool Application::Initialize()
     Input::Initialize();
     this->isRunning = true;
 
-    //auto texture = assetManager.Get<Texture2D>("princess.png");
-    //auto texture2 = assetManager.Get<Texture2D>("princess2.png");
+    Input::SetMouseMode(MouseMode::Visible, this->window.GetSdlWindow());
+    auto texture = assetManager.Get<Texture2D>("princess.png");
+    auto texture2 = assetManager.Get<Texture2D>("princess2.png");
 
     //auto model = assetManager.Get<Model>("princess.glb");
 
@@ -59,11 +60,9 @@ void Application::Run()
 
     while (this->isRunning && !this->window.ShouldClose())
     {
-        Input::Update(this->window.GetSdlWindow());
+		Input::Update(this->window.GetSdlWindow()); //Has to be called before PollEvents()
 
         this->window.PollEvents();
-
-       
         if (Input::IsKeyPressed(SDL_SCANCODE_F))
         {
 			LogInfo("F key is pressed");

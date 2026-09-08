@@ -54,7 +54,11 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 		return model;
 	}
 
-	model->Create(loader.GetMeshes(), loader.GetMaterials());
+	model->Create(
+		loader.GetMeshes(), 
+		loader.GetMaterials(), 
+		loader.GetTextures()
+	);
 
 	return model;
 }
