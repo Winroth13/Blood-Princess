@@ -45,6 +45,8 @@ class Scene {
     void DeinitializeComponent(Component *component);
     void OnEntityParentChanged(Entity *entity);
 
+    void PrintEntityHierarchyRecursive(Entity *entity);
+
 public:
     Scene() = default;
     ~Scene() = default;
@@ -68,4 +70,6 @@ public:
     void SetName(const std::string &name) { this->name = name; }
 
     void SetAppContext(const AppContext &context);
+
+    void PrintEntityHierarchy();
 };

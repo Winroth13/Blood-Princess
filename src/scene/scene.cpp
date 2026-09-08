@@ -31,7 +31,11 @@ void Scene::RemovePendingEntities() {
         batch.swap(this->entitiesPendingStart);
 
         for (Entity *entity : batch) {
-            auto iter = std::find(this->entities.begin(), this->entities.end(), entity);
+            auto iter = std::find_if(
+                this->entities.begin(),
+                this->entities.end(),
+                [&](const std::unique_ptr<Entity> &ptr) { return ptr.get() == entity; }
+            );
             if (iter != this->entities.end())
                 this->DestroyEntityRecursive(entity);
         }
@@ -165,7 +169,12 @@ void Scene::DeinitializeComponent(Component *component) {
 
 // Idk if this works lol
 void Scene::OnEntityParentChanged(Entity *entity) {
-    if (std::find(this->entities.begin(), this->entities.end(), entity) == this->entities.end())
+    auto iter = std::find_if(
+        this->entities.begin(),
+        this->entities.end(),
+        [&](const std::unique_ptr<Entity> &ptr) { return ptr.get() == entity; }
+    );
+    if (iter == this->entities.end())
         return;
 
     this->isHierarchyDirty = true;
@@ -180,6 +189,7 @@ void Scene::OnEntityParentChanged(Entity *entity) {
 }
 
 void Scene::Update(float deltaTime) {
+    // TODO: Should follow the hierarchy. Currently entities are started in the order that they are added
     this->StartPendingEntities();
 
     if (this->isHierarchyDirty)
@@ -248,4 +258,25 @@ void Scene::SetAppContext(const AppContext &context) {
     }
 
     this->context = &context;
+}
+
+void Scene::PrintEntityHierarchyRecursive(Entity *entity) {
+    if (!entity)
+        return;
+
+    LogInfo("%s", entity->name.c_str());
+
+    LogIndent();
+    for (Entity *child : entity->children)
+        this->PrintEntityHierarchyRecursive(child);
+    LogUnindent();
+}
+
+void Scene::PrintEntityHierarchy() {
+    LogInfo("Entities:");
+
+    LogIndent();
+    for (Entity *entity : this->rootEntities)
+        this->PrintEntityHierarchyRecursive(entity);
+    LogUnindent();
 }
