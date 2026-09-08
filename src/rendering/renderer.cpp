@@ -355,3 +355,35 @@ void Renderer::Render(ImGuiWindow &imGuiWindow)
 
     this->swapChain->Present(0, 0);
 }
+
+bool Renderer::Resize(uint32_t width, uint32_t height) {
+    if (width <= 0 || height <= 0)
+        return false;
+
+    LogBlank();
+    LogInfo("Resizing window...");
+    LogIndent();
+
+    SafeRelease(this->renderTargetView);
+
+    this->deviceContext->ClearState();
+    this->deviceContext->Flush();
+
+    HRESULT result = this->swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+    if (FAILED(result)) {
+        LogError("Failed to resize swap chain buffers");
+        return false;
+    }
+
+    if (!this->CreateRenderTargetView())
+        return false;
+
+    // this->SetViewport(width, height);
+    this->width = width;
+    this->height = height;
+
+    // this->frameGraph.OnResize(width, height);
+
+    LogUnindent();
+    return true;
+}

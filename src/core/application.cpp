@@ -75,6 +75,11 @@ void Application::Run()
 
         this->window.PollEvents();
 
+        if (this->window.WasResized()) {
+            this->renderer.Resize(this->window.GetWidth(), this->window.GetHeight());
+            this->window.ClearResizeFlag();
+        }
+
         if (Input::IsKeyPressed(SDL_SCANCODE_F))
         {
 			LogInfo("F key is pressed");
@@ -102,10 +107,11 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+    this->imGuiWindow.Shutdown();
     this->sceneManager.Shutdown();
     this->assetManager.Shutdown();
     this->renderer.Shutdown();
-    this->window.Shutdown();
+    this->window.Shutdown(); 
 
     LogUnindent();
 }

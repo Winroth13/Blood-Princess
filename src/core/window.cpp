@@ -47,9 +47,17 @@ void Window::PollEvents()
 
         switch (event.type)
         {
-        case SDL_EVENT_QUIT:
-            this->shouldClose = true;
-            break;
+            case SDL_EVENT_QUIT:
+                this->shouldClose = true;
+                break;
+            case SDL_EVENT_WINDOW_RESIZED: {
+                this->wasResized = true;
+
+                int width, height;
+                SDL_GetWindowSizeInPixels(this->sdlWindow, &width, &height);
+                this->width = width;
+                this->height = height;
+            } break;
         }
     }
 }

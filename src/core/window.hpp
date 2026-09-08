@@ -12,6 +12,7 @@ class Window
 	ImGuiWindow *imGuiWindow = nullptr;
 
 	bool shouldClose = true;
+    bool wasResized = false;
 
 	uint32_t width = 0;
 	uint32_t height = 0;
@@ -28,6 +29,9 @@ public:
 	void Shutdown();
 
 	void PollEvents();
+
+    bool WasResized() const { return this->wasResized; }
+    void ClearResizeFlag() { this->wasResized = false; }
 
 	bool ShouldClose() const { return this->shouldClose; }
 	HWND GetHWNDPointer() const;

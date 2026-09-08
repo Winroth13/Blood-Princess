@@ -18,6 +18,7 @@ public:
 	);
 
 	void Update();
+    void Shutdown();
 
 	void PollEvent(SDL_Event *event);
 };

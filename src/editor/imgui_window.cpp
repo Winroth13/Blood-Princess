@@ -129,6 +129,13 @@ void ImGuiWindow::Update()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
+void ImGuiWindow::Shutdown()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+}
+
 void ImGuiWindow::PollEvent(SDL_Event *event)
 {
 	ImGui_ImplSDL3_ProcessEvent(event);
