@@ -25,6 +25,8 @@ class Scene {
 
     SceneCuller culler;
 
+    const AppContext *context = nullptr;
+
     std::string name;
 
     void StartPendingEntities();
@@ -50,7 +52,7 @@ public:
     Scene(const Scene &other) = delete;
     Scene &operator=(const Scene &other) = delete;
 
-    void Update(const AppContext &context, float deltaTime);
+    void Update(float deltaTime);
 
     // GatherVisibility() or smth, bad name idk
 
@@ -64,4 +66,6 @@ public:
 
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }
+
+    void SetAppContext(const AppContext &context);
 };

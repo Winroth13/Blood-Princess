@@ -79,7 +79,7 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
-        this->sceneManager.Update(this->appContext, deltaTime);
+        this->sceneManager.Update(deltaTime);
         this->renderer.Render();
     }
 }

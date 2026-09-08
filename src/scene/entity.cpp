@@ -8,7 +8,7 @@ void Entity::OnStart(const AppContext &context) {
 void Entity::Update(const AppContext &context, float deltaTime) {
     for (size_t i = 0; i < this->components.size(); ++i) {
         Component *component = this->components[i].get();
-        if (component->IsActive())
+        if (component->IsActive() && !component->IsPendingDestroy())
             component->Update(context, deltaTime);
     }
 }

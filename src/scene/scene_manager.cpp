@@ -15,6 +15,8 @@ bool SceneManager::Initialize(const AppContext &context, const std::string &star
     LogInfo("Creating Scene Manager...");
     LogIndent();
 
+    this->scene.SetAppContext(context);
+
     this->RequestSceneChange(startSceneName);
 
     LogUnindent();
@@ -33,11 +35,11 @@ void SceneManager::ReloadCurrentScene() {
     this->shouldReload = true;
 }
 
-void SceneManager::Update(const AppContext &context, float deltaTime) {
+void SceneManager::Update(float deltaTime) {
     if (this->targetSceneName != this->currentSceneName || this->shouldReload) {
         this->ChangeScene(this->targetSceneName);
         this->shouldReload = false;
     }
 
-    this->scene.Update(context, deltaTime);
+    this->scene.Update(deltaTime);
 }
