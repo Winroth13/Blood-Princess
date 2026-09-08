@@ -1,5 +1,6 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
+#include "input.hpp"
 
 bool Window::Initialize(
     const std::string &title, 
@@ -47,6 +48,14 @@ void Window::PollEvents()
 
         switch (event.type)
         {
+<<<<<<< HEAD
+        case SDL_EVENT_QUIT:
+            this->shouldClose = true;
+            break;
+        case SDL_EVENT_MOUSE_WHEEL:
+			Input::OnMouseWheelEvent(event.wheel.x, event.wheel.y);
+			break;
+=======
             case SDL_EVENT_QUIT:
                 this->shouldClose = true;
                 break;
@@ -58,6 +67,7 @@ void Window::PollEvents()
                 this->width = width;
                 this->height = height;
             } break;
+>>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
         }
     }
 }

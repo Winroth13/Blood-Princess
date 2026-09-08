@@ -1,3 +1,9 @@
+//
+//
+// Created by 09912 on 6/5/2024.
+// 
+
+
 #pragma once
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_keyboard.h"
@@ -18,7 +24,11 @@ enum class MouseMode
 struct MouseState 
 {
 	DirectX::XMFLOAT2 position{0, 0};
+<<<<<<< HEAD
+	DirectX::XMFLOAT2 wheel{ 0, 0 };
+=======
 	DirectX::XMFLOAT2 delta{0, 0};
+>>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
@@ -51,6 +61,11 @@ public:
 	static bool IsKeyPressed(SDL_Scancode scancode);
 	static bool IsKeyReleased(SDL_Scancode scancode);
 	static bool IsKeyDown(SDL_Scancode scancode);
+
+	static bool IsKeyPressed(SDL_Keycode keycode);
+	static bool IsKeyReleased(SDL_Keycode keycode);
+	static bool IsKeyDown(SDL_Keycode keycode);
+
 	
 	static DirectX::XMFLOAT2 GetMousePosition();
 	static float GetMouseX();
@@ -60,13 +75,21 @@ public:
 	static float GetMouseDeltaX();
 	static float GetMouseDeltaY();
 
+	static void OnMouseWheelEvent(float x, float y);
 	static DirectX::XMFLOAT2 GetMouseWheel();
 	static float GetMouseWheelX();
 	static float GetMouseWheelY();
 
+<<<<<<< HEAD
+	static bool IsMouseButtonPressed(int button);
+	static bool IsMouseButtonReleased(int button);
+	static bool IsMouseButtonDown(int button);
+	
+=======
 	static bool IsMouseButtonDown(MouseButton button);
 	static bool IsMouseButtonPressed(MouseButton button);
 	static bool IsMouseButtonReleased(MouseButton button);
+>>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 
 
 	static MouseMode GetMouseMode();

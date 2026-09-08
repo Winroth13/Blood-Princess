@@ -30,8 +30,11 @@ void Input::Update(SDL_Window* window)
 		lastKeyState[i] = keyState[i];
 	}
 
+<<<<<<< HEAD
+=======
 	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
 
+>>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(&lastMouseState.position.x, &lastMouseState.position.y);
 	
 	lastMouseState.buttonFlags = buttonFlags;
@@ -47,6 +50,13 @@ void Input::Shutdown()
 }
 
 
+bool Input::IsKeyPressed(SDL_Scancode scancode)
+{
+	int numKeys = 0;
+	auto keyState = SDL_GetKeyboardState(&numKeys);
+	return keyState[scancode] && !lastKeyState[scancode];
+}
+
 bool Input::IsKeyReleased(SDL_Scancode scancode)
 {
 	int numKeys = 0;
@@ -54,19 +64,37 @@ bool Input::IsKeyReleased(SDL_Scancode scancode)
 	return !keyState[scancode] && lastKeyState[scancode];
 }
 
-bool Input::IsKeyPressed(SDL_Scancode keycode)
+bool Input::IsKeyDown(SDL_Scancode scancode)
 {
 	int numKeys = 0;
 	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[keycode] && !lastKeyState[keycode];
+	return keyState[scancode];
 }
 
-bool Input::IsKeyDown(SDL_Scancode keycode)
+bool Input::IsKeyPressed(SDL_Keycode keycode)
 {
+	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
 	int numKeys = 0;
 	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[keycode];
+	return keyState[scancode] && !lastKeyState[scancode];
 }
+
+bool Input::IsKeyReleased(SDL_Keycode keycode)
+{
+	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
+	int numKeys = 0;
+	auto keyState = SDL_GetKeyboardState(&numKeys);
+	return !keyState[scancode] && lastKeyState[scancode];
+}
+
+bool Input::IsKeyDown(SDL_Keycode keycode)
+{
+	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
+	int numKeys = 0;
+	auto keyState = SDL_GetKeyboardState(&numKeys);
+	return keyState[scancode];
+}
+
 
 DirectX::XMFLOAT2 Input::GetMousePosition()
 {
@@ -100,6 +128,53 @@ float Input::GetMouseDeltaY()
 	return lastMouseState.delta.y;
 }
 
+<<<<<<< HEAD
+
+
+void Input::OnMouseWheelEvent(float x, float y)
+{
+	lastMouseState.wheel.x += x;
+	lastMouseState.wheel.y += y;
+}
+
+DirectX::XMFLOAT2 Input::GetMouseWheel()
+{
+	return DirectX::XMFLOAT2();
+}
+
+float Input::GetMouseWheelX()
+{
+	return 0.0f;
+}
+
+float Input::GetMouseWheelY()
+{
+	return 0.0f;
+}
+
+
+
+bool Input::IsMouseButtonPressed(int button)
+{
+	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
+	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && (mouseButtonFlags & SDL_BUTTON_MASK(button));
+}
+
+bool Input::IsMouseButtonReleased(int button)
+{
+	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
+	return (lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && !(mouseButtonFlags & SDL_BUTTON_MASK(button));
+}
+
+bool Input::IsMouseButtonDown(int button)
+{
+	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
+	return mouseButtonFlags & SDL_BUTTON_MASK(button);
+}
+
+
+=======
+>>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 MouseMode Input::GetMouseMode()
 {
 	return mouseMode;
