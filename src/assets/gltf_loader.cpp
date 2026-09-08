@@ -1,11 +1,15 @@
 #include "assets/gltf_loader.hpp"
 #include "core/logging.hpp"
 #include "assets/types/model.hpp"
+#include "assets/asset_manager.hpp"
+#include "assets/types/texture_2d.hpp"
+#include "stb_image/stb_image.h"
 
 #include <d3d11.h>
 #include <sstream>
 #include <vector>
 #include <unordered_map>
+
 
 template<typename T>
 std::vector<T> ReadAccessorData(tg3_model *model, int32_t accessorIndex)
@@ -47,7 +51,12 @@ std::vector<T> ReadAccessorData(tg3_model *model, int32_t accessorIndex)
 	return result;
 }
 
-bool GLTFLoader::Load(const std::string &path, ID3D11Device *device)
+bool GLTFLoader::Load(
+	const std::string &path, 
+	ID3D11Device *device,
+	ID3D11DeviceContext* deviceContext,
+	AssetManager *assetManager
+)
 {
 	LogInfo("Parsing file...");
 	LogIndent();
@@ -58,6 +67,7 @@ bool GLTFLoader::Load(const std::string &path, ID3D11Device *device)
 
 	this->meshes = {};
 	this->materials = {};
+	this->textures = {};
 
 	this->vertexCount = 0;
 	this->indexCount = 0;
@@ -148,12 +158,14 @@ bool GLTFLoader::Load(const std::string &path, ID3D11Device *device)
 	}
 
 	ReadMaterials(this->materials);
+	ReadTextures(device, deviceContext);
 
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
 
 	LogInfo("Created %zu Meshes, %d Sub Meshes with %d Vertices, %d Indicies", this->meshes.size(), subMeshCount, this->vertexCount, this->indexCount);
 	LogInfo("Created %zu Materials", this->materials.size());
+	LogInfo("Created %zu Textures", this->textures.size());
 
 	LogUnindent();
 	return true;
@@ -181,6 +193,64 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 		material.normalTextureIndex = tMaterial.normal_texture.index;
 
 		materials.push_back(material);
+	}
+}
+
+void GLTFLoader::ReadTextures(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
+{
+	for (uint32_t i = 0; i < this->model.images_count; ++i)
+	{
+		const tg3_image &tImage = this->model.images[i];
+		
+		const unsigned char *compressedData = nullptr;
+		int dataSize = 0;
+
+		if (tImage.buffer_view >= 0 && static_cast<uint32_t>(tImage.buffer_view) < this->model.buffer_views_count)
+		{
+			const tg3_buffer_view &bufferView = this->model.buffer_views[tImage.buffer_view];
+			const tg3_buffer &buffer = this->model.buffers[bufferView.buffer];
+
+			compressedData = buffer.data.data + bufferView.byte_offset;
+			dataSize = static_cast<int>(bufferView.byte_length);
+		}
+		else if (tImage.uri.data != nullptr && tImage.uri.len > 0)
+		{
+			LogError("External URI textures are not implemented yet: %s", tImage.uri.data);
+			continue;
+		}
+
+		if (!compressedData || dataSize <= 0)
+		{
+			LogError("Failed to find data for image %s", tImage.name.data);
+			continue;
+		}
+
+		int width, height, channels = 0;
+		unsigned char *pixelData = stbi_load_from_memory(
+			compressedData,
+			dataSize,
+			&width,
+			&height,
+			&channels,
+			STBI_rgb_alpha
+		);
+
+		if (!pixelData)
+		{
+			LogError("STBI failed to decode image %s", tImage.name.data);
+			continue;
+		}
+
+		Texture2D *texture = new Texture2D(
+			(char*)pixelData,
+			width,
+			height,
+			channels,
+			"?",
+			device,
+			deviceContext
+		);
+		this->textures.push_back(texture);
 	}
 }
 

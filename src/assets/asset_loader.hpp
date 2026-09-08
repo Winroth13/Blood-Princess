@@ -5,19 +5,29 @@
 
 class Renderer;
 
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+
+class AssetManager;
 class Texture2D;
 class Model;
 
 class AssetLoader
 {
     // TODO: Just store device and deviceContext directly instead?
-    const Renderer *renderer;
+	ID3D11Device *device;
+	ID3D11DeviceContext *deviceContext;
+	AssetManager *assetManager;
 
 public:
 	AssetLoader() = default;
 	~AssetLoader() = default;
 
-	bool Initialize(const Renderer *renderer);
+	bool Initialize(
+		ID3D11Device *device, 
+		ID3D11DeviceContext *deviceContext, 
+		AssetManager *assetManager
+	);
 
 	template<class T>
 	std::shared_ptr<T> Load(const std::string &path);

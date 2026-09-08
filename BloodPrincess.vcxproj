@@ -165,6 +165,7 @@
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\scene\entity.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\scene\scene_culler.cpp" />
     <ClCompile Include="src\scene\scene_loader.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
   </ItemGroup>
@@ -192,6 +193,7 @@
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
   </ItemGroup>
