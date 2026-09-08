@@ -9,6 +9,9 @@ class Component {
 
     bool isActive = true;
 
+    bool isPendingDesroy = false;
+    friend class Entity;
+
 public:
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
     ~Component() = default;
@@ -25,4 +28,6 @@ public:
 
     bool IsActive() const { return this->isActive; }
     void SetActive(bool isActive) { this->isActive = isActive; }
+
+    bool IsPendingDestroy() const { return this->isPendingDesroy; }
 };

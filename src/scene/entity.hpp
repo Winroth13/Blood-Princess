@@ -23,6 +23,12 @@ class Entity {
 
     std::vector<std::unique_ptr<Component>> components;
 
+    void OnComponentAdded(Component *component);
+    void OnComponentRemoved(Component *component);
+
+    friend class Scene;
+    void RemoveComponentImmediate(Component *component);
+
 public:
     Entity(Scene *scene, const std::string &name, bool isActive = true) : scene(scene), name(name), isActive(isActive) {}
     ~Entity() = default;
@@ -42,7 +48,46 @@ public:
         return ptr;
     }
 
+    Component *AddComponentRaw(Component *component);
+
+    template <typename T>
+    void RemoveComponent() {
+        for (auto &component : this->components) {
+            if (!component->IsPendingDestroy() && dynamic_cast<T *>(component.get())) {
+                this->RemoveComponent(component.get());
+                return;
+            }
+        }
+    }
+
+    void RemoveComponent(Component *component);
+
+    // TODO: type_index
+    template <typename T>
+    T *GetComponent() {
+        for (auto &component : this->components) {
+            if (component->IsPendingDestroy())
+                continue;
+
+            if (T *ptr = dynamic_cast<T *>(component.get()))
+                return ptr;
+        }
+
+        return nullptr;
+    }
+
+    std::vector<Component *> GetComponents();
+
+    void SetParent(Entity *parent);
+    Entity *GetParent() const { return this->parent; }
+    const std::vector<Entity *> &GetChildren() const { return this->children; }
+
     bool IsActive();
     bool IsLocallyActive() const { return this->isActive; }
     void SetLocallyActive(bool isActive) { this->isActive = isActive; }
+
+    void MarkStarted() { this->hasStarted = true; }
+    bool HasStarted() { return this->hasStarted; }
+
+    Scene *GetScene() const { return this->scene; }
 };
