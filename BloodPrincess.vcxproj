@@ -114,7 +114,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external/imgui/backends;$(ProjectDir)external/imgui;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +148,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_sdl3.cpp" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
     <ClCompile Include="src\assets\asset.cpp" />
@@ -160,6 +167,7 @@
     <ClCompile Include="src\core\input.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
+    <ClCompile Include="src\editor\imgui_window.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
@@ -170,6 +178,14 @@
     <ClCompile Include="src\scene\scene_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_sdl3.h" />
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\imstb_rectpack.h" />
+    <ClInclude Include="external\imgui\imstb_textedit.h" />
+    <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="external\stb_image\stb_image.h" />
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
@@ -186,7 +202,7 @@
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
-    <ClInclude Include="src\editor\editor.hpp" />
+    <ClInclude Include="src\editor\imgui_window.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />

@@ -1,150 +1,69 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
+    <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\asset.cpp" />
+    <ClCompile Include="src\assets\asset_loader.cpp" />
+    <ClCompile Include="src\assets\gltf_loader.cpp" />
+    <ClCompile Include="src\assets\types\model.cpp" />
+    <ClCompile Include="src\assets\types\texture_2d.cpp" />
+    <ClCompile Include="src\components\transform.cpp" />
+    <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\core\input.cpp" />
+    <ClCompile Include="src\core\logging.cpp" />
+    <ClCompile Include="src\core\window.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\rendering\renderer.cpp" />
+    <ClCompile Include="src\assets\asset_manager.cpp" />
+    <ClCompile Include="src\scene\entity.cpp" />
+    <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\scene\scene_culler.cpp" />
+    <ClCompile Include="src\scene\scene_loader.cpp" />
+    <ClCompile Include="src\scene\scene_manager.cpp" />
+    <ClCompile Include="src\editor\imgui_window.cpp" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_sdl3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\stb_vorbis\stb_vorbis.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\logging.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\rendering\renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="src\core\input.cpp">
-=======
-    <ClCompile Include="src\assets\asset_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\assets\asset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\assets\types\texture_2d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\assets\asset_loader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="src\assets\types\model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\tinygltf\tiny_gltf_v3.c">
-=======
-    <ClCompile Include="src\scene\entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\scene_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\scene_loader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\components\transform.cpp">
->>>>>>> ed152166057d587e96635739a4edccab9bcf5b42
->>>>>>> 222003bb546654bd43bdb39c5b6e97009a91ca25
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="external\stb_image\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\stb_truetype\stb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\application.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\window.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\rendering\renderer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\scene_manager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\components\transform.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\logging.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\input.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\app_context.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\editor\editor.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\audio_manager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\collision\collision_manager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\scene.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\assets\asset_manager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\assets\asset.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\assets\types\texture_2d.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\assets\asset_loader.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-<<<<<<< HEAD
-    <ClInclude Include="src\assets\types\model.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\tinygltf\tiny_gltf_v3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\tinygltf\tinygltf_json_c.h">
-=======
-    <ClInclude Include="src\scene\component.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\entity.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\scene_loader.hpp">
->>>>>>> ed152166057d587e96635739a4edccab9bcf5b42
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="external\stb_image\stb_image.h" />
+    <ClInclude Include="external\stb_truetype\stb_truetype.h" />
+    <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
+    <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="src\assets\asset.hpp" />
+    <ClInclude Include="src\assets\asset_loader.hpp" />
+    <ClInclude Include="src\assets\gltf_loader.hpp" />
+    <ClInclude Include="src\assets\types\model.hpp" />
+    <ClInclude Include="src\assets\types\texture_2d.hpp" />
+    <ClInclude Include="src\audio\audio_manager.hpp" />
+    <ClInclude Include="src\collision\collision_manager.hpp" />
+    <ClInclude Include="src\components\transform.hpp" />
+    <ClInclude Include="src\core\application.hpp" />
+    <ClInclude Include="src\core\app_context.hpp" />
+    <ClInclude Include="src\core\input.hpp" />
+    <ClInclude Include="src\core\logging.hpp" />
+    <ClInclude Include="src\editor\imgui_window.hpp" />
+    <ClInclude Include="src\rendering\renderer.hpp" />
+    <ClInclude Include="src\core\window.hpp" />
+    <ClInclude Include="src\assets\asset_manager.hpp" />
+    <ClInclude Include="src\scene\component.hpp" />
+    <ClInclude Include="src\scene\entity.hpp" />
+    <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scene_culler.hpp" />
+    <ClInclude Include="src\scene\scene_loader.hpp" />
+    <ClInclude Include="src\scene\scene_manager.hpp" />
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\imstb_rectpack.h" />
+    <ClInclude Include="external\imgui\imstb_textedit.h" />
+    <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_sdl3.h" />
   </ItemGroup>
 </Project>

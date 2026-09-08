@@ -9,8 +9,8 @@ class Component {
 
     bool isActive = true;
 
-    bool isPendingDesroy = false;
-    friend class Entity;
+    bool isPendingDestroy = false;
+    friend class Scene;
 
 public:
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
@@ -29,5 +29,5 @@ public:
     bool IsActive() const { return this->isActive; }
     void SetActive(bool isActive) { this->isActive = isActive; }
 
-    bool IsPendingDestroy() const { return this->isPendingDesroy; }
+    bool IsPendingDestroy() const { return this->isPendingDestroy; }
 };

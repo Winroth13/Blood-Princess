@@ -41,13 +41,25 @@ bool Application::Initialize()
         return false;
     }
 
+    if (!this->imGuiWindow.Initialize(
+        this->window.GetSdlWindow(), 
+        this->renderer.GetDevice(), 
+        this->renderer.GetDeviceContext())
+    )
+    {
+        LogError("Failed to create ImGui Window");
+        return false;
+    }
+    this->window.SetImGuiWindow(&this->imGuiWindow);
+
     Input::Initialize();
     this->isRunning = true;
+
     Input::SetMouseMode(MouseMode::Visible, this->window.GetSdlWindow());
     auto texture = assetManager.Get<Texture2D>("princess.png");
     auto texture2 = assetManager.Get<Texture2D>("princess2.png");
 
-    auto model = assetManager.Get<Model>("princess.glb");
+    //auto model = assetManager.Get<Model>("princess.glb");
 
     LogUnindent();
     return true;
@@ -62,9 +74,17 @@ void Application::Run()
 		Input::Update(this->window.GetSdlWindow()); //Has to be called before PollEvents()
 
         this->window.PollEvents();
-        if (Input::IsKeyPressed(SDL_SCANCODE_F))
+
+        if (this->window.WasResized()) {
+            this->renderer.Resize(this->window.GetWidth(), this->window.GetHeight());
+            this->window.ClearResizeFlag();
+        }
+
+        if (Input::IsKeyPressed(SDL_SCANCODE_F11))
         {
-			LogInfo("F key is pressed");
+            static bool isFullscreen = false;
+            isFullscreen = !isFullscreen;
+            SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
 
         if (Input::IsKeyReleased(SDL_SCANCODE_F))
@@ -84,8 +104,9 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
-        this->sceneManager.Update(this->appContext, deltaTime);
-        this->renderer.Render();
+
+        this->sceneManager.Update(deltaTime);
+        this->renderer.Render(this->imGuiWindow);
     }
 }
 
@@ -95,10 +116,11 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+    this->imGuiWindow.Shutdown();
     this->sceneManager.Shutdown();
     this->assetManager.Shutdown();
     this->renderer.Shutdown();
-    this->window.Shutdown();
+    this->window.Shutdown(); 
 
     LogUnindent();
 }

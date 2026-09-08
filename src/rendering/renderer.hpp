@@ -7,6 +7,7 @@
 
 class Window;
 class Scene;
+class ImGuiWindow;
 
 #define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
 
@@ -30,7 +31,9 @@ class Renderer
 public:
 	bool Initialize(const Window *window);
 	void Shutdown();
-	void Render(/*const Scene *scene*/);
+	void Render(ImGuiWindow &imGuiWindow);
+
+    bool Resize(uint32_t width, uint32_t height);
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }

@@ -16,6 +16,8 @@ class Entity {
     bool isActive = true;
     bool hasStarted = false;
 
+    bool isStatic = false;
+
     std::string name;
 
     Entity *parent = nullptr;
@@ -87,7 +89,13 @@ public:
     void SetLocallyActive(bool isActive) { this->isActive = isActive; }
 
     void MarkStarted() { this->hasStarted = true; }
-    bool HasStarted() { return this->hasStarted; }
+    bool HasStarted() const{ return this->hasStarted; }
+
+    bool IsStatic() const { return this->isStatic; }
+    void SetStatic(bool isStatic) { this->isStatic = isStatic; }
+
+    const std::string &GetName() const { return this->name; }
+    void SetName(const std::string &name) { this->name = name; }
 
     Scene *GetScene() const { return this->scene; }
 };
