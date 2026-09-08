@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include <string>
 
 struct ID3D11Buffer;
 struct ID3D11Device;
@@ -62,9 +63,21 @@ namespace std {
 
 #pragma endregion
 
-#pragma region Mesh
-class Mesh : public Asset
+#pragma region Submesh
+struct SubMesh
 {
+	uint32_t startIndex;
+	uint32_t numIndicies;
+	int32_t materialIndex;
+};
+#pragma endregion
+
+#pragma region Mesh
+class Mesh
+{
+	std::string name = "?";
+	std::vector<SubMesh> subMeshes = {};
+
 	size_t numVertices = 0;
 	size_t numIndicies = 0;
 
@@ -76,8 +89,10 @@ public:
 	~Mesh();
 
 	bool Create(
+		const std::string &name,
 		const std::vector<Vertex> &vertices,
 		const std::vector<uint32_t> &indicies,
+		const std::vector<SubMesh> &subMeshes,
 		ID3D11Device *device
 	);
 
@@ -90,17 +105,31 @@ public:
 };
 #pragma endregion
 
+#pragma region Material
+struct Material
+{
+	std::string name = "";
+	DirectX::XMFLOAT4 baseColor = { 1, 1, 1, 1 };
+	int32_t colorTextureIndex = -1;
+	int32_t normalTextureIndex = -1;
+};
+#pragma endregion
+
 #pragma region Model
 
 class Model : public Asset
 {
 	std::vector<std::unique_ptr<Mesh>> meshes;
+	std::vector<Material> materials;
 
 public:
 	Model() = default;
 	~Model() = default;
 
-	bool Create(const std::vector<Mesh*> &meshes);
+	bool Create(
+		const std::vector<Mesh*> &meshes, 
+		const std::vector<Material> &materials
+	);
 };
 
 #pragma endregion

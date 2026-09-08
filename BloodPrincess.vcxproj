@@ -152,6 +152,7 @@
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
     <ClCompile Include="src\assets\asset.cpp" />
     <ClCompile Include="src\assets\asset_loader.cpp" />
+    <ClCompile Include="src\assets\gltf_loader.cpp" />
     <ClCompile Include="src\assets\types\model.cpp" />
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
     <ClCompile Include="src\components\transform.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
     <ClInclude Include="src\assets\asset.hpp" />
     <ClInclude Include="src\assets\asset_loader.hpp" />
+    <ClInclude Include="src\assets\gltf_loader.hpp" />
     <ClInclude Include="src\assets\types\model.hpp" />
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />

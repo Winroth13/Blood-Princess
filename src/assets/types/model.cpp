@@ -46,13 +46,20 @@ Mesh::~Mesh()
 }
 
 bool Mesh::Create(
+	const std::string &name,
 	const std::vector<Vertex> &vertices,
 	const std::vector<uint32_t> &indicies,
+	const std::vector<SubMesh> &subMeshes,
 	ID3D11Device *device
 )
 {
-	LogInfo("Creating Mesh...");
-	LogIndent();
+	/* 
+	* TODO: Logging all this becomes VERY verbose when creating models.
+	* We either need to add verbosity levels to the logging or just not
+	* log here.
+	*/
+	//LogInfo("Creating Mesh...");
+	//LogIndent();
 
 	HRESULT hr;
 
@@ -78,7 +85,7 @@ bool Mesh::Create(
 			LogError("Failed to create Vertex Buffer");
 			return false;
 		}
-		LogInfo("Created Vertex Buffer");
+		//LogInfo("Created Vertex Buffer");
 	}
 
 	/* Create Index Buffer */
@@ -102,19 +109,24 @@ bool Mesh::Create(
 			LogError("Failed to create Index Buffer");
 			return false;
 		}
-		LogInfo("Created Index Buffer");
+		//LogInfo("Created Index Buffer");
 	}
 
 	this->numVertices = vertices.size();
 	this->numIndicies = indicies.size();
+	this->subMeshes = subMeshes;
+	this->name = name;
 
-	LogUnindent();
+	//LogUnindent();
 
 	return true;
 }
 #pragma endregion
 
-bool Model::Create(const std::vector<Mesh*> &meshes)
+bool Model::Create(
+	const std::vector<Mesh*> &meshes, 
+	const std::vector<Material> &materials
+)
 {
 	LogInfo("Creating Model...");
 	LogIndent();
@@ -123,6 +135,8 @@ bool Model::Create(const std::vector<Mesh*> &meshes)
 	{
 		this->meshes.push_back(std::unique_ptr<Mesh>(mesh));
 	}
+
+	this->materials = materials;
 	
 	LogUnindent();
 

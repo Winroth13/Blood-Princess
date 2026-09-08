@@ -2,6 +2,7 @@
 #include "assets/types/texture_2d.hpp"
 #include "assets/asset_loader.hpp"
 #include "core/logging.hpp"
+#include "assets/types/model.hpp"
 
 #include <unordered_map>
 #include <string>
@@ -44,6 +45,4 @@ public:
 
 		return asset;
 	}
-
-	std::shared_ptr<Texture2D> Load(const std::string &path);
 };

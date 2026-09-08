@@ -1,16 +1,13 @@
 #include "assets/asset_loader.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/model.hpp"
 #include "core/logging.hpp"
 #include "core/app_context.hpp"
-#include "assets/types/model.hpp"
+#include "assets/gltf_loader.hpp"
+#include "rendering/renderer.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
-
-#define TINYGLTF3_ENABLE_FS
-#include "tinygltf/tiny_gltf_v3.h"
-
-#include <sstream>
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -41,36 +38,17 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 template<>
 std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 {
-	tg3_parse_options opts = {};
-	tg3_error_stack errors = {};
-	tg3_model tg3Model = {};
+	std::shared_ptr<Model> model = std::make_shared<Model>();
+	GLTFLoader loader;
 
-	tg3_parse_options_init(&opts);
-	tg3_error_stack_init(&errors);
-
-	tg3_error_code error = tg3_parse_file(
-		&tg3Model,
-		&errors, 
-		path.c_str(), 
-		path.size(),
-		&opts
-	);
-	
-	if (error != TG3_OK)
+	if (!loader.Load(path, this->renderer->GetDevice()))
 	{
-		std::stringstream errorMessage;
-		for (uint32_t i = 0; i < errors.count; i++) 
-		{
-			errorMessage << (stderr, "[%d] %s\n", (int)errors.entries[i].severity,
-				errors.entries[i].message ? errors.entries[i].message : "(null)");
-		}
-		LogError("Failed to parse %s: %s", path.c_str(), errorMessage.str().c_str());
+		LogError("Failed to parse file");
+		return model;
 	}
 
-	tg3_model_free(&tg3Model);
-	tg3_error_stack_free(&errors);
+	model->Create(loader.GetMeshes(), loader.GetMaterials());
 
-	std::shared_ptr<Model> model = std::make_shared<Model>();
 	return model;
 }
 
