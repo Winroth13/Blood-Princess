@@ -8,18 +8,30 @@
 #include <DirectXMath.h>
 
 
-enum class MouseMode {
+enum class MouseMode 
+{
 	Visible,
 	Hidden,
 	Captured
 };
 
-struct MouseState
+struct MouseState 
 {
 	DirectX::XMFLOAT2 position{0, 0};
-	DirectX::XMFLOAT2 delta{ 0, 0 };
+	DirectX::XMFLOAT2 delta{0, 0};
 	SDL_MouseButtonFlags buttonFlags = 0;
+	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
+
+enum class MouseButton 
+{
+	Left = SDL_BUTTON_LEFT,
+	Right = SDL_BUTTON_RIGHT,
+	Middle = SDL_BUTTON_MIDDLE,
+	X1 = SDL_BUTTON_X1,
+	X2 = SDL_BUTTON_X2
+};
+
 
 class Input {
 private:
@@ -52,12 +64,10 @@ public:
 	static float GetMouseWheelX();
 	static float GetMouseWheelY();
 
-	static bool IsMouseButtonPressed(int button);
-	static bool IsMouseButtonReleased(int button);
-	
+	static bool IsMouseButtonDown(MouseButton button);
+	static bool IsMouseButtonPressed(MouseButton button);
+	static bool IsMouseButtonReleased(MouseButton button);
 
-	static bool WasMouseButtonPressed(int button);
-	static bool IsMouseJustPressed(int button);
 
 	static MouseMode GetMouseMode();
 	static void SetMouseMode(MouseMode mode, SDL_Window* window);

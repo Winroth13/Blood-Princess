@@ -29,10 +29,15 @@ void Input::Update(SDL_Window* window)
 	{
 		lastKeyState[i] = keyState[i];
 	}
+
+	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
+
 	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(&lastMouseState.position.x, &lastMouseState.position.y);
+	
 	lastMouseState.buttonFlags = buttonFlags;
 
-	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y); //added, nollställs fsa
+	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
+
 }
 
 void Input::Shutdown()
@@ -136,3 +141,17 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 	}
 }
 
+bool Input::IsMouseButtonDown(MouseButton button)
+{
+	return (lastMouseState.buttonFlags & SDL_BUTTON_MASK(static_cast<int>(button))) != 0;
+}
+
+bool Input::IsMouseButtonPressed(MouseButton button)
+{
+	return (lastMouseState.buttonFlags & SDL_BUTTON_MASK(static_cast<int>(button))) && !(lastMouseState.previousButtonFlags & SDL_BUTTON_MASK(static_cast<int>(button)));
+}
+
+bool Input::IsMouseButtonReleased(MouseButton button)
+{
+	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(static_cast<int>(button))) && (lastMouseState.previousButtonFlags & SDL_BUTTON_MASK(static_cast<int>(button)));
+}

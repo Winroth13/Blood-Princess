@@ -72,6 +72,13 @@ void Application::Run()
             LogInfo("F key is released");
         }
 
+        if (Input::IsMouseButtonPressed(MouseButton::Left)) {
+            LogInfo("LMB Pressed");
+        }
+        if (Input::IsMouseButtonReleased(MouseButton::Left)) {
+            LogInfo("LMB Released");
+        }
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
