@@ -30,13 +30,8 @@ void Input::Update(SDL_Window* window)
 		lastKeyState[i] = keyState[i];
 	}
 
-<<<<<<< HEAD
-=======
+	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(NULL, NULL);
 	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
-
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
-	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(&lastMouseState.position.x, &lastMouseState.position.y);
-	
 	lastMouseState.buttonFlags = buttonFlags;
 
 	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
@@ -128,9 +123,6 @@ float Input::GetMouseDeltaY()
 	return lastMouseState.delta.y;
 }
 
-<<<<<<< HEAD
-
-
 void Input::OnMouseWheelEvent(float x, float y)
 {
 	lastMouseState.wheel.x += x;
@@ -152,29 +144,6 @@ float Input::GetMouseWheelY()
 	return 0.0f;
 }
 
-
-
-bool Input::IsMouseButtonPressed(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && (mouseButtonFlags & SDL_BUTTON_MASK(button));
-}
-
-bool Input::IsMouseButtonReleased(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return (lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && !(mouseButtonFlags & SDL_BUTTON_MASK(button));
-}
-
-bool Input::IsMouseButtonDown(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return mouseButtonFlags & SDL_BUTTON_MASK(button);
-}
-
-
-=======
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 MouseMode Input::GetMouseMode()
 {
 	return mouseMode;
