@@ -1,6 +1,6 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
-#include "input.hpp"
+#include "core/input.hpp"
 
 bool Window::Initialize(
     const std::string &title, 
@@ -52,10 +52,6 @@ void Window::PollEvents()
                 this->shouldClose = true;
                 break;
 
-            case SDL_EVENT_MOUSE_WHEEL:
-			    Input::OnMouseWheelEvent(event.wheel.x, event.wheel.y);
-			    break;
-
             case SDL_EVENT_WINDOW_RESIZED: 
             {
                 this->wasResized = true;
@@ -66,6 +62,8 @@ void Window::PollEvents()
                 this->height = height;
             } break;
         }
+
+        Input::HandleEvent(event);
     }
 }
 

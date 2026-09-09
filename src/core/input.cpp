@@ -22,6 +22,8 @@ void Input::Initialize()
 
 void Input::Update(SDL_Window* window)
 {
+
+	lastMouseState.wheel = {0.0f, 0.0f};
 	int numKeys = 0;
 	auto keyState = SDL_GetKeyboardState(&numKeys);
 
@@ -36,6 +38,20 @@ void Input::Update(SDL_Window* window)
 
 	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
 
+}
+
+void Input::HandleEvent(const SDL_Event& event)
+{
+	switch (event.type)
+	{
+	case SDL_EVENT_MOUSE_WHEEL:
+		// Several wheel events can arrive in one frame, so they are summed
+		lastMouseState.wheel.x += event.wheel.x;
+		lastMouseState.wheel.y += event.wheel.y;
+		break;
+	default:
+		break;
+	}
 }
 
 void Input::Shutdown()
@@ -131,17 +147,17 @@ void Input::OnMouseWheelEvent(float x, float y)
 
 DirectX::XMFLOAT2 Input::GetMouseWheel()
 {
-	return DirectX::XMFLOAT2();
+	return lastMouseState.wheel;
 }
 
 float Input::GetMouseWheelX()
 {
-	return 0.0f;
+	return lastMouseState.wheel.x;
 }
 
 float Input::GetMouseWheelY()
 {
-	return 0.0f;
+	return lastMouseState.wheel.y;
 }
 
 MouseMode Input::GetMouseMode()
