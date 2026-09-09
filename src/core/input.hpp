@@ -19,6 +19,7 @@ struct MouseState
 {
 	DirectX::XMFLOAT2 position{0, 0};
 	DirectX::XMFLOAT2 delta{0, 0};
+	DirectX::XMFLOAT2 wheel{ 0, 0 };
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
@@ -47,7 +48,7 @@ public:
 	static void Update(SDL_Window* window);
 
 	static void Shutdown();
-
+	static void HandleEvent(const SDL_Event& event);
 	static bool IsKeyPressed(SDL_Scancode scancode);
 	static bool IsKeyReleased(SDL_Scancode scancode);
 	static bool IsKeyDown(SDL_Scancode scancode);

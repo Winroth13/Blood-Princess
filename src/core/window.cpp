@@ -1,5 +1,6 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
+#include "core/input.hpp"
 
 bool Window::Initialize(
     const std::string &title, 
@@ -59,6 +60,7 @@ void Window::PollEvents()
                 this->height = height;
             } break;
         }
+        Input::HandleEvent(event);
     }
 }
 
