@@ -98,7 +98,11 @@ void Application::Run()
         if (Input::IsMouseButtonReleased(MouseButton::Left)) {
             LogInfo("LMB Released");
         }
-
+        const DirectX::XMFLOAT2 wheel = Input::GetMouseWheel();
+        if (wheel.x != 0.0f || wheel.y != 0.0f)
+        {
+            LogInfo("Wheel: %.1f, %.1f", wheel.x, wheel.y);
+        }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
