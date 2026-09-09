@@ -30,11 +30,9 @@ void Input::Update(SDL_Window* window)
 		lastKeyState[i] = keyState[i];
 	}
 
-<<<<<<< HEAD
-=======
+
 	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
 
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(&lastMouseState.position.x, &lastMouseState.position.y);
 	
 	lastMouseState.buttonFlags = buttonFlags;
@@ -128,7 +126,6 @@ float Input::GetMouseDeltaY()
 	return lastMouseState.delta.y;
 }
 
-<<<<<<< HEAD
 
 
 void Input::OnMouseWheelEvent(float x, float y)
@@ -173,8 +170,6 @@ bool Input::IsMouseButtonDown(int button)
 }
 
 
-=======
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 MouseMode Input::GetMouseMode()
 {
 	return mouseMode;

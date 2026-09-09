@@ -1,16 +1,6 @@
 #include "audio_clip.hpp"
 #include "core/logging.hpp"
 
-//AudioClip::~AudioClip()
-//{
-//	LogInfo("Destroying AudioClip...");
-//	LogIndent();
-//	if (this->AudioBuffer) {
-//		AudioBuffer)
-//	}
-//	LogUnindent();
-//}
-
 bool AudioClip::Create(
 	const short* samples,
 	uint32_t totalSamples,

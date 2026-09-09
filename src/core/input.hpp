@@ -24,11 +24,8 @@ enum class MouseMode
 struct MouseState 
 {
 	DirectX::XMFLOAT2 position{0, 0};
-<<<<<<< HEAD
 	DirectX::XMFLOAT2 wheel{ 0, 0 };
-=======
 	DirectX::XMFLOAT2 delta{0, 0};
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
@@ -80,16 +77,14 @@ public:
 	static float GetMouseWheelX();
 	static float GetMouseWheelY();
 
-<<<<<<< HEAD
 	static bool IsMouseButtonPressed(int button);
 	static bool IsMouseButtonReleased(int button);
 	static bool IsMouseButtonDown(int button);
 	
-=======
 	static bool IsMouseButtonDown(MouseButton button);
 	static bool IsMouseButtonPressed(MouseButton button);
 	static bool IsMouseButtonReleased(MouseButton button);
->>>>>>> 895ef2cdbc86f2a6157e7d06057ef3b635f71a30
+
 
 
 	static MouseMode GetMouseMode();

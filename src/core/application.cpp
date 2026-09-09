@@ -35,6 +35,10 @@ bool Application::Initialize()
         LogError("Failed to create Asset Manager!");
         return false;
     }
+    if (!this->audioManager.Initialize(&this->assetManager)) {
+        LogError("Failed to create audio Manager!");
+        return false;
+    }
 
     if (!this->sceneManager.Initialize(this->appContext, "demo_0")) {
         LogError("Failed to create Scene Manager!");
@@ -94,6 +98,7 @@ void Application::Run()
 
         if (Input::IsMouseButtonPressed(MouseButton::Left)) {
             LogInfo("LMB Pressed");
+            this->audioManager.PlayMusic("Test1.ogg", true, 1.0f);
         }
         if (Input::IsMouseButtonReleased(MouseButton::Left)) {
             LogInfo("LMB Released");
