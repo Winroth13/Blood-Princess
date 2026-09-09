@@ -147,17 +147,17 @@ void Input::OnMouseWheelEvent(float x, float y)
 
 DirectX::XMFLOAT2 Input::GetMouseWheel()
 {
-	return DirectX::XMFLOAT2();
+	return lastMouseState.wheel;
 }
 
 float Input::GetMouseWheelX()
 {
-	return 0.0f;
+	return lastMouseState.wheel.x;
 }
 
 float Input::GetMouseWheelY()
 {
-	return 0.0f;
+	return lastMouseState.wheel.y;
 }
 
 MouseMode Input::GetMouseMode()
@@ -214,19 +214,4 @@ bool Input::IsMouseButtonPressed(MouseButton button)
 bool Input::IsMouseButtonReleased(MouseButton button)
 {
 	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(static_cast<int>(button))) && (lastMouseState.previousButtonFlags & SDL_BUTTON_MASK(static_cast<int>(button)));
-}
-
-DirectX::XMFLOAT2 Input::GetMouseWheel()
-{
-	return lastMouseState.wheel;
-}
-
-float Input::GetMouseWheelX()
-{
-	return lastMouseState.wheel.x;
-}
-
-float Input::GetMouseWheelY()
-{
-	return lastMouseState.wheel.y;
 }
