@@ -7,7 +7,6 @@
 #include "logging.hpp" 
 #include <DirectXMath.h>
 
-
 enum class MouseMode 
 {
 	Visible,
@@ -17,9 +16,9 @@ enum class MouseMode
 
 struct MouseState 
 {
-	DirectX::XMFLOAT2 position{0, 0};
-	DirectX::XMFLOAT2 delta{0, 0};
-	DirectX::XMFLOAT2 wheel{ 0, 0 };
+	DirectX::XMFLOAT2 position = { 0, 0 };
+	DirectX::XMFLOAT2 wheel = { 0, 0 };
+	DirectX::XMFLOAT2 delta = { 0, 0 };
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
@@ -43,7 +42,6 @@ private:
 	static MouseState lastMouseState;
 public:
 	static void Initialize();
-	static bool UpdateKeyStates(SDL_Window* window);
 
 	static void Update(SDL_Window* window);
 
@@ -52,6 +50,11 @@ public:
 	static bool IsKeyPressed(SDL_Scancode scancode);
 	static bool IsKeyReleased(SDL_Scancode scancode);
 	static bool IsKeyDown(SDL_Scancode scancode);
+
+	static bool IsKeyPressed(SDL_Keycode keycode);
+	static bool IsKeyReleased(SDL_Keycode keycode);
+	static bool IsKeyDown(SDL_Keycode keycode);
+
 	
 	static DirectX::XMFLOAT2 GetMousePosition();
 	static float GetMouseX();
@@ -61,6 +64,7 @@ public:
 	static float GetMouseDeltaX();
 	static float GetMouseDeltaY();
 
+	static void OnMouseWheelEvent(float x, float y);
 	static DirectX::XMFLOAT2 GetMouseWheel();
 	static float GetMouseWheelX();
 	static float GetMouseWheelY();
@@ -68,7 +72,6 @@ public:
 	static bool IsMouseButtonDown(MouseButton button);
 	static bool IsMouseButtonPressed(MouseButton button);
 	static bool IsMouseButtonReleased(MouseButton button);
-
 
 	static MouseMode GetMouseMode();
 	static void SetMouseMode(MouseMode mode, SDL_Window* window);

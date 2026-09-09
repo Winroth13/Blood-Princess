@@ -51,7 +51,13 @@ void Window::PollEvents()
             case SDL_EVENT_QUIT:
                 this->shouldClose = true;
                 break;
-            case SDL_EVENT_WINDOW_RESIZED: {
+
+            case SDL_EVENT_MOUSE_WHEEL:
+			    Input::OnMouseWheelEvent(event.wheel.x, event.wheel.y);
+			    break;
+
+            case SDL_EVENT_WINDOW_RESIZED: 
+            {
                 this->wasResized = true;
 
                 int width, height;

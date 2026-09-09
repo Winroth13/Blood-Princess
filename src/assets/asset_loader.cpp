@@ -3,12 +3,23 @@
 #include "assets/types/model.hpp"
 #include "core/logging.hpp"
 #include "core/app_context.hpp"
+#include "assets/types/model.hpp"
+#include "assets/types/audio_clip.hpp"
+#include <stdexcept>
 #include "assets/gltf_loader.hpp"
 #include "rendering/renderer.hpp"
 #include "assets/asset_manager.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
+
+#define TINYGLTF3_ENABLE_FS
+#include "tinygltf/tiny_gltf_v3.h"
+
+#define STB_VORBIS_HEADER_ONLY
+#include "stb_vorbis/stb_vorbis.c"
+
+#include <sstream>
 
 #include <d3d11.h>
 
@@ -63,11 +74,50 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 	return model;
 }
 
+template<>
+std::shared_ptr<AudioClip> AssetLoader::Load<AudioClip>(const std::string& path)
+{
+	int channels = 0;
+	int sampleRate = 0;
+	short *output = nullptr;
+
+
+	int samplesPerChannel = stb_vorbis_decode_filename(
+		path.c_str(),
+		&channels,
+		&sampleRate,
+		&output
+	);
+
+	if (samplesPerChannel <= 0 || output == nullptr)
+	{
+		LogError("Failed to load or decode audio file: %s", path.c_str());
+		return nullptr;
+	}
+
+	uint32_t totalSamples = static_cast<uint32_t>(samplesPerChannel * channels);
+
+	std::shared_ptr<AudioClip> audioClip = std::make_shared<AudioClip>();
+
+	if (!audioClip->Create(output, totalSamples, static_cast<uint32_t>(channels), static_cast<uint32_t>(sampleRate)))
+	{
+		free(output);
+		LogError("Failed to initialize AudioClip for: %s", path.c_str());
+		return nullptr;
+	}
+
+	free(output);
+
+	LogInfo("Loaded audio %s: %d Hz, %d channel(s), %d total samples",
+		path.c_str(), sampleRate, channels, totalSamples);
+
+	return audioClip;
+}
+
 bool AssetLoader::Initialize(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	AssetManager *assetManager
-)
+	AssetManager *assetManager)
 {
 	LogInfo("Creating Asset Loader...");
 	LogIndent();

@@ -11,4 +11,5 @@ public:
 	~Asset() = default;
 
 	void SetPath(const std::string &path);
+	std::string GetPath() const;
 };
