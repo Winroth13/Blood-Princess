@@ -1,9 +1,3 @@
-//
-//
-// Created by 09912 on 6/5/2024.
-// 
-
-
 #pragma once
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_keyboard.h"
@@ -13,28 +7,27 @@
 #include "logging.hpp" 
 #include <DirectXMath.h>
 
-
-enum class MouseMode 
+enum class MouseMode
 {
-	Visible,
-	Hidden,
-	Captured
+	VISIBLE,
+	HIDDEN,
+	CAPTURED
 };
 
-struct MouseState 
+struct MouseState
 {
-	DirectX::XMFLOAT2 position{0, 0};
-	DirectX::XMFLOAT2 wheel{ 0, 0 };
-	DirectX::XMFLOAT2 delta{0, 0};
+	DirectX::XMFLOAT2 position = { 0, 0 };
+	DirectX::XMFLOAT2 wheel = { 0, 0 };
+	DirectX::XMFLOAT2 delta = { 0, 0 };
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
 
-enum class MouseButton 
+enum class MouseButton
 {
-	Left = SDL_BUTTON_LEFT,
-	Right = SDL_BUTTON_RIGHT,
-	Middle = SDL_BUTTON_MIDDLE,
+	LEFT = SDL_BUTTON_LEFT,
+	RIGHT = SDL_BUTTON_RIGHT,
+	MIDDLE = SDL_BUTTON_MIDDLE,
 	X1 = SDL_BUTTON_X1,
 	X2 = SDL_BUTTON_X2
 };
@@ -49,12 +42,11 @@ private:
 	static MouseState lastMouseState;
 public:
 	static void Initialize();
-	static bool UpdateKeyStates(SDL_Window* window);
 
 	static void Update(SDL_Window* window);
 
 	static void Shutdown();
-
+	static void HandleEvent(const SDL_Event& event);
 	static bool IsKeyPressed(SDL_Scancode scancode);
 	static bool IsKeyReleased(SDL_Scancode scancode);
 	static bool IsKeyDown(SDL_Scancode scancode);
@@ -63,7 +55,7 @@ public:
 	static bool IsKeyReleased(SDL_Keycode keycode);
 	static bool IsKeyDown(SDL_Keycode keycode);
 
-	
+
 	static DirectX::XMFLOAT2 GetMousePosition();
 	static float GetMouseX();
 	static float GetMouseY();
@@ -77,15 +69,9 @@ public:
 	static float GetMouseWheelX();
 	static float GetMouseWheelY();
 
-	static bool IsMouseButtonPressed(int button);
-	static bool IsMouseButtonReleased(int button);
-	static bool IsMouseButtonDown(int button);
-	
 	static bool IsMouseButtonDown(MouseButton button);
 	static bool IsMouseButtonPressed(MouseButton button);
 	static bool IsMouseButtonReleased(MouseButton button);
-
-
 
 	static MouseMode GetMouseMode();
 	static void SetMouseMode(MouseMode mode, SDL_Window* window);

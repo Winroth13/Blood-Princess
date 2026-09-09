@@ -4,6 +4,8 @@ Classes: PascalCase, struct is class
 Files: snake_case, folders are files
 Constants: SCREAMING_SNAKE_CASE
 Functions: PascalCase
+Enums: PascalCase, SCREAMING_SNAKE_CASE for entries
+Enums: SCREAMING_SNAKE_CASE
 Get and Set rather than direct access in classes.
 Structs do not have Get and Set.
 Is- and Has- for bool-functions.

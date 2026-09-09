@@ -17,7 +17,7 @@ public:
 		ID3D11DeviceContext *deviceContext
 	);
 
-	void Update();
+	void Render();
     void Shutdown();
 
 	void PollEvent(SDL_Event *event);

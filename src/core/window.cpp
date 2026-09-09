@@ -1,13 +1,13 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
-#include "input.hpp"
+#include "core/input.hpp"
 
 bool Window::Initialize(
-    const std::string &title, 
-    uint32_t width, 
-    uint32_t height, 
+    const std::string& title,
+    uint32_t width,
+    uint32_t height,
     SDL_WindowFlags flags
-) 
+)
 {
     LogInfo("Creating window...");
     LogIndent();
@@ -51,18 +51,19 @@ void Window::PollEvents()
         case SDL_EVENT_QUIT:
             this->shouldClose = true;
             break;
-        case SDL_EVENT_MOUSE_WHEEL:
-            Input::OnMouseWheelEvent(event.wheel.x, event.wheel.y);
-            break;
+
         case SDL_EVENT_WINDOW_RESIZED:
+        {
             this->wasResized = true;
 
             int width, height;
             SDL_GetWindowSizeInPixels(this->sdlWindow, &width, &height);
             this->width = width;
             this->height = height;
-            break;
+        } break;
         }
+
+        Input::HandleEvent(event);
     }
 }
 

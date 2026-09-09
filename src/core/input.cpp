@@ -2,7 +2,7 @@
 // Allocation and definition of static member variables
 const bool* Input::keyState;
 MouseState Input::lastMouseState;
-MouseMode Input::mouseMode = MouseMode::Visible;
+MouseMode Input::mouseMode = MouseMode::VISIBLE;
 std::array<bool, SDL_SCANCODE_COUNT> Input::lastKeyState;
 
 
@@ -22,6 +22,8 @@ void Input::Initialize()
 
 void Input::Update(SDL_Window* window)
 {
+
+	lastMouseState.wheel = { 0.0f, 0.0f };
 	int numKeys = 0;
 	auto keyState = SDL_GetKeyboardState(&numKeys);
 
@@ -30,15 +32,26 @@ void Input::Update(SDL_Window* window)
 		lastKeyState[i] = keyState[i];
 	}
 
-
+	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(NULL, NULL);
 	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
-
-	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(&lastMouseState.position.x, &lastMouseState.position.y);
-	
 	lastMouseState.buttonFlags = buttonFlags;
 
 	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
 
+}
+
+void Input::HandleEvent(const SDL_Event& event)
+{
+	switch (event.type)
+	{
+	case SDL_EVENT_MOUSE_WHEEL:
+		// Several wheel events can arrive in one frame, so they are summed
+		lastMouseState.wheel.x += event.wheel.x;
+		lastMouseState.wheel.y += event.wheel.y;
+		break;
+	default:
+		break;
+	}
 }
 
 void Input::Shutdown()
@@ -126,8 +139,6 @@ float Input::GetMouseDeltaY()
 	return lastMouseState.delta.y;
 }
 
-
-
 void Input::OnMouseWheelEvent(float x, float y)
 {
 	lastMouseState.wheel.x += x;
@@ -136,39 +147,18 @@ void Input::OnMouseWheelEvent(float x, float y)
 
 DirectX::XMFLOAT2 Input::GetMouseWheel()
 {
-	return DirectX::XMFLOAT2();
+	return lastMouseState.wheel;
 }
 
 float Input::GetMouseWheelX()
 {
-	return 0.0f;
+	return lastMouseState.wheel.x;
 }
 
 float Input::GetMouseWheelY()
 {
-	return 0.0f;
+	return lastMouseState.wheel.y;
 }
-
-
-
-bool Input::IsMouseButtonPressed(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && (mouseButtonFlags & SDL_BUTTON_MASK(button));
-}
-
-bool Input::IsMouseButtonReleased(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return (lastMouseState.buttonFlags & SDL_BUTTON_MASK(button)) && !(mouseButtonFlags & SDL_BUTTON_MASK(button));
-}
-
-bool Input::IsMouseButtonDown(int button)
-{
-	SDL_MouseButtonFlags mouseButtonFlags = SDL_GetMouseState(NULL, NULL);
-	return mouseButtonFlags & SDL_BUTTON_MASK(button);
-}
-
 
 MouseMode Input::GetMouseMode()
 {
@@ -177,7 +167,7 @@ MouseMode Input::GetMouseMode()
 
 void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 {
-	
+
 	// Set the mouse mode and update the cursor visibility and relative mouse mode accordingly
 	//Window rect is used to define the area where the mouse can move when captured
 	mouseMode = mode;
@@ -191,17 +181,17 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 	rect.h = 1;
 	switch (mouseMode)
 	{
-	case MouseMode::Visible:
+	case MouseMode::VISIBLE:
 		SDL_SetWindowMouseRect(window, nullptr);
 		SDL_ShowCursor();
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
-	case MouseMode::Hidden:
+	case MouseMode::HIDDEN:
 		SDL_SetWindowMouseRect(window, nullptr);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
-	case MouseMode::Captured:
+	case MouseMode::CAPTURED:
 		SDL_SetWindowMouseRect(window, &rect);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, true);

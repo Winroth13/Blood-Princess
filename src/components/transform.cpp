@@ -1,11 +1,16 @@
 #include "transform.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
+#include "rendering/renderer.hpp"
 
 void Transform::OnStart(const AppContext &context) {
+
 }
 
 void Transform::Update(const AppContext &context, float deltaTime) {
-    LogInfo("Hello from %s!", this->GetOwner()->GetName().c_str());
-    this->SetActive(false);
+    RenderView view{};
+    view.type = ViewType::PRIMARY;
+    view.index = 0;
+
+    context.renderer->AddView(view);
 }

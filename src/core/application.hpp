@@ -31,6 +31,9 @@ class Application
         &this->audioManager,
     };
 
+    void Update(float deltaTime);
+    void Render();
+
 public:
     Application() = default;
     ~Application() = default;

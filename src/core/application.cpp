@@ -7,6 +7,17 @@
 #include <d3d11.h>
 #include "SDL3/SDL.h"
 
+void Application::Update(float deltaTime) {
+    this->sceneManager.Update(deltaTime);
+}
+
+void Application::Render() {
+    this->renderer.Render();
+    this->imGuiWindow.Render();
+
+    this->renderer.Present();
+}
+
 bool Application::Initialize()
 {
     LogInfo("Initializing...");
@@ -59,11 +70,11 @@ bool Application::Initialize()
     Input::Initialize();
     this->isRunning = true;
 
-    Input::SetMouseMode(MouseMode::Visible, this->window.GetSdlWindow());
-    auto texture = assetManager.Get<Texture2D>("princess.png");
-    auto texture2 = assetManager.Get<Texture2D>("princess2.png");
+    Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
+    auto texture = assetManager.Get<Texture2D>("assets/princess.png");
+    auto texture2 = assetManager.Get<Texture2D>("assets/princess2.png");
 
-    //auto model = assetManager.Get<Model>("princess.glb");
+    //auto model = assetManager.Get<Model>("assets/princess.glb");
 
     LogUnindent();
     return true;
@@ -96,22 +107,28 @@ void Application::Run()
             LogInfo("F key is released");
         }
 
-        if (Input::IsMouseButtonPressed(MouseButton::Left)) {
+        if (Input::IsMouseButtonPressed(MouseButton::LEFT)) {
             LogInfo("LMB Pressed");
             this->audioManager.PlayMusic("Test1.ogg", true, 1.0f);
         }
-        if (Input::IsMouseButtonReleased(MouseButton::Left)) {
+        if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
             LogInfo("LMB Released");
         }
-
+        const DirectX::XMFLOAT2 wheel = Input::GetMouseWheel();
+        if (wheel.x != 0.0f || wheel.y != 0.0f)
+        {
+            LogInfo("Wheel: %.1f, %.1f", wheel.x, wheel.y);
+        }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
+        this->renderer.NewFrame();
 
-        this->sceneManager.Update(deltaTime);
-        this->renderer.Render(this->imGuiWindow);
+        this->Update(deltaTime);
+
+        this->Render();
     }
 }
 
