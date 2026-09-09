@@ -112,7 +112,7 @@ bool ImGuiWindow::Initialize(
 	return true;
 }
 
-void ImGuiWindow::Update()
+void ImGuiWindow::Render()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL3_NewFrame();

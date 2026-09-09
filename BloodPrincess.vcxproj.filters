@@ -31,6 +31,7 @@
     <ClCompile Include="external\imgui\backends\imgui_impl_sdl3.cpp" />
     <ClCompile Include="src\audio\audio_manager.cpp" />
     <ClCompile Include="src\assets\types\audio_clip.cpp" />
+    <ClCompile Include="src\rendering\render_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -68,5 +69,9 @@
     <ClInclude Include="external\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="external\imgui\backends\imgui_impl_sdl3.h" />
     <ClInclude Include="src\assets\types\audio_clip.hpp" />
+    <ClInclude Include="src\rendering\render_view.hpp" />
+    <ClInclude Include="src\rendering\render_queue.hpp" />
+    <ClInclude Include="src\rendering\render_commands.hpp" />
+    <ClInclude Include="src\rendering\render_utils.hpp" />
   </ItemGroup>
 </Project>

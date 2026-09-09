@@ -9,9 +9,9 @@
 
 enum class MouseMode 
 {
-	Visible,
-	Hidden,
-	Captured
+	VISIBLE,
+	HIDDEN,
+	CAPTURED
 };
 
 struct MouseState 
@@ -25,9 +25,9 @@ struct MouseState
 
 enum class MouseButton 
 {
-	Left = SDL_BUTTON_LEFT,
-	Right = SDL_BUTTON_RIGHT,
-	Middle = SDL_BUTTON_MIDDLE,
+	LEFT = SDL_BUTTON_LEFT,
+	RIGHT = SDL_BUTTON_RIGHT,
+	MIDDLE = SDL_BUTTON_MIDDLE,
 	X1 = SDL_BUTTON_X1,
 	X2 = SDL_BUTTON_X2
 };

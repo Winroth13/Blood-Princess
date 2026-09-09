@@ -1,6 +1,11 @@
 #pragma once
 
 #include "core/app_context.hpp"
+#include "rendering/render_view.hpp"
+
+#include <DirectXCollision.h>
+
+using namespace DirectX;
 
 class Entity;
 
@@ -19,10 +24,13 @@ public:
     Component(const Component &other) = delete;
     Component &operator=(const Component &other) = delete;
 
+    // OnStart runs in the order that entities are added
     virtual void OnStart(const AppContext &context) = 0;
     virtual void Update(const AppContext &context, float deltaTime) = 0;
-    virtual void Render() = 0;
+    virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
     virtual void OnDestroy(const AppContext &context) = 0;
+
+    virtual bool GetWorldBounds(BoundingBox &outBounds) { return false; }
 
     Entity *GetOwner() const { return this->owner; }
 

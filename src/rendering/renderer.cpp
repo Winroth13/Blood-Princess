@@ -1,4 +1,5 @@
 #include "rendering/renderer.hpp"
+#include "rendering/render_utils.hpp"
 #include "core/window.hpp"
 #include "core/logging.hpp"
 #include "scene/scene.hpp"
@@ -291,8 +292,17 @@ void Renderer::Shutdown()
     LogUnindent();
 }
 
-void Renderer::Render(ImGuiWindow &imGuiWindow)
+void Renderer::NewFrame()
 {
+    this->views.clear();
+}
+
+void Renderer::Render()
+{
+    if (this->views.empty()) {
+        LogError("Oh no!!!!!!!!!");
+    }
+
     this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
     this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -350,9 +360,10 @@ void Renderer::Render(ImGuiWindow &imGuiWindow)
     //this->deviceContext->PSSetSamplers(0, 1, &samplerState);
 
     //this->deviceContext->DrawIndexed(static_cast<UINT>(mesh->GetNumIndicies()), 0, 0);
+}
 
-    imGuiWindow.Update();
-
+void Renderer::Present()
+{
     this->swapChain->Present(0, 0);
 }
 
@@ -386,4 +397,17 @@ bool Renderer::Resize(uint32_t width, uint32_t height) {
 
     LogUnindent();
     return true;
+}
+
+void Renderer::AddView(const RenderView &view) {
+    if (view.type == ViewType::PRIMARY) {
+        for (RenderView &other : this->views) {
+            if (other.type == ViewType::PRIMARY) {
+                other = view;
+                return;
+            }
+        }
+    }
+
+    this->views.push_back(view);
 }

@@ -2,7 +2,7 @@
 #include "core/logging.hpp"
 #include "stb_image/stb_image.h"
 
-#include "rendering/renderer.hpp"
+#include "rendering/render_utils.hpp"
 
 #include <d3d11.h>
 

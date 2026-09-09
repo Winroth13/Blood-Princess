@@ -1,15 +1,16 @@
 #pragma once
 
+#include "rendering/render_view.hpp"
+
 #include <d3d11.h>
 #include <Windows.h>
 
-#include "cstdint"
+#include <cstdint>
+#include <vector>
 
 class Window;
 class Scene;
 class ImGuiWindow;
-
-#define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
 
 class Renderer
 {
@@ -24,6 +25,8 @@ class Renderer
 	uint32_t height = 0;
 	float clearColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f};
 
+    std::vector<RenderView> views;
+
     bool CreateInterface(HWND hWnd);
 	bool CreateRenderTargetView();
 	bool CreateDepthStencilView();
@@ -31,9 +34,14 @@ class Renderer
 public:
 	bool Initialize(const Window *window);
 	void Shutdown();
-	void Render(ImGuiWindow &imGuiWindow);
+
+    void NewFrame();
+	void Render();
+    void Present();
 
     bool Resize(uint32_t width, uint32_t height);
+
+    void AddView(const RenderView &view);
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }

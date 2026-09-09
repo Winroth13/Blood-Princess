@@ -2,7 +2,7 @@
 // Allocation and definition of static member variables
 const bool* Input::keyState;
 MouseState Input::lastMouseState;
-MouseMode Input::mouseMode = MouseMode::Visible;
+MouseMode Input::mouseMode = MouseMode::VISIBLE;
 std::array<bool, SDL_SCANCODE_COUNT> Input::lastKeyState;
 
 
@@ -165,17 +165,17 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 	rect.h = 1;
 	switch (mouseMode)
 	{
-	case MouseMode::Visible:
+	case MouseMode::VISIBLE:
 		SDL_SetWindowMouseRect(window, nullptr);
 		SDL_ShowCursor();
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
-	case MouseMode::Hidden:
+	case MouseMode::HIDDEN:
 		SDL_SetWindowMouseRect(window, nullptr);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
-	case MouseMode::Captured:
+	case MouseMode::CAPTURED:
 		SDL_SetWindowMouseRect(window, &rect);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, true);

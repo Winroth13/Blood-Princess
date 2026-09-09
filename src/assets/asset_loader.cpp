@@ -35,7 +35,7 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 		LogWarn("Failed to load image data from file: %s (using fallback)", path.c_str());
 		// Use fallback texture instead.
 		// TODO: Maybe not load from file.
-		data = (char *)stbi_load("fallback.png", &width, &height, &channels, 4);
+		data = (char *)stbi_load("assets/fallback.png", &width, &height, &channels, 4);
 
 		// TODO: Remove once fallback has a place to stay or is built.
 		if (data == nullptr)
