@@ -10,6 +10,9 @@
 #include "rendering/renderer.hpp"
 #include "assets/asset_manager.hpp"
 
+#include "assets/types/vertex_shader.hpp"
+#include "assets/types/pixel_shader.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
@@ -20,7 +23,7 @@
 #include "stb_vorbis/stb_vorbis.c"
 
 #include <sstream>
-
+#include <fstream>
 #include <d3d11.h>
 
 template<>
@@ -147,3 +150,67 @@ bool AssetLoader::Initialize(
 
 	return true;
 }
+
+#pragma region Shaders
+
+static bool LoadShaderByteCode(const std::string &path, std::string& byteCode)
+{
+	std::ifstream reader{};
+	reader.open(path, std::ios::binary | std::ios::ate);
+
+	if (!reader.is_open())
+	{
+		LogError("Could not open shader file: %s", path.c_str());
+		return false;
+	}
+
+	reader.seekg(0, std::ios::end);
+	byteCode.reserve(static_cast<unsigned int>(reader.tellg()));
+	reader.seekg(0, std::ios::beg);
+
+	byteCode.assign(
+		std::istreambuf_iterator<char>(reader),
+		std::istreambuf_iterator<char>()
+	);
+	return true;
+}
+
+template<>
+std::shared_ptr<VertexShader> AssetLoader::Load<VertexShader>(const std::string &path)
+{
+	std::string byteCode;
+
+	if (!LoadShaderByteCode(path, byteCode))
+	{
+		LogError("Failed to load byte shader code from %s", path.c_str());
+	}
+
+	std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>();
+	if (!vertexShader->Create(byteCode, this->device))
+	{
+		LogError("Failed to create Vertex Shader");
+	}
+
+	return vertexShader;
+}
+
+template<>
+std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &path)
+{
+	std::string byteCode;
+
+	if (!LoadShaderByteCode(path, byteCode))
+	{
+		LogError("Failed to load byte shader code from %s", path.c_str());
+	}
+
+	std::shared_ptr<PixelShader> pixelShader = std::make_shared<PixelShader>();
+	if (!pixelShader->Create(byteCode, this->device))
+	{
+		LogError("Failed to create Pixel Shader");
+	}
+
+	return pixelShader;
+}
+
+#pragma endregion

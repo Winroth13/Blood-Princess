@@ -162,7 +162,9 @@
     <ClCompile Include="src\assets\gltf_loader.cpp" />
     <ClCompile Include="src\assets\types\audio_clip.cpp" />
     <ClCompile Include="src\assets\types\model.cpp" />
+    <ClCompile Include="src\assets\types\pixel_shader.cpp" />
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
+    <ClCompile Include="src\assets\types\vertex_shader.cpp" />
     <ClCompile Include="src\audio\audio_manager.cpp" />
     <ClCompile Include="src\components\audio_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
@@ -201,7 +203,9 @@
     <ClInclude Include="src\assets\gltf_loader.hpp" />
     <ClInclude Include="src\assets\types\audio_clip.hpp" />
     <ClInclude Include="src\assets\types\model.hpp" />
+    <ClInclude Include="src\assets\types\pixel_shader.hpp" />
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
+    <ClInclude Include="src\assets\types\vertex_shader.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />
     <ClInclude Include="src\components\audio_component.hpp" />
@@ -226,6 +230,20 @@
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\ForwardPS.cso" />
+    <None Include="src\shaders\ForwardVS.cso" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\shaders\ForwardPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\ForwardVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
