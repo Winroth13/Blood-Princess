@@ -34,6 +34,8 @@
     <ClCompile Include="src\rendering\render_utils.cpp" />
     <ClCompile Include="src\components\audio.cpp" />
     <ClCompile Include="src\components\music.cpp" />
+    <ClCompile Include="src\assets\types\vertex_shader.cpp" />
+    <ClCompile Include="src\assets\types\pixel_shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -77,5 +79,15 @@
     <ClInclude Include="src\rendering\render_utils.hpp" />
     <ClInclude Include="src\components\audio.hpp" />
     <ClInclude Include="src\components\music.hpp" />
+    <ClInclude Include="src\assets\types\vertex_shader.hpp" />
+    <ClInclude Include="src\assets\types\pixel_shader.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\ForwardPS.cso" />
+    <None Include="src\shaders\ForwardVS.cso" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\shaders\ForwardPS.hlsl" />
+    <FxCompile Include="src\shaders\ForwardVS.hlsl" />
   </ItemGroup>
 </Project>

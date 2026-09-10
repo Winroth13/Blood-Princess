@@ -3,6 +3,9 @@
 #include "input.hpp"
 #include "core/app_context.hpp"
 
+#include "assets/types/vertex_shader.hpp"
+#include "assets/types/pixel_shader.hpp"
+
 #include <iostream>
 #include <d3d11.h>
 #include "SDL3/SDL.h"
@@ -75,6 +78,8 @@ bool Application::Initialize()
     auto texture2 = assetManager.Get<Texture2D>("assets/princess2.png");
 
     //auto model = assetManager.Get<Model>("assets/princess.glb");
+    auto shader = assetManager.Get<VertexShader>("src/shaders/ForwardVS.cso");
+    auto pixelShader = assetManager.Get<PixelShader>("src/shaders/ForwardPS.cso");
 
     LogUnindent();
     return true;
