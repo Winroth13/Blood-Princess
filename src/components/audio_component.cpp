@@ -17,7 +17,7 @@ void AudioComponent::OnStart(const AppContext& context)
 void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->listenerPosition = transform->GetPosition();
+		this->listenerPosition = transform->GetWorldPosition();
 	}
 	context.audioManager->SetListenerPosition(this->listenerPosition);
 }
