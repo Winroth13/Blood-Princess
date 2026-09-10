@@ -137,6 +137,7 @@ void Application::Shutdown()
     this->imGuiWindow.Shutdown();
     this->sceneManager.Shutdown();
     this->assetManager.Shutdown();
+    this->audioManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
 
