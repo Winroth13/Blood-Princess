@@ -107,10 +107,6 @@ void Application::Run()
             LogInfo("F key is released");
         }
 
-        if (Input::IsMouseButtonPressed(MouseButton::LEFT)) {
-            LogInfo("LMB Pressed");
-            this->audioManager.PlayMusic("Test1.ogg", true, 1.0f);
-        }
         if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
             LogInfo("LMB Released");
         }

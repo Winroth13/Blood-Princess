@@ -2,7 +2,8 @@
 
 #include "scene/component.hpp"
 
-class Transform : public Component {
+class Transform : public Component 
+{
 public:
     Transform(Entity *owner, bool isActive) : Component(owner, isActive) {}
 

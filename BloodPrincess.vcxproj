@@ -164,6 +164,8 @@
     <ClCompile Include="src\assets\types\model.cpp" />
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
     <ClCompile Include="src\audio\audio_manager.cpp" />
+    <ClCompile Include="src\components\audio.cpp" />
+    <ClCompile Include="src\components\music.cpp" />
     <ClCompile Include="src\components\transform.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\core\input.cpp" />
@@ -201,6 +203,8 @@
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />
+    <ClInclude Include="src\components\audio.hpp" />
+    <ClInclude Include="src\components\music.hpp" />
     <ClInclude Include="src\components\transform.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />

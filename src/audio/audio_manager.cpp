@@ -145,9 +145,19 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume
 			++i;
 		}
 	}
+	float maxFrequencyRatio = 4.0f;
 
+	if (pitch > maxFrequencyRatio) {
+		maxFrequencyRatio = pitch;
+	}
 	IXAudio2SourceVoice* sourceVoice = nullptr;
-	HRESULT hr = this->xAudio2->CreateSourceVoice(&sourceVoice, &clip->GetWaveFormat());
+	HRESULT hr = this->xAudio2->CreateSourceVoice(
+		&sourceVoice,
+		&clip->GetWaveFormat(),
+		0,
+		maxFrequencyRatio
+
+	);
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
@@ -181,7 +191,7 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume
 	return true;
 }
 
-bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume)
+bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume, float pitch)
 {
 	auto clip = this->LoadSound(filename);
 	if (!clip)
@@ -190,10 +200,10 @@ bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 po
 		return false;
 	}
 
-	return this->PlaySoundAt(clip, position, volume);
+	return this->PlaySoundAt(clip, position, volume, pitch);
 }
 
-bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume)
+bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume, float pitch)
 {
 	if (!clip)
 	{
@@ -222,14 +232,24 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT
 			++i;
 		}
 	}
+	float maxFrequencyRatio = 4.0f;
+	if (pitch > maxFrequencyRatio) {
+		maxFrequencyRatio = pitch;
+	}
 
 	IXAudio2SourceVoice* sourceVoice = nullptr;
-	HRESULT hr = this->xAudio2->CreateSourceVoice(&sourceVoice, &clip->GetWaveFormat());
+	HRESULT hr = this->xAudio2->CreateSourceVoice(
+		&sourceVoice, 
+		&clip->GetWaveFormat(),
+		0,
+		maxFrequencyRatio
+	);
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return false;
 	}
+	sourceVoice->SetFrequencyRatio(pitch);
 
 	// Calculate 3D positional audio
 	X3DAUDIO_LISTENER listener = {};

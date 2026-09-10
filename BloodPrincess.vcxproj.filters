@@ -32,6 +32,8 @@
     <ClCompile Include="src\audio\audio_manager.cpp" />
     <ClCompile Include="src\assets\types\audio_clip.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
+    <ClCompile Include="src\components\audio.cpp" />
+    <ClCompile Include="src\components\music.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -73,5 +75,7 @@
     <ClInclude Include="src\rendering\render_queue.hpp" />
     <ClInclude Include="src\rendering\render_commands.hpp" />
     <ClInclude Include="src\rendering\render_utils.hpp" />
+    <ClInclude Include="src\components\audio.hpp" />
+    <ClInclude Include="src\components\music.hpp" />
   </ItemGroup>
 </Project>

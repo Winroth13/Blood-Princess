@@ -1,8 +1,10 @@
 #pragma once
-#include "assets/types/texture_2d.hpp"
 #include "assets/asset_loader.hpp"
 #include "core/logging.hpp"
+
 #include "assets/types/model.hpp"
+#include "assets/types/texture_2d.hpp"
+#include "assets/types/audio_clip.hpp"
 
 #include <unordered_map>
 #include <string>

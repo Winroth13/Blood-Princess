@@ -3,11 +3,13 @@
 #include "scene/entity.hpp"
 #include "rendering/renderer.hpp"
 
-void Transform::OnStart(const AppContext &context) {
+void Transform::OnStart(const AppContext &context) 
+{
 
 }
 
-void Transform::Update(const AppContext &context, float deltaTime) {
+void Transform::Update(const AppContext &context, float deltaTime) 
+{
     RenderView view{};
     view.type = ViewType::PRIMARY;
     view.index = 0;

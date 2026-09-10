@@ -15,6 +15,12 @@ bool SceneManager::Initialize(const AppContext &context, const std::string &star
     LogInfo("Creating Scene Manager...");
     LogIndent();
 
+    if (!this->loader.Initialize(context))
+    {
+        LogError("Failed to create Asset Loader");
+        return false;
+    }
+
     this->scene.SetAppContext(context);
 
     this->RequestSceneChange(startSceneName);

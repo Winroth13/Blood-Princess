@@ -56,8 +56,8 @@ public:
 	bool PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume = 1.0f, float pitch = 1.0f);
 
 	// 3D Positional Playback
-	bool PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume = 1.0f);
-	bool PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume = 1.0f);
+	bool PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
+	bool PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
 
 	// Music Controls
 	bool PlayMusic(const std::string& filename, bool loop = true, float volume = 1.0f);
