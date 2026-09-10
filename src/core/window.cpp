@@ -1,6 +1,6 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
-#include "core/input.hpp"
+#include "input/input.hpp"
 
 bool Window::Initialize(
     const std::string& title,

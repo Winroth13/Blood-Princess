@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <array>
-#include "logging.hpp" 
+#include "core/logging.hpp" 
 #include <DirectXMath.h>
 
 enum class Key
