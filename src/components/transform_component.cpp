@@ -1,14 +1,14 @@
-#include "transform.hpp"
+#include "transform_component.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 #include "rendering/renderer.hpp"
 
-void Transform::OnStart(const AppContext &context) 
+void TransformComponent::OnStart(const AppContext &context)
 {
 
 }
 
-void Transform::Update(const AppContext &context, float deltaTime) 
+void TransformComponent::Update(const AppContext &context, float deltaTime)
 {
     RenderView view{};
     view.type = ViewType::PRIMARY;

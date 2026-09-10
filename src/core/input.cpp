@@ -1,43 +1,36 @@
 #include "input.hpp"
+#include <algorithm>
 // Allocation and definition of static member variables
-const bool* Input::keyState;
 MouseState Input::lastMouseState;
 MouseMode Input::mouseMode = MouseMode::VISIBLE;
-std::array<bool, SDL_SCANCODE_COUNT> Input::lastKeyState;
+std::array<bool, SDL_SCANCODE_COUNT> Input::currentKeys;
+std::array<bool, SDL_SCANCODE_COUNT> Input::previousKeys;
+
 
 
 void Input::Initialize()
 {
-	keyState = SDL_GetKeyboardState(NULL);
+	currentKeys.fill(false);
+	previousKeys.fill(false);
 
 	LogInfo("Input initialized..");
-	LogIndent();
-
-	for (int i = 0; i < SDL_SCANCODE_COUNT; ++i)
-	{
-		lastKeyState[i] = false;
-	}
-	LogUnindent();
 }
 
-void Input::Update(SDL_Window* window)
+void Input::Update()
 {
 
 	lastMouseState.wheel = { 0.0f, 0.0f };
 	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
+	const bool* state = SDL_GetKeyboardState(&numKeys);
 
-	for (int i = 0; i < SDL_SCANCODE_COUNT; ++i)
-	{
-		lastKeyState[i] = keyState[i];
-	}
+	previousKeys = currentKeys;
+	std::copy_n(state, std::min(numKeys, static_cast<int>(SDL_SCANCODE_COUNT)), currentKeys.begin());
 
 	SDL_MouseButtonFlags buttonFlags = SDL_GetMouseState(NULL, NULL);
 	lastMouseState.previousButtonFlags = lastMouseState.buttonFlags;
 	lastMouseState.buttonFlags = buttonFlags;
 
 	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
-
 }
 
 void Input::HandleEvent(const SDL_Event& event)
@@ -61,49 +54,19 @@ void Input::Shutdown()
 }
 
 
-bool Input::IsKeyPressed(SDL_Scancode scancode)
+bool Input::IsKeyDown(Key key)
 {
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[scancode] && !lastKeyState[scancode];
+	return currentKeys[static_cast<int>(key)];
 }
 
-bool Input::IsKeyReleased(SDL_Scancode scancode)
+bool Input::IsKeyPressed(Key key)
 {
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return !keyState[scancode] && lastKeyState[scancode];
+	return currentKeys[static_cast<int>(key)] && !previousKeys[static_cast<int>(key)];
 }
 
-bool Input::IsKeyDown(SDL_Scancode scancode)
+bool Input::IsKeyReleased(Key key)
 {
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[scancode];
-}
-
-bool Input::IsKeyPressed(SDL_Keycode keycode)
-{
-	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[scancode] && !lastKeyState[scancode];
-}
-
-bool Input::IsKeyReleased(SDL_Keycode keycode)
-{
-	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return !keyState[scancode] && lastKeyState[scancode];
-}
-
-bool Input::IsKeyDown(SDL_Keycode keycode)
-{
-	SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode, NULL);
-	int numKeys = 0;
-	auto keyState = SDL_GetKeyboardState(&numKeys);
-	return keyState[scancode];
+	return !currentKeys[static_cast<int>(key)] && previousKeys[static_cast<int>(key)];
 }
 
 
@@ -137,12 +100,6 @@ float Input::GetMouseDeltaX()
 float Input::GetMouseDeltaY()
 {
 	return lastMouseState.delta.y;
-}
-
-void Input::OnMouseWheelEvent(float x, float y)
-{
-	lastMouseState.wheel.x += x;
-	lastMouseState.wheel.y += y;
 }
 
 DirectX::XMFLOAT2 Input::GetMouseWheel()
@@ -192,6 +149,7 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
 	case MouseMode::CAPTURED:
+		SDL_WarpMouseInWindow(window, width / 2, height / 2);
 		SDL_SetWindowMouseRect(window, &rect);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, true);
