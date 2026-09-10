@@ -93,30 +93,29 @@ void AudioManager::SetListenerPosition(DirectX::XMFLOAT3 listenerPosition)
 	this->listenerPosition = listenerPosition;
 }
 
-std::shared_ptr<AudioClip> AudioManager::LoadSound(const std::string& filename)
-{
-	if (!this->assetManager)
-	{
-		LogError("AssetManager is nullptr in AudioManager!");
-		return nullptr;
-	}
+//std::shared_ptr<AudioClip> AudioManager::LoadSound(const std::string& filename)
+//{
+//	if (!this->assetManager)
+//	{
+//		LogError("AssetManager is nullptr in AudioManager!");
+//		return nullptr;
+//	}
+//
+//	return this->assetManager->Get<AudioClip>(filename);
+//}
 
-	return this->assetManager->Get<AudioClip>(filename);
-}
-
-bool AudioManager::PlaySoundEffect(const std::string& filename, float volume, float pitch)
-{
-	auto clip = this->LoadSound(filename);
-	if (!clip)
-	{
-		LogError("Failed to load sound effect: %s", filename.c_str());
-		return false;
-	}
-
-	return this->PlaySoundEffect(clip, volume);
-}
-
-bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume, float pitch)
+//bool AudioManager::PlaySoundEffect(const std::string& filename, float volume, float pitch)
+//{
+//	auto clip = this->LoadSound(filename);
+//	if (!clip)
+//	{
+//		LogError("Failed to load sound effect: %s", filename.c_str());
+//		return false;
+//	}
+//
+//	return this->PlaySoundEffect(clip, volume);
+//}
+bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
 	if (!clip)
 	{
@@ -170,6 +169,10 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume
 	buffer.AudioBytes = clip->GetAudioSize();
 	buffer.pAudioData = clip->GetAudioData().data();
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	if (loop)
+	{
+		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+	}
 
 	hr = sourceVoice->SubmitSourceBuffer(&buffer);
 	if (FAILED(hr))
@@ -191,19 +194,19 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume
 	return true;
 }
 
-bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume, float pitch)
-{
-	auto clip = this->LoadSound(filename);
-	if (!clip)
-	{
-		LogError("Failed to load sound: %s", filename.c_str());
-		return false;
-	}
 
-	return this->PlaySoundAt(clip, position, volume, pitch);
-}
-
-bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume, float pitch)
+//bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume, float pitch)
+//{
+//	auto clip = this->LoadSound(filename);
+//	if (!clip)
+//	{
+//		LogError("Failed to load sound: %s", filename.c_str());
+//		return false;
+//	}
+//
+//	return this->PlaySoundAt(clip, position, volume, pitch);
+//}
+bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch)
 {
 	if (!clip)
 	{
@@ -255,7 +258,7 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT
 	X3DAUDIO_LISTENER listener = {};
 	listener.OrientFront = { 0.0f, 0.0f, 1.0f };
 	listener.OrientTop = { 0.0f, 1.0f, 0.0f };
-	listener.Position = { this->listenerX, this->listenerY, this->listenerZ };
+	listener.Position = { this->listenerPosition.x, this->listenerPosition.y, this->listenerPosition.z };
 
 	X3DAUDIO_EMITTER emitter = {};
 	emitter.OrientFront = { 0.0f, 0.0f, 1.0f };
@@ -304,6 +307,11 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT
 	buffer.pAudioData = clip->GetAudioData().data();
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 
+	if (looping)
+	{
+		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+	}
+
 	hr = sourceVoice->SubmitSourceBuffer(&buffer);
 	if (FAILED(hr))
 	{
@@ -324,19 +332,42 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT
 	return true;
 }
 
-bool AudioManager::PlayMusic(const std::string& filename, bool loop, float volume)
+void AudioManager::StopAudio(std::shared_ptr<AudioClip> clip)
 {
-	auto clip = this->LoadSound(filename);
-	if (!clip)
-	{
-		LogError("Failed to load music: %s", filename.c_str());
-		return false;
-	}
+	if (!clip) return;
 
-	return this->PlayMusic(clip, loop, volume);
+	for (auto it = this->activeVoices.begin() ; it != this->activeVoices.end();)
+	{
+		if (it->clip == clip)
+		{
+			if (it->voice)
+			{
+				it->voice->Stop(0);
+				it->voice->DestroyVoice();
+			}
+			it = this->activeVoices.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
-bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float volume)
+
+//bool AudioManager::PlayMusic(const std::string& filename, bool loop, float volume, float pitch)
+//{
+//	auto clip = this->LoadSound(filename);
+//	if (!clip)
+//	{
+//		LogError("Failed to load music: %s", filename.c_str());
+//		return false;
+//	}
+//
+//	return this->PlayMusic(clip, loop, volume, pitch);
+//}
+
+bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
 	if (!clip)
 	{
@@ -352,8 +383,19 @@ bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float v
 
 	// Stop previous music if playing
 	this->StopMusic();
+	float maxFrequencyRatio = 4.0f;
 
-	HRESULT hr = this->xAudio2->CreateSourceVoice(&this->musicVoice, &clip->GetWaveFormat());
+	if (pitch > maxFrequencyRatio) {
+		maxFrequencyRatio = pitch;
+	}
+
+	HRESULT hr = this->xAudio2->CreateSourceVoice(
+		&this->musicVoice, 
+		&clip->GetWaveFormat(),
+		0,
+		maxFrequencyRatio
+	);
+
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Music Source Voice! HRESULT: 0x%08X", hr);
@@ -361,6 +403,7 @@ bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float v
 	}
 
 	this->musicVoice->SetVolume(volume * this->musicVolume);
+	this->musicVoice->SetFrequencyRatio(pitch);
 
 	XAUDIO2_BUFFER buffer = {};
 	buffer.AudioBytes = clip->GetAudioSize();
@@ -370,6 +413,7 @@ bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float v
 	{
 		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
 	}
+
 
 	hr = this->musicVoice->SubmitSourceBuffer(&buffer);
 	if (FAILED(hr))

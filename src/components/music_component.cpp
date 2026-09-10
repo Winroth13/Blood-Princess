@@ -98,7 +98,7 @@ bool MusicComponent::SetLooping(bool looping)
 	return true;
 }
 
-bool MusicComponent::GetPaused()
+bool MusicComponent::IsPaused()
 {
 	if (!this->audioClip) {
 		LogWarn("There is not a valid AudioClip provided!");

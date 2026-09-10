@@ -32,7 +32,7 @@ public:
 	bool GetLooping();
 	bool SetLooping(bool looping);
 
-	bool GetPaused();
+	bool IsPaused();
 	bool SetPaused(bool isPlaying);
 
 	bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
