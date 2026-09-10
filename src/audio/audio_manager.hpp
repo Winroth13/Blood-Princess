@@ -30,10 +30,7 @@ private:
 
 	AssetManager* assetManager = nullptr;
 
-	float listenerX = 0.0f;
-	float listenerY = 0.0f;
-	float listenerZ = 0.0f;
-	DirectX::XMFLOAT3 listenerPosition;
+	DirectX::XMFLOAT3 listenerPosition{ 0,0,0 };
 
 	float musicVolume = 1.0f;
 	bool isMusicPaused = false;
@@ -49,19 +46,21 @@ public:
 
 	void SetListenerPosition(DirectX::XMFLOAT3 listenerPosition);
 
-	std::shared_ptr<AudioClip> LoadSound(const std::string& filename);
+	//std::shared_ptr<AudioClip> LoadSound(const std::string& filename);
 
 	// SFX / 2D Playback
-	bool PlaySoundEffect(const std::string& filename, float volume = 1.0f, float pitch = 1.0f);
-	bool PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume = 1.0f, float pitch = 1.0f);
+	//bool PlaySoundEffect(const std::string& filename, float volume = 1.0f, float pitch = 1.0f);
+	bool PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume = 1.0f, float pitch = 1.0f);
 
 	// 3D Positional Playback
-	bool PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
-	bool PlaySoundAt(std::shared_ptr<AudioClip> clip, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
+	//bool PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
+	bool PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
+	bool StopSoundAt(std::shared_ptr<AudioClip> clip);
 
+	void StopAudio(std::shared_ptr<AudioClip> clip);
 	// Music Controls
-	bool PlayMusic(const std::string& filename, bool loop = true, float volume = 1.0f);
-	bool PlayMusic(std::shared_ptr<AudioClip> clip, bool loop = true, float volume = 1.0f);
+	//bool PlayMusic(const std::string& filename, bool loop = true, float volume = 1.0f, float pitch = 1.0f);
+	bool PlayMusic(std::shared_ptr<AudioClip> clip, bool loop = true, float volume = 1.0f, float pitch = 1.0f);
 	void StopMusic();
 	void PauseMusic();
 	void ResumeMusic();

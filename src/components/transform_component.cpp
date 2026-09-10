@@ -16,3 +16,8 @@ void TransformComponent::Update(const AppContext &context, float deltaTime)
 
     context.renderer->AddView(view);
 }
+
+DirectX::XMFLOAT3 TransformComponent::GetPosition()
+{
+    return DirectX::XMFLOAT3();
+}

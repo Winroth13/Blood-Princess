@@ -11,4 +11,6 @@ public:
     void Update(const AppContext &context, float deltaTime) override;
     void Render(const RenderView &view, RenderQueue &queue) override {}
     void OnDestroy(const AppContext &context) override {}
+
+    DirectX::XMFLOAT3 GetPosition();
 };
