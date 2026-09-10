@@ -167,6 +167,8 @@
     <ClCompile Include="src\assets\types\vertex_shader.cpp" />
     <ClCompile Include="src\audio\audio_manager.cpp" />
     <ClCompile Include="src\components\audio_component.cpp" />
+    <ClCompile Include="src\components\camera_component.cpp" />
+    <ClCompile Include="src\components\model_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
@@ -209,6 +211,8 @@
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />
     <ClInclude Include="src\components\audio_component.hpp" />
+    <ClInclude Include="src\components\camera_component.hpp" />
+    <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />

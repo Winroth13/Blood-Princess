@@ -5,9 +5,7 @@
 #include <memory>
 #include <DirectXMath.h>
 #include <string>
-
-struct ID3D11Buffer;
-struct ID3D11Device;
+#include <d3d11.h>
 
 class Texture2D;
 
@@ -104,13 +102,14 @@ public:
 	ID3D11Buffer *GetVertexBuffer() { return this->vertexBuffer; }
 	ID3D11Buffer *GetIndexBuffer() { return this->indexBuffer; }
 
+    const std::vector<SubMesh> &GetSubMeshes() const { return this->subMeshes; }
+
 };
 #pragma endregion
 
 #pragma region Material
 struct Material
 {
-	std::string name = "";
 	DirectX::XMFLOAT4 baseColor = { 1, 1, 1, 1 };
 	int32_t colorTextureIndex = -1;
 	int32_t normalTextureIndex = -1;
@@ -134,6 +133,10 @@ public:
 		const std::vector<Material> &materials,
 		const std::vector<Texture2D*> &textures
 	);
+
+    const std::vector<std::unique_ptr<Mesh>> &GetMeshes() const { return this->meshes; }
+    const std::vector<Material> &GetMaterials() const { return this->materials; }
+    const std::vector<std::unique_ptr<Texture2D>> &GetTextures() const { return this->textures; }
 };
 
 #pragma endregion

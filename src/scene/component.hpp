@@ -8,8 +8,6 @@
 #define NoUpdate() this->wantsUpdate = false
 #define NoRender() this->wantsRender = false
 
-using namespace DirectX;
-
 class Entity;
 
 class Component {
@@ -36,7 +34,7 @@ public:
     virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
     virtual void OnDestroy(const AppContext &context) = 0;
 
-    virtual bool GetWorldBounds(BoundingBox &outBounds) { return false; }
+    virtual bool GetWorldBounds(DirectX::BoundingBox &outBounds) { return false; }
 
     Entity *GetOwner() const { return this->owner; }
 

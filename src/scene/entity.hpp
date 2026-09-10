@@ -46,7 +46,7 @@ public:
     T *AddComponent(Args&&... args) {
         this->components.emplace_back(std::make_unique<T>(this, true, std::forward<Args>(args)...));
         T *ptr = static_cast<T *>(this->components.back().get());
-        // this->OnComponentAdded(ptr);
+        this->OnComponentAdded(ptr);
         return ptr;
     }
 

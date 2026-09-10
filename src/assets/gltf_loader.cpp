@@ -178,7 +178,7 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 		const tg3_material &tMaterial = this->model.materials[matIndex];
 
 		Material material = {};
-		material.name = std::string(tMaterial.name.data, tMaterial.name.len);
+		// material.name = std::string(tMaterial.name.data, tMaterial.name.len);
 
 		const tg3_pbr_metallic_roughness &pbr = tMaterial.pbr_metallic_roughness;
 		

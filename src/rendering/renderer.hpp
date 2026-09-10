@@ -41,7 +41,9 @@ public:
 
     bool Resize(uint32_t width, uint32_t height);
 
-    void AddView(const RenderView &view);
+    void AddView(RenderView &view);
+
+    float GetAspectRatio() { return this->width / (float)this->height; }
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }
