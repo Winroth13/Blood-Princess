@@ -21,3 +21,8 @@ DirectX::XMFLOAT3 TransformComponent::GetPosition()
 {
     return DirectX::XMFLOAT3();
 }
+
+void TransformComponent::Render(const RenderView &view, RenderQueue &queue)
+{
+    LogInfo("Hello!");
+}

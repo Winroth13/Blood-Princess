@@ -36,7 +36,7 @@ public:
 	void Shutdown();
 
     void NewFrame();
-	void Render();
+	void Render(Scene *scene);
     void Present();
 
     bool Resize(uint32_t width, uint32_t height);

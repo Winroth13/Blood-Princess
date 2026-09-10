@@ -1,7 +1,10 @@
 #include "application.hpp"
 #include "core/logging.hpp"
-#include "input.hpp"
+#include "input/input.hpp"
 #include "core/app_context.hpp"
+
+#include "assets/types/vertex_shader.hpp"
+#include "assets/types/pixel_shader.hpp"
 
 #include <iostream>
 #include <d3d11.h>
@@ -12,7 +15,7 @@ void Application::Update(float deltaTime) {
 }
 
 void Application::Render() {
-    this->renderer.Render();
+    this->renderer.Render(this->sceneManager.GetCurrentScene());
     this->imGuiWindow.Render();
 
     this->renderer.Present();
@@ -75,6 +78,8 @@ bool Application::Initialize()
     auto texture2 = assetManager.Get<Texture2D>("assets/princess2.png");
 
     //auto model = assetManager.Get<Model>("assets/princess.glb");
+    auto shader = assetManager.Get<VertexShader>("src/shaders/ForwardVS.cso");
+    auto pixelShader = assetManager.Get<PixelShader>("src/shaders/ForwardPS.cso");
 
     LogUnindent();
     return true;

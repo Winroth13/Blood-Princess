@@ -3,6 +3,7 @@
 #include "core/app_context.hpp"
 #include "scene/entity.hpp"
 #include "scene/scene_culler.hpp"
+#include "rendering/render_view.hpp"
 
 #include <vector>
 #include <memory>
@@ -56,7 +57,7 @@ public:
 
     void Update(float deltaTime);
 
-    // GatherVisibility() or smth, bad name idk
+    void GatherRenderCommands(std::vector<RenderView> &outViews);
 
     void Clear();
 
