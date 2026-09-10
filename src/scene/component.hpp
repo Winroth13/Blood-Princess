@@ -5,6 +5,9 @@
 
 #include <DirectXCollision.h>
 
+#define NoUpdate() this->wantsUpdate = false
+#define NoRender() this->wantsRender = false
+
 using namespace DirectX;
 
 class Entity;
@@ -17,6 +20,10 @@ class Component {
     bool isPendingDestroy = false;
     friend class Scene;
 
+protected:
+    bool wantsUpdate = true;
+    bool wantsRender = true;
+
 public:
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
     virtual ~Component() = default;
@@ -24,7 +31,6 @@ public:
     Component(const Component &other) = delete;
     Component &operator=(const Component &other) = delete;
 
-    // OnStart runs in the order that entities are added
     virtual void OnStart(const AppContext &context) = 0;
     virtual void Update(const AppContext &context, float deltaTime) = 0;
     virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
@@ -38,4 +44,7 @@ public:
     void SetActive(bool isActive) { this->isActive = isActive; }
 
     bool IsPendingDestroy() const { return this->isPendingDestroy; }
+
+    bool WantsUpdate() const { return this->wantsUpdate; }
+    bool WantsRender() const { return this->wantsRender; }
 };

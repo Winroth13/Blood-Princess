@@ -6,7 +6,7 @@ using namespace DirectX;
 
 void SceneCuller::AddComponent(Component *component)
 {
-    if (!component)
+    if (!component || !component->WantsRender())
         return;
 
     BoundingBox bounds;

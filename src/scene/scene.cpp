@@ -21,7 +21,6 @@ void Scene::StartPendingEntities() {
     }
 }
 
-// Idk if this works lol
 void Scene::RemovePendingEntities() {
     while (!this->entitiesPendingRemove.empty()) {
         std::vector<Entity *> batch;
@@ -152,7 +151,6 @@ void Scene::DeinitializeComponent(Component *component) {
     component->OnDestroy(*this->context);
 }
 
-// Idk if this works lol
 void Scene::OnEntityParentChanged(Entity *entity) {
     auto iter = std::find_if(
         this->entities.begin(),

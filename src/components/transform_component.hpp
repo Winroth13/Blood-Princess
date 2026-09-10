@@ -5,7 +5,7 @@
 class TransformComponent : public Component 
 {
 public:
-    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
+    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
 
     void OnStart(const AppContext &context) override;
     void Update(const AppContext &context, float deltaTime) override;

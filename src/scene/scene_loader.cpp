@@ -3,7 +3,7 @@
 #include "scene/entity.hpp"
 #include "components/transform_component.hpp"
 #include "components/music_component.hpp"
-#include "core/app_context.hpp";
+#include "core/app_context.hpp"
 #include "assets/asset_manager.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
