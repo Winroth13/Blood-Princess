@@ -297,11 +297,17 @@ void Renderer::NewFrame()
     this->views.clear();
 }
 
-void Renderer::Render()
+void Renderer::Render(Scene *scene)
 {
-    if (this->views.empty()) {
-        LogError("Oh no!!!!!!!!!");
+    if (!scene) {
+        LogError("Scene was nullptr\n");
+        return;
     }
+
+    if (!RenderUtils::GetView(this->views, ViewType::PRIMARY))
+        LogWarn("No primary view was found");
+
+    scene->GatherRenderCommands(this->views);
 
     this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
     this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

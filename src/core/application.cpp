@@ -12,7 +12,7 @@ void Application::Update(float deltaTime) {
 }
 
 void Application::Render() {
-    this->renderer.Render();
+    this->renderer.Render(this->sceneManager.GetCurrentScene());
     this->imGuiWindow.Render();
 
     this->renderer.Present();

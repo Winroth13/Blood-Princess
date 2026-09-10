@@ -16,3 +16,8 @@ void Transform::Update(const AppContext &context, float deltaTime)
 
     context.renderer->AddView(view);
 }
+
+void Transform::Render(const RenderView &view, RenderQueue &queue)
+{
+    LogInfo("Hello!");
+}

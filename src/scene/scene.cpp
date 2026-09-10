@@ -14,14 +14,11 @@ void Scene::StartPendingEntities() {
             entity->OnStart(*this->context);
 
             for (Component *component : entity->GetComponents())
-                ; // this->culler.AddComponent(component, entity->isStatic);
+                this->culler.AddComponent(component);
 
             entity->MarkStarted();
         }
     }
-
-    //if (this->culler.NeedsRebuild())
-    //    this->culler.Build();
 }
 
 // Idk if this works lol
@@ -40,9 +37,6 @@ void Scene::RemovePendingEntities() {
                 this->DestroyEntityRecursive(entity);
         }
     }
-
-    //if (this->culler.NeedsRebuild())
-    //    this->culler.Build();
 }
 
 void Scene::RemovePendingComponents() {
@@ -54,9 +48,6 @@ void Scene::RemovePendingComponents() {
             if (Entity *owner = component->GetOwner())
                 owner->RemoveComponentImmediate(component);
     }
-
-    //if (this->culler.NeedsRebuild())
-    //    this->culler.Build();
 }
 
 void Scene::DestroyEntityRecursive(Entity *entity) {
@@ -96,7 +87,7 @@ void Scene::DestroyEntityImmediate(Entity *entity) {
     );
 
     for (Component *component : entity->GetComponents())
-        ; // this->culler.RemoveComponent(component);
+        this->culler.RemoveComponent(component);
 
     auto iter = std::find_if(
         this->entities.begin(),
@@ -149,22 +140,16 @@ void Scene::InitializeComponent(Component *component) {
     Entity *owner = component->GetOwner();
     const bool isStatic = owner && owner->isStatic;
 
-    //this->culler.AddComponent(component, isStatic);
-
-    //if (this->culler.NeedsRebuild())
-    //    this->culler.Build();
+    this->culler.AddComponent(component);
 }
 
 void Scene::DeinitializeComponent(Component *component) {
     if (!component)
         return;
 
-    //this->culler.RemoveComponent(component);
+    this->culler.RemoveComponent(component);
 
     component->OnDestroy(*this->context);
-
-    //if (this->culler.NeedsRebuild())
-    //    this->culler.Build();
 }
 
 // Idk if this works lol
@@ -189,7 +174,7 @@ void Scene::OnEntityParentChanged(Entity *entity) {
 }
 
 void Scene::Update(float deltaTime) {
-    // TODO: Should follow the hierarchy. Currently entities are started in the order that they are added
+    // TODO: Should this follow the hierarchy? Currently entities are started in the order that they are added
     this->StartPendingEntities();
 
     if (this->isHierarchyDirty)
@@ -203,12 +188,16 @@ void Scene::Update(float deltaTime) {
     this->RemovePendingEntities();
 }
 
+void Scene::GatherRenderCommands(std::vector<RenderView> &outViews) {
+    this->culler.GatherRenderCommands(outViews);
+}
+
 void Scene::Clear() {
     for (auto &entity : this->entities)
         if (entity->HasStarted())
             entity->OnDestroy(*this->context);
 
-    //this->culler.Clear();
+    this->culler.Clear();
 
     this->entitiesPendingStart.clear();
     this->entitiesPendingRemove.clear();
