@@ -22,5 +22,5 @@ public:
 
     void Clear();
 
-    void GatherVisibility(std::vector<RenderView> &outViews) const;
+    void GatherRenderCommands(std::vector<RenderView> &outViews) const;
 };

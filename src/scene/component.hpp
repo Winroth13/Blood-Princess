@@ -19,7 +19,7 @@ class Component {
 
 public:
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
-    ~Component() = default;
+    virtual ~Component() = default;
 
     Component(const Component &other) = delete;
     Component &operator=(const Component &other) = delete;

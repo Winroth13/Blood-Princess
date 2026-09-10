@@ -12,12 +12,12 @@ void SceneCuller::AddComponent(Component *component)
     BoundingBox bounds;
     if (component->GetWorldBounds(bounds))
     {
-        if (std::find(this->cullable.begin(), this->cullable.end(), component) != this->cullable.end())
+        if (std::find(this->cullable.begin(), this->cullable.end(), component) == this->cullable.end())
             this->cullable.push_back(component);
         return;
     }
 
-    if (std::find(this->alwaysVisible.begin(), this->alwaysVisible.end(), component) != this->alwaysVisible.end())
+    if (std::find(this->alwaysVisible.begin(), this->alwaysVisible.end(), component) == this->alwaysVisible.end())
         this->alwaysVisible.push_back(component);
 }
 
@@ -43,7 +43,7 @@ void SceneCuller::Clear()
     this->alwaysVisible.clear();
 }
 
-void SceneCuller::GatherVisibility(std::vector<RenderView> &outViews) const
+void SceneCuller::GatherRenderCommands(std::vector<RenderView> &outViews) const
 {
     for (RenderView &view : outViews)
     {
