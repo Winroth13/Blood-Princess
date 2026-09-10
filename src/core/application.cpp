@@ -86,7 +86,7 @@ void Application::Run()
 
     while (this->isRunning && !this->window.ShouldClose())
     {
-		Input::Update(this->window.GetSdlWindow()); //Has to be called before PollEvents()
+		Input::Update(); //Has to be called before PollEvents()
 
         this->window.PollEvents();
 
@@ -95,25 +95,19 @@ void Application::Run()
             this->window.ClearResizeFlag();
         }
 
-        if (Input::IsKeyPressed(SDL_SCANCODE_F11))
+        if (Input::IsKeyPressed(Key::F11))
         {
             static bool isFullscreen = false;
             isFullscreen = !isFullscreen;
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
 
-        if (Input::IsKeyReleased(SDL_SCANCODE_F))
+        if (Input::IsKeyReleased(Key::F))
         {
             LogInfo("F key is released");
         }
-
         if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
             LogInfo("LMB Released");
-        }
-        const DirectX::XMFLOAT2 wheel = Input::GetMouseWheel();
-        if (wheel.x != 0.0f || wheel.y != 0.0f)
-        {
-            LogInfo("Wheel: %.1f, %.1f", wheel.x, wheel.y);
         }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
