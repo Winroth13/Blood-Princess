@@ -3,7 +3,7 @@
 #include "audio/audio_manager.hpp"
 
 
-class Audio : public Component
+class AudioComponent : public Component
 {
 
     std::string name;
@@ -16,7 +16,7 @@ class Audio : public Component
     // autoStart
 
 public:
-	Audio(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
+    AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
 
     void OnStart(const AppContext& context) override;
     // Play sound
