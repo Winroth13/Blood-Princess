@@ -104,7 +104,7 @@ std::shared_ptr<AudioClip> AudioManager::LoadSound(const std::string& filename)
 	return this->assetManager->Get<AudioClip>(filename);
 }
 
-bool AudioManager::PlaySoundEffect(const std::string& filename, float volume)
+bool AudioManager::PlaySoundEffect(const std::string& filename, float volume, float pitch)
 {
 	auto clip = this->LoadSound(filename);
 	if (!clip)
@@ -116,7 +116,7 @@ bool AudioManager::PlaySoundEffect(const std::string& filename, float volume)
 	return this->PlaySoundEffect(clip, volume);
 }
 
-bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume)
+bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume, float pitch)
 {
 	if (!clip)
 	{
@@ -153,7 +153,7 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, float volume
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return false;
 	}
-
+	sourceVoice->SetFrequencyRatio(pitch);
 	sourceVoice->SetVolume(volume);
 
 	XAUDIO2_BUFFER buffer = {};
