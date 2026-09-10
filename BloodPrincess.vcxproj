@@ -168,7 +168,8 @@
     <ClCompile Include="src\components\music.cpp" />
     <ClCompile Include="src\components\transform.cpp" />
     <ClCompile Include="src\core\application.cpp" />
-    <ClCompile Include="src\core\input.cpp" />
+    <ClCompile Include="src\input\action.cpp" />
+    <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\editor\imgui_window.cpp" />
@@ -208,7 +209,8 @@
     <ClInclude Include="src\components\transform.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
-    <ClInclude Include="src\core\input.hpp" />
+    <ClInclude Include="src\input\action.hpp" />
+    <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\imgui_window.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />

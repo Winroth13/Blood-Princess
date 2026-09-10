@@ -1,6 +1,6 @@
 #include "application.hpp"
 #include "core/logging.hpp"
-#include "input.hpp"
+#include "input/input.hpp"
 #include "core/app_context.hpp"
 
 #include <iostream>
