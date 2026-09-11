@@ -5,7 +5,7 @@
 #include "scene/scene.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/model.hpp"
-#include "editor/imgui_window.hpp"
+#include "editor/imgui_layer.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>

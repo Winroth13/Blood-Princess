@@ -49,4 +49,6 @@ public:
 
     bool WantsUpdate() const { return this->wantsUpdate; }
     bool WantsRender() const { return this->wantsRender; }
+
+    virtual TypeId GetTypeId() const = 0;
 };

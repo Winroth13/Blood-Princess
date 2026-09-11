@@ -6,7 +6,8 @@ class Renderer;
 class AssetManager;
 class SceneManager;
 class AudioManager;
-class ImGuiWindow;
+class ImGuiLayer;
+class Editor;
 
 struct AppContext
 {
@@ -16,5 +17,6 @@ struct AppContext
     AssetManager *assetManager;
     SceneManager *sceneManager;
     AudioManager *audioManager;
-    ImGuiWindow *imGuiWindow;
+    ImGuiLayer *imGuiLayer;
+    Editor *editor;
 };

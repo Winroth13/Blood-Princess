@@ -7,6 +7,8 @@ class Model;
 
 class ModelComponent : public Component 
 {
+    RegisterComponent(ModelComponent)
+
     std::shared_ptr<Model> model = nullptr;
 
 public:

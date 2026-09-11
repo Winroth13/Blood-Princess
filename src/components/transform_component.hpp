@@ -10,10 +10,10 @@ class TransformComponent : public Component
     RegisterComponent(TransformComponent)
 
     ExportProperty(XMFLOAT3, localPosition, { 0.0f, 0.0f, 0.0f })
-    ExportProperty(XMFLOAT4, localRotation, {0.0f, 0.0f, 0.0f, 1.0f}) // Quaternion
     ExportProperty(XMFLOAT3, localScale , {1.0f, 1.0f, 1.0f})
     ExportProperty(XMFLOAT3, localPivot, {0.0f, 0.0f, 0.0f})
     ExportProperty(XMFLOAT3, localEuler, {0.0f, 0.0f, 0.0f})
+    ExportProperty(XMFLOAT4, localRotation, { 0.0f, 0.0f, 0.0f, 1.0f }) // Quaternion
 
     mutable XMFLOAT4X4 cachedLocal{};
     mutable bool isLocalDirty = true;

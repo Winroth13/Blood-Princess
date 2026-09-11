@@ -19,7 +19,7 @@
     <ClCompile Include="src\scene\scene_culler.cpp" />
     <ClCompile Include="src\scene\scene_loader.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
-    <ClCompile Include="src\editor\imgui_window.cpp" />
+    <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
@@ -39,6 +39,9 @@
     <ClCompile Include="src\input\action.cpp" />
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\components\model_component.cpp" />
+    <ClCompile Include="src\editor\editor.cpp" />
+    <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
+    <ClCompile Include="src\editor\inspector_panel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -55,7 +58,7 @@
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
-    <ClInclude Include="src\editor\imgui_window.hpp" />
+    <ClInclude Include="src\editor\imgui_layer.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -92,6 +95,11 @@
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\reflection\reflection_utils.hpp" />
+    <ClInclude Include="src\editor\editor.hpp" />
+    <ClInclude Include="src\reflection\reflection_hashes.hpp" />
+    <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
+    <ClInclude Include="src\editor\inspector_panel.hpp" />
+    <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\ForwardPS.cso" />

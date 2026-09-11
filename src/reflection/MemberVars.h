@@ -113,12 +113,6 @@ struct MemberPointerHelper
 // Original macro for public members (unchanged)
 #define REGISTER_MEMBER(TYPE, FIELD) inline static RegisterMember TYPE##FIELD{TypeId::Create<TYPE>(), VariableId::Create<decltype(TYPE::FIELD)>(), #FIELD, offsetof(TYPE, FIELD), sizeof(decltype(TYPE::FIELD)), alignof(decltype(TYPE::FIELD))};
 
-// Empty macro for forward compatibility
-#define FRIEND_REGISTER_MEMBER(TYPE, FIELD)
-
-
-
-
 inline const MemberId::MemberInfo& MemberId::GetMemberInfo() const
 {
 	auto& MemberInfos = GetMemberInfos(Id);

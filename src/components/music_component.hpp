@@ -4,6 +4,8 @@
 
 class MusicComponent : public Component 
 {
+	RegisterComponent(MusicComponent)
+
 	std::shared_ptr<AudioClip> audioClip;
 
 	bool isAudioClipChanged = false;

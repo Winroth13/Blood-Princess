@@ -4,9 +4,11 @@
 
 class CameraComponent : public Component 
 {
-    float fieldOfView = XM_PIDIV2; // Radians
-    float nearPlane = 0.1f;
-    float farPlane = 512.0f;
+    RegisterComponent(CameraComponent)
+
+    ExportProperty(float, fieldOfView, XM_PIDIV2); // Radians
+    ExportProperty(float, nearPlane, 0.1f);
+    ExportProperty(float, farPlane, 512.0f);
 
 public:
     CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoRender(); }

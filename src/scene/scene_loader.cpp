@@ -16,6 +16,9 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *modelEntity = outScene.AddEntity("model");
     modelEntity->AddComponent<TransformComponent>();
+    TransformComponent *transformComponent = modelEntity->GetComponent<TransformComponent>();
+    modelEntity->SetParent(playerEntity);
+
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/princess.glb"));
 

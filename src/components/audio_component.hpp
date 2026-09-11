@@ -6,6 +6,7 @@
 
 class AudioComponent : public Component
 {
+    RegisterComponent(AudioComponent)
 
     std::shared_ptr<AudioClip> audioClip;
 
