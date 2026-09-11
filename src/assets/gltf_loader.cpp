@@ -141,7 +141,7 @@ bool GLTFLoader::Load(
 
 			for (uint32_t i = 0; i < indicies.size(); ++i)
 			{
-				meshIndicies.push_back(i + indexOffset);
+				meshIndicies.push_back(indicies[i] + indexOffset);
 			}
 			indexCount += static_cast<uint32_t>(indicies.size());
 		}
