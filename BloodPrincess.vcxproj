@@ -221,6 +221,11 @@
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\imgui_window.hpp" />
+    <ClInclude Include="src\reflection\MemberVars.h" />
+    <ClInclude Include="src\reflection\reflection_utils.hpp" />
+    <ClInclude Include="src\reflection\TypeHash.h" />
+    <ClInclude Include="src\reflection\TypeInfo.h" />
+    <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />

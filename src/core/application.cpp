@@ -74,12 +74,6 @@ bool Application::Initialize()
     this->isRunning = true;
 
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
-    auto texture = assetManager.Get<Texture2D>("assets/princess.png");
-    auto texture2 = assetManager.Get<Texture2D>("assets/princess2.png");
-
-    //auto model = assetManager.Get<Model>("assets/princess.glb");
-    auto shader = assetManager.Get<VertexShader>("src/shaders/ForwardVS.cso");
-    auto pixelShader = assetManager.Get<PixelShader>("src/shaders/ForwardPS.cso");
 
     LogUnindent();
     return true;

@@ -87,6 +87,11 @@
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\components\model_component.hpp" />
+    <ClInclude Include="src\reflection\MemberVars.h" />
+    <ClInclude Include="src\reflection\TypeHash.h" />
+    <ClInclude Include="src\reflection\TypeInfo.h" />
+    <ClInclude Include="src\reflection\VariableId.h" />
+    <ClInclude Include="src\reflection\reflection_utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\ForwardPS.cso" />
