@@ -27,17 +27,25 @@ bool SceneHierarchyPanel::Initialize(SceneManager &sceneManager)
 void SceneHierarchyPanel::ImGuiRender()
 {
 	ImGui::Begin("Scene Hierarchy");
+	Scene *scene = this->sceneManager->GetCurrentScene();
 
-	ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
-
-	if (ImGui::TreeNodeEx("Scene", flag))
+	if (scene)
 	{
-		Scene *scene = this->sceneManager->GetCurrentScene();
-		for (auto entity : scene->GetRootEntities())
+		ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
+		std::string sceneName = scene->GetName();
+		if (sceneName.empty())
 		{
-			this->DrawEntityNode(entity);
+			sceneName = "Unnamed Scene";
 		}
-		ImGui::TreePop();
+
+		if (ImGui::TreeNodeEx(sceneName.c_str(), flag))
+		{
+			for (auto entity : scene->GetRootEntities())
+			{
+				this->DrawEntityNode(entity);
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	ImGui::End();
@@ -48,7 +56,8 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 	ImGuiTreeNodeFlags flags = 
 		ImGuiTreeNodeFlags_DefaultOpen | 
 		ImGuiTreeNodeFlags_OpenOnArrow |
-		ImGuiTreeNodeFlags_SpanAvailWidth;
+		ImGuiTreeNodeFlags_SpanAvailWidth |
+		ImGuiTreeNodeFlags_DrawLinesFull;
 
 	if (entity->GetChildren().size() == 0)
 	{

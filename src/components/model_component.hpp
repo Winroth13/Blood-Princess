@@ -9,7 +9,7 @@ class ModelComponent : public Component
 {
     RegisterComponent(ModelComponent)
 
-    std::shared_ptr<Model> model = nullptr;
+    ExportProperty(std::shared_ptr<Model>, model, nullptr);
 
 public:
     ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }

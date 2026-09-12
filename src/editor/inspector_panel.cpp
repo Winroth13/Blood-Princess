@@ -7,6 +7,8 @@
 #include "reflection/reflection_utils.hpp"
 #include "reflection/reflection_hashes.hpp"
 
+#include "assets/types/audio_clip.hpp"
+
 #include <sstream>
 #include <inttypes.h>
 
@@ -42,10 +44,42 @@ void InspectorPanel::DrawComponentNode(Component *component)
 
 	if (ImGui::TreeNodeEx(name.c_str(), flags))
 	{
+		std::unordered_map<std::string, std::vector<MemberId::MemberInfo>> memberGroups;
+
+		const ImGuiTreeNodeFlags flags =
+			ImGuiTreeNodeFlags_DefaultOpen |
+			ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		// find groups
 		for (auto &member : MemberId::GetMemberInfos(id))
 		{
-			DrawComponentMemberNode(component, member);
+			if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
+				memberGroups[member.ExportInfo.Group] = { member };
+			else
+				memberGroups[member.ExportInfo.Group].push_back(member);
 		}
+
+		// draw groups
+		for (auto &[key, value] : memberGroups)
+		{
+			if (!key.empty())
+			{
+				if (ImGui::TreeNodeEx(key.c_str(), flags))
+				{
+					for (auto &member : value)
+						DrawComponentMemberNode(component, member);
+					ImGui::TreePop();
+				}
+			}
+		}
+		
+		// draw non grouped nodes
+		if (memberGroups.find("") != memberGroups.end())
+		{
+			for (auto &member : memberGroups[""])
+				DrawComponentMemberNode(component, member);
+		}
+
 		ImGui::TreePop();
 	}
 }
@@ -59,21 +93,58 @@ void InspectorPanel::DrawComponentMemberNode(
 	
 	switch (member.VariableId.GetHash())
 	{
+	case HASH_Model: {
+		std::shared_ptr<Model> model = GetMemberByOffset<std::shared_ptr<Model>>(component, member.Offset);
+		DrawAsset(name, model);
+	} break;
+
+	case HASH_AudioClip: {
+		std::shared_ptr<AudioClip> audioClip = GetMemberByOffset<std::shared_ptr<AudioClip>>(component, member.Offset);
+		DrawAsset(name, audioClip);
+	} break;
+
 	case HASH_XMFLOAT3:
 	{
 		XMFLOAT3 &values = GetMemberByOffset<XMFLOAT3>(component, member.Offset);
-		DrawFloat3(name, values);
+		if ((member.ExportInfo.flags & ExportFlags_ColorWheel) == ExportFlags_ColorWheel)
+		{
+			DrawColor3(name, values);
+		}
+		else
+		{
+			DrawFloat3(name, values);
+		}
 	} break;
 
 	case HASH_XMFLOAT4:
 	{
 		XMFLOAT4 &values = GetMemberByOffset<XMFLOAT4>(component, member.Offset);
-		DrawFloat4(name, values);
+		if ((member.ExportInfo.flags & ExportFlags_ColorWheel) == ExportFlags_ColorWheel)
+		{
+			DrawColor4(name, values);
+		}
+		else
+		{
+			DrawFloat4(name, values);
+		}
 	} break;
 
 	case HASH_float: {
 		float &value = GetMemberByOffset<float>(component, member.Offset);
-		DrawFloat(name, value);
+		DrawFloat(
+			name, 
+			value, 
+			member.ExportInfo.Unit, 
+			member.ExportInfo.Min,
+			member.ExportInfo.Max,
+			member.ExportInfo.Speed,
+			(member.ExportInfo.flags & ExportFlags_Angle) == ExportFlags_Angle
+		);
+	} break;
+	
+	case HASH_bool: {
+		bool &value = GetMemberByOffset<bool>(component, member.Offset);
+		DrawCheckbox(name, value);
 	} break;
 
 	default:

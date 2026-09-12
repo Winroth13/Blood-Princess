@@ -4,6 +4,23 @@
 #include <string>
 #include <set>
 
+enum ExportFlags
+{
+	ExportFlags_None,
+	ExportFlags_Angle,
+	ExportFlags_ColorWheel
+};
+
+struct ExportInfo final
+{
+	std::string Unit{ };
+	float Min = 0.0f;
+	float Max = 0.0f;
+	float Speed = 0.0f;
+	uint32_t flags = 0;
+	std::string Group{};
+};
+
 class MemberId final
 {
 public:
@@ -15,6 +32,9 @@ public:
 		uint32_t	Offset		{ };
 		uint32_t	Size		{ };
 		uint32_t	Align		{ };
+
+		// New Stuff
+		ExportInfo ExportInfo	{ };
 
 		constexpr bool operator<(const MemberInfo& rhs) const
 		{
@@ -47,12 +67,12 @@ public:
 public:
 
 	template <typename Class, typename Field>
-	static MemberId RegisterField(const std::string& fieldName, uint32_t Offset);
+	static MemberId RegisterField(const std::string& fieldName, uint32_t Offset, ExportInfo ExportInfo);
 
 	template <typename Field>
-	static MemberId RegisterField(TypeId classId, const std::string& fieldName, uint32_t Offset);
+	static MemberId RegisterField(TypeId classId, const std::string& fieldName, uint32_t Offset, ExportInfo ExportInfo);
 
-	static MemberId RegisterField(TypeId classId, VariableId MemberId, const std::string& fieldName, uint32_t Offset, uint32_t Size, uint32_t Align);
+	static MemberId RegisterField(TypeId classId, VariableId MemberId, const std::string& fieldName, uint32_t Offset, uint32_t Size, uint32_t Align, ExportInfo ExportInfo);
 
 	static const std::set<MemberInfo>& GetMemberInfos(TypeId id) { return GetStatics().MemberInfos[id]; }
 
@@ -86,9 +106,9 @@ private:
 
 struct RegisterMember final
 {
-	RegisterMember(TypeId classId, VariableId MemberId, const std::string& fieldName, uint32_t Offset, uint32_t Size, uint32_t Align)
+	RegisterMember(TypeId classId, VariableId MemberId, const std::string& fieldName, uint32_t Offset, uint32_t Size, uint32_t Align, ExportInfo ExportInfo)
 	{
-		MemberId::RegisterField(classId, MemberId, fieldName, Offset, Size, Align);
+		MemberId::RegisterField(classId, MemberId, fieldName, Offset, Size, Align, ExportInfo);
 	}
 };
 
@@ -106,12 +126,12 @@ struct MemberPointerHelper
 // Macro to be used INSIDE a class definition to register private members
 // Usage in private section of class:
 //   REGISTER_MEMBER_PRIVATE(ClassName, fieldName)
-#define REGISTER_MEMBER_PRIVATE(TYPE, FIELD) \
-	inline static const RegisterMember TYPE##FIELD##_reg{TypeId::Create<TYPE>(), VariableId::Create<decltype(FIELD)>(), #FIELD, MemberPointerHelper<TYPE, decltype(FIELD)>::GetOffset(&TYPE::FIELD), sizeof(decltype(FIELD)), alignof(decltype(FIELD))}; \
+#define REGISTER_MEMBER_PRIVATE(TYPE, FIELD, EXPORT_SETTINGS) \
+	inline static const RegisterMember TYPE##FIELD##_reg{TypeId::Create<TYPE>(), VariableId::Create<decltype(FIELD)>(), #FIELD, MemberPointerHelper<TYPE, decltype(FIELD)>::GetOffset(&TYPE::FIELD), sizeof(decltype(FIELD)), alignof(decltype(FIELD)), EXPORT_SETTINGS}; \
 	static_assert(true, "")
 
 // Original macro for public members (unchanged)
-#define REGISTER_MEMBER(TYPE, FIELD) inline static RegisterMember TYPE##FIELD{TypeId::Create<TYPE>(), VariableId::Create<decltype(TYPE::FIELD)>(), #FIELD, offsetof(TYPE, FIELD), sizeof(decltype(TYPE::FIELD)), alignof(decltype(TYPE::FIELD))};
+#define REGISTER_MEMBER(TYPE, FIELD, EXPORT_SETTINGS) inline static RegisterMember TYPE##FIELD{TypeId::Create<TYPE>(), VariableId::Create<decltype(TYPE::FIELD)>(), #FIELD, offsetof(TYPE, FIELD), sizeof(decltype(TYPE::FIELD)), alignof(decltype(TYPE::FIELD)), EXPORT_SETTINGS};
 
 inline const MemberId::MemberInfo& MemberId::GetMemberInfo() const
 {
@@ -128,7 +148,11 @@ inline const MemberId::MemberInfo& MemberId::GetMemberInfo() const
 	return *it;
 }
 
-inline MemberId MemberId::RegisterField(TypeId classId, VariableId MemberId, const std::string& fieldName, uint32_t Offset, uint32_t Size, uint32_t Align)
+inline MemberId MemberId::RegisterField(
+	TypeId classId, VariableId MemberId, 
+	const std::string& fieldName, uint32_t Offset, 
+	uint32_t Size, uint32_t Align, ExportInfo ExportInfo
+)
 {
 	MemberInfo info{};
 	info.Name = fieldName;
@@ -136,6 +160,7 @@ inline MemberId MemberId::RegisterField(TypeId classId, VariableId MemberId, con
 	info.Offset = Offset;
 	info.Size = Size;
 	info.Align = Align;
+	info.ExportInfo = ExportInfo;
 
 	GetStatics().MemberInfos[classId].emplace(info);
 	GetStatics().MemberInfoNameMap[classId].emplace(fieldName, Offset);
@@ -154,7 +179,7 @@ inline const MemberId::MemberInfo& MemberId::GetMemberInfo(TypeId id, const std:
 }
 
 template<typename Class, typename Field>
-inline MemberId MemberId::RegisterField(const std::string& fieldName, uint32_t Offset)
+inline MemberId MemberId::RegisterField(const std::string& fieldName, uint32_t Offset, ExportInfo ExportInfo)
 {
 	auto registerClass = RegisterType<Class>();
 	auto registerField = RegisterType<Field>();
@@ -165,11 +190,12 @@ inline MemberId MemberId::RegisterField(const std::string& fieldName, uint32_t O
 		fieldName,
 		Offset,
 		sizeof(Field),
-		alignof(Field));
+		alignof(Field),
+		ExportInfo);
 }
 
 template<typename Field>
-inline MemberId MemberId::RegisterField(TypeId classId, const std::string& fieldName, uint32_t Offset)
+inline MemberId MemberId::RegisterField(TypeId classId, const std::string& fieldName, uint32_t Offset, ExportInfo ExportInfo)
 {
 	auto registerField = RegisterType<Field>();
 
@@ -179,5 +205,6 @@ inline MemberId MemberId::RegisterField(TypeId classId, const std::string& field
 		fieldName,
 		Offset,
 		sizeof(Field),
-		alignof(Field));
+		alignof(Field),
+		ExportInfo);
 }

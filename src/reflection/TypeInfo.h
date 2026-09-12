@@ -150,7 +150,7 @@ inline constexpr TypeInfo TypeInfo::Create()
 	info.Flags[TypeFlags_IsIntegral] = std::is_integral_v<T>;
 	info.Flags[TypeFlags_IsFloatingPoint] = std::is_floating_point_v<T>;
 	info.Flags[TypeFlags_IsFundamental] = std::is_fundamental_v<T>;
-
+	
 	return info;
 }
 

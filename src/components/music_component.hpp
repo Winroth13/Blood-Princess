@@ -6,13 +6,15 @@ class MusicComponent : public Component
 {
 	RegisterComponent(MusicComponent)
 
-	std::shared_ptr<AudioClip> audioClip;
+	ExportProperty(std::shared_ptr<AudioClip>, audioClip, nullptr);
 
 	bool isAudioClipChanged = false;
-	float volume = 1.0f;
-	float pitch = 1.0f;
-	bool looping = true;
-	bool paused = false;
+
+	ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
+	ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
+	ExportProperty(bool, looping, true);
+	ExportProperty(bool, paused, false);
+
 public:
 	MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip);
 	
@@ -20,10 +22,6 @@ public:
 	void Update(const AppContext& context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override {};
 	void OnDestroy(const AppContext& context) override;
-
-
-
-
 
 	float GetVolume();
 	bool SetVolume(float volume);

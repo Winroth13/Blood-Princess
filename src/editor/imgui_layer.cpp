@@ -27,7 +27,8 @@ bool ImGuiLayer::Initialize(
 	ImGui_ImplSDL3_InitForD3D(sdlWindow);
 	ImGui_ImplDX11_Init(device, deviceContext);
 
-	io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16.0f);
+	io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Bold.ttf", 16.0f);
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 16.0f);
 
 	ImGuiStyle *style = &ImGui::GetStyle();
 	ImVec4 *colors = style->Colors;
@@ -68,7 +69,7 @@ bool ImGuiLayer::Initialize(
 	colors[ImGuiCol_Button] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
 	colors[ImGuiCol_ButtonHovered] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 	colors[ImGuiCol_ButtonActive] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-	colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 0.00f);
+	colors[ImGuiCol_Header] = ImVec4(0.29f, 0.29f, 0.29f, 0.78f);
 	colors[ImGuiCol_HeaderHovered] = ImVec4(0.22f, 0.22f, 0.22f, 0.78f);
 	colors[ImGuiCol_HeaderActive] = ImVec4(0.29f, 0.29f, 0.29f, 0.78f);
 	colors[ImGuiCol_Separator] = ImVec4(0.29f, 0.29f, 0.29f, 0.50f);
