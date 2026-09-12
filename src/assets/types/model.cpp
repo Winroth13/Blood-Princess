@@ -1,6 +1,7 @@
 #include "assets/types/model.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "core/logging.hpp"
+#include "imgui/imgui.h"
 
 #pragma region Vertex
 
@@ -146,4 +147,44 @@ bool Model::Create(
 	LogUnindent();
 
 	return true;
+}
+
+void Model::DrawImGui()
+{
+	if (ImGui::TreeNode("Meshes"))
+	{
+		int meshIndex = 0;
+
+		for (auto &mesh : this->meshes)
+		{
+			std::string label = std::to_string(meshIndex);
+			if (ImGui::TreeNode(label.c_str()))
+			{
+				ImGui::Text("Vertices: %d", mesh->GetNumVertices());
+				ImGui::Text("Indicies: %d", mesh->GetNumVertices());
+
+				if (ImGui::TreeNode("Submeshes"))
+				{
+					int subMeshIndex = 0;
+
+					for (auto &submesh : mesh->GetSubMeshes())
+					{
+						if (ImGui::TreeNode(std::to_string(subMeshIndex).c_str()))
+						{
+							ImGui::Text("Start Index: %d", submesh.startIndex);
+							ImGui::Text("Index Count: %d", submesh.numIndicies);
+							ImGui::TreePop();
+						}
+						subMeshIndex++;
+					}
+					ImGui::TreePop();
+				}
+
+				ImGui::TreePop();
+			}
+			meshIndex++;
+		}
+
+		ImGui::TreePop();
+	}
 }

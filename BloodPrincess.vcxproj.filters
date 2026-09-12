@@ -42,6 +42,7 @@
     <ClCompile Include="src\editor\editor.cpp" />
     <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
     <ClCompile Include="src\editor\inspector_panel.cpp" />
+    <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -100,6 +101,7 @@
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
+    <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\ForwardPS.cso" />

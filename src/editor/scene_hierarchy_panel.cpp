@@ -14,7 +14,7 @@
 
 bool SceneHierarchyPanel::Initialize(SceneManager &sceneManager)
 {
-	LogInfo("Creating Scene Hierarchy...");
+	LogInfo("Creating Scene Hierarchy Panel...");
 	LogIndent();
 
 	this->sceneManager = &sceneManager;

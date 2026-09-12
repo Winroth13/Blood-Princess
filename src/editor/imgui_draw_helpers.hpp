@@ -2,7 +2,9 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "assets/asset.hpp"
-#include "SDL3/SDL.h"
+
+#include <DirectXMath.h>
+using namespace DirectX;
 
 #include <string>
 
@@ -21,6 +23,13 @@ static void EndMemberDraw()
 {
 	ImGui::Columns(1);
 	ImGui::PopID();
+}
+
+static void DrawFramedText(const std::string &text)
+{
+	static char textBuffer[128] = "";
+	snprintf(textBuffer, sizeof(textBuffer), "%s", text.c_str());
+	ImGui::InputText("##framedText", textBuffer, IM_ARRAYSIZE(textBuffer), ImGuiInputTextFlags_ReadOnly);
 }
 
 static void DrawFloat(const std::string &name, float &value, const std::string& unit = "", float min = 0.0f, float max = 0.0f, float speed = 0.1f, bool angle = false)
@@ -221,17 +230,17 @@ static void DrawColor4(const std::string &name, XMFLOAT4 &values)
 	EndMemberDraw();
 }
 
-static void DrawAsset(const std::string &name, std::shared_ptr<Asset> asset)
+static bool DrawAsset(const std::string &name, std::shared_ptr<Asset> asset)
 {
 	BeginMemberDraw(name);
+
+	bool pressed = false;
 
 	std::string path = "<NONE>";
 	if (asset)
 		path = asset->GetPath();
 
-	static char textBuffer[128] = "";
-	snprintf(textBuffer, sizeof(textBuffer), "%s", path.c_str());
-	ImGui::InputText("##path", textBuffer, IM_ARRAYSIZE(textBuffer), ImGuiInputTextFlags_ReadOnly);
+	DrawFramedText(path);
 
 	ImGui::SameLine();
 	float lineHeight = ImGui::GetFontSize() + GImGui->Style.FramePadding.y * 2.0f;
@@ -239,10 +248,12 @@ static void DrawAsset(const std::string &name, std::shared_ptr<Asset> asset)
 	
 	if (ImGui::Button("...", buttonSize))
 	{
-		
+		pressed = true;
 	}
 
 	EndMemberDraw();
+
+	return pressed;
 }
 
 static void DrawCheckbox(const std::string &name, bool &value)

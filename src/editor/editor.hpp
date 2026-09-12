@@ -1,6 +1,7 @@
 #pragma once
 #include "editor/scene_hierarchy_panel.hpp"
 #include "editor/inspector_panel.hpp"
+#include "editor/asset_viewer_panel.hpp"
 
 #include <DirectXMath.h>
 
@@ -10,6 +11,7 @@ class Editor
 {
 	SceneHierarchyPanel sceneHierarchyPanel;
 	InspectorPanel inspectorPanel;
+	AssetViewerPanel assetViewerPanel;
 
 public:
 	Editor() = default;

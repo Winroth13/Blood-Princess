@@ -128,6 +128,8 @@ public:
 	Model() = default;
 	~Model() = default;
 
+	void DrawImGui() override;
+
 	bool Create(
 		const std::vector<Mesh*> &meshes, 
 		const std::vector<Material> &materials,

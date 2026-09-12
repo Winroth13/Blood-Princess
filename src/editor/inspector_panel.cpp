@@ -3,6 +3,7 @@
 #include "core/logging.hpp"
 #include "imgui/imgui.h"
 #include "editor/imgui_draw_helpers.hpp"
+#include "editor/asset_viewer_panel.hpp"
 
 #include "reflection/reflection_utils.hpp"
 #include "reflection/reflection_hashes.hpp"
@@ -11,6 +12,18 @@
 
 #include <sstream>
 #include <inttypes.h>
+
+bool InspectorPanel::Initialize(AssetViewerPanel &assetViewerPanel)
+{
+	LogInfo("Creating Asset Viewer Panel...");
+	LogIndent();
+
+	this->assetViewerPanel = &assetViewerPanel;
+
+	LogUnindent();
+
+	return true;
+}
 
 void InspectorPanel::ImGuiRender()
 {
@@ -95,12 +108,16 @@ void InspectorPanel::DrawComponentMemberNode(
 	{
 	case HASH_Model: {
 		std::shared_ptr<Model> model = GetMemberByOffset<std::shared_ptr<Model>>(component, member.Offset);
-		DrawAsset(name, model);
+		if (DrawAsset(name, model))
+			this->assetViewerPanel->SetViewingAsset(model);
 	} break;
 
 	case HASH_AudioClip: {
 		std::shared_ptr<AudioClip> audioClip = GetMemberByOffset<std::shared_ptr<AudioClip>>(component, member.Offset);
-		DrawAsset(name, audioClip);
+
+		if (DrawAsset(name, audioClip))
+			this->assetViewerPanel->SetViewingAsset(audioClip);
+
 	} break;
 
 	case HASH_XMFLOAT3:

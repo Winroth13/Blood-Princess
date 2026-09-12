@@ -10,6 +10,8 @@ public:
 	Asset() = default;
 	~Asset() = default;
 
+	virtual void DrawImGui();
+
 	void SetPath(const std::string &path);
 	std::string GetPath() const;
 };
