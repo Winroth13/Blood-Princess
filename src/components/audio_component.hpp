@@ -12,7 +12,6 @@ class AudioComponent : public Component
     AudioManager* audioManagerRef = nullptr;
 
     DirectX::XMFLOAT3 audioPosition = { 0,0,0 };
-    DirectX::XMFLOAT3 listenerPosition = { 0,0,0 };
     float volume = 1.0f;
     float pitch = 1.0f;
     bool is3D = true;
@@ -27,8 +26,7 @@ public:
     void Render(const RenderView& view, RenderQueue& queue) override {};
     void OnDestroy(const AppContext& context) override;
 
-    void PlayOnce();
-    void PlayInfinity();
+    void Play();
     bool StopPlaying();
     
     float GetVolume();
@@ -44,7 +42,7 @@ public:
     bool SetLooping(bool state);
 
     DirectX::XMFLOAT3 GetAudioPosition();
-    bool SetAudioPoition(DirectX::XMFLOAT3 audioPoition);
+    bool SetAudioPosition(DirectX::XMFLOAT3 audioPoition);
 
     bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
 
