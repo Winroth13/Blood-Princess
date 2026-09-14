@@ -100,6 +100,62 @@ constexpr float DEFAULT_SPEED = 0.1f;
     REGISTER_MEMBER_PRIVATE(ClassName, MemberName, (ExportInfo{"", 0.0f, 0.0f, DEFAULT_SPEED, ExportFlags_ColorWheel, CategoryResolver<__LINE__>::Value}));
 
 /*
+*   PROPERTY CHANGED CALLBACKS
+*/
+
+#define _REFLECTION_CONCAT_INNER(a, b) a##b
+#define _REFLECTION_CONCAT(a, b) _REFLECTION_CONCAT_INNER(a, b)
+
+// Binds a member function that is called whenever the given exported property is written
+// to from the outside (the inspector, a scene loader, an undo step, ...).
+//
+// Place it on the line directly BELOW the Export* macro of the property it belongs to.
+// It has to come after the property because it needs the member's byte offset, but the
+// callback function itself may be declared anywhere in the class (even further down,
+// and it may be private) - the body of the generated dispatcher is only parsed once the
+// class is complete.
+//
+// The callback takes no arguments and may be const. Binding several callbacks to the
+// same property is allowed; they run in registration order.
+//
+// Supports:
+// Any exported property
+//
+// Usage:
+// OnPropertyChanged(<name>, <member function>)
+//
+// Example:
+// ExportProperty(XMFLOAT3, localPosition, {0.0f, 0.0f, 0.0f})
+// OnPropertyChanged(localPosition, MarkLocalDirty)
+#define OnPropertyChanged(MemberName, MemberCallback) \
+    static void _REFLECTION_CONCAT(ReflectionPropertyCallback_, __LINE__)(void *instance) \
+    { \
+        static_cast<ClassName *>(instance)->MemberCallback(); \
+    } \
+    inline static const RegisterPropertyCallback _REFLECTION_CONCAT(ReflectionPropertyCallbackReg_, __LINE__){ \
+        TypeId::Create<ClassName>(), \
+        MemberPointerHelper<ClassName, decltype(MemberName)>::GetOffset(&ClassName::MemberName), \
+        &ClassName::_REFLECTION_CONCAT(ReflectionPropertyCallback_, __LINE__)}; \
+    static_assert(true, "")
+
+// Binds a member function that is called whenever ANY exported property of the class is
+// written to from the outside. Runs after the property specific callbacks, if any.
+// Can be placed anywhere inside the class, it does not refer to a member variable.
+//
+// Usage:
+// OnAnyPropertyChanged(<member function>)
+#define OnAnyPropertyChanged(MemberCallback) \
+    static void _REFLECTION_CONCAT(ReflectionAnyPropertyCallback_, __LINE__)(void *instance) \
+    { \
+        static_cast<ClassName *>(instance)->MemberCallback(); \
+    } \
+    inline static const RegisterPropertyCallback _REFLECTION_CONCAT(ReflectionAnyPropertyCallbackReg_, __LINE__){ \
+        TypeId::Create<ClassName>(), \
+        MemberId::AnyMember, \
+        &ClassName::_REFLECTION_CONCAT(ReflectionAnyPropertyCallback_, __LINE__)}; \
+    static_assert(true, "")
+
+/*
 *   Easy way to get a reference to any member variable inside a class or struct
 *   given it's byte offset.
 */

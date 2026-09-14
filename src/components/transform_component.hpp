@@ -10,10 +10,18 @@ class TransformComponent : public Component
     RegisterComponent(TransformComponent)
 
     ExportPropertyColor(XMFLOAT3, localPosition, { 0.0f, 0.0f, 0.0f })
+    OnPropertyChanged(localPosition, MarkLocalDirty);
+
     ExportProperty(XMFLOAT3, localScale , {1.0f, 1.0f, 1.0f})
+    OnPropertyChanged(localScale, MarkLocalDirty);
+
     ExportProperty(XMFLOAT3, localPivot, {0.0f, 0.0f, 0.0f})
+
     ExportProperty(XMFLOAT3, localEuler, {0.0f, 0.0f, 0.0f})
+    OnPropertyChanged(localEuler, OnLocalEulerEdited);
+
     ExportProperty(XMFLOAT4, localRotation, { 0.0f, 0.0f, 0.0f, 1.0f }) // Quaternion
+    OnPropertyChanged(localRotation, OnLocalRotationEdited);
 
     mutable XMFLOAT4X4 cachedLocal{};
     mutable bool isLocalDirty = true;
@@ -23,6 +31,10 @@ class TransformComponent : public Component
 
     void MarkLocalDirty();
     void MarkWorldDirty();
+
+    // Keeps localEuler and localRotation in sync when either one is edited directly.
+    void OnLocalEulerEdited();
+    void OnLocalRotationEdited();
 
 public:
     static XMFLOAT3 ExtractScale(const XMMATRIX &matrix);

@@ -23,6 +23,17 @@ void TransformComponent::MarkWorldDirty() {
     }
 }
 
+void TransformComponent::OnLocalEulerEdited() {
+    this->localRotation = EulerAnglesToQuaternion(this->localEuler);
+    this->MarkLocalDirty();
+}
+
+void TransformComponent::OnLocalRotationEdited() {
+    XMStoreFloat4(&this->localRotation, XMQuaternionNormalize(XMLoadFloat4(&this->localRotation)));
+    this->localEuler = QuaternionToEulerAngles(this->localRotation);
+    this->MarkLocalDirty();
+}
+
 XMFLOAT3 TransformComponent::ExtractScale(const XMMATRIX &matrix) {
     XMVECTOR scale, rotation, translation;
     XMMatrixDecompose(&scale, &rotation, &translation, matrix);
