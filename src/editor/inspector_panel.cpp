@@ -110,13 +110,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
     switch (member.VariableId.GetHash())
     {
-        case HASH_Model: {
+        case GetTypeHash<std::shared_ptr<Model>>():
+        {
             std::shared_ptr<Model> model = GetMemberByOffset<std::shared_ptr<Model>>(component, member.Offset);
             if (DrawAsset(name, model))
                 this->assetViewerPanel->SetViewingAsset(model);
         } break;
 
-        case HASH_AudioClip: {
+        case GetTypeHash<std::shared_ptr<AudioClip>>(): 
+        {
             std::shared_ptr<AudioClip> audioClip = GetMemberByOffset<std::shared_ptr<AudioClip>>(component, member.Offset);
 
             if (DrawAsset(name, audioClip))
@@ -124,7 +126,7 @@ void InspectorPanel::DrawComponentMemberNode(
 
         } break;
 
-        case HASH_XMFLOAT3:
+        case GetTypeHash<XMFLOAT3>():
         {
             XMFLOAT3 &values = GetMemberByOffset<XMFLOAT3>(component, member.Offset);
             if ((member.ExportInfo.flags & ExportFlags_ColorWheel) == ExportFlags_ColorWheel)
@@ -137,7 +139,7 @@ void InspectorPanel::DrawComponentMemberNode(
             }
         } break;
 
-        case HASH_XMFLOAT4:
+        case GetTypeHash<XMFLOAT4>():
         {
             XMFLOAT4 &values = GetMemberByOffset<XMFLOAT4>(component, member.Offset);
             if ((member.ExportInfo.flags & ExportFlags_ColorWheel) == ExportFlags_ColorWheel)
@@ -150,7 +152,8 @@ void InspectorPanel::DrawComponentMemberNode(
             }
         } break;
 
-        case HASH_float: {
+        case GetTypeHash<float>(): 
+        {
             float &value = GetMemberByOffset<float>(component, member.Offset);
             changed = DrawFloat(
                 name, 
@@ -163,7 +166,8 @@ void InspectorPanel::DrawComponentMemberNode(
             );
         } break;
 
-        case HASH_bool: {
+        case GetTypeHash<bool>(): 
+        {
             bool &value = GetMemberByOffset<bool>(component, member.Offset);
             changed = DrawCheckbox(name, value);
         } break;

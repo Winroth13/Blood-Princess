@@ -127,7 +127,7 @@ constexpr float DEFAULT_SPEED = 0.1f;
 // Example:
 // ExportProperty(XMFLOAT3, localPosition, {0.0f, 0.0f, 0.0f})
 // OnPropertyChanged(localPosition, MarkLocalDirty)
-#define OnPropertyChanged(MemberName, MemberCallback) \
+#define ExportPropertyChanged(MemberName, MemberCallback) \
     static void _REFLECTION_CONCAT(ReflectionPropertyCallback_, __LINE__)(void *instance) \
     { \
         static_cast<ClassName *>(instance)->MemberCallback(); \
@@ -163,4 +163,15 @@ template <typename T, typename Type>
 T &GetMemberByOffset(Type *typePtr, size_t byteOffset)
 {
     return *reinterpret_cast<T *>(reinterpret_cast<uint8_t *>(typePtr) + byteOffset);
+}
+
+/*
+*  Convenience function for retreiving the hash for a specific type
+*  at compile time. Useful when you wan't to switch behaviour depending on type.
+*/
+template <typename T>
+consteval uint64_t GetTypeHash()
+{
+    VariableId variableId = VariableId::Create<T>();
+    return variableId.GetHash();
 }
