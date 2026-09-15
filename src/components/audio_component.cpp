@@ -19,6 +19,7 @@ void AudioComponent::Update(const AppContext& context, float deltaTime)
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
 		if (this->currentSoundId != 0 && this->is3D && this->audioManagerRef) {
 			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, transform->GetWorldPosition());
+			this->audioManagerRef->UpdateAudio(this->currentSoundId, this->radius, this->looping, this->is3D, this->volume);
 		}
 	}
 }
@@ -39,7 +40,9 @@ void AudioComponent::Play()
 				this->looping,
 				transform->GetWorldPosition(),
 				this->volume,
-				this->pitch);
+				this->pitch,
+				this->radius
+				);
 		}
 		else if (this->audioManagerRef)
 		{
@@ -51,7 +54,6 @@ void AudioComponent::Play()
 		}
 	}
 }
-
 bool AudioComponent::StopPlaying()
 {
 	if (!this->audioClip)
@@ -139,6 +141,21 @@ bool AudioComponent::SetLooping(bool state)
 	else {
 		this->looping = state;
 	}
+	return true;
+}
+
+float AudioComponent::GetAudioRadius()
+{
+	return this->radius;
+}
+
+bool AudioComponent::SetAudioRadius(float radius)
+{
+	if (!this->audioManagerRef) {
+		LogWarn("The Audio Manager referance is not valid in Audio Component!");
+		return false;
+	}
+	this->radius = radius;
 	return true;
 }
 

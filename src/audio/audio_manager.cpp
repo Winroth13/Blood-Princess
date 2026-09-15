@@ -21,21 +21,32 @@ void AudioManager::Update(float deltaTime)
 	}
 
 	X3DAUDIO_LISTENER listener = {};
-	listener.OrientFront = this->listenerOrientFront;
-	listener.OrientTop = this->listenerOrientTop;
-	listener.Position = this->listenerPosition;
+	listener.OrientFront = { this->listenerOrientFront.x, this->listenerOrientFront.y, this->listenerOrientFront.z };
+	listener.OrientTop = { this->listenerOrientTop.x, this->listenerOrientTop.y, this->listenerOrientTop.z };
+	listener.Position = { this->listenerPosition.x, this->listenerPosition.y, this->listenerPosition.z };
+
+	static X3DAUDIO_DISTANCE_CURVE_POINT VolumeCurvePoints[2] = {
+		{ 0.0f, 1.0f },
+		{ 1.0f, 0.0f }
+	};
+	static X3DAUDIO_DISTANCE_CURVE VolumeCurve = {
+		&VolumeCurvePoints[0],
+		2
+	};
 
 	for (auto& active : this->activeVoices)
 	{
 		if (!active.is3D || !active.voice) continue;
+
 
 		X3DAUDIO_EMITTER emitter = {};
 		emitter.OrientFront = { 0.0f, 0.0f, 1.0f };
 		emitter.OrientTop = { 0.0f, 1.0f, 0.0f };
 		emitter.Position = active.position;
 		emitter.ChannelCount = active.clip->GetChannels();
-		emitter.CurveDistanceScaler = 1.0f;
+		emitter.CurveDistanceScaler = (active.radius > 0.0f) ? (1.0f/ active.radius) : 1.0f;
 		emitter.DopplerScaler = 1.0f;
+		emitter.pVolumeCurve = &VolumeCurve;
 
 		std::vector<float> channelAzimuths;
 		if (emitter.ChannelCount > 1)
@@ -47,7 +58,7 @@ void AudioManager::Update(float deltaTime)
 				channelAzimuths[1] = X3DAUDIO_PI / 4.0f;
 			}
 			emitter.pChannelAzimuths = channelAzimuths.data();
-			emitter.ChannelRadius = 20.0f;
+			emitter.ChannelRadius = active.radius;
 		}
 		else
 		{
@@ -81,6 +92,50 @@ void AudioManager::UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& newP
 			active.position = newPosition;
 			break;
 		}
+	}
+}
+
+void AudioManager::UpdateAudio(SoundId id, float radius, bool looping, bool is3D, float volume)
+{
+	for (auto& active : this->activeVoices)
+	{
+		if (active.id == id) {
+
+			if (active.looping != looping && active.voice && active.clip) {
+				active.voice->Stop(0);
+				active.voice->FlushSourceBuffers();
+
+				XAUDIO2_BUFFER buffer = {};
+				buffer.AudioBytes = active.clip->GetAudioSize();
+				buffer.pAudioData = active.clip->GetAudioData().data();
+				buffer.Flags = XAUDIO2_END_OF_STREAM;
+
+				if (looping)
+				{
+					buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+				}
+				else
+				{
+					buffer.LoopCount = 0;
+				}
+				HRESULT hr = active.voice->SubmitSourceBuffer(&buffer);
+				if (SUCCEEDED(hr))
+				{
+					active.voice->Start(0);
+				}
+				else
+				{
+					LogError("Failed to re-submit source buffer during loop toggle! HRESULT: 0x%08X", hr);
+				}
+
+			}
+			active.radius = radius;
+			active.is3D = is3D;
+			active.volume = volume;
+			active.looping = looping;
+			break;
+		}
+		
 	}
 }
 
@@ -207,28 +262,6 @@ void AudioManager::SetListener(const DirectX::XMFLOAT3& listenerPosition, const 
 	this->listenerOrientTop = top;
 }
 
-//std::shared_ptr<AudioClip> AudioManager::LoadSound(const std::string& filename)
-//{
-//	if (!this->assetManager)
-//	{
-//		LogError("AssetManager is nullptr in AudioManager!");
-//		return nullptr;
-//	}
-//
-//	return this->assetManager->Get<AudioClip>(filename);
-//}
-
-//bool AudioManager::PlaySoundEffect(const std::string& filename, float volume, float pitch)
-//{
-//	auto clip = this->LoadSound(filename);
-//	if (!clip)
-//	{
-//		LogError("Failed to load sound effect: %s", filename.c_str());
-//		return false;
-//	}
-//
-//	return this->PlaySoundEffect(clip, volume);
-//}
 SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
 	if (!clip)
@@ -305,23 +338,12 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume });
+	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume});
 	return id;
 }
 
 
-//bool AudioManager::PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume, float pitch)
-//{
-//	auto clip = this->LoadSound(filename);
-//	if (!clip)
-//	{
-//		LogError("Failed to load sound: %s", filename.c_str());
-//		return false;
-//	}
-//
-//	return this->PlaySoundAt(clip, position, volume, pitch);
-//}
-SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch)
+SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch, float radius)
 {
 	if (!clip)
 	{
@@ -380,9 +402,8 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	emitter.OrientTop = { 0.0f, 1.0f, 0.0f };
 	emitter.Position = { position.x, position.y, position.z };
 	emitter.ChannelCount = clip->GetChannels();
-	emitter.CurveDistanceScaler = 1.0f;
+	emitter.CurveDistanceScaler = (radius > 0.0f) ? (1.0f/radius) : 1.0f;;
 	emitter.DopplerScaler = 1.0f;
-
 	std::vector<float> channelAzimuths;
 	if (emitter.ChannelCount > 1)
 	{
@@ -393,7 +414,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 			channelAzimuths[1] = X3DAUDIO_PI / 4.0f;
 		}
 		emitter.pChannelAzimuths = channelAzimuths.data();
-		emitter.ChannelRadius = 20.0f;
+		emitter.ChannelRadius = (radius > 0.0f) ? radius : 20.0f;;
 	}
 	else
 	{
@@ -444,7 +465,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume });
+	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume , radius});
 	return id;
 }
 
