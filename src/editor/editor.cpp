@@ -75,9 +75,9 @@ void Editor::ImGuiRender(const AppContext &appContext)
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_T))
 				this->currentOperation = ImGuizmo::TRANSLATE;
-			if (ImGui::IsKeyPressed(ImGuiKey_E))
-				this->currentOperation = ImGuizmo::ROTATE;
 			if (ImGui::IsKeyPressed(ImGuiKey_R))
+				this->currentOperation = ImGuizmo::ROTATE;
+			if (ImGui::IsKeyPressed(ImGuiKey_E))
 				this->currentOperation = ImGuizmo::SCALE;
 
 			std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
