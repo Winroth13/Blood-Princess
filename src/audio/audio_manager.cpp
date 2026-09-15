@@ -88,11 +88,11 @@ void AudioManager::Shutdown()
 	LogUnindent();
 }
 
-void AudioManager::SetListener(DirectX::XMFLOAT3 listenerPosition, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 top)
+void AudioManager::SetListener(const DirectX::XMFLOAT3& listenerPosition, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& top)
 {
 	this->listenerPosition = listenerPosition;
-	this->listenerOrintFront = front;
-	this->listenerOrintTop = top;
+	this->listenerOrientFront = front;
+	this->listenerOrientTop = top;
 }
 
 //std::shared_ptr<AudioClip> AudioManager::LoadSound(const std::string& filename)
@@ -258,8 +258,8 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, Di
 
 	// Calculate 3D positional audio
 	X3DAUDIO_LISTENER listener = {};
-	listener.OrientFront = {this->listenerOrintFront.x, this->listenerOrintFront.y, this->listenerOrintFront.z};
-	listener.OrientTop = { this->listenerOrintFront.x, this->listenerOrintFront.y, this->listenerOrintFront.z };
+	listener.OrientFront = { this->listenerOrientFront.x, this->listenerOrientFront.y, this->listenerOrientFront.z };
+	listener.OrientTop = { this->listenerOrientTop.x, this->listenerOrientTop.y, this->listenerOrientTop.z };
 	listener.Position = { this->listenerPosition.x, this->listenerPosition.y, this->listenerPosition.z };
 
 	X3DAUDIO_EMITTER emitter = {};
@@ -280,7 +280,7 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, Di
 			channelAzimuths[1] = X3DAUDIO_PI / 4.0f;
 		}
 		emitter.pChannelAzimuths = channelAzimuths.data();
-		emitter.ChannelRadius = 1.0f;
+		emitter.ChannelRadius = 20.0f;
 	}
 	else
 	{

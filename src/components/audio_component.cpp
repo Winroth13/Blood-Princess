@@ -12,13 +12,16 @@ AudioComponent::AudioComponent(Entity* owner, bool isActive, std::shared_ptr<Aud
 void AudioComponent::OnStart(const AppContext& context)
 {
 	this->audioManagerRef = context.audioManager;
+	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
+		this->audioPosition = transform->GetWorldPosition();
+	}
 }
 
 void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
 		this->audioPosition = transform->GetWorldPosition();
-	};
+	}
 }
 
 void AudioComponent::OnDestroy(const AppContext& context)
@@ -28,7 +31,11 @@ void AudioComponent::OnDestroy(const AppContext& context)
 
 void AudioComponent::Play()
 {
-	if(this->audioManagerRef && this->is3D)
+	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
+		this->audioPosition = transform->GetWorldPosition();
+	}
+
+	if (this->audioManagerRef && this->is3D)
 	{
 		this->audioManagerRef->PlaySoundAt(
 			this->audioClip, 
@@ -37,7 +44,7 @@ void AudioComponent::Play()
 			this->volume, 
 			this->pitch);
 	}
-	else
+	else if (this->audioManagerRef)
 	{
 		this->audioManagerRef->PlaySoundEffect(
 			this->audioClip, 
