@@ -14,34 +14,6 @@
 
 using namespace DirectX;
 
-// Camera & projection parameters
-static const float FOV = XMConvertToRadians(45.0f);
-static const float ASPECT_RATIO = 1024.0f / 576.0f;
-static const float NEAR_PLANE = 0.1f;
-static const float FAR_PLANE = 100.0f;
-
-static const XMVECTOR EYE = XMVectorSet(0.0f, 0.0f, 3.0f, 1.0f);
-static const XMVECTOR AT = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-static const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-static const XMMATRIX VIEW = XMMatrixLookAtLH(EYE, AT, UP);
-static const XMMATRIX PROJECTION = XMMatrixPerspectiveFovLH(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
-static const XMMATRIX VIEW_PROJ = VIEW * PROJECTION;
-
-struct MatrixPair
-{
-	XMFLOAT4X4 world;
-	XMFLOAT4X4 viewProj;
-};
-
-namespace
-{
-	ID3D11VertexShader* vShader = nullptr;
-	ID3D11PixelShader* pShader = nullptr;
-	ID3D11InputLayout* inputLayout = nullptr;
-	ID3D11Buffer* constantBuffer = nullptr;
-	ID3D11SamplerState* samplerState = nullptr;
-}
 bool Renderer::CreateInterface(HWND hWnd)
 {
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};
@@ -57,7 +29,7 @@ bool Renderer::CreateInterface(HWND hWnd)
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.SampleDesc.Quality = 0;
 
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_UNORDERED_ACCESS;
     swapChainDesc.BufferCount = 2;
     swapChainDesc.OutputWindow = hWnd;
     swapChainDesc.Windowed = TRUE;
@@ -96,32 +68,6 @@ bool Renderer::CreateInterface(HWND hWnd)
 
     LogInfo("Device and Swap Chain created");
 
-    return true;
-}
-
-bool Renderer::CreateRenderTargetView()
-{
-    ID3D11Texture2D *backbuffer{};
-    HRESULT result = this->swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backbuffer);
-
-    if (FAILED(result))
-    {
-        LogError("Failed to create the backbuffer");
-        return false;
-    }
-
-    LogInfo("Backbuffer created");
-
-    result = this->device->CreateRenderTargetView(backbuffer, nullptr, &this->renderTargetView);
-    backbuffer->Release();
-
-    if (FAILED(result)) 
-    {
-        LogError("Failed to create the Render Target View");
-        return false;
-    }
-
-    LogInfo("Render Target View created");
     return true;
 }
 
@@ -172,7 +118,7 @@ bool Renderer::Initialize(const Window *window)
     if (!this->CreateInterface(window->GetHWNDPointer()))
         return false;
 
-    if (!this->CreateRenderTargetView())
+    if (!this->backbuffer.Create(this->device, this->swapChain))
         return false;
 
     if (!this->CreateDepthStencilView())
@@ -185,70 +131,6 @@ bool Renderer::Initialize(const Window *window)
     this->viewport.MinDepth = 0.0f;
     this->viewport.MaxDepth = 1.0f;
 
-    // Load compiled shaders from .cso files (matching lab implementation)
-    auto loadShader = [](const std::string& filename) -> std::vector<char>
-    {
-        std::ifstream reader(filename, std::ios::binary | std::ios::ate);
-        if (!reader.is_open())
-            return {};
-        size_t size = reader.tellg();
-        std::vector<char> buffer(size);
-        reader.seekg(0);
-        reader.read(buffer.data(), size);
-        return buffer;
-    };
-
-    auto vertexShaderData = loadShader("assets/ForwardVS.cso");
-    if (vertexShaderData.empty())
-    {
-        LogError("Failed to load assets/ForwardVS.cso");
-        return false;
-    }
-    this->device->CreateVertexShader(vertexShaderData.data(), vertexShaderData.size(), nullptr, &vShader);
-    LogInfo("Vertex Shader created");
-
-    auto pixelShaderData = loadShader("assets/ForwardPS.cso");
-    if (pixelShaderData.empty())
-    {
-        LogError("Failed to load assets/ForwardPS.cso");
-        return false;
-    }
-    this->device->CreatePixelShader(pixelShaderData.data(), pixelShaderData.size(), nullptr, &pShader);
-    LogInfo("Pixel Shader created");
-
-    // Input layout
-    D3D11_INPUT_ELEMENT_DESC inputDesc[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-    this->device->CreateInputLayout(inputDesc, 3, vertexShaderData.data(), vertexShaderData.size(), &inputLayout);
-    LogInfo("Input Layout created");
-
-    // Matrix constant buffer
-    D3D11_BUFFER_DESC cbDesc = {};
-    cbDesc.ByteWidth = sizeof(MatrixPair);
-    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    this->device->CreateBuffer(&cbDesc, nullptr, &constantBuffer);
-    LogInfo("Constant Buffer created");
-
-    // Sampler state
-    D3D11_SAMPLER_DESC sdesc = {};
-    sdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    sdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    sdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    sdesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    sdesc.MaxLOD = D3D11_FLOAT32_MAX;
-    this->device->CreateSamplerState(&sdesc, &samplerState);
-    LogInfo("Sampler State created");
-
-    this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
-    this->swapChain->Present(0, 0);
-
     LogUnindent();
 
 	return true;
@@ -259,26 +141,8 @@ void Renderer::Shutdown()
     LogInfo("Shutting down Renderer...");
     LogIndent();
 
-    LogInfo("Releasing Sampler State");
-    SafeRelease(samplerState);
-
-    LogInfo("Releasing Constant Buffer");
-    SafeRelease(constantBuffer);
-
-    LogInfo("Releasing Input Layout");
-    SafeRelease(inputLayout);
-
-    LogInfo("Releasing Pixel Shader");
-    SafeRelease(pShader);
-
-    LogInfo("Releasing Vertex Shader");
-    SafeRelease(vShader);
-
     LogInfo("Releasing Depth Stencil View");
     SafeRelease(this->depthStencilView);
-
-    LogInfo("Releasing Render Target View");
-    SafeRelease(this->renderTargetView);
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -310,10 +174,11 @@ void Renderer::Render(Scene *scene)
 
     scene->GatherRenderCommands(this->views);
 
-    this->deviceContext->ClearRenderTargetView(this->renderTargetView, this->clearColor);
+    this->deviceContext->ClearRenderTargetView(this->backbuffer.GetView(), this->clearColor);
     this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, nullptr);
+    ID3D11RenderTargetView *view = this->backbuffer.GetView();
+    this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
 
     //if (!scene)
     //{
@@ -331,40 +196,40 @@ void Renderer::Render(Scene *scene)
     const GeometryCommand &command = primary->queue.geometryCommands[0];
 
     // Update Matrix constant buffer with the scene's transform
-    XMMATRIX worldT = XMMatrixTranspose(XMLoadFloat4x4(&command.worldMatrix));
-    XMMATRIX viewProjT = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&primary->viewMatrix), XMLoadFloat4x4(&primary->projectionMatrix)));
+    //XMMATRIX worldT = XMMatrixTranspose(XMLoadFloat4x4(&command.worldMatrix));
+    //XMMATRIX viewProjT = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&primary->viewMatrix), XMLoadFloat4x4(&primary->projectionMatrix)));
 
-    D3D11_MAPPED_SUBRESOURCE mapped;
-    if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-    {
-        MatrixPair data;
-        XMStoreFloat4x4(&data.world, worldT);
-        XMStoreFloat4x4(&data.viewProj, viewProjT);
-        memcpy(mapped.pData, &data, sizeof(MatrixPair));
-        this->deviceContext->Unmap(constantBuffer, 0);
-    }
+    //D3D11_MAPPED_SUBRESOURCE mapped;
+    //if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+    //{
+    //    MatrixPair data;
+    //    XMStoreFloat4x4(&data.world, worldT);
+    //    XMStoreFloat4x4(&data.viewProj, viewProjT);
+    //    memcpy(mapped.pData, &data, sizeof(MatrixPair));
+    //    this->deviceContext->Unmap(constantBuffer, 0);
+    //}
 
-    this->deviceContext->RSSetViewports(1, &this->viewport);
-    this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
+    //this->deviceContext->RSSetViewports(1, &this->viewport);
+    //this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
 
-    ID3D11Buffer *vBuffer = command.vertexBuffer;
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-    this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-    this->deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    this->deviceContext->IASetInputLayout(inputLayout);
-    this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //ID3D11Buffer *vBuffer = command.vertexBuffer;
+    //UINT stride = sizeof(Vertex);
+    //UINT offset = 0;
+    //this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+    //this->deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    //this->deviceContext->IASetInputLayout(inputLayout);
+    //this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    this->deviceContext->VSSetShader(vShader, nullptr, 0);
-    this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+    //this->deviceContext->VSSetShader(vShader, nullptr, 0);
+    //this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
 
-    this->deviceContext->PSSetShader(pShader, nullptr, 0);
+    //this->deviceContext->PSSetShader(pShader, nullptr, 0);
 
-    ID3D11ShaderResourceView *srv = nullptr;
-    this->deviceContext->PSSetShaderResources(0, 1, &srv);
-    this->deviceContext->PSSetSamplers(0, 1, &samplerState);
+    //ID3D11ShaderResourceView *srv = nullptr;
+    //this->deviceContext->PSSetShaderResources(0, 1, &srv);
+    //this->deviceContext->PSSetSamplers(0, 1, &samplerState);
 
-    this->deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
+    //this->deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 }
 
 void Renderer::Present()
@@ -381,8 +246,6 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     LogInfo("Resizing window...");
     LogIndent();
 
-    SafeRelease(this->renderTargetView);
-
     this->deviceContext->ClearState();
     this->deviceContext->Flush();
 
@@ -392,7 +255,7 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
         return false;
     }
 
-    if (!this->CreateRenderTargetView())
+    if (!this->backbuffer.Create(this->device, this->swapChain))
         return false;
 
     // this->SetViewport(width, height);

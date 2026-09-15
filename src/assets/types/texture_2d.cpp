@@ -24,7 +24,7 @@ DXGI_FORMAT const Texture2D::GetDXGITextureFormat(uint32_t stbiChannels)
 	}
 }
 
-Texture2D::Texture2D(
+bool Texture2D::Create(
 	char *data,
 	const uint32_t width,
 	const uint32_t height,
@@ -60,7 +60,7 @@ Texture2D::Texture2D(
 	if (FAILED(hr))
 	{
 		LogError("DirectX failed to create Texture2D for texture: %s", filePath.c_str());
-        return;
+        return false;
 	}
 
 	LogInfo("DirectX Texture created");
@@ -83,12 +83,14 @@ Texture2D::Texture2D(
 	if (FAILED(hr))
 	{
 		LogError("DirectX failed to shader resource view for texture: %s", filePath.c_str());
-        return;
+        return false;
 	}
 
 	LogInfo("Shader Resource View created");
 
 	deviceContext->GenerateMips(this->shaderResourceView);
+
+	return true;
 }
 
 Texture2D::~Texture2D()

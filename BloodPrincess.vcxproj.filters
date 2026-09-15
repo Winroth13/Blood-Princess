@@ -50,6 +50,7 @@
     <ClCompile Include="external\imguizmo\ImGuizmo.cpp" />
     <ClCompile Include="external\imguizmo\ImSequencer.cpp" />
     <ClCompile Include="external\imguizmo\ImVectorEditor.cpp" />
+    <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -117,6 +118,7 @@
     <ClInclude Include="external\imguizmo\ImSequencer.h" />
     <ClInclude Include="external\imguizmo\ImVectorEditor.h" />
     <ClInclude Include="external\imguizmo\ImZoomSlider.h" />
+    <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
