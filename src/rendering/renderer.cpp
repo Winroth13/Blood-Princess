@@ -5,7 +5,7 @@
 #include "scene/scene.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/model.hpp"
-#include "editor/imgui_window.hpp"
+#include "editor/imgui_layer.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -198,19 +198,19 @@ bool Renderer::Initialize(const Window *window)
         return buffer;
     };
 
-    auto vertexShaderData = loadShader("src/shaders/ForwardVS.cso");
+    auto vertexShaderData = loadShader("assets/ForwardVS.cso");
     if (vertexShaderData.empty())
     {
-        LogError("Failed to load src/shaders/ForwardVS.cso");
+        LogError("Failed to load assets/ForwardVS.cso");
         return false;
     }
     this->device->CreateVertexShader(vertexShaderData.data(), vertexShaderData.size(), nullptr, &vShader);
     LogInfo("Vertex Shader created");
 
-    auto pixelShaderData = loadShader("src/shaders/ForwardPS.cso");
+    auto pixelShaderData = loadShader("assets/ForwardPS.cso");
     if (pixelShaderData.empty())
     {
-        LogError("Failed to load src/shaders/ForwardPS.cso");
+        LogError("Failed to load assets/ForwardPS.cso");
         return false;
     }
     this->device->CreatePixelShader(pixelShaderData.data(), pixelShaderData.size(), nullptr, &pShader);

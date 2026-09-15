@@ -5,11 +5,11 @@ struct SDL_Window;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
-class ImGuiWindow
+class ImGuiLayer
 {
 public:
-	ImGuiWindow() = default;
-	~ImGuiWindow() = default;
+	ImGuiLayer() = default;
+	~ImGuiLayer() = default;
 
 	bool Initialize(
 		SDL_Window *sdlWindow,
@@ -17,7 +17,9 @@ public:
 		ID3D11DeviceContext *deviceContext
 	);
 
-	void Render();
+	void NewFrame();
+	void Present();
+
     void Shutdown();
 
 	void PollEvent(SDL_Event *event);

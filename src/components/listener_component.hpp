@@ -6,6 +6,8 @@
 
 class ListenerComponent : public Component
 {
+    RegisterComponent(ListenerComponent);
+
 public:
     ListenerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
 

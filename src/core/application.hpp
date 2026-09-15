@@ -5,7 +5,8 @@
 #include "assets/asset_manager.hpp"
 #include "scene/scene_manager.hpp"
 #include "audio/audio_manager.hpp"
-#include "editor/imgui_window.hpp"
+#include "editor/imgui_layer.hpp"
+#include "editor/editor.hpp"
 
 #include <chrono>
 
@@ -18,7 +19,8 @@ class Application
 	AssetManager assetManager;
 	SceneManager sceneManager;
 	AudioManager audioManager;
-    ImGuiWindow imGuiWindow;
+    ImGuiLayer imGuiLayer;
+    Editor editor;
 
 	bool isRunning = false;
 
@@ -29,6 +31,8 @@ class Application
         &this->assetManager,
         &this->sceneManager,
         &this->audioManager,
+        &this->imGuiLayer,
+        &this->editor
     };
 
     void Update(float deltaTime);

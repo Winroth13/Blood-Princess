@@ -6,8 +6,6 @@ MouseMode Input::mouseMode = MouseMode::VISIBLE;
 std::array<bool, SDL_SCANCODE_COUNT> Input::currentKeys;
 std::array<bool, SDL_SCANCODE_COUNT> Input::previousKeys;
 
-
-
 void Input::Initialize()
 {
 	currentKeys.fill(false);
@@ -18,7 +16,6 @@ void Input::Initialize()
 
 void Input::Update()
 {
-
 	lastMouseState.wheel = { 0.0f, 0.0f };
 	int numKeys = 0;
 	const bool* state = SDL_GetKeyboardState(&numKeys);
@@ -124,7 +121,6 @@ MouseMode Input::GetMouseMode()
 
 void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 {
-
 	// Set the mouse mode and update the cursor visibility and relative mouse mode accordingly
 	//Window rect is used to define the area where the mouse can move when captured
 	mouseMode = mode;
@@ -149,7 +145,7 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 		SDL_SetWindowRelativeMouseMode(window, false);
 		break;
 	case MouseMode::CAPTURED:
-		SDL_WarpMouseInWindow(window, width / 2, height / 2);
+		SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
 		SDL_SetWindowMouseRect(window, &rect);
 		SDL_HideCursor();
 		SDL_SetWindowRelativeMouseMode(window, true);
