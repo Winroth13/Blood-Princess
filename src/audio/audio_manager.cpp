@@ -3,6 +3,16 @@
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
 
+// Shared attenuation curve used for distance-based volume calculations
+static X3DAUDIO_DISTANCE_CURVE_POINT g_VolumeCurvePoints[2] = {
+	{ 0.0f, 1.0f },
+	{ 1.0f, 0.0f }
+};
+static X3DAUDIO_DISTANCE_CURVE g_VolumeCurve = {
+	&g_VolumeCurvePoints[0],
+	2
+};
+
 void AudioManager::Update(float deltaTime)
 {
 	for (size_t i = 0; i < this->activeVoices.size(); )
@@ -25,14 +35,6 @@ void AudioManager::Update(float deltaTime)
 	listener.OrientTop = { this->listenerOrientTop.x, this->listenerOrientTop.y, this->listenerOrientTop.z };
 	listener.Position = { this->listenerPosition.x, this->listenerPosition.y, this->listenerPosition.z };
 
-	static X3DAUDIO_DISTANCE_CURVE_POINT VolumeCurvePoints[2] = {
-		{ 0.0f, 1.0f },
-		{ 1.0f, 0.0f }
-	};
-	static X3DAUDIO_DISTANCE_CURVE VolumeCurve = {
-		&VolumeCurvePoints[0],
-		2
-	};
 
 	for (auto& active : this->activeVoices)
 	{
@@ -44,9 +46,9 @@ void AudioManager::Update(float deltaTime)
 		emitter.OrientTop = { 0.0f, 1.0f, 0.0f };
 		emitter.Position = active.position;
 		emitter.ChannelCount = active.clip->GetChannels();
-		emitter.CurveDistanceScaler = (active.radius > 0.0f) ? (1.0f/ active.radius) : 1.0f;
+		emitter.CurveDistanceScaler = (active.radius > 0.0f) ? active.radius : 1.0f;
 		emitter.DopplerScaler = 1.0f;
-		emitter.pVolumeCurve = &VolumeCurve;
+		emitter.pVolumeCurve = &g_VolumeCurve;
 
 		std::vector<float> channelAzimuths;
 		if (emitter.ChannelCount > 1)
@@ -357,7 +359,6 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 		return 0;
 	}
 
-	// Clean up finished voices
 	for (size_t i = 0; i < this->activeVoices.size(); )
 	{
 		XAUDIO2_VOICE_STATE state;
@@ -402,8 +403,10 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	emitter.OrientTop = { 0.0f, 1.0f, 0.0f };
 	emitter.Position = { position.x, position.y, position.z };
 	emitter.ChannelCount = clip->GetChannels();
-	emitter.CurveDistanceScaler = (radius > 0.0f) ? (1.0f/radius) : 1.0f;;
+	emitter.CurveDistanceScaler = (radius > 0.0f) ? radius : 1.0f;
 	emitter.DopplerScaler = 1.0f;
+
+	emitter.pVolumeCurve = &g_VolumeCurve;
 	std::vector<float> channelAzimuths;
 	if (emitter.ChannelCount > 1)
 	{
@@ -491,18 +494,6 @@ void AudioManager::StopAudio(std::shared_ptr<AudioClip> clip)
 	}
 }
 
-
-//bool AudioManager::PlayMusic(const std::string& filename, bool loop, float volume, float pitch)
-//{
-//	auto clip = this->LoadSound(filename);
-//	if (!clip)
-//	{
-//		LogError("Failed to load music: %s", filename.c_str());
-//		return false;
-//	}
-//
-//	return this->PlayMusic(clip, loop, volume, pitch);
-//}
 
 bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
