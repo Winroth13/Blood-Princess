@@ -1,8 +1,6 @@
 #include "transform_component.hpp"
 #include "scene/entity.hpp"
 
-#include "core/logging.hpp"
-
 void TransformComponent::MarkLocalDirty() {
     this->isLocalDirty = true;
     this->MarkWorldDirty();
