@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -173,11 +173,15 @@
     <ClCompile Include="src\components\music_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
+    <ClCompile Include="src\editor\editor.cpp" />
+    <ClCompile Include="src\editor\inspector_panel.cpp" />
+    <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
     <ClCompile Include="src\input\action.cpp" />
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\core\logging.cpp" />
     <ClCompile Include="src\core\window.cpp" />
-    <ClCompile Include="src\editor\imgui_window.cpp" />
+    <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
@@ -219,10 +223,21 @@
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
+    <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
+    <ClInclude Include="src\editor\editor.hpp" />
+    <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
+    <ClInclude Include="src\editor\inspector_panel.hpp" />
+    <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
-    <ClInclude Include="src\editor\imgui_window.hpp" />
+    <ClInclude Include="src\editor\imgui_layer.hpp" />
+    <ClInclude Include="src\reflection\MemberVars.h" />
+    <ClInclude Include="src\reflection\reflection_hashes.hpp" />
+    <ClInclude Include="src\reflection\reflection_utils.hpp" />
+    <ClInclude Include="src\reflection\TypeHash.h" />
+    <ClInclude Include="src\reflection\TypeInfo.h" />
+    <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />

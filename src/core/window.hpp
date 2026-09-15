@@ -1,7 +1,7 @@
 #pragma once
 #include "sdl3/include/SDL3/SDL.h"
 
-#include "editor/imgui_window.hpp"
+#include "editor/imgui_layer.hpp"
 
 #include <string>
 #include <Windows.h>
@@ -9,7 +9,7 @@
 class Window
 {
 	SDL_Window *sdlWindow = nullptr;
-	ImGuiWindow *imGuiWindow = nullptr;
+	ImGuiLayer *imGuiLayer = nullptr;
 
 	bool shouldClose = true;
     bool wasResized = false;
@@ -25,7 +25,7 @@ public:
     Window &operator=(const Window &other) = default;
 
 	bool Initialize(const std::string &title, uint32_t width, uint32_t height, SDL_WindowFlags flags = 0);
-	void SetImGuiWindow(ImGuiWindow *imGuiWindow) { this->imGuiWindow = imGuiWindow; }
+	void SetImGuiLayer(ImGuiLayer *imGuiLayer) { this->imGuiLayer = imGuiLayer; }
 	void Shutdown();
 
 	void PollEvents();

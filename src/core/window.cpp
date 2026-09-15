@@ -44,7 +44,7 @@ void Window::PollEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        imGuiWindow->PollEvent(&event);
+        this->imGuiLayer->PollEvent(&event);
 
         switch (event.type)
         {

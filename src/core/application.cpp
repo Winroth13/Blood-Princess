@@ -16,8 +16,7 @@ void Application::Update(float deltaTime) {
 
 void Application::Render() {
     this->renderer.Render(this->sceneManager.GetCurrentScene());
-    this->imGuiWindow.Render();
-
+    this->imGuiLayer.Present();
     this->renderer.Present();
 }
 
@@ -32,7 +31,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->window.Initialize("Blood Princess", 800, 600, SDL_WINDOW_RESIZABLE))
+    if (!this->window.Initialize("Blood Princess", 1400, 900, SDL_WINDOW_RESIZABLE))
     {
         LogError("Failed to create Window!");
         return false;
@@ -59,7 +58,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->imGuiWindow.Initialize(
+    if (!this->imGuiLayer.Initialize(
         this->window.GetSdlWindow(), 
         this->renderer.GetDevice(), 
         this->renderer.GetDeviceContext())
@@ -68,18 +67,18 @@ bool Application::Initialize()
         LogError("Failed to create ImGui Window");
         return false;
     }
-    this->window.SetImGuiWindow(&this->imGuiWindow);
+    this->window.SetImGuiLayer(&this->imGuiLayer);
+
+    if (!this->editor.Initialize(this->sceneManager))
+    {
+        LogError("Failed to create Editor");
+        return false;
+    }
 
     Input::Initialize();
     this->isRunning = true;
 
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
-    auto texture = assetManager.Get<Texture2D>("assets/princess.png");
-    auto texture2 = assetManager.Get<Texture2D>("assets/princess2.png");
-
-    //auto model = assetManager.Get<Model>("assets/princess.glb");
-    auto shader = assetManager.Get<VertexShader>("src/shaders/ForwardVS.cso");
-    auto pixelShader = assetManager.Get<PixelShader>("src/shaders/ForwardPS.cso");
 
     LogUnindent();
     return true;
@@ -120,8 +119,11 @@ void Application::Run()
         prevTime = currentTime;
 
         this->renderer.NewFrame();
+        this->imGuiLayer.NewFrame();
 
         this->Update(deltaTime);
+
+        this->editor.ImGuiRender();
 
         this->Render();
     }
@@ -133,7 +135,7 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
-    this->imGuiWindow.Shutdown();
+    this->imGuiLayer.Shutdown();
     this->sceneManager.Shutdown();
     this->assetManager.Shutdown();
     this->audioManager.Shutdown();

@@ -3,6 +3,10 @@
 #include "core/app_context.hpp"
 #include "rendering/render_view.hpp"
 
+#include "reflection/TypeInfo.h"
+#include "reflection/MemberVars.h"
+#include "reflection/reflection_utils.hpp"
+
 #include <DirectXCollision.h>
 
 #define NoUpdate() this->wantsUpdate = false
@@ -45,4 +49,6 @@ public:
 
     bool WantsUpdate() const { return this->wantsUpdate; }
     bool WantsRender() const { return this->wantsRender; }
+
+    virtual TypeId GetTypeId() const = 0;
 };

@@ -1,20 +1,27 @@
 #pragma once
-
 #include "scene/component.hpp"
 
 #include <DirectXMath.h>
 
 using namespace DirectX;
 
-class TransformComponent : public Component 
+class TransformComponent : public Component
 {
-    XMFLOAT3 localPosition = {0.0f, 0.0f, 0.0f};
-    XMFLOAT4 localRotation = {0.0f, 0.0f, 0.0f, 1.0f}; // Quaternion
-    XMFLOAT3 localScale = {1.0f, 1.0f, 1.0f};
+    RegisterComponent(TransformComponent)
 
-    XMFLOAT3 localPivot = {0.0f, 0.0f, 0.0f};
+    ExportPropertyColor(XMFLOAT3, localPosition, { 0.0f, 0.0f, 0.0f })
+    ExportPropertyChanged(localPosition, MarkLocalDirty);
 
-    XMFLOAT3 localEuler = {0.0f, 0.0f, 0.0f};
+    ExportProperty(XMFLOAT3, localScale , {1.0f, 1.0f, 1.0f})
+    ExportPropertyChanged(localScale, MarkLocalDirty);
+
+    ExportProperty(XMFLOAT3, localPivot, {0.0f, 0.0f, 0.0f})
+
+    ExportProperty(XMFLOAT3, localEuler, {0.0f, 0.0f, 0.0f})
+    ExportPropertyChanged(localEuler, OnLocalEulerEdited);
+
+    ExportProperty(XMFLOAT4, localRotation, { 0.0f, 0.0f, 0.0f, 1.0f }) // Quaternion
+    ExportPropertyChanged(localRotation, OnLocalRotationEdited);
 
     mutable XMFLOAT4X4 cachedLocal{};
     mutable bool isLocalDirty = true;
@@ -24,6 +31,10 @@ class TransformComponent : public Component
 
     void MarkLocalDirty();
     void MarkWorldDirty();
+
+    // Keeps localEuler and localRotation in sync when either one is edited directly.
+    void OnLocalEulerEdited();
+    void OnLocalRotationEdited();
 
 public:
     static XMFLOAT3 ExtractScale(const XMMATRIX &matrix);
