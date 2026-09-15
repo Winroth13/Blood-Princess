@@ -22,12 +22,6 @@ class MusicComponent : public Component
 	ExportProperty(bool, paused, false);
 	//ExportPropertyChanged(paused, MarkLocalDirty);
 
-	mutable XMFLOAT4X4 cachedLocal{};
-	mutable bool isLocalDirty = true;
-
-	mutable XMFLOAT4X4 cachedWorld{};
-	mutable bool isWorldDirty = true;
-
 
 public:
 	MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip);

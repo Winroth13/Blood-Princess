@@ -12,12 +12,12 @@ class AudioComponent : public Component
 
     AudioManager* audioManagerRef = nullptr;
     ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
-    //ExportPropertyChanged(volume, );
     ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
     ExportProperty(bool, is3D, true);
     bool isAudioClipChanged = false;
     ExportProperty(bool, looping, true);
-    ExportProperty(int, currentSoundId, 0);
+    ExportPropertyRanged(float, radius, "m", 0.0f, 10.0f, 0.01f, 5.0f);
+    int currentSoundId = 0;
 
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
@@ -41,6 +41,9 @@ public:
 
     bool IsLooping();
     bool SetLooping(bool state);
+
+    float GetAudioRadius();
+    bool SetAudioRadius(float radius = 5.0f);
 
     bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
 

@@ -24,11 +24,14 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/princess.glb"));
 
-    auto sfxClip = appContext.assetManager->Get<AudioClip>("Test2.ogg");
+    auto sfxClip = appContext.assetManager->Get<AudioClip>("looping.ogg");
+    auto musicClip = appContext.assetManager->Get<AudioClip>("Test1.ogg");
     if (sfxClip) {
         AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
+        MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
+
 
         // Call Update(0.0f) to initialize components (runs OnStart) so Play() can use the cached AudioManager.
         outScene.Update(0.0f);
