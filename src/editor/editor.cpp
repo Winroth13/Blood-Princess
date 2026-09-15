@@ -68,7 +68,7 @@ void Editor::ImGuiRender(const AppContext &appContext)
 
 		uint32_t width = appContext.renderer->GetWidth();
 		uint32_t height = appContext.renderer->GetHeight();
-		ImGuizmo::SetRect(0, 0, width, height);
+		ImGuizmo::SetRect(0, 0, static_cast<float>(width), static_cast<float>(height));
 
 		auto transformComponent = entity->GetComponent<TransformComponent>();
 		if (transformComponent)

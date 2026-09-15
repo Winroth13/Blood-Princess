@@ -20,7 +20,7 @@ public:
 
 	void ImGuiRender();
 
-	void DrawComponentNode(Component* component);
+	void DrawComponentNode(Component* component, const std::string &name, TypeId id);
 	void DrawComponentMemberNode(Component *component, const MemberId::MemberInfo &member);
 
 	void SetEntity(Entity *entity) { this->entity = entity; }
