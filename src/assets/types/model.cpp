@@ -2,8 +2,6 @@
 #include "assets/types/texture_2d.hpp"
 #include "core/logging.hpp"
 
-#include <d3d11.h>
-
 #pragma region Vertex
 
 bool operator== (const Vertex &v1, const Vertex &v2)

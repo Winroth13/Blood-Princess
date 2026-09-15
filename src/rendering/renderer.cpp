@@ -304,7 +304,8 @@ void Renderer::Render(Scene *scene)
         return;
     }
 
-    if (!RenderUtils::GetView(this->views, ViewType::PRIMARY))
+    RenderView *primary = RenderUtils::GetView(this->views, ViewType::PRIMARY);
+    if (!primary)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
@@ -327,45 +328,43 @@ void Renderer::Render(Scene *scene)
     //    return;
     //}
 
-    //// Update Matrix constant buffer with the scene's transform
-    //XMMATRIX worldT = XMMatrixTranspose(scene->GetWorldMatrix());
-    //XMMATRIX viewProjT = XMMatrixTranspose(VIEW_PROJ);
+    const GeometryCommand &command = primary->queue.geometryCommands[0];
 
-    //D3D11_MAPPED_SUBRESOURCE mapped;
-    //if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-    //{
-    //    MatrixPair data;
-    //    XMStoreFloat4x4(&data.world, worldT);
-    //    XMStoreFloat4x4(&data.viewProj, viewProjT);
-    //    memcpy(mapped.pData, &data, sizeof(MatrixPair));
-    //    this->deviceContext->Unmap(constantBuffer, 0);
-    //}
+    // Update Matrix constant buffer with the scene's transform
+    XMMATRIX worldT = XMMatrixTranspose(XMLoadFloat4x4(&command.worldMatrix));
+    XMMATRIX viewProjT = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&primary->viewMatrix), XMLoadFloat4x4(&primary->projectionMatrix)));
 
-    //this->deviceContext->RSSetViewports(1, &this->viewport);
-    //this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
+    D3D11_MAPPED_SUBRESOURCE mapped;
+    if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+    {
+        MatrixPair data;
+        XMStoreFloat4x4(&data.world, worldT);
+        XMStoreFloat4x4(&data.viewProj, viewProjT);
+        memcpy(mapped.pData, &data, sizeof(MatrixPair));
+        this->deviceContext->Unmap(constantBuffer, 0);
+    }
 
-    //ID3D11Buffer *vBuffer = mesh->GetVertexBuffer();
-    //UINT stride = sizeof(Vertex);
-    //UINT offset = 0;
-    //this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-    //this->deviceContext->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-    //this->deviceContext->IASetInputLayout(inputLayout);
-    //this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    this->deviceContext->RSSetViewports(1, &this->viewport);
+    this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
 
-    //this->deviceContext->VSSetShader(vShader, nullptr, 0);
-    //this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+    ID3D11Buffer *vBuffer = command.vertexBuffer;
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+    this->deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    this->deviceContext->IASetInputLayout(inputLayout);
+    this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    //this->deviceContext->PSSetShader(pShader, nullptr, 0);
+    this->deviceContext->VSSetShader(vShader, nullptr, 0);
+    this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
 
-    //ID3D11ShaderResourceView *srv = nullptr;
-    //if (auto texture = scene->GetTexture())
-    //{
-    //    srv = texture->GetShaderResourceView();
-    //}
-    //this->deviceContext->PSSetShaderResources(0, 1, &srv);
-    //this->deviceContext->PSSetSamplers(0, 1, &samplerState);
+    this->deviceContext->PSSetShader(pShader, nullptr, 0);
 
-    //this->deviceContext->DrawIndexed(static_cast<UINT>(mesh->GetNumIndicies()), 0, 0);
+    ID3D11ShaderResourceView *srv = nullptr;
+    this->deviceContext->PSSetShaderResources(0, 1, &srv);
+    this->deviceContext->PSSetSamplers(0, 1, &samplerState);
+
+    this->deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 }
 
 void Renderer::Present()
@@ -373,7 +372,8 @@ void Renderer::Present()
     this->swapChain->Present(0, 0);
 }
 
-bool Renderer::Resize(uint32_t width, uint32_t height) {
+bool Renderer::Resize(uint32_t width, uint32_t height)
+{
     if (width <= 0 || height <= 0)
         return false;
 
@@ -399,16 +399,26 @@ bool Renderer::Resize(uint32_t width, uint32_t height) {
     this->width = width;
     this->height = height;
 
+    this->viewport.Width = static_cast<float>(this->width);
+    this->viewport.Height = static_cast<float>(this->height);
+
     // this->frameGraph.OnResize(width, height);
 
     LogUnindent();
     return true;
 }
 
-void Renderer::AddView(const RenderView &view) {
-    if (view.type == ViewType::PRIMARY) {
-        for (RenderView &other : this->views) {
-            if (other.type == ViewType::PRIMARY) {
+void Renderer::AddView(RenderView &view)
+{
+    BoundingFrustum::CreateFromMatrix(view.frustum, XMLoadFloat4x4(&view.projectionMatrix));
+    view.frustum.Transform(view.frustum, XMMatrixInverse(nullptr, XMLoadFloat4x4(&view.viewMatrix)));
+
+    if (view.type == ViewType::PRIMARY)
+    {
+        for (RenderView &other : this->views)
+        {
+            if (other.type == ViewType::PRIMARY)
+            {
                 other = view;
                 return;
             }

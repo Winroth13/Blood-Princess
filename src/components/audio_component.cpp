@@ -17,9 +17,8 @@ void AudioComponent::OnStart(const AppContext& context)
 void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->listenerPosition = transform->GetPosition();
-	}
-	context.audioManager->SetListenerPosition(this->listenerPosition);
+		this->audioPosition = transform->GetWorldPosition();
+	};
 }
 
 void AudioComponent::OnDestroy(const AppContext& context)
@@ -27,9 +26,9 @@ void AudioComponent::OnDestroy(const AppContext& context)
 	StopPlaying();
 }
 
-void AudioComponent::PlayOnce()
+void AudioComponent::Play()
 {
-	if(this->is3D)
+	if(this->audioManagerRef && this->is3D)
 	{
 		this->audioManagerRef->PlaySoundAt(
 			this->audioClip, 
@@ -48,33 +47,11 @@ void AudioComponent::PlayOnce()
 	}
 }
 
-void AudioComponent::PlayInfinity()
-{
-	if (this->is3D)
-	{
-		this->audioManagerRef->PlaySoundAt(
-			this->audioClip,
-			this->looping,
-			this->audioPosition,
-			this->volume,
-			this->pitch
-		);
-	}
-	else
-	{
-		this->audioManagerRef->PlaySoundEffect(
-			this->audioClip,
-			this->looping,
-			this->volume,
-			this->pitch);
-	}
-}
-
 bool AudioComponent::StopPlaying()
 {
 	if (!this->audioClip)
 	{
-		LogWarn("AudioComponent dose not have audioClip!");
+		LogWarn("AudioComponent does not have audioClip!");
 		return false;
 	}
 	this->audioManagerRef->StopAudio(this->audioClip);
@@ -95,7 +72,7 @@ bool AudioComponent::SetVolume(float volume)
 		return false;
 	}
 	else {
-		this->volume;
+		this->volume = volume;
 	}
 	return true;
 }
@@ -163,7 +140,7 @@ DirectX::XMFLOAT3 AudioComponent::GetAudioPosition()
 	return this->audioPosition;
 }
 
-bool AudioComponent::SetAudioPoition(DirectX::XMFLOAT3 audioPoition)
+bool AudioComponent::SetAudioPosition(DirectX::XMFLOAT3 audioPoition)
 {
 	if (!this->audioClip)
 	{

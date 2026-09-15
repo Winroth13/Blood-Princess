@@ -7,6 +7,8 @@
 
 class RenderQueue {
 public:
+    // TODO: Be better.
+    // TODO: Add getters for these
     std::vector<GeometryCommand> geometryCommands;
     std::vector<PointLightCommand> pointLightCommands;
     std::optional<SkyboxCommand> skyboxCommand;
