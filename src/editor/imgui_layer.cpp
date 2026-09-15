@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_dx11.h"
+#include "imguizmo/ImGuizmo.h"
 
 #include <d3d11.h>
 #include <cmath>
@@ -117,7 +118,9 @@ void ImGuiLayer::NewFrame()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
+
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 
 	ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspaceFlags);
@@ -125,8 +128,8 @@ void ImGuiLayer::NewFrame()
 
 void ImGuiLayer::Present()
 {
-ImGui::Render();
-ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void ImGuiLayer::Shutdown()

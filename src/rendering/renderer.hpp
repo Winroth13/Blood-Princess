@@ -10,7 +10,7 @@
 
 class Window;
 class Scene;
-class ImGuiWindow;
+class ImGuiLayer;
 
 class Renderer
 {
@@ -42,8 +42,12 @@ public:
     bool Resize(uint32_t width, uint32_t height);
 
     void AddView(RenderView &view);
+	std::vector<RenderView> &GetViews() { return this->views; }
 
     float GetAspectRatio() const { return this->width / (float)this->height; }
+
+	uint32_t GetWidth() const { return this->width; }
+	uint32_t GetHeight() const { return this->height; }
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }

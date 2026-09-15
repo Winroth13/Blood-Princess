@@ -30,8 +30,29 @@ void InspectorPanel::ImGuiRender()
 
     if (this->entity)
     {
+        std::unordered_map<TypeId, size_t> componentCounter{};
+
         for (auto component : entity->GetComponents())
-            DrawComponentNode(component);
+        {
+            TypeId id = component->GetTypeId();
+
+            std::string name = std::string(id.GetTypeName());
+            name.erase(0, 6); // remove the class prefix
+            name = FormatName(name);
+
+            if (componentCounter.find(id) == componentCounter.end())
+            {
+                componentCounter[id] = 0;
+            }
+            else
+            {
+                componentCounter[id]++;
+                //name += '(' + std::to_string(componentCounter[id]) + ')';
+                name += " #" + std::to_string(componentCounter[id]);
+            }
+
+            DrawComponentNode(component, name, id);
+        }
     }
     else
     {
@@ -41,14 +62,8 @@ void InspectorPanel::ImGuiRender()
     ImGui::End();
 }
 
-void InspectorPanel::DrawComponentNode(Component *component)
+void InspectorPanel::DrawComponentNode(Component *component, const std::string& name, TypeId id)
 {
-    TypeId id = component->GetTypeId();
-
-    std::string name = std::string(id.GetTypeName());
-    name.erase(0, 6); // remove the class prefix
-    name = FormatName(name);
-
     const ImGuiTreeNodeFlags flags = 
         ImGuiTreeNodeFlags_DefaultOpen | 
         ImGuiTreeNodeFlags_Framed | 
