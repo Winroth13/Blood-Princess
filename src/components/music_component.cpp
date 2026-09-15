@@ -17,14 +17,14 @@ void MusicComponent::OnStart(const AppContext& context)
 	}
 	else
 	{
-		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume);
+		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
 	}
 }
 
 void MusicComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (this->isAudioClipChanged) {
-		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume);
+		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
 		this->isAudioClipChanged = false;
 	}
 	if (this->paused) {
