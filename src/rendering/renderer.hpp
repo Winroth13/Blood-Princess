@@ -43,7 +43,7 @@ public:
 
     void AddView(RenderView &view);
 
-    float GetAspectRatio() { return this->width / (float)this->height; }
+    float GetAspectRatio() const { return this->width / (float)this->height; }
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }

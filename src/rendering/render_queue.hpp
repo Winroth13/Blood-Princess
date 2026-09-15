@@ -19,15 +19,33 @@ public:
         this->skyboxCommand.reset();
     }
 
-    void Submit(const GeometryCommand &command) {
+    void Submit(const GeometryCommand &command)
+    {
         this->geometryCommands.push_back(command);
     }
 
-    void Submit(const PointLightCommand &command) {
+    void Submit(const PointLightCommand &command)
+    {
         this->pointLightCommands.push_back(command);
     }
 
-    void Submit(const SkyboxCommand &command) {
+    void Submit(const SkyboxCommand &command)
+    {
         this->skyboxCommand = command;
+    }
+
+    const std::vector<GeometryCommand> &GetGeometryCommands()
+    {
+        return this->geometryCommands;
+    }
+
+    const std::vector<PointLightCommand> &GetPointLightCommands()
+    {
+        return this->pointLightCommands;
+    }
+
+    const std::optional<SkyboxCommand> &GetSkyboxCommand()
+    {
+        return this->skyboxCommand;
     }
 };
