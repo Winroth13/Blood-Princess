@@ -31,6 +31,8 @@ private:
 	AssetManager* assetManager = nullptr;
 
 	DirectX::XMFLOAT3 listenerPosition{ 0,0,0 };
+	DirectX::XMFLOAT3 listenerOrintFront{ 0,0,0 };
+	DirectX::XMFLOAT3 listenerOrintTop{ 0,0,0 };
 
 	float musicVolume = 1.0f;
 	bool isMusicPaused = false;
@@ -44,7 +46,7 @@ public:
 	bool Initialize(AssetManager* assetManager);
 	void Shutdown();
 
-	void SetListenerPosition(DirectX::XMFLOAT3 listenerPosition);
+	void SetListener(DirectX::XMFLOAT3 listenerPosition, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 top);
 
 	//std::shared_ptr<AudioClip> LoadSound(const std::string& filename);
 

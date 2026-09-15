@@ -8,16 +8,16 @@ class AudioComponent : public Component
 {
     RegisterComponent(AudioComponent)
 
-    std::shared_ptr<AudioClip> audioClip;
+    ExportProperty(std::shared_ptr<AudioClip>, audioClip, nullptr);
 
     AudioManager* audioManagerRef = nullptr;
-
-    DirectX::XMFLOAT3 audioPosition = { 0,0,0 };
-    float volume = 1.0f;
-    float pitch = 1.0f;
-    bool is3D = true;
+    ExportProperty(DirectX::XMFLOAT3, audioPosition, { 0,0,0 });
+    ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
+    //ExportPropertyChanged(volume, );
+    ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
+    ExportProperty(bool, is3D, true);
     bool isAudioClipChanged = false;
-    bool looping = false;
+    ExportProperty(bool, looping, true);
 
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);

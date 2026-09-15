@@ -24,26 +24,30 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/princess.glb"));
 
-    //auto sfxClip = appContext.assetManager->Get<AudioClip>("Test2.ogg");
-    //if (sfxClip) {
-    //    AudioComponent* audioComponent = playerEntity->AddComponent<AudioComponent>(sfxClip);
-    //    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({100,1,1});
-    //    playerEntity->AddComponent<ListenerComponent>();
-    //    audioComponent->SetLooping(false);
-    //    audioComponent->SetAudio3D(true);
+    auto sfxClip = appContext.assetManager->Get<AudioClip>("Test2.ogg");
+    if (sfxClip) {
+        AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
+        modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({10,0,0});
+        audioComponent->SetLooping(false);
+        audioComponent->SetAudio3D(true);
 
-    //    // Components' OnStart() is invoked by Scene::Update via StartPendingEntities().
-    //    // Call Update(0.0f) to initialize components now so Play() can use the cached AudioManager.
-    //    outScene.Update(1.0f);
 
-    //    audioComponent->Play();
-    //}
 
-    //for (int i = 0; i < 600; ++i) {
-    //    float x = 0.0f + i * 1.0f; // move player along +X toward source
-    //    playerEntity->GetComponent<TransformComponent>()->SetLocalPosition({ 600, 600, 0.0f });
-    //    outScene.Update(1.0f / 60.0f); // simulate a frame
-    //}
+        playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({0,0,0});
+        playerEntity->AddComponent<ListenerComponent>();
+
+        // Components' OnStart() is invoked by Scene::Update via StartPendingEntities().
+        // Call Update(0.0f) to initialize components now so Play() can use the cached AudioManager.
+        outScene.Update(1.0f);
+
+        audioComponent->Play();
+    }
+
+    for (int i = 0; i < 600; ++i) {
+        float x = 0.0f + i * 1.0f; // move player along +X toward source
+        playerEntity->GetComponent<TransformComponent>()->SetLocalPosition({ 600, 600, 0.0f });
+        outScene.Update(1.0f / 60.0f); // simulate a frame
+    }
     outScene.PrintEntityHierarchy();
 }
 
