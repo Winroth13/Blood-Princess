@@ -9,7 +9,7 @@ class TransformComponent : public Component
 {
     RegisterComponent(TransformComponent)
 
-    ExportPropertyColor(XMFLOAT3, localPosition, { 0.0f, 0.0f, 0.0f })
+    ExportProperty(XMFLOAT3, localPosition, { 0.0f, 0.0f, 0.0f })
     ExportPropertyChanged(localPosition, MarkLocalDirty);
 
     ExportProperty(XMFLOAT3, localScale , {1.0f, 1.0f, 1.0f})

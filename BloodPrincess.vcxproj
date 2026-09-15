@@ -88,6 +88,13 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <FxCompile>
+      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
+xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -106,6 +113,13 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <FxCompile>
+      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
+xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -125,6 +139,13 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <FxCompile>
+      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
+xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -146,6 +167,13 @@
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
+    <FxCompile>
+      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
+xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
@@ -251,10 +279,6 @@
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\shaders\ForwardPS.cso" />
-    <None Include="src\shaders\ForwardVS.cso" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl">

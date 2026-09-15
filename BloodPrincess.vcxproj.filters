@@ -106,10 +106,6 @@
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\ForwardPS.cso" />
-    <None Include="src\shaders\ForwardVS.cso" />
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
     <FxCompile Include="src\shaders\ForwardVS.hlsl" />
   </ItemGroup>
