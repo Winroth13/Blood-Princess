@@ -6,7 +6,6 @@
 #include "editor/asset_viewer_panel.hpp"
 
 #include "reflection/reflection_utils.hpp"
-#include "reflection/reflection_hashes.hpp"
 
 #include "assets/types/audio_clip.hpp"
 
@@ -135,7 +134,11 @@ void InspectorPanel::DrawComponentMemberNode(
             }
             else
             {
-                changed = DrawFloat3(name, values);
+                changed = DrawFloat3(name,
+                                    values,
+                                    0.0f,
+                    (member.ExportInfo.flags & ExportFlags_Angle) == ExportFlags_Angle
+                );
             }
         } break;
 

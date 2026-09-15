@@ -261,7 +261,6 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\imgui_layer.hpp" />
     <ClInclude Include="src\reflection\MemberVars.h" />
-    <ClInclude Include="src\reflection\reflection_hashes.hpp" />
     <ClInclude Include="src\reflection\reflection_utils.hpp" />
     <ClInclude Include="src\reflection\TypeHash.h" />
     <ClInclude Include="src\reflection\TypeInfo.h" />

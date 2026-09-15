@@ -5,7 +5,6 @@
 #include "imgui/imgui_internal.h"
 #include "scene/scene_manager.hpp"
 #include "scene/entity.hpp"
-#include "reflection/reflection_hashes.hpp"
 #include "scene/component.hpp"
 
 #include <string>
