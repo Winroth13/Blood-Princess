@@ -19,7 +19,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *modelEntity = outScene.AddEntity("model");
     modelEntity->AddComponent<TransformComponent>();
-    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 100.0f, 0.0f, 0.0f });
+    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 10.0f });
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/princess.glb"));

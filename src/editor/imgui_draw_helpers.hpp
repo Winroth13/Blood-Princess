@@ -69,7 +69,7 @@ static bool DrawFloat(const std::string &name, float &value, const std::string& 
     return changed;
 }
 
-static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetValue = 0.0f)
+static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetValue = 0.0f, bool isAngle = false)
 {
     ImGuiIO &io = ImGui::GetIO();
     auto boldFont = io.Fonts->Fonts[0];
@@ -77,6 +77,15 @@ static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetVal
     BeginMemberDraw(name);
 
     bool changed = false;
+
+    XMFLOAT3 newValues = values;
+
+    if (isAngle)
+    {
+        newValues.x = XMConvertToDegrees(values.x);
+        newValues.y = XMConvertToDegrees(values.y);
+        newValues.z = XMConvertToDegrees(values.z);
+    }
 
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0,0 });
@@ -92,14 +101,14 @@ static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetVal
     ImGui::PushFont(boldFont);
     if (ImGui::Button("X", buttonSize))
     {
-        values.x = resetValue;
+        newValues.x = resetValue;
         changed = true;
     }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
 
     ImGui::SameLine();
-    changed |= ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    changed |= ImGui::DragFloat("##X", &newValues.x, 0.1f, 0.0f, 0.0f, "%.2f");
     ImGui::PopItemWidth();
     ImGui::SameLine();
 
@@ -111,14 +120,14 @@ static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetVal
     ImGui::PushFont(boldFont);
     if (ImGui::Button("Y", buttonSize))
     {
-        values.y = resetValue;
+        newValues.y = resetValue;
         changed = true;
     }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
 
     ImGui::SameLine();
-    changed |= ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+    changed |= ImGui::DragFloat("##Y", &newValues.y, 0.1f, 0.0f, 0.0f, "%.2f");
     ImGui::PopItemWidth();
     ImGui::SameLine();
 
@@ -130,20 +139,29 @@ static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetVal
     ImGui::PushFont(boldFont);
     if (ImGui::Button("Z", buttonSize))
     {
-        values.z = resetValue;
+        newValues.z = resetValue;
         changed = true;
     }
     ImGui::PopFont();
     ImGui::PopStyleColor(3);
 
     ImGui::SameLine();
-    changed |= ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+    changed |= ImGui::DragFloat("##Z", &newValues.z, 0.1f, 0.0f, 0.0f, "%.2f");
     ImGui::PopItemWidth();
 
     ImGui::PopStyleColor(1);
     ImGui::PopStyleVar();
 
     EndMemberDraw();
+
+    if (isAngle)
+    {
+        newValues.x = XMConvertToRadians(newValues.x);
+        newValues.y = XMConvertToRadians(newValues.y);
+        newValues.z = XMConvertToRadians(newValues.z);
+    }
+
+    values = newValues;
 
     return changed;
 }
