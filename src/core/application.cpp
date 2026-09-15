@@ -124,7 +124,7 @@ void Application::Run()
 
         this->Update(deltaTime);
 
-        this->editor.ImGuiRender();
+        this->editor.ImGuiRender(this->appContext);
 
         this->Render();
     }

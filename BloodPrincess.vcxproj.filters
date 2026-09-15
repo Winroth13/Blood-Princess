@@ -44,6 +44,12 @@
     <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
     <ClCompile Include="src\editor\inspector_panel.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
+    <ClCompile Include="external\imguizmo\GraphEditor.cpp" />
+    <ClCompile Include="external\imguizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="external\imguizmo\ImGradient.cpp" />
+    <ClCompile Include="external\imguizmo\ImGuizmo.cpp" />
+    <ClCompile Include="external\imguizmo\ImSequencer.cpp" />
+    <ClCompile Include="external\imguizmo\ImVectorEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -103,6 +109,14 @@
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
+    <ClInclude Include="external\imguizmo\GraphEditor.h" />
+    <ClInclude Include="external\imguizmo\ImCurveEdit.h" />
+    <ClInclude Include="external\imguizmo\ImGradient.h" />
+    <ClInclude Include="external\imguizmo\ImGuizmo.h" />
+    <ClInclude Include="external\imguizmo\ImLightRig.h" />
+    <ClInclude Include="external\imguizmo\ImSequencer.h" />
+    <ClInclude Include="external\imguizmo\ImVectorEditor.h" />
+    <ClInclude Include="external\imguizmo\ImZoomSlider.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
