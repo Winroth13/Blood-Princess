@@ -169,6 +169,19 @@ void InspectorPanel::DrawComponentMemberNode(
             );
         } break;
 
+        case GetTypeHash<int>():
+        {
+            int &value = GetMemberByOffset<int>(component, member.Offset);
+            changed = DrawInt(
+                name,
+                value,
+                member.ExportInfo.Unit,
+                static_cast<int>(member.ExportInfo.Min),
+                static_cast<int>(member.ExportInfo.Max),
+                member.ExportInfo.Speed
+            );
+        } break;
+
         case GetTypeHash<bool>(): 
         {
             bool &value = GetMemberByOffset<bool>(component, member.Offset);
@@ -193,11 +206,22 @@ std::string InspectorPanel::FormatName(const std::string &name)
     if (name.size() > 0)
         formattedName << static_cast<char>(std::toupper(name[0]));
 
+    bool digit = false;
+
     for (size_t i = 1; i < name.size(); ++i)
     {
-        // Add Space between capital letters
-        if (std::isupper(static_cast<char>(name[i])))
-            formattedName << ' ';
+        if (!digit)
+        {
+            // Add Space between capital letters
+            if (std::isupper(static_cast<char>(name[i])))
+                formattedName << ' ';
+            else if (std::isdigit(static_cast<char>(name[i])))
+            {
+                digit = true;
+                formattedName << ' ';
+            }
+        }
+
         formattedName << name[i];
     }
 

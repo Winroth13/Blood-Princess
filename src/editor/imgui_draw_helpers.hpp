@@ -69,6 +69,22 @@ static bool DrawFloat(const std::string &name, float &value, const std::string& 
     return changed;
 }
 
+static bool DrawInt(const std::string &name, int &value, const std::string &unit = "", int min = 0, int max = 0, float speed = 1.0f)
+{
+    BeginMemberDraw(name);
+
+    bool changed = false;
+
+    changed = ImGui::DragInt("##value", &value, speed, min, max);
+
+    ImGui::SameLine();
+    ImGui::Text(unit.c_str());
+
+    EndMemberDraw();
+
+    return changed;
+}
+
 static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetValue = 0.0f, bool isAngle = false)
 {
     ImGuiIO &io = ImGui::GetIO();
