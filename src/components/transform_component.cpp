@@ -19,7 +19,7 @@ void TransformComponent::Update(const AppContext &context, float deltaTime)
 
 DirectX::XMFLOAT3 TransformComponent::GetPosition()
 {
-    return DirectX::XMFLOAT3();
+    return {0,0,0};
 }
 
 void TransformComponent::Render(const RenderView &view, RenderQueue &queue)
