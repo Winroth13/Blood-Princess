@@ -12,6 +12,7 @@
 
 void Application::Update(float deltaTime) {
     this->sceneManager.Update(deltaTime);
+	this->audioManager.Update(deltaTime);
 }
 
 void Application::Render() {

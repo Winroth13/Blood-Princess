@@ -18,6 +18,7 @@ class AudioComponent : public Component
     ExportProperty(bool, is3D, true);
     bool isAudioClipChanged = false;
     ExportProperty(bool, looping, true);
+    ExportProperty(int, currentSoundId, 0);
 
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);

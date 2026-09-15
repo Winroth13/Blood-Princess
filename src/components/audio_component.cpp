@@ -21,6 +21,9 @@ void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
 		this->audioPosition = transform->GetWorldPosition();
+		if (this->currentSoundId != 0 && this->is3D && this->audioManagerRef) {
+			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, this->audioPosition);
+		}
 	}
 }
 
@@ -37,7 +40,7 @@ void AudioComponent::Play()
 
 	if (this->audioManagerRef && this->is3D)
 	{
-		this->audioManagerRef->PlaySoundAt(
+		this->currentSoundId = this->audioManagerRef->PlaySoundAt(
 			this->audioClip, 
 			this->looping,
 			this->audioPosition, 
@@ -46,7 +49,7 @@ void AudioComponent::Play()
 	}
 	else if (this->audioManagerRef)
 	{
-		this->audioManagerRef->PlaySoundEffect(
+		this->currentSoundId = this->audioManagerRef->PlaySoundEffect(
 			this->audioClip, 
 			this->looping,
 			this->volume, 
@@ -61,7 +64,10 @@ bool AudioComponent::StopPlaying()
 		LogWarn("AudioComponent does not have audioClip!");
 		return false;
 	}
-	this->audioManagerRef->StopAudio(this->audioClip);
+	if (this->currentSoundId != 0 && this->audioManagerRef) {
+		this->audioManagerRef->StopSound(this->currentSoundId);
+		this->currentSoundId = 0;
+	}
 	return true;
 }
 

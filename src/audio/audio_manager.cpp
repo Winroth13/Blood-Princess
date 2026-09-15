@@ -3,6 +3,118 @@
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
 
+void AudioManager::Update(float deltaTime)
+{
+	for (size_t i = 0; i < this->activeVoices.size(); )
+	{
+		XAUDIO2_VOICE_STATE state;
+		this->activeVoices[i].voice->GetState(&state);
+		if (state.BuffersQueued == 0)
+		{
+			this->activeVoices[i].voice->DestroyVoice();
+			this->activeVoices.erase(this->activeVoices.begin() + i);
+		}
+		else
+		{
+			++i;
+		}
+	}
+
+	X3DAUDIO_LISTENER listener = {};
+	listener.OrientFront = this->listenerOrientFront;
+	listener.OrientTop = this->listenerOrientTop;
+	listener.Position = this->listenerPosition;
+
+	for (auto& active : this->activeVoices)
+	{
+		if (!active.is3D || !active.voice) continue;
+
+		X3DAUDIO_EMITTER emitter = {};
+		emitter.OrientFront = { 0.0f, 0.0f, 1.0f };
+		emitter.OrientTop = { 0.0f, 1.0f, 0.0f };
+		emitter.Position = active.position;
+		emitter.ChannelCount = active.clip->GetChannels();
+		emitter.CurveDistanceScaler = 1.0f;
+		emitter.DopplerScaler = 1.0f;
+
+		std::vector<float> channelAzimuths;
+		if (emitter.ChannelCount > 1)
+		{
+			channelAzimuths.resize(emitter.ChannelCount, 0.0f);
+			if (emitter.ChannelCount == 2)
+			{
+				channelAzimuths[0] = -X3DAUDIO_PI / 4.0f;
+				channelAzimuths[1] = X3DAUDIO_PI / 4.0f;
+			}
+			emitter.pChannelAzimuths = channelAzimuths.data();
+			emitter.ChannelRadius = 20.0f;
+		}
+		else
+		{
+			emitter.pChannelAzimuths = nullptr;
+			emitter.ChannelRadius = 0.0f;
+		}
+
+		std::vector<float> matrix(emitter.ChannelCount * this->destinationChannels, 0.0f);
+		X3DAUDIO_DSP_SETTINGS dspSettings = {};
+		dspSettings.SrcChannelCount = emitter.ChannelCount;
+		dspSettings.DstChannelCount = this->destinationChannels;
+		dspSettings.pMatrixCoefficients = matrix.data();
+
+		X3DAudioCalculate(this->x3dAudio, &listener, &emitter, X3DAUDIO_CALCULATE_MATRIX, &dspSettings);
+
+		for (float& coeff : matrix) {
+			coeff *= active.volume;
+		}
+
+		active.voice->SetOutputMatrix(nullptr, emitter.ChannelCount, this->destinationChannels, matrix.data());
+	}
+}
+
+void AudioManager::UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& newPosition)
+{
+	if (id == 0) return;
+	for (auto& active : this->activeVoices)
+	{
+		if (active.id == id)
+		{
+			active.position = newPosition;
+			break;
+		}
+	}
+}
+
+void AudioManager::StopSound(SoundId id)
+{
+	if (id == 0) return;
+	for (auto it = this->activeVoices.begin(); it != this->activeVoices.end(); ++it)
+	{
+		if (it->id == id)
+		{
+			if (it->voice)
+			{
+				it->voice->Stop(0);
+				it->voice->DestroyVoice();
+			}
+			this->activeVoices.erase(it);
+			break;
+		}
+	}
+}
+
+bool AudioManager::IsSoundPlaying(SoundId id) const
+{
+	if (id == 0) return false;
+	for (const auto& active : this->activeVoices)
+	{
+		if (active.id == id)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool AudioManager::Initialize(AssetManager* assetManager)
 {
 	LogInfo("Creating Audio Manager...");
@@ -117,18 +229,18 @@ void AudioManager::SetListener(const DirectX::XMFLOAT3& listenerPosition, const 
 //
 //	return this->PlaySoundEffect(clip, volume);
 //}
-bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
+SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
 	if (!clip)
 	{
 		LogError("AudioClip is nullptr!");
-		return false;
+		return 0;
 	}
 
 	if (!this->xAudio2)
 	{
 		LogError("Audio Manager is not initialized!");
-		return false;
+		return 0;
 	}
 
 	// Clean up finished voices
@@ -162,7 +274,7 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, f
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
-		return false;
+		return 0;
 	}
 	sourceVoice->SetFrequencyRatio(pitch);
 	sourceVoice->SetVolume(volume);
@@ -181,7 +293,7 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, f
 	{
 		LogError("Failed to submit source buffer! HRESULT: 0x%08X", hr);
 		sourceVoice->DestroyVoice();
-		return false;
+		return 0;
 	}
 
 	hr = sourceVoice->Start(0);
@@ -189,11 +301,12 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, f
 	{
 		LogError("Failed to start Source Voice! HRESULT: 0x%08X", hr);
 		sourceVoice->DestroyVoice();
-		return false;
+		return 0;
 	}
 
-	this->activeVoices.push_back({ sourceVoice, clip });
-	return true;
+	SoundId id = this->nextSoundId++;
+	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume });
+	return id;
 }
 
 
@@ -208,18 +321,18 @@ bool AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, f
 //
 //	return this->PlaySoundAt(clip, position, volume, pitch);
 //}
-bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch)
+SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch)
 {
 	if (!clip)
 	{
 		LogError("AudioClip is nullptr!");
-		return false;
+		return 0;
 	}
 
 	if (!this->xAudio2)
 	{
 		LogError("Audio Manager is not initialized!");
-		return false;
+		return 0;
 	}
 
 	// Clean up finished voices
@@ -252,7 +365,7 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, Di
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
-		return false;
+		return 0;
 	}
 	sourceVoice->SetFrequencyRatio(pitch);
 
@@ -319,7 +432,7 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, Di
 	{
 		LogError("Failed to submit source buffer! HRESULT: 0x%08X", hr);
 		sourceVoice->DestroyVoice();
-		return false;
+		return 0;
 	}
 
 	hr = sourceVoice->Start(0);
@@ -327,11 +440,12 @@ bool AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, Di
 	{
 		LogError("Failed to start Source Voice! HRESULT: 0x%08X", hr);
 		sourceVoice->DestroyVoice();
-		return false;
+		return 0;
 	}
 
-	this->activeVoices.push_back({ sourceVoice, clip });
-	return true;
+	SoundId id = this->nextSoundId++;
+	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume });
+	return id;
 }
 
 void AudioManager::StopAudio(std::shared_ptr<AudioClip> clip)
