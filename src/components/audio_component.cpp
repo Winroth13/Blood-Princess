@@ -12,17 +12,13 @@ AudioComponent::AudioComponent(Entity* owner, bool isActive, std::shared_ptr<Aud
 void AudioComponent::OnStart(const AppContext& context)
 {
 	this->audioManagerRef = context.audioManager;
-	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->audioPosition = transform->GetWorldPosition();
-	}
 }
 
 void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->audioPosition = transform->GetWorldPosition();
 		if (this->currentSoundId != 0 && this->is3D && this->audioManagerRef) {
-			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, this->audioPosition);
+			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, transform->GetWorldPosition());
 		}
 	}
 }
@@ -35,25 +31,24 @@ void AudioComponent::OnDestroy(const AppContext& context)
 void AudioComponent::Play()
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->audioPosition = transform->GetWorldPosition();
-	}
 
-	if (this->audioManagerRef && this->is3D)
-	{
-		this->currentSoundId = this->audioManagerRef->PlaySoundAt(
-			this->audioClip, 
-			this->looping,
-			this->audioPosition, 
-			this->volume, 
-			this->pitch);
-	}
-	else if (this->audioManagerRef)
-	{
-		this->currentSoundId = this->audioManagerRef->PlaySoundEffect(
-			this->audioClip, 
-			this->looping,
-			this->volume, 
-			this->pitch);
+		if (this->audioManagerRef && this->is3D)
+		{
+			this->currentSoundId = this->audioManagerRef->PlaySoundAt(
+				this->audioClip,
+				this->looping,
+				transform->GetWorldPosition(),
+				this->volume,
+				this->pitch);
+		}
+		else if (this->audioManagerRef)
+		{
+			this->currentSoundId = this->audioManagerRef->PlaySoundEffect(
+				this->audioClip,
+				this->looping,
+				this->volume,
+				this->pitch);
+		}
 	}
 }
 
@@ -143,25 +138,6 @@ bool AudioComponent::SetLooping(bool state)
 	}
 	else {
 		this->looping = state;
-	}
-	return true;
-}
-
-
-DirectX::XMFLOAT3 AudioComponent::GetAudioPosition()
-{
-	return this->audioPosition;
-}
-
-bool AudioComponent::SetAudioPosition(DirectX::XMFLOAT3 audioPoition)
-{
-	if (!this->audioClip)
-	{
-		LogWarn("AudioComponent dose not have audioClip!");
-		return false;
-	}
-	else {
-		this->audioPosition = audioPoition;
 	}
 	return true;
 }

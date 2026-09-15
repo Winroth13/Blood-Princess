@@ -408,7 +408,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	dspSettings.DstChannelCount = this->destinationChannels;
 	dspSettings.pMatrixCoefficients = matrix.data();
 
-	X3DAudioCalculate(this->x3dAudio, &listener, &emitter, X3DAUDIO_CALCULATE_MATRIX, &dspSettings);
+	X3DAudioCalculate(this->x3dAudio, &listener, &emitter, X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER, &dspSettings);
 
 	for (float& coeff : matrix)
 	{

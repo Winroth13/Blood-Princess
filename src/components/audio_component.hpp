@@ -11,7 +11,6 @@ class AudioComponent : public Component
     ExportProperty(std::shared_ptr<AudioClip>, audioClip, nullptr);
 
     AudioManager* audioManagerRef = nullptr;
-    ExportProperty(DirectX::XMFLOAT3, audioPosition, { 0,0,0 });
     ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
     //ExportPropertyChanged(volume, );
     ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
@@ -42,9 +41,6 @@ public:
 
     bool IsLooping();
     bool SetLooping(bool state);
-
-    DirectX::XMFLOAT3 GetAudioPosition();
-    bool SetAudioPosition(DirectX::XMFLOAT3 audioPoition);
 
     bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
 
