@@ -39,7 +39,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->renderer.Initialize(&this->window))
+    if (!this->renderer.Initialize(this->appContext))
     {
         LogError("Failed to create Renderer!");
         return false;
@@ -50,6 +50,7 @@ bool Application::Initialize()
         LogError("Failed to create Asset Manager!");
         return false;
     }
+
     if (!this->audioManager.Initialize(&this->assetManager)) {
         LogError("Failed to create audio Manager!");
         return false;
