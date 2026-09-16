@@ -51,6 +51,11 @@
     <ClCompile Include="external\imguizmo\ImSequencer.cpp" />
     <ClCompile Include="external\imguizmo\ImVectorEditor.cpp" />
     <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
+    <ClCompile Include="src\components\point_light_component.cpp" />
+    <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\spot_light_component.cpp" />
+    <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -119,9 +124,18 @@
     <ClInclude Include="external\imguizmo\ImVectorEditor.h" />
     <ClInclude Include="external\imguizmo\ImZoomSlider.h" />
     <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
+    <ClInclude Include="src\components\point_light_component.hpp" />
+    <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\spot_light_component.hpp" />
+    <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
     <FxCompile Include="src\shaders\ForwardVS.hlsl" />
+    <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\shared_buffers.hlsli" />
   </ItemGroup>
 </Project>

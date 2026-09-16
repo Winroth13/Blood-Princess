@@ -90,6 +90,8 @@
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -115,6 +117,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -141,6 +145,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -169,6 +175,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -191,6 +199,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\point_light_component.cpp" />
     <ClCompile Include="src\components\listener_component.cpp" />
     <ClCompile Include="src\assets\asset.cpp" />
     <ClCompile Include="src\assets\asset_loader.cpp" />
@@ -205,6 +215,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\camera_component.cpp" />
     <ClCompile Include="src\components\model_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
+    <ClCompile Include="src\components\spot_light_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
@@ -217,10 +228,12 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
     <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
+    <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
     <ClCompile Include="src\scene\entity.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\scene_culler.cpp" />
@@ -248,6 +261,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\point_light_component.hpp" />
     <ClInclude Include="src\components\listener_component.hpp" />
     <ClInclude Include="src\assets\asset.hpp" />
     <ClInclude Include="src\assets\asset_loader.hpp" />
@@ -263,6 +278,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\camera_component.hpp" />
     <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
+    <ClInclude Include="src\components\spot_light_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
@@ -280,6 +296,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeHash.h" />
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
+    <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -288,6 +305,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\render_utils.hpp" />
     <ClInclude Include="src\rendering\render_view.hpp" />
     <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
+    <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
@@ -296,6 +314,12 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scene_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="src\shaders\ForwardPS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -304,6 +328,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\shared_buffers.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
