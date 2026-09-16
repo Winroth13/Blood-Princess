@@ -42,6 +42,7 @@ struct SpotLightCommand
     XMFLOAT3 position;
     XMFLOAT3 direction;
     XMFLOAT3 color;
+    float range;
     float attenuation;
     float intensity;
     float angle;

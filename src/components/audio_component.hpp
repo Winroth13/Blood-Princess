@@ -16,6 +16,7 @@ class AudioComponent : public Component
     ExportProperty(bool, is3D, true);
     bool isAudioClipChanged = false;
     ExportProperty(bool, looping, true);
+
     ExportPropertyRanged(float, minDistance, "m", 0.0f, 1.0f, 0.01f, 0.0f);
     ExportPropertyRanged(float, maxDistance, "m", 0.0f, 10.0f, 0.01f, 5.0f);
     int currentSoundId = 0;

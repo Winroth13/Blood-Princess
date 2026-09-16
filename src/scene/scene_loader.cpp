@@ -9,7 +9,9 @@
 #include "components/model_component.hpp"
 #include "components/audio_component.hpp"
 #include "components/listener_component.hpp"
-
+#include "components/point_light_component.hpp"
+#include "components/directional_light_component.hpp"
+#include "components/spot_light_component.hpp"
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -31,13 +33,13 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-
-
-        // Call Update(0.0f) to initialize components (runs OnStart) so Play() can use the cached AudioManager.
         outScene.Update(0.0f);
 
         audioComponent->Play();
     }
+    playerEntity->AddComponent<PointLightComponent>();
+    playerEntity->AddComponent<DirectionalLightComponent>();
+    playerEntity->AddComponent<SpotLightComponent>();
 
     outScene.PrintEntityHierarchy();
 }
