@@ -23,16 +23,18 @@ class Texture2D : public Asset
 	DXGI_FORMAT const GetDXGITextureFormat(uint32_t stbiChannels);
 
 public:
-	Texture2D(
-		char* data, 
-		const uint32_t width, 
-		const uint32_t height, 
+	Texture2D() = default;
+	~Texture2D();
+
+	bool Create(
+		char *data,
+		const uint32_t width,
+		const uint32_t height,
 		const uint32_t channels,
 		const std::string &filePath,
-		ID3D11Device* device,
-		ID3D11DeviceContext* deviceContext
+		ID3D11Device *device,
+		ID3D11DeviceContext *deviceContext
 	);
-	~Texture2D();
 
 	uint32_t GetWidth() const { return this->width; }
 	uint32_t GetHeight() const { return this->height; }

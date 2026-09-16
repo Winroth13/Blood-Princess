@@ -430,3 +430,6 @@ FodyWeavers.xsd
 
 # Local settings file
 *.ini
+
+# Compiled shaders
+*.cso

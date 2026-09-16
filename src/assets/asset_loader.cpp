@@ -47,11 +47,18 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 		}
 	}
 
-	auto texture = std::make_shared<Texture2D>(
-		data, width, height, 
-		channels, path, 
+	auto texture = std::make_shared<Texture2D>();
+
+	bool result = texture->Create(
+		data, width, height,
+		channels, path,
 		this->device, this->deviceContext
 	);
+
+	if (!result)
+	{
+		LogError("Failed to create Texture2D for: %s", path.c_str());
+	}
 
 	return texture;
 }
@@ -68,11 +75,16 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 		return model;
 	}
 
-	model->Create(
+	bool result = model->Create(
 		loader.GetMeshes(), 
 		loader.GetMaterials(), 
 		loader.GetTextures()
 	);
+
+	if (!result)
+	{
+		LogError("Failed to create Model for: %s", path.c_str());
+	}
 
 	return model;
 }

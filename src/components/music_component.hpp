@@ -11,9 +11,17 @@ class MusicComponent : public Component
 	bool isAudioClipChanged = false;
 
 	ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
+	//ExportPropertyChanged(volume, MarkLocalDirty);
+
 	ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
+	//ExportPropertyChanged(pitch, MarkLocalDirty);
+
 	ExportProperty(bool, looping, true);
+	//ExportPropertyChanged(looping, MarkLocalDirty);
+
 	ExportProperty(bool, paused, false);
+	//ExportPropertyChanged(paused, MarkLocalDirty);
+
 
 public:
 	MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip);

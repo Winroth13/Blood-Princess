@@ -6,7 +6,6 @@
 #include "editor/asset_viewer_panel.hpp"
 
 #include "reflection/reflection_utils.hpp"
-#include "reflection/reflection_hashes.hpp"
 
 #include "assets/types/audio_clip.hpp"
 
@@ -31,8 +30,29 @@ void InspectorPanel::ImGuiRender()
 
     if (this->entity)
     {
+        std::unordered_map<TypeId, size_t> componentCounter{};
+
         for (auto component : entity->GetComponents())
-            DrawComponentNode(component);
+        {
+            TypeId id = component->GetTypeId();
+
+            std::string name = std::string(id.GetTypeName());
+            name.erase(0, 6); // remove the class prefix
+            name = FormatName(name);
+
+            if (componentCounter.find(id) == componentCounter.end())
+            {
+                componentCounter[id] = 0;
+            }
+            else
+            {
+                componentCounter[id]++;
+                //name += '(' + std::to_string(componentCounter[id]) + ')';
+                name += " #" + std::to_string(componentCounter[id]);
+            }
+
+            DrawComponentNode(component, name, id);
+        }
     }
     else
     {
@@ -42,14 +62,8 @@ void InspectorPanel::ImGuiRender()
     ImGui::End();
 }
 
-void InspectorPanel::DrawComponentNode(Component *component)
+void InspectorPanel::DrawComponentNode(Component *component, const std::string& name, TypeId id)
 {
-    TypeId id = component->GetTypeId();
-
-    std::string name = std::string(id.GetTypeName());
-    name.erase(0, 6); // remove the class prefix
-    name = FormatName(name);
-
     const ImGuiTreeNodeFlags flags = 
         ImGuiTreeNodeFlags_DefaultOpen | 
         ImGuiTreeNodeFlags_Framed | 
@@ -135,7 +149,11 @@ void InspectorPanel::DrawComponentMemberNode(
             }
             else
             {
-                changed = DrawFloat3(name, values);
+                changed = DrawFloat3(name,
+                                    values,
+                                    0.0f,
+                    (member.ExportInfo.flags & ExportFlags_Angle) == ExportFlags_Angle
+                );
             }
         } break;
 
@@ -166,6 +184,19 @@ void InspectorPanel::DrawComponentMemberNode(
             );
         } break;
 
+        case GetTypeHash<int>():
+        {
+            int &value = GetMemberByOffset<int>(component, member.Offset);
+            changed = DrawInt(
+                name,
+                value,
+                member.ExportInfo.Unit,
+                static_cast<int>(member.ExportInfo.Min),
+                static_cast<int>(member.ExportInfo.Max),
+                member.ExportInfo.Speed
+            );
+        } break;
+
         case GetTypeHash<bool>(): 
         {
             bool &value = GetMemberByOffset<bool>(component, member.Offset);
@@ -190,11 +221,22 @@ std::string InspectorPanel::FormatName(const std::string &name)
     if (name.size() > 0)
         formattedName << static_cast<char>(std::toupper(name[0]));
 
+    bool digit = false;
+
     for (size_t i = 1; i < name.size(); ++i)
     {
-        // Add Space between capital letters
-        if (std::isupper(static_cast<char>(name[i])))
-            formattedName << ' ';
+        if (!digit)
+        {
+            // Add Space between capital letters
+            if (std::isupper(static_cast<char>(name[i])))
+                formattedName << ' ';
+            else if (std::isdigit(static_cast<char>(name[i])))
+            {
+                digit = true;
+                formattedName << ' ';
+            }
+        }
+
         formattedName << name[i];
     }
 

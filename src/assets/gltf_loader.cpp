@@ -241,8 +241,11 @@ void GLTFLoader::ReadTextures(ID3D11Device *device, ID3D11DeviceContext *deviceC
 			continue;
 		}
 
-		Texture2D *texture = new Texture2D(
-			(char*)pixelData,
+		Texture2D *texture = new Texture2D();
+
+		// TODO: Should check if this fails.
+		bool result = texture->Create(
+			(char *)pixelData,
 			width,
 			height,
 			channels,
@@ -250,6 +253,7 @@ void GLTFLoader::ReadTextures(ID3D11Device *device, ID3D11DeviceContext *deviceC
 			device,
 			deviceContext
 		);
+
 		this->textures.push_back(texture);
 	}
 }

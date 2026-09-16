@@ -17,8 +17,11 @@ void AudioComponent::OnStart(const AppContext& context)
 void AudioComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
-		this->audioPosition = transform->GetWorldPosition();
-	};
+		if (this->currentSoundId != 0 && this->is3D && this->audioManagerRef) {
+			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, transform->GetWorldPosition());
+			this->audioManagerRef->UpdateAudio(this->currentSoundId, this->minDistance, this->maxDistance, this->looping, this->is3D, this->volume);
+		}
+	}
 }
 
 void AudioComponent::OnDestroy(const AppContext& context)
@@ -28,25 +31,30 @@ void AudioComponent::OnDestroy(const AppContext& context)
 
 void AudioComponent::Play()
 {
-	if(this->audioManagerRef && this->is3D)
-	{
-		this->audioManagerRef->PlaySoundAt(
-			this->audioClip, 
-			this->looping,
-			this->audioPosition, 
-			this->volume, 
-			this->pitch);
-	}
-	else
-	{
-		this->audioManagerRef->PlaySoundEffect(
-			this->audioClip, 
-			this->looping,
-			this->volume, 
-			this->pitch);
+	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
+
+		if (this->audioManagerRef && this->is3D)
+		{
+			this->currentSoundId = this->audioManagerRef->PlaySoundAt(
+				this->audioClip,
+				this->looping,
+				transform->GetWorldPosition(),
+				this->volume,
+				this->pitch,
+				this->minDistance,
+				this->maxDistance
+				);
+		}
+		else if (this->audioManagerRef)
+		{
+			this->currentSoundId = this->audioManagerRef->PlaySoundEffect(
+				this->audioClip,
+				this->looping,
+				this->volume,
+				this->pitch);
+		}
 	}
 }
-
 bool AudioComponent::StopPlaying()
 {
 	if (!this->audioClip)
@@ -54,7 +62,10 @@ bool AudioComponent::StopPlaying()
 		LogWarn("AudioComponent does not have audioClip!");
 		return false;
 	}
-	this->audioManagerRef->StopAudio(this->audioClip);
+	if (this->currentSoundId != 0 && this->audioManagerRef) {
+		this->audioManagerRef->StopSound(this->currentSoundId);
+		this->currentSoundId = 0;
+	}
 	return true;
 }
 
@@ -134,23 +145,44 @@ bool AudioComponent::SetLooping(bool state)
 	return true;
 }
 
-
-DirectX::XMFLOAT3 AudioComponent::GetAudioPosition()
+float AudioComponent::GetMinDistance()
 {
-	return this->audioPosition;
+	return this->minDistance;
 }
 
-bool AudioComponent::SetAudioPosition(DirectX::XMFLOAT3 audioPoition)
+bool AudioComponent::SetMinDistance(float minDistance)
 {
-	if (!this->audioClip)
-	{
-		LogWarn("AudioComponent dose not have audioClip!");
+	if (!this->audioManagerRef) {
+		LogWarn("The Audio Manager referance is not valid in Audio Component!");
 		return false;
 	}
-	else {
-		this->audioPosition = audioPoition;
-	}
+	this->minDistance = minDistance;
 	return true;
+}
+
+float AudioComponent::GetMaxDistance()
+{
+	return this->maxDistance;
+}
+
+bool AudioComponent::SetMaxDistance(float maxDistance)
+{
+	if (!this->audioManagerRef) {
+		LogWarn("The Audio Manager referance is not valid in Audio Component!");
+		return false;
+	}
+	this->maxDistance = maxDistance;
+	return true;
+}
+
+float AudioComponent::GetAudioRadius()
+{
+	return this->maxDistance;
+}
+
+bool AudioComponent::SetAudioRadius(float radius)
+{
+	return SetMaxDistance(radius);
 }
 
 

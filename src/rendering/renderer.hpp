@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rendering/render_view.hpp"
+#include "resources/backbuffer.hpp"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -10,15 +11,16 @@
 
 class Window;
 class Scene;
-class ImGuiWindow;
+class ImGuiLayer;
 
 class Renderer
 {
 	ID3D11Device *device = nullptr;
 	ID3D11DeviceContext *deviceContext = nullptr;
 	IDXGISwapChain *swapChain = nullptr;
-	ID3D11RenderTargetView *renderTargetView = nullptr;
 	ID3D11DepthStencilView *depthStencilView = nullptr;
+
+	Backbuffer backbuffer;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;
@@ -28,7 +30,6 @@ class Renderer
     std::vector<RenderView> views;
 
     bool CreateInterface(HWND hWnd);
-	bool CreateRenderTargetView();
 	bool CreateDepthStencilView();
 
 public:
@@ -42,8 +43,12 @@ public:
     bool Resize(uint32_t width, uint32_t height);
 
     void AddView(RenderView &view);
+	std::vector<RenderView> &GetViews() { return this->views; }
 
-    float GetAspectRatio() { return this->width / (float)this->height; }
+    float GetAspectRatio() const { return this->width / (float)this->height; }
+
+	uint32_t GetWidth() const { return this->width; }
+	uint32_t GetHeight() const { return this->height; }
 
 	ID3D11Device *GetDevice() const { return this->device; }
 	ID3D11DeviceContext *GetDeviceContext() const { return this->deviceContext; }

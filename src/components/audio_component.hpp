@@ -8,16 +8,17 @@ class AudioComponent : public Component
 {
     RegisterComponent(AudioComponent)
 
-    std::shared_ptr<AudioClip> audioClip;
+    ExportProperty(std::shared_ptr<AudioClip>, audioClip, nullptr);
 
     AudioManager* audioManagerRef = nullptr;
-
-    DirectX::XMFLOAT3 audioPosition = { 0,0,0 };
-    float volume = 1.0f;
-    float pitch = 1.0f;
-    bool is3D = true;
+    ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
+    ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
+    ExportProperty(bool, is3D, true);
     bool isAudioClipChanged = false;
-    bool looping = false;
+    ExportProperty(bool, looping, true);
+    ExportPropertyRanged(float, minDistance, "m", 0.0f, 1.0f, 0.01f, 0.0f);
+    ExportPropertyRanged(float, maxDistance, "m", 0.0f, 10.0f, 0.01f, 5.0f);
+    int currentSoundId = 0;
 
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
@@ -42,8 +43,14 @@ public:
     bool IsLooping();
     bool SetLooping(bool state);
 
-    DirectX::XMFLOAT3 GetAudioPosition();
-    bool SetAudioPosition(DirectX::XMFLOAT3 audioPoition);
+    float GetMinDistance();
+    bool SetMinDistance(float minDistance = 0.0f);
+
+    float GetMaxDistance();
+    bool SetMaxDistance(float maxDistance = 5.0f);
+
+    float GetAudioRadius();
+    bool SetAudioRadius(float radius = 5.0f);
 
     bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
 

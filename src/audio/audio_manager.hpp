@@ -11,10 +11,20 @@
 class AssetManager;
 class AudioClip;
 
+using SoundId = uint32_t;
+
+
 struct ActiveSound
 {
+	SoundId id = 0;
 	IXAudio2SourceVoice* voice = nullptr;
 	std::shared_ptr<AudioClip> clip;
+	bool is3D = false;
+	DirectX::XMFLOAT3 position{ 0.0f, 0.0f, 0.0f };
+	float volume = 1.0f;
+	float minDistance = 0.0f;
+	float maxDistance = 5.0f;
+	bool looping = false;
 };
 
 class AudioManager
@@ -30,11 +40,14 @@ private:
 
 	AssetManager* assetManager = nullptr;
 
-	DirectX::XMFLOAT3 listenerPosition{ 0,0,0 };
+	DirectX::XMFLOAT3 listenerPosition{ 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 listenerOrientFront{ 0.0f, 0.0f, 1.0f };
+	DirectX::XMFLOAT3 listenerOrientTop{ 0.0f, 1.0f, 0.0f };
 
 	float musicVolume = 1.0f;
 	bool isMusicPaused = false;
 
+	SoundId nextSoundId = 1;
 	std::vector<ActiveSound> activeVoices;
 
 public:
@@ -44,22 +57,24 @@ public:
 	bool Initialize(AssetManager* assetManager);
 	void Shutdown();
 
-	void SetListenerPosition(DirectX::XMFLOAT3 listenerPosition);
+	void Update(float deltaTime);
 
-	//std::shared_ptr<AudioClip> LoadSound(const std::string& filename);
+	void SetListener(const DirectX::XMFLOAT3& listenerPosition, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& top);
 
 	// SFX / 2D Playback
-	//bool PlaySoundEffect(const std::string& filename, float volume = 1.0f, float pitch = 1.0f);
-	bool PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume = 1.0f, float pitch = 1.0f);
+	SoundId PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume = 1.0f, float pitch = 1.0f);
 
 	// 3D Positional Playback
-	//bool PlaySoundAt(const std::string& filename, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
-	bool PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f);
-	bool StopSoundAt(std::shared_ptr<AudioClip> clip);
+	SoundId PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f, float minDistance = 0.0f, float maxDistance = 5.0f);
+	void UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& position);
+	void UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume);
+	void UpdateAudio(SoundId id, float radius, bool looping, bool is3D, float volume);
+	void StopSound(SoundId id);
+	bool IsSoundPlaying(SoundId id) const;
 
 	void StopAudio(std::shared_ptr<AudioClip> clip);
+
 	// Music Controls
-	//bool PlayMusic(const std::string& filename, bool loop = true, float volume = 1.0f, float pitch = 1.0f);
 	bool PlayMusic(std::shared_ptr<AudioClip> clip, bool loop = true, float volume = 1.0f, float pitch = 1.0f);
 	void StopMusic();
 	void PauseMusic();

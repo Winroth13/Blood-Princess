@@ -13,6 +13,7 @@
 
 void Application::Update(float deltaTime) {
     this->sceneManager.Update(deltaTime);
+	this->audioManager.Update(deltaTime);
 }
 
 void Application::Render() {
@@ -121,7 +122,7 @@ void Application::Run()
 
         this->Update(deltaTime);
 
-        this->editor.ImGuiRender();
+        this->editor.ImGuiRender(this->appContext);
 
         this->Render();
     }

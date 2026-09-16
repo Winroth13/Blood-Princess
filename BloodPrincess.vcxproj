@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -176,6 +176,12 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="external\imguizmo\GraphEditor.cpp" />
+    <ClCompile Include="external\imguizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="external\imguizmo\ImGradient.cpp" />
+    <ClCompile Include="external\imguizmo\ImGuizmo.cpp" />
+    <ClCompile Include="external\imguizmo\ImSequencer.cpp" />
+    <ClCompile Include="external\imguizmo\ImVectorEditor.cpp" />
     <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="external\imgui\backends\imgui_impl_sdl3.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
@@ -214,6 +220,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
+    <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
     <ClCompile Include="src\scene\entity.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\scene_culler.cpp" />
@@ -221,6 +228,14 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\scene\scene_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\imguizmo\GraphEditor.h" />
+    <ClInclude Include="external\imguizmo\ImCurveEdit.h" />
+    <ClInclude Include="external\imguizmo\ImGradient.h" />
+    <ClInclude Include="external\imguizmo\ImGuizmo.h" />
+    <ClInclude Include="external\imguizmo\ImLightRig.h" />
+    <ClInclude Include="external\imguizmo\ImSequencer.h" />
+    <ClInclude Include="external\imguizmo\ImVectorEditor.h" />
+    <ClInclude Include="external\imguizmo\ImZoomSlider.h" />
     <ClInclude Include="external\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="external\imgui\backends\imgui_impl_sdl3.h" />
     <ClInclude Include="external\imgui\imconfig.h" />
@@ -261,7 +276,6 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\imgui_layer.hpp" />
     <ClInclude Include="src\reflection\MemberVars.h" />
-    <ClInclude Include="src\reflection\reflection_hashes.hpp" />
     <ClInclude Include="src\reflection\reflection_utils.hpp" />
     <ClInclude Include="src\reflection\TypeHash.h" />
     <ClInclude Include="src\reflection\TypeInfo.h" />
@@ -273,6 +287,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\render_queue.hpp" />
     <ClInclude Include="src\rendering\render_utils.hpp" />
     <ClInclude Include="src\rendering\render_view.hpp" />
+    <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
