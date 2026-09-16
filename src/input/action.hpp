@@ -19,7 +19,6 @@ class Action
 {
 private:
 	static std::unordered_map<std::string, ActionBinding> actions;
-
 public:
 	static void Initialize();
 	static void Shutdown();
@@ -32,4 +31,7 @@ public:
 	static bool IsActionDown(const std::string &name);
 	static bool IsActionPressed(const std::string &name);
 	static bool IsActionReleased(const std::string &name);
+
+	static bool SaveBindings(const std::string &filepath);
+	static bool LoadBindings(const std::string &filepath);
 };

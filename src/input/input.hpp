@@ -9,6 +9,9 @@
 
 enum class Key
 {
+	//Unknown key
+	UNKNOWN = SDL_SCANCODE_UNKNOWN,
+	
 	// Letters
 	A = SDL_SCANCODE_A, B = SDL_SCANCODE_B, C = SDL_SCANCODE_C, D = SDL_SCANCODE_D,
 	E = SDL_SCANCODE_E, F = SDL_SCANCODE_F, G = SDL_SCANCODE_G, H = SDL_SCANCODE_H,
@@ -75,6 +78,7 @@ struct MouseState
 
 enum class MouseButton
 {
+	UNKNOWN = 0,
 	LEFT = SDL_BUTTON_LEFT,
 	RIGHT = SDL_BUTTON_RIGHT,
 	MIDDLE = SDL_BUTTON_MIDDLE,
@@ -121,4 +125,9 @@ public:
 
 	static MouseMode GetMouseMode();
 	static void SetMouseMode(MouseMode mode, SDL_Window* window);
+
+	static const char *GetKeyName(Key key);
+	static Key GetKeyFromName(const std::string &name);
+	static const char *GetMouseButtonName(MouseButton button);
+	static MouseButton GetMouseButtonFromName(const std::string &name);
 };

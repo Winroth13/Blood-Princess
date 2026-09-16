@@ -2,14 +2,14 @@
 
 std::unordered_map<std::string, ActionBinding> Action::actions;
 
-void Action::Initialize() 
+void Action::Initialize()
 {
 	actions.clear();
 	LogInfo("Action System initialized...");
 }
 
 
-void Action::Shutdown() 
+void Action::Shutdown()
 {
 	actions.clear();
 	LogInfo("Action System Shutdown...");
@@ -50,7 +50,8 @@ void Action::Update()
 	}
 }
 
-void Action::AddAction(const std::string &name, Key key) 
+//Example to create action: Action::AddAction( "Jump", Key::SPACE)
+void Action::AddAction(const std::string &name, Key key)
 {
 	ActionBinding &binding = actions[name];
 
@@ -65,7 +66,7 @@ void Action::AddAction(const std::string &name, Key key)
 
 void Action::AddAction(const std::string &name, MouseButton mouseButton)
 {
-	ActionBinding& binding = actions[name];
+	ActionBinding &binding = actions[name];
 
 	if (std::find(binding.mouseButtons.begin(), binding.mouseButtons.end(), mouseButton) != binding.mouseButtons.end())
 	{
@@ -79,8 +80,9 @@ bool Action::IsActionDown(const std::string &name)
 {
 	auto it = actions.find(name);
 
-	if (it == actions.end()) 
+	if (it == actions.end())
 	{
+		LogWarn("Unknown action: %s", name.c_str());
 		return false;
 	}
 
@@ -93,23 +95,35 @@ bool Action::IsActionPressed(const std::string &name)
 
 	if (it == actions.end())
 	{
+		LogWarn("Unknown action: %s", name.c_str());
 		return false;
 	}
-	
-	
+
+
 	return it->second.isActive && !it->second.wasActive;
 }
 
-bool Action::IsActionReleased(const std::string& name)
+bool Action::IsActionReleased(const std::string &name)
 {
 	auto it = actions.find(name);
 
 	if (it == actions.end())
 	{
+		LogWarn("Unknown action: %s", name.c_str());
 		return false;
 	}
-	
-	
+
+
 	return !it->second.isActive && it->second.wasActive;
 
+}
+
+bool Action::SaveBindings(const std::string &path)
+{
+	return false;
+}
+
+bool Action::LoadBindings(const std::string &path)
+{
+	return false;
 }
