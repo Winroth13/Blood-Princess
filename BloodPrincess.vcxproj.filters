@@ -127,5 +127,9 @@
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
     <FxCompile Include="src\shaders\ForwardVS.hlsl" />
+    <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\shared_buffers.hlsli" />
   </ItemGroup>
 </Project>

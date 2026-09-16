@@ -90,6 +90,8 @@
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -115,6 +117,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -141,6 +145,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -169,6 +175,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </Manifest>
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /i /s /y
@@ -300,6 +308,12 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scene_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="src\shaders\ForwardPS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -308,6 +322,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\shared_buffers.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
