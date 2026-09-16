@@ -1,8 +1,0 @@
-{
-  "root": true,
-  "hlsl.additionalIncludeDirectories": [
-    ".",
-    "src/shaders",
-    "src/shaders/include"
-  ]
-}
