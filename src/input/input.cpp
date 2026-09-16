@@ -30,7 +30,7 @@ void Input::Update()
 	SDL_GetRelativeMouseState(&lastMouseState.delta.x, &lastMouseState.delta.y);
 }
 
-void Input::HandleEvent(const SDL_Event& event)
+void Input::HandleEvent(const SDL_Event &event)
 {
 	switch (event.type)
 	{
@@ -168,4 +168,71 @@ bool Input::IsMouseButtonPressed(MouseButton button)
 bool Input::IsMouseButtonReleased(MouseButton button)
 {
 	return !(lastMouseState.buttonFlags & SDL_BUTTON_MASK(static_cast<int>(button))) && (lastMouseState.previousButtonFlags & SDL_BUTTON_MASK(static_cast<int>(button)));
+}
+
+const char *Input::GetKeyName(Key key)
+{
+	return SDL_GetScancodeName(static_cast<SDL_Scancode>(key));
+}
+
+Key Input::GetKeyFromName(const std::string &name)
+{
+	const SDL_Scancode scancode = SDL_GetScancodeFromName(name.c_str());
+
+	if (scancode == SDL_SCANCODE_UNKNOWN)
+	{
+		return Key::UNKNOWN;
+	}
+
+	return static_cast<Key>(scancode);
+}
+
+const char *Input::GetMouseButtonName(MouseButton button)
+{
+
+	switch (button)
+	{
+	case MouseButton::LEFT:
+		return "LEFT";
+	
+	case MouseButton::RIGHT:
+		return "RIGHT";
+	
+	case MouseButton::MIDDLE:
+		return "MIDDLE";
+	
+	case MouseButton::X1:
+		return "X1";
+
+	case MouseButton::X2:
+		return "X2";
+	default:
+		return "UNKNOWN";
+	}
+}
+
+MouseButton Input::GetMouseButtonFromName(const std::string &name)
+{
+	if (name == "LEFT")
+	{
+		return MouseButton::LEFT;
+	}
+	if (name == "RIGHT")
+	{
+		return MouseButton::RIGHT;
+	}
+
+	if (name == "MIDDLE")
+	{
+		return MouseButton::MIDDLE;
+	}
+	if (name == "X1")
+	{
+		return MouseButton::X1;
+	}
+	if (name == "X2")
+	{
+		return MouseButton::X2;
+	}
+	return MouseButton::UNKNOWN;
 }
