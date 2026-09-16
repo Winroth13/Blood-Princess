@@ -200,6 +200,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\components\point_light_component.cpp" />
     <ClCompile Include="src\components\listener_component.cpp" />
     <ClCompile Include="src\assets\asset.cpp" />
@@ -262,6 +263,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\components\point_light_component.hpp" />
     <ClInclude Include="src\components\listener_component.hpp" />
     <ClInclude Include="src\assets\asset.hpp" />

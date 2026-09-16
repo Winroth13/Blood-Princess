@@ -4,23 +4,13 @@
 
 class MusicComponent : public Component 
 {
-	RegisterComponent(MusicComponent)
-
+	RegisterComponent(MusicComponent);
 	ExportProperty(std::shared_ptr<AudioClip>, audioClip, nullptr);
-
 	bool isAudioClipChanged = false;
-
-	ExportPropertyRanged(float, volume, "", 0.0f, 5.0f, 0.01f, 1.0f);
-	//ExportPropertyChanged(volume, MarkLocalDirty);
-
+	ExportPropertyRanged(float, volume, "", 0.0f, 100.0f, 0.01f, 1.0f);
 	ExportPropertyRanged(float, pitch, "", 0.0f, 5.0f, 0.01f, 1.0f);
-	//ExportPropertyChanged(pitch, MarkLocalDirty);
-
 	ExportProperty(bool, looping, true);
-	//ExportPropertyChanged(looping, MarkLocalDirty);
-
 	ExportProperty(bool, paused, false);
-	//ExportPropertyChanged(paused, MarkLocalDirty);
 
 
 	AudioManager* audioManagerRef = nullptr;
