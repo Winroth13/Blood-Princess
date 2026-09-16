@@ -6,6 +6,10 @@
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/audio_clip.hpp"
 
+#include "assets/types/vertex_shader.hpp"
+#include "assets/types/pixel_shader.hpp"
+#include "assets/types/compute_shader.hpp"
+
 #include <unordered_map>
 #include <string>
 #include <memory>
