@@ -23,6 +23,8 @@ class MusicComponent : public Component
 	//ExportPropertyChanged(paused, MarkLocalDirty);
 
 
+	AudioManager* audioManagerRef = nullptr;
+
 public:
 	MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip);
 	
