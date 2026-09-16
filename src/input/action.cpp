@@ -1,4 +1,7 @@
 #include "input/action.hpp"
+#include <fstream>
+#include <sstream>
+#include "core/logging.hpp" 
 
 std::unordered_map<std::string, ActionBinding> Action::actions;
 
@@ -120,10 +123,118 @@ bool Action::IsActionReleased(const std::string &name)
 
 bool Action::SaveBindings(const std::string &path)
 {
-	return false;
+
+	std::ofstream file(path);
+	
+	if (!file)
+	{
+		LogError("Could not open %s for writing", path.c_str());		
+		return false;
+	}
+	
+	file << "# action key KEYNAME\n";
+	file << "# action mouse BUTTONNAME\n\n";
+
+
+	// Sorted so the file stays readable, not really necessary but git reasons 
+	std::vector<std::string> sortedNames;
+	sortedNames.reserve(actions.size());
+
+	for (const auto &[name, binding] : actions)
+	{
+		sortedNames.push_back(name);
+	}
+
+
+
+	for (auto &[name, binding] : actions)
+	{
+		for (const Key key : binding.keys)
+		{
+			file << name << " key " << Input::GetKeyName(key) << "\n";
+		}
+
+		for (const MouseButton mouseButton : binding.mouseButtons)
+		{
+			file << name << " mouse " << Input::GetMouseButtonName(mouseButton) << "\n";
+		}
+	}
+	
+	return true;
 }
 
 bool Action::LoadBindings(const std::string &path)
 {
-	return false;
+	std::ifstream file(path);
+
+	if (!file)
+	{
+		LogError("Could not open %s for reading", path.c_str());
+		return false;
+	}
+
+
+	actions.clear(); //Remove when file custom time so temporary
+
+	int lineNumber = 0;
+	std::string line;
+
+	while (getline(file, line))
+	{
+		lineNumber++;
+		
+		if (line.empty() || line[0] == '#')
+		{
+			continue;
+		}
+
+		std::istringstream stream(line);
+		std::string actionName;
+		std::string type;
+
+		stream >> actionName; //Example: "Crouch"
+		stream >> type; //Examole: "Key"
+
+		std::string inputName;
+		stream >> std::ws;
+		std::getline(stream, inputName);
+
+		if (actionName.empty() || type.empty() || inputName.empty())
+		{
+			LogWarn("Line %d: expected three fields", lineNumber);
+			continue;
+		}
+
+		if (type == "key")
+		{
+			Key key = Input::GetKeyFromName(inputName);
+
+			if (key == Key::UNKNOWN)
+			{
+				LogWarn("Line %d: unknown key name \"%s\"", lineNumber, inputName.c_str());
+				continue;
+			}
+			
+			AddAction(actionName, key);
+		}
+
+		else if (type == "mouse")
+		{
+			MouseButton mouseButton = Input::GetMouseButtonFromName(inputName);
+
+			if (mouseButton == MouseButton::UNKNOWN)
+			{
+				LogWarn("Line %d: unknown mousebutton name \"%s\"", lineNumber, inputName.c_str());
+				continue;
+			}
+			AddAction(actionName, mouseButton);
+		}
+
+		else
+		{
+			LogWarn("Line %d: unknown type \"%s\"", lineNumber, type.c_str());
+		}
+	}
+
+	return true;
 }
