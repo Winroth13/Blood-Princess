@@ -12,33 +12,44 @@ MusicComponent::MusicComponent(Entity* owner, bool isActive, std::shared_ptr<Aud
 
 void MusicComponent::OnStart(const AppContext& context)
 {
+	this->audioManagerRef = context.audioManager;
 	if (!this->audioClip) {
 		LogWarn("There is not a valid AudioClip provided!");
 	}
-	else
+	else if (this->audioManagerRef)
 	{
-		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
+		this->audioManagerRef->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
 	}
 }
 
 void MusicComponent::Update(const AppContext& context, float deltaTime)
 {
+	this->audioManagerRef = context.audioManager;
+	if (!this->audioManagerRef) return;
+
 	if (this->isAudioClipChanged) {
-		context.audioManager->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
+		this->audioManagerRef->PlayMusic(this->audioClip, this->looping, this->volume, this->pitch);
 		this->isAudioClipChanged = false;
 	}
+	else {
+		this->audioManagerRef->SetMusicVolume(this->volume);
+	}
+
 	if (this->paused) {
-		context.audioManager->PauseMusic();
+		this->audioManagerRef->PauseMusic();
 	}
 	else
 	{
-		context.audioManager->ResumeMusic();
+		this->audioManagerRef->ResumeMusic();
 	}
 }
 
 void MusicComponent::OnDestroy(const AppContext& context)
 {
-	context.audioManager->StopMusic();
+	if (context.audioManager) {
+		context.audioManager->StopMusic();
+	}
+	this->audioManagerRef = nullptr;
 }
 
 float MusicComponent::GetVolume()
@@ -57,6 +68,9 @@ bool MusicComponent::SetVolume(float volume)
 		return false;
 	}
 	this->volume = volume;
+	if (this->audioManagerRef) {
+		this->audioManagerRef->SetMusicVolume(volume);
+	}
 	return true;
 }
 
@@ -114,8 +128,15 @@ bool MusicComponent::SetPaused(bool isPlaying)
 		return false;
 	}
 	this->paused = isPlaying;
+	if (this->audioManagerRef) {
+		if (this->paused) {
+			this->audioManagerRef->PauseMusic();
+		}
+		else {
+			this->audioManagerRef->ResumeMusic();
+		}
+	}
 	return true;
-
 }
 
 bool MusicComponent::ChangeAudioClip(std::shared_ptr<AudioClip> audioClip)
