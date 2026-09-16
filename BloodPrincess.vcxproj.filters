@@ -51,6 +51,8 @@
     <ClCompile Include="external\imguizmo\ImSequencer.cpp" />
     <ClCompile Include="external\imguizmo\ImVectorEditor.cpp" />
     <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
+    <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -119,6 +121,8 @@
     <ClInclude Include="external\imguizmo\ImVectorEditor.h" />
     <ClInclude Include="external\imguizmo\ImZoomSlider.h" />
     <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
+    <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />
