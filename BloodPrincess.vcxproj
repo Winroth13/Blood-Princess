@@ -220,10 +220,12 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
     <ClCompile Include="src\rendering\resources\backbuffer.cpp" />
+    <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
     <ClCompile Include="src\scene\entity.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\scene_culler.cpp" />
@@ -286,6 +288,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeHash.h" />
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
+    <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -294,6 +297,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\render_utils.hpp" />
     <ClInclude Include="src\rendering\render_view.hpp" />
     <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
+    <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />

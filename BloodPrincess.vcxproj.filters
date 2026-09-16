@@ -54,6 +54,8 @@
     <ClCompile Include="src\components\point_light_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
     <ClCompile Include="src\components\spot_light_component.cpp" />
+    <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -125,6 +127,8 @@
     <ClInclude Include="src\components\point_light_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
     <ClInclude Include="src\components\spot_light_component.hpp" />
+    <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\ForwardPS.hlsl" />

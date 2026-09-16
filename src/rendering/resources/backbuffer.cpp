@@ -3,13 +3,10 @@
 #include "rendering/render_utils.hpp"
 #include <d3d11.h>
 
-bool Backbuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
+bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 {
 	LogInfo("Creating Back Buffer...");
 	LogIndent();
-
-	SafeRelease(uav);
-	SafeRelease(view);
 
 	ID3D11Texture2D *texture{};
 	HRESULT result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&texture);
@@ -38,7 +35,7 @@ bool Backbuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 	uavDesc.Texture2DArray.MipSlice = 0;
 	uavDesc.Texture2DArray.ArraySize = 1;
 
-	hr = device->CreateUnorderedAccessView(texture, &uavDesc, &uav);
+	hr = device->CreateUnorderedAccessView(texture, &uavDesc, &this->uav);
 	texture->Release();
 	if (FAILED(hr))
 	{
@@ -51,8 +48,13 @@ bool Backbuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 	return true;
 }
 
-Backbuffer::~Backbuffer()
+void BackBuffer::Release()
 {
 	SafeRelease(this->uav);
 	SafeRelease(this->view);
+}
+
+BackBuffer::~BackBuffer()
+{
+	this->Release();
 }

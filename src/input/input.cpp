@@ -1,4 +1,4 @@
-#include "input.hpp"
+#include "input/input.hpp"
 #include <algorithm>
 // Allocation and definition of static member variables
 MouseState Input::lastMouseState;

@@ -19,7 +19,7 @@ void AudioComponent::Update(const AppContext& context, float deltaTime)
 	if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
 		if (this->currentSoundId != 0 && this->is3D && this->audioManagerRef) {
 			this->audioManagerRef->UpdateSoundPosition(this->currentSoundId, transform->GetWorldPosition());
-			this->audioManagerRef->UpdateAudio(this->currentSoundId, this->radius, this->looping, this->is3D, this->volume);
+			this->audioManagerRef->UpdateAudio(this->currentSoundId, this->minDistance, this->maxDistance, this->looping, this->is3D, this->volume);
 		}
 	}
 }
@@ -41,7 +41,8 @@ void AudioComponent::Play()
 				transform->GetWorldPosition(),
 				this->volume,
 				this->pitch,
-				this->radius
+				this->minDistance,
+				this->maxDistance
 				);
 		}
 		else if (this->audioManagerRef)
@@ -144,19 +145,44 @@ bool AudioComponent::SetLooping(bool state)
 	return true;
 }
 
-float AudioComponent::GetAudioRadius()
+float AudioComponent::GetMinDistance()
 {
-	return this->radius;
+	return this->minDistance;
 }
 
-bool AudioComponent::SetAudioRadius(float radius)
+bool AudioComponent::SetMinDistance(float minDistance)
 {
 	if (!this->audioManagerRef) {
 		LogWarn("The Audio Manager referance is not valid in Audio Component!");
 		return false;
 	}
-	this->radius = radius;
+	this->minDistance = minDistance;
 	return true;
+}
+
+float AudioComponent::GetMaxDistance()
+{
+	return this->maxDistance;
+}
+
+bool AudioComponent::SetMaxDistance(float maxDistance)
+{
+	if (!this->audioManagerRef) {
+		LogWarn("The Audio Manager referance is not valid in Audio Component!");
+		return false;
+	}
+	this->maxDistance = maxDistance;
+	return true;
+}
+
+float AudioComponent::GetAudioRadius()
+{
+	return this->maxDistance;
+}
+
+bool AudioComponent::SetAudioRadius(float radius)
+{
+	return SetMaxDistance(radius);
 }
 
 

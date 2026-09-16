@@ -71,42 +71,6 @@ bool Renderer::CreateInterface(HWND hWnd)
     return true;
 }
 
-bool Renderer::CreateDepthStencilView()
-{
-    D3D11_TEXTURE2D_DESC dsDesc{};
-    dsDesc.Width = this->width;
-    dsDesc.Height = this->height;
-    dsDesc.MipLevels = 1;
-    dsDesc.ArraySize = 1;
-    dsDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    dsDesc.SampleDesc.Count = 1;
-    dsDesc.SampleDesc.Quality = 0;
-    dsDesc.Usage = D3D11_USAGE_DEFAULT;
-    dsDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-    ID3D11Texture2D *dsTexture = nullptr;
-    HRESULT hr = this->device->CreateTexture2D(&dsDesc, nullptr, &dsTexture);
-    if (FAILED(hr))
-    {
-        LogError("Failed to create the Depth Stencil Texture");
-        return false;
-    }
-
-    LogInfo("Depth Stencil Texture created");
-
-    hr = this->device->CreateDepthStencilView(dsTexture, nullptr, &this->depthStencilView);
-    dsTexture->Release();
-
-    if (FAILED(hr))
-    {
-        LogError("Failed to create the Depth Stencil View");
-        return false;
-    }
-
-    LogInfo("Depth Stencil View created");
-    return true;
-}
-
 bool Renderer::Initialize(const Window *window)
 {
     LogInfo("Creating Renderer...");
@@ -116,13 +80,22 @@ bool Renderer::Initialize(const Window *window)
     this->height = window->GetHeight();
 
     if (!this->CreateInterface(window->GetHWNDPointer()))
+    {
+        LogError("Failed to create Interface");
         return false;
+    }
 
-    if (!this->backbuffer.Create(this->device, this->swapChain))
+    if (!this->backBuffer.Create(this->device, this->swapChain))
+    {
+        LogError("Failed to create Back Buffer");
         return false;
+    }
 
-    if (!this->CreateDepthStencilView())
+    if (!this->deferredPass.Create(this->device, this->width, this->height))
+    {
+        LogError("Failed to create Deferred Pass");
         return false;
+    }
 
     this->viewport.TopLeftX = 0.0f;
     this->viewport.TopLeftY = 0.0f;
@@ -140,9 +113,6 @@ void Renderer::Shutdown()
 {
     LogInfo("Shutting down Renderer...");
     LogIndent();
-
-    LogInfo("Releasing Depth Stencil View");
-    SafeRelease(this->depthStencilView);
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -174,62 +144,13 @@ void Renderer::Render(Scene *scene)
 
     scene->GatherRenderCommands(this->views);
 
-    this->deviceContext->ClearRenderTargetView(this->backbuffer.GetView(), this->clearColor);
-    this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    this->deviceContext->ClearRenderTargetView(this->backBuffer.GetView(), this->clearColor);
+    //this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    ID3D11RenderTargetView *view = this->backbuffer.GetView();
+    ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
 
-    //if (!scene)
-    //{
-    //    this->swapChain->Present(0, 0);
-    //    return;
-    //}
-
-    //auto mesh = scene->GetMesh();
-    //if (!mesh || !mesh->GetVertexBuffer() || !mesh->GetIndexBuffer())
-    //{
-    //    this->swapChain->Present(0, 0);
-    //    return;
-    //}
-
     const GeometryCommand &command = primary->queue.geometryCommands[0];
-
-    // Update Matrix constant buffer with the scene's transform
-    //XMMATRIX worldT = XMMatrixTranspose(XMLoadFloat4x4(&command.worldMatrix));
-    //XMMATRIX viewProjT = XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&primary->viewMatrix), XMLoadFloat4x4(&primary->projectionMatrix)));
-
-    //D3D11_MAPPED_SUBRESOURCE mapped;
-    //if (SUCCEEDED(this->deviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-    //{
-    //    MatrixPair data;
-    //    XMStoreFloat4x4(&data.world, worldT);
-    //    XMStoreFloat4x4(&data.viewProj, viewProjT);
-    //    memcpy(mapped.pData, &data, sizeof(MatrixPair));
-    //    this->deviceContext->Unmap(constantBuffer, 0);
-    //}
-
-    //this->deviceContext->RSSetViewports(1, &this->viewport);
-    //this->deviceContext->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
-
-    //ID3D11Buffer *vBuffer = command.vertexBuffer;
-    //UINT stride = sizeof(Vertex);
-    //UINT offset = 0;
-    //this->deviceContext->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-    //this->deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    //this->deviceContext->IASetInputLayout(inputLayout);
-    //this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    //this->deviceContext->VSSetShader(vShader, nullptr, 0);
-    //this->deviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
-
-    //this->deviceContext->PSSetShader(pShader, nullptr, 0);
-
-    //ID3D11ShaderResourceView *srv = nullptr;
-    //this->deviceContext->PSSetShaderResources(0, 1, &srv);
-    //this->deviceContext->PSSetSamplers(0, 1, &samplerState);
-
-    //this->deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 }
 
 void Renderer::Present()
@@ -246,17 +167,29 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     LogInfo("Resizing window...");
     LogIndent();
 
+    this->backBuffer.Release();
+
     this->deviceContext->ClearState();
     this->deviceContext->Flush();
 
     HRESULT result = this->swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
-    if (FAILED(result)) {
-        LogError("Failed to resize swap chain buffers");
+    if (FAILED(result))
+    {
+        LogError("Failed to resize Swap Chain Buffers");
         return false;
     }
 
-    if (!this->backbuffer.Create(this->device, this->swapChain))
+    if (!this->backBuffer.Create(this->device, this->swapChain))
+    {
+        LogError("Failed to create Back Buffer");
         return false;
+    }
+
+    if (!this->deferredPass.Resize(this->device, this->width, this->height))
+    {
+        LogError("Failed to resize Deferred Pass");
+        return false;
+    }
 
     // this->SetViewport(width, height);
     this->width = width;
