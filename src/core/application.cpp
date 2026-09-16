@@ -2,6 +2,7 @@
 #include "core/logging.hpp"
 #include "input/input.hpp"
 #include "core/app_context.hpp"
+#include "input/action.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -79,6 +80,8 @@ bool Application::Initialize()
     Input::Initialize();
     this->isRunning = true;
 
+    Action::Initialize();
+
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 
     LogUnindent();
@@ -95,6 +98,8 @@ void Application::Run()
 
         this->window.PollEvents();
 
+        Action::Update(); //Has to be called after PollEvents()
+
         if (this->window.WasResized()) {
             this->renderer.Resize(this->window.GetWidth(), this->window.GetHeight());
             this->window.ClearResizeFlag();
@@ -107,13 +112,6 @@ void Application::Run()
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
 
-        if (Input::IsKeyReleased(Key::F))
-        {
-            LogInfo("F key is released");
-        }
-        if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
-            LogInfo("LMB Released");
-        }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();

@@ -22,7 +22,8 @@ struct ActiveSound
 	bool is3D = false;
 	DirectX::XMFLOAT3 position{ 0.0f, 0.0f, 0.0f };
 	float volume = 1.0f;
-	float radius = 0.0f;
+	float minDistance = 0.0f;
+	float maxDistance = 5.0f;
 	bool looping = false;
 };
 
@@ -64,8 +65,9 @@ public:
 	SoundId PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume = 1.0f, float pitch = 1.0f);
 
 	// 3D Positional Playback
-	SoundId PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f, float radius = 5.0f);
+	SoundId PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f, float minDistance = 0.0f, float maxDistance = 5.0f);
 	void UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& position);
+	void UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume);
 	void UpdateAudio(SoundId id, float radius, bool looping, bool is3D, float volume);
 	void StopSound(SoundId id);
 	bool IsSoundPlaying(SoundId id) const;
