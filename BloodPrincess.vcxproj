@@ -330,6 +330,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="shadertoolsconfig.json" />
     <None Include="src\shaders\shared_buffers.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

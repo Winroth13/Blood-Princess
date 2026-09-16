@@ -137,5 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_buffers.hlsli" />
+    <None Include="shadertoolsconfig.json" />
   </ItemGroup>
 </Project>

@@ -2,8 +2,7 @@
   "root": true,
   "hlsl.additionalIncludeDirectories": [
     ".",
-    "Shaders",
-    "Shaders/Include",
-    "../Common"
+    "src/shaders",
+    "src/shaders/include"
   ]
 }
