@@ -191,6 +191,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\point_light_component.cpp" />
     <ClCompile Include="src\components\listener_component.cpp" />
     <ClCompile Include="src\assets\asset.cpp" />
     <ClCompile Include="src\assets\asset_loader.cpp" />
@@ -205,6 +207,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\camera_component.cpp" />
     <ClCompile Include="src\components\model_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
+    <ClCompile Include="src\components\spot_light_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
@@ -248,6 +251,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\point_light_component.hpp" />
     <ClInclude Include="src\components\listener_component.hpp" />
     <ClInclude Include="src\assets\asset.hpp" />
     <ClInclude Include="src\assets\asset_loader.hpp" />
@@ -263,6 +268,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\camera_component.hpp" />
     <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
+    <ClInclude Include="src\components\spot_light_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
