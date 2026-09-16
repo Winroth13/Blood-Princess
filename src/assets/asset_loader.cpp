@@ -12,6 +12,7 @@
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
+#include "assets/types/compute_shader.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -223,6 +224,25 @@ std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &p
 	}
 
 	return pixelShader;
+}
+
+template<>
+std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::string &path)
+{
+	std::string byteCode;
+
+	if (!LoadShaderByteCode(path, byteCode))
+	{
+		LogError("Failed to load byte shader code from %s", path.c_str());
+	}
+
+	std::shared_ptr<ComputeShader> computeShader = std::make_shared<ComputeShader>();
+	if (!computeShader->Create(byteCode, this->device))
+	{
+		LogError("Failed to create Compute Shader");
+	}
+
+	return computeShader;
 }
 
 #pragma endregion

@@ -2,11 +2,10 @@
 #include "core/logging.hpp"
 #include "rendering/render_utils.hpp"
 
+#include "assets/asset_manager.hpp"
+
 bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 {
-	LogInfo("Creating Deferred Pass...");
-	LogIndent();
-
 #pragma region GBuffers
 	{
 		gBuffers.resize(static_cast<size_t>(GBufferType::SIZE));
@@ -65,9 +64,34 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 	}
 #pragma endregion
 
-	LogUnindent();
-
 	return true;
+}
+
+bool DeferredPass::Initialize(
+	ID3D11Device *device,
+	AssetManager *assetManager,
+	uint32_t width,
+	uint32_t height
+)
+{
+	LogInfo("Initializing Deferred Pass...");
+	LogIndent();
+
+#pragma region Load Shaders
+
+	this->vertexShader = assetManager->Get<VertexShader>("assets/deferred_vertex_shader.cso");
+	this->pixelShader = assetManager->Get<PixelShader>("assets/deferred_pixel_shader.cso");
+	this->computeShader = assetManager->Get<ComputeShader>("assets/deferred_compute_shader.cso");
+
+#pragma endregion
+
+	if (!this->Create(device, width, height))
+	{
+		LogError("Failed to create the Deferred Pass");
+		return false;
+	}
+
+	LogUnindent();
 }
 
 bool DeferredPass::Resize(

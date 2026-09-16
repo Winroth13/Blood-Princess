@@ -58,4 +58,7 @@ std::shared_ptr<VertexShader> AssetLoader::Load<VertexShader>(const std::string 
 template<>
 std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &path);
 
+template<>
+std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::string &path);
+
 #pragma endregion

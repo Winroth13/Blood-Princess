@@ -71,15 +71,15 @@ bool Renderer::CreateInterface(HWND hWnd)
     return true;
 }
 
-bool Renderer::Initialize(const Window *window)
+bool Renderer::Initialize(const AppContext &appContext)
 {
     LogInfo("Creating Renderer...");
     LogIndent();
 
-    this->width = window->GetWidth();
-    this->height = window->GetHeight();
+    this->width = appContext.window->GetWidth();
+    this->height = appContext.window->GetHeight();
 
-    if (!this->CreateInterface(window->GetHWNDPointer()))
+    if (!this->CreateInterface(appContext.window->GetHWNDPointer()))
     {
         LogError("Failed to create Interface");
         return false;
@@ -91,7 +91,7 @@ bool Renderer::Initialize(const Window *window)
         return false;
     }
 
-    if (!this->deferredPass.Create(this->device, this->width, this->height))
+    if (!this->deferredPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
     {
         LogError("Failed to create Deferred Pass");
         return false;

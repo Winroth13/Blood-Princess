@@ -3,6 +3,7 @@
 #include "rendering/render_view.hpp"
 #include "resources/backbuffer.hpp"
 #include "passes/deferred_pass.hpp"
+#include "core/app_context.hpp"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -10,9 +11,7 @@
 #include <cstdint>
 #include <vector>
 
-class Window;
 class Scene;
-class ImGuiLayer;
 
 class Renderer
 {
@@ -34,7 +33,7 @@ class Renderer
     bool CreateInterface(HWND hWnd);
 
 public:
-	bool Initialize(const Window *window);
+	bool Initialize(const AppContext &appContext);
 	void Shutdown();
 
     void NewFrame();

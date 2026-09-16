@@ -594,7 +594,8 @@ bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float v
 		return false;
 	}
 
-	this->musicVoice->SetVolume(volume * this->musicVolume);
+	this->musicVolume = volume;
+	this->musicVoice->SetVolume(this->musicVolume);
 	this->musicVoice->SetFrequencyRatio(pitch);
 
 	XAUDIO2_BUFFER buffer = {};
