@@ -4,6 +4,8 @@
 
 #include "assets/asset_manager.hpp"
 
+#include <d3d11.h>
+
 bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 {
 	this->width = width;
@@ -18,6 +20,10 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			if (!this->gBuffers[bufferIndex].Initialize(device, width, height))
 			{
 				LogError("Failed to create GBuffer with index %zu", bufferIndex);
+			}
+			if (bufferIndex == 0)
+			{
+				this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
 			}
 		} 
 	}
