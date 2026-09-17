@@ -58,6 +58,7 @@
     <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
+    <ClCompile Include="src\collision\Rect_2d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -133,6 +134,9 @@
     <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
+    <ClInclude Include="src\collision\collision_layer.hpp" />
+    <ClInclude Include="src\components\box_collider_component.hpp" />
+    <ClInclude Include="src\collision\Rect_2d.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
