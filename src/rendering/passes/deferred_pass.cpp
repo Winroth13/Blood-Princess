@@ -4,6 +4,8 @@
 
 #include "assets/asset_manager.hpp"
 
+#include <d3d11.h>
+
 bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 {
 	this->width = width;
@@ -16,12 +18,24 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
         DXGI_FORMAT formats[] = 
 		{
+<<<<<<< HEAD
 			DXGI_FORMAT_R8G8B8A8_UNORM, // albedo.rgb | specular exponent / 1000
             DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
 		};
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
 			if (!this->gBuffers[i].Initialize(device, width, height, formats[i]))
 				LogError("Failed to create GBuffer with index %zu", i);
+=======
+			if (!this->gBuffers[bufferIndex].Initialize(device, width, height))
+			{
+				LogError("Failed to create GBuffer with index %zu", bufferIndex);
+			}
+			if (bufferIndex == 0)
+			{
+				this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
+			}
+		} 
+>>>>>>> 20663391a4ba6f6790c79563b0ec67b04f4baa2e
 	}
 #pragma endregion
 

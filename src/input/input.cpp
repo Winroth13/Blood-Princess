@@ -142,7 +142,7 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 	case MouseMode::HIDDEN:
 		SDL_SetWindowMouseRect(window, nullptr);
 		SDL_HideCursor();
-		SDL_SetWindowRelativeMouseMode(window, false);
+		SDL_SetWindowRelativeMouseMode(window, true);
 		break;
 	case MouseMode::CAPTURED:
 		SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
