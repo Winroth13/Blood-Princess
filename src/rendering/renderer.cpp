@@ -71,9 +71,9 @@ bool Renderer::CreateInterface(HWND hWnd)
     return true;
 }
 
-bool Renderer::Initialize(const AppContext &appContext)
+bool Renderer::PreInitialize(const AppContext &appContext)
 {
-    LogInfo("Creating Renderer...");
+    LogInfo("Pre Initializing Renderer...");
     LogIndent();
 
     this->width = appContext.window->GetWidth();
@@ -91,18 +91,28 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
-    if (!this->deferredPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
-    {
-        LogError("Failed to create Deferred Pass");
-        return false;
-    }
-
     this->viewport.TopLeftX = 0.0f;
     this->viewport.TopLeftY = 0.0f;
     this->viewport.Width = static_cast<float>(this->width);
     this->viewport.Height = static_cast<float>(this->height);
     this->viewport.MinDepth = 0.0f;
     this->viewport.MaxDepth = 1.0f;
+
+    LogUnindent();
+
+    return true;
+}
+
+bool Renderer::Initialize(const AppContext &appContext)
+{
+    LogInfo("Creating Renderer...");
+    LogIndent();
+
+    if (!this->deferredPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
+    {
+        LogError("Failed to create Deferred Pass");
+        return false;
+    }
 
     LogUnindent();
 

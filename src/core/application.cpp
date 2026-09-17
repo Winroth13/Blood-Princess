@@ -12,12 +12,14 @@
 #include <d3d11.h>
 #include "SDL3/SDL.h"
 
-void Application::Update(float deltaTime) {
+void Application::Update(float deltaTime) 
+{
     this->sceneManager.Update(deltaTime);
 	this->audioManager.Update(deltaTime);
 }
 
-void Application::Render() {
+void Application::Render() 
+{
     this->renderer.Render(this->sceneManager.GetCurrentScene());
     this->imGuiLayer.Present();
     this->renderer.Present();
@@ -40,15 +42,21 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->renderer.Initialize(this->appContext))
+    if (!this->renderer.PreInitialize(this->appContext))
     {
-        LogError("Failed to create Renderer!");
+        LogError("Failed to pre-initialize Renderer!");
         return false;
     }
 
     if (!this->assetManager.Initialize(&this->renderer))
     {
         LogError("Failed to create Asset Manager!");
+        return false;
+    }
+
+    if (!this->renderer.Initialize(this->appContext))
+    {
+        LogError("Failed to create Renderer!");
         return false;
     }
 
