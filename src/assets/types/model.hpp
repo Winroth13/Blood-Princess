@@ -126,7 +126,7 @@ class Model : public Asset
 
 public:
 	Model() = default;
-	~Model() = default;
+	~Model();
 
 	void DrawImGui() override;
 
@@ -139,6 +139,8 @@ public:
     const std::vector<std::unique_ptr<Mesh>> &GetMeshes() const { return this->meshes; }
     const std::vector<Material> &GetMaterials() const { return this->materials; }
     const std::vector<std::unique_ptr<Texture2D>> &GetTextures() const { return this->textures; }
+
+	Texture2D *GetTexture(uint32_t index) { return this->textures[index].get(); }
 };
 
 #pragma endregion

@@ -124,6 +124,8 @@ void Renderer::Shutdown()
     LogInfo("Shutting down Renderer...");
     LogIndent();
 
+    this->deferredPass.Shutdown();
+
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
 

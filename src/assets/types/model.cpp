@@ -27,22 +27,15 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 #pragma region Mesh
 Mesh::~Mesh()
 {
-	LogInfo("Destroying Mesh...");
-	LogIndent();
-
-	LogInfo("Releasing Vertex Buffer");
 	if (this->vertexBuffer)
 	{
 		this->vertexBuffer->Release();
 	}
 
-	LogInfo("Releasing Index Buffer");
 	if (this->indexBuffer)
 	{
 		this->indexBuffer->Release();
 	}
-
-	LogUnindent();
 }
 
 bool Mesh::Create(
@@ -147,6 +140,11 @@ bool Model::Create(
 	LogUnindent();
 
 	return true;
+}
+
+Model::~Model()
+{
+	LogInfo("Destroying Model '%s'", this->path.c_str());
 }
 
 void Model::DrawImGui()
