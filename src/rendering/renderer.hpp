@@ -3,6 +3,7 @@
 #include "rendering/render_view.hpp"
 #include "resources/backbuffer.hpp"
 #include "passes/deferred_pass.hpp"
+#include "rendering/shared_resources.hpp"
 #include "core/app_context.hpp"
 
 #include <d3d11.h>
@@ -19,8 +20,9 @@ class Renderer
 	ID3D11DeviceContext *deviceContext = nullptr;
 	IDXGISwapChain *swapChain = nullptr;
 
-	BackBuffer backBuffer;
+	SharedResources sharedResources;
 
+	BackBuffer backBuffer;
 	DeferredPass deferredPass;
 
 	D3D11_VIEWPORT viewport;

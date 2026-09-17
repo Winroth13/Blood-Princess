@@ -108,6 +108,12 @@ bool Renderer::Initialize(const AppContext &appContext)
     LogInfo("Creating Renderer...");
     LogIndent();
 
+    if (!this->sharedResources.Initialize(this->device))
+    {
+        LogError("Failed to create Shared Resources");
+        return false;
+    }
+
     if (!this->deferredPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
     {
         LogError("Failed to create Deferred Pass");
@@ -123,6 +129,8 @@ void Renderer::Shutdown()
 {
     LogInfo("Shutting down Renderer...");
     LogIndent();
+
+    this->sharedResources.Shutdown();
 
     this->deferredPass.Shutdown();
 
@@ -150,19 +158,24 @@ void Renderer::Render(Scene *scene)
         return;
     }
 
+    this->deviceContext->ClearRenderTargetView(this->backBuffer.GetView(), this->clearColor);
+
     RenderView *primary = RenderUtils::GetView(this->views, ViewType::PRIMARY);
     if (!primary)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
 
-    this->deviceContext->ClearRenderTargetView(this->backBuffer.GetView(), this->clearColor);
-    //this->deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    this->deferredPass.Render(
+        this->device, 
+        this->deviceContext, 
+        &this->sharedResources,
+        this->backBuffer,
+        this->views
+    );
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
-
-    const GeometryCommand &command = primary->queue.geometryCommands[0];
 }
 
 void Renderer::Present()

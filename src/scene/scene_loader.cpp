@@ -13,6 +13,7 @@
 #include "components/directional_light_component.hpp"
 #include "components/spot_light_component.hpp"
 #include "components/player_controller_component.hpp"
+
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -25,7 +26,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/princess.glb"));
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/monkey.glb"));
 
     auto sfxClip = appContext.assetManager->Get<AudioClip>("looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("Test1.ogg");
@@ -41,7 +42,8 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    playerEntity->AddComponent<PlayerControllerComponent>();
+    // playerEntity->AddComponent<PlayerControllerComponent>();
+
     outScene.PrintEntityHierarchy();
 }
 

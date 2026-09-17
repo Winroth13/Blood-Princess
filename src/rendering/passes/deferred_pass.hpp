@@ -2,6 +2,7 @@
 #include "rendering/resources/gbuffer.hpp"
 #include "rendering/render_view.hpp"
 #include "rendering/shared_resources.hpp"
+#include "rendering/resources/backbuffer.hpp"
 
 #include <vector>
 #include <memory>
@@ -56,6 +57,7 @@ class DeferredPass
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
 		SharedResources *sharedResources,
+		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
 
@@ -63,6 +65,7 @@ class DeferredPass
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
 		SharedResources *sharedResources,
+		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
 
@@ -92,6 +95,7 @@ public:
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
 		SharedResources *sharedResources,
+		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
 };
