@@ -13,6 +13,8 @@
 #include "components/directional_light_component.hpp"
 #include "components/spot_light_component.hpp"
 #include "components/player_controller_component.hpp"
+#include "components/box_collision_component.hpp"
+
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -42,6 +44,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
     playerEntity->AddComponent<PlayerControllerComponent>();
+    playerEntity->AddComponent<BoxCollisionComponent>();
     outScene.PrintEntityHierarchy();
 }
 

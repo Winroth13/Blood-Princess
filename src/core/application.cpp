@@ -93,7 +93,7 @@ bool Application::Initialize()
    
     const std::string configPath = std::string(SDL_GetBasePath()) + "bindings.cfg";
 
-    if (!Action::LoadBindings(configPath))
+    if (!Action::LoadBindings("bindings.cfg"))
     {
         Action::AddAction("MoveForward", Key::W);
         Action::AddAction("MoveBackward", Key::S);
@@ -105,7 +105,7 @@ bool Application::Initialize()
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
 
-        Action::SaveBindings(configPath);
+        Action::SaveBindings("bindings.cfg");
     }
 
     LogInfo("Bindings path: %s", configPath.c_str());
