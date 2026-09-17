@@ -25,12 +25,12 @@ VertexShaderOutput main(VertexShaderInput input)
     VertexShaderOutput output;
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0f), worldMatrix);
-    float4 clipPos = mul(viewProjMatrix, worldPos);
+    float4 clipPos = mul(worldPos, viewProjectionMatrix);
 
     output.clipPosition = clipPos;
     output.worldPosition = worldPos.xyz;
 
-    output.worldNormal = normalize(mul((float3x3) worldInvTransposeMatrix, input.normal));
+    output.worldNormal = normalize(mul(input.normal, (float3x3) worldInvTransposeMatrix));
     output.uv = input.uv;
     
     float3 tangent = input.tangent;

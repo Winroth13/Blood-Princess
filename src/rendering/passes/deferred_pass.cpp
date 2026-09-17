@@ -19,7 +19,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			{
 				LogError("Failed to create GBuffer with index %zu", bufferIndex);
 			}
-		}
+		} 
 	}
 #pragma endregion
 
@@ -109,9 +109,9 @@ bool DeferredPass::Initialize(
 
 #pragma region Load Shaders
 
-	this->vertexShader = assetManager->Get<VertexShader>("assets/deferred_vertex_shader.cso");
-	this->pixelShader = assetManager->Get<PixelShader>("assets/deferred_pixel_shader.cso");
-	this->computeShader = assetManager->Get<ComputeShader>("assets/deferred_compute_shader.cso");
+	this->vertexShader = assetManager->Get<VertexShader>("assets/vs_deferred.cso");
+	this->pixelShader = assetManager->Get<PixelShader>("assets/ps_deferred.cso");
+	this->computeShader = assetManager->Get<ComputeShader>("assets/cs_deferred.cso");
 
 #pragma endregion
 
@@ -169,6 +169,7 @@ void DeferredPass::RenderGeometryPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
 	SharedResources *sharedResources,
+	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
 {
@@ -191,9 +192,9 @@ void DeferredPass::RenderGeometryPass(
 	sharedResources->UploadPerViewData(deviceContext, *view);
 
 	ID3D11RenderTargetView *rtvs[3] = {
-		this->GetGBuffer(GBufferType::COLOR).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::POSITION).GetRenderTargetView(),
 		this->GetGBuffer(GBufferType::NORMAL).GetRenderTargetView(),
-		this->GetGBuffer(GBufferType::POSITION).GetRenderTargetView()
+		backBuffer.GetView(),
 	};
 
 	const float clearAlbedo[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -269,6 +270,7 @@ void DeferredPass::RenderLightingPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
 	SharedResources *sharedResources,
+	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
 {
@@ -284,9 +286,10 @@ void DeferredPass::Render(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
 	SharedResources *sharedResources,
+	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
 {
-	this->RenderGeometryPass(device, deviceContext, sharedResources, views);
-	this->RenderLightingPass(device, deviceContext, sharedResources, views);
+	this->RenderGeometryPass(device, deviceContext, sharedResources, backBuffer, views);
+	this->RenderLightingPass(device, deviceContext, sharedResources, backBuffer, views);
 }
