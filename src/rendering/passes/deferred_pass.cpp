@@ -187,6 +187,7 @@ void DeferredPass::RenderGeometryPass(
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
+	sharedResources->BindSamplers(deviceContext);
 	sharedResources->UploadPerViewData(deviceContext, *view);
 
 	ID3D11RenderTargetView *rtvs[3] = {
