@@ -90,15 +90,7 @@ bool Application::Initialize()
     this->isRunning = true;
 
     Action::Initialize();
-    Action::AddAction("Jump", Key::SPACE);
-    Action::AddAction("Crouch", Key::C);
-    Action::AddAction("Crouch", Key::LEFT_CONTROL);
-    Action::AddAction("Fire", MouseButton::LEFT);
 
-    const std::string configPath = std::string(SDL_GetBasePath()) + "bindings.cfg";
-    //Action::LoadBindings(configPath);
-    Action::SaveBindings(configPath);
-    LogInfo("Bindings written to %s", configPath.c_str());
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 
     LogUnindent();
@@ -116,11 +108,6 @@ void Application::Run()
         this->window.PollEvents();
 
         Action::Update(); //Has to be called after PollEvents()
-
-        if (Action::IsActionReleased("Jump"))
-        {
-            LogInfo("Jump was Pressed");
-        }
 
         if (this->window.WasResized()) {
             this->renderer.Resize(this->window.GetWidth(), this->window.GetHeight());
