@@ -3,7 +3,6 @@
 #include "input/input.hpp"
 #include "core/app_context.hpp"
 #include "input/action.hpp"
-#include "input/action_names.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -92,19 +91,19 @@ bool Application::Initialize()
 
     Action::Initialize();
 
-    if (!Action::LoadBindings("bindings.txt"))
+    if (!Action::LoadBindings("bindings.cfg"))
     {
-        Action::AddAction(Actions::MOVE_FORWARD, Key::W);
-        Action::AddAction(Actions::MOVE_BACKWARD, Key::S);
-        Action::AddAction(Actions::MOVE_LEFT, Key::A);
-        Action::AddAction(Actions::MOVE_RIGHT, Key::D);
+        Action::AddAction("MoveForward", Key::W);
+        Action::AddAction("MoveBackward", Key::S);
+        Action::AddAction("MoveLeft", Key::A);
+        Action::AddAction("MoveRight", Key::D);
 
-        Action::AddAction(Actions::DODGE, Key::LEFT_SHIFT);
+        Action::AddAction("Dash", Key::LEFT_SHIFT);
 
-        Action::AddAction(Actions::LIGHT_ATTACK, MouseButton::LEFT);
-        Action::AddAction(Actions::HEAVY_ATTACK, MouseButton::RIGHT);
+        Action::AddAction("LightAttack", MouseButton::LEFT);
+        Action::AddAction("HeavyAttack", MouseButton::RIGHT);
 
-        Action::SaveBindings("bindings.txt");
+        Action::SaveBindings("bindings.cfg");
 
     }
 

@@ -169,7 +169,7 @@ bool Action::LoadBindings(const std::string &path)
 
 	if (!file)
 	{
-		LogError("Could not open %s for reading", path.c_str());
+		LogInfo("Could not open %s for reading", path.c_str());
 		return false;
 	}
 

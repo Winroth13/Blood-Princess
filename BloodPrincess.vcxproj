@@ -292,7 +292,6 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
     <ClInclude Include="src\input\action.hpp" />
-    <ClInclude Include="src\input\action_names.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
     <ClInclude Include="src\editor\imgui_layer.hpp" />

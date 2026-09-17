@@ -37,23 +37,24 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 void PlayerControllerComponent::HandleMovement(float deltaTime)
 {
 	auto transform = GetOwner()->GetComponent<TransformComponent>();
+	float yawRad = XMConvertToRadians(this->yaw);
 
-	DirectX::XMVECTOR forward = XMVectorSet(sinf(this->yaw), 0.0f, cosf(this->yaw), 0.0f);
-	DirectX::XMVECTOR right = XMVectorSet(cosf(this->yaw), 0.0f, -sinf(this->yaw), 0.0f);
+	DirectX::XMVECTOR forward = XMVectorSet(sinf(yawRad), 0.0f, cosf(yawRad), 0.0f);
+	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
 
 	DirectX::XMVECTOR moveDir = XMVectorZero();
 
 
-	if (Action::IsActionDown(Actions::MOVE_FORWARD)) {
+	if (Action::IsActionDown("MoveForward")) {
 		moveDir = XMVectorAdd(moveDir, forward);
 	}
-	if (Action::IsActionDown(Actions::MOVE_FORWARD)) {
+	if (Action::IsActionDown("MoveBackward")) {
 		moveDir = XMVectorSubtract(moveDir, forward);
 	}
-	if (Action::IsActionDown(Actions::MOVE_RIGHT)) {
+	if (Action::IsActionDown("MoveRight")) {
 		moveDir = XMVectorAdd(moveDir, right);
 	}
-	if (Action::IsActionDown(Actions::MOVE_LEFT)) {
+	if (Action::IsActionDown("MoveLeft")) {
 		moveDir = XMVectorSubtract(moveDir, right);
 	}
 
@@ -79,24 +80,24 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 	float deltaX = Input::GetMouseDeltaX();
 	float deltaY = Input::GetMouseDeltaY();
 
-	this->yaw += deltaX * this->mouseSensitivity;
-	this->pitch += deltaY * this->mouseSensitivity;
+	this->yaw += deltaX * this->mouseSensitivity.x;
+	this->pitch += deltaY * this->mouseSensitivity.y;
 
 	this->pitch = std::clamp(this->pitch, -89.9f, 89.9f);
-	transform->SetLocalRotation(this->yaw, this->pitch, 0.0f);
+	transform->SetLocalRotation(this->pitch, this->yaw, 0.0f);
 	
 }
 
 void PlayerControllerComponent::HandleCombat(float deltaTime)
 {
-	if (Action::IsActionPressed(Actions::LIGHT_ATTACK)) {
+	if (Action::IsActionPressed("LightAttack")) {
 		PerformLightAttack();
 	}
-	if (Action::IsActionPressed(Actions::HEAVY_ATTACK))
+	if (Action::IsActionPressed("HeavyAttack"))
 	{
 		PerformHeavyAttack();
 	}
-	if (Action::IsActionPressed(Actions::DASH) && this->canUseDash) {
+	if (Action::IsActionPressed("Dash") && this->canUseDash) {
 		PerformDash();
 	}
 }

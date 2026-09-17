@@ -140,6 +140,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
         } break;
 
+        case GetTypeHash<XMFLOAT2>():
+        {
+            XMFLOAT2& values = GetMemberByOffset<XMFLOAT2>(component, member.Offset);
+                changed = DrawFloat2(name,
+                    values,
+                    0.0f
+                );
+        } break;
+
         case GetTypeHash<XMFLOAT3>():
         {
             XMFLOAT3 &values = GetMemberByOffset<XMFLOAT3>(component, member.Offset);

@@ -133,7 +133,6 @@
     <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
-    <ClInclude Include="src\input\action_names.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
