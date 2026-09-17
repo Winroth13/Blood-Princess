@@ -1,5 +1,9 @@
 #pragma once
 #include "scene/component.hpp"
+#include "input/action.hpp"
+#include "input/input.hpp"
+#include "input/action_names.hpp"
+
 
 class PlayerControllerComponent : public Component 
 {
@@ -9,8 +13,8 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, pitch, 1.0f);
 	ExportProperty(float, yaw, 1.0f);
 
-	ExportProperty(bool, canUseDodge, true);
-	ExportProperty(float, dodgeCooldownTimer, 3.0f);
+	ExportProperty(bool, canUseDash, true);
+	ExportProperty(float, dashCooldownTimer, 3.0f);
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { NoRender(); }
 
@@ -21,10 +25,11 @@ public:
 
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
+	void HandleCombat(float deltaTime);
 
 	void PerformLightAttack();
 	void PerformHeavyAttack();
-	void PerformDodge();
+	void PerformDash();
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
@@ -38,6 +43,6 @@ public:
 	float GetYaw() const { return this->yaw; };
 	void SetYaw(float yaw) { this->yaw = yaw; };
 
-	float GetDodgeCooldownTimer() const { return this->dodgeCooldownTimer; };
-	void SetDodgeCooldownTimer(float dodgeCooldownTimer) { this->dodgeCooldownTimer = dodgeCooldownTimer; };
+	float GetDashCooldownTimer() const { return this->dashCooldownTimer; };
+	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
 };

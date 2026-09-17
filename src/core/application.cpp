@@ -3,6 +3,7 @@
 #include "input/input.hpp"
 #include "core/app_context.hpp"
 #include "input/action.hpp"
+#include "input/action_names.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -82,6 +83,23 @@ bool Application::Initialize()
     this->isRunning = true;
 
     Action::Initialize();
+
+    if (!Action::LoadBindings("bindings.txt"))
+    {
+        Action::AddAction(Actions::MOVE_FORWARD, Key::W);
+        Action::AddAction(Actions::MOVE_BACKWARD, Key::S);
+        Action::AddAction(Actions::MOVE_LEFT, Key::A);
+        Action::AddAction(Actions::MOVE_RIGHT, Key::D);
+
+        Action::AddAction(Actions::DODGE, Key::LEFT_SHIFT);
+
+        Action::AddAction(Actions::LIGHT_ATTACK, MouseButton::LEFT);
+        Action::AddAction(Actions::HEAVY_ATTACK, MouseButton::RIGHT);
+
+        Action::SaveBindings("bindings.txt");
+
+    }
+
 
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 

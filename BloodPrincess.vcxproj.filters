@@ -56,6 +56,8 @@
     <ClCompile Include="src\components\spot_light_component.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
     <ClCompile Include="src\rendering\resources\gbuffer.cpp" />
+    <ClCompile Include="src\assets\types\compute_shader.cpp" />
+    <ClCompile Include="src\components\player_controller_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -129,9 +131,14 @@
     <ClInclude Include="src\components\spot_light_component.hpp" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
     <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
+    <ClInclude Include="src\assets\types\compute_shader.hpp" />
+    <ClInclude Include="src\components\player_controller_component.hpp" />
+    <ClInclude Include="src\input\action_names.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
+    <FxCompile Include="src\shaders\deferred\deferred_compute_shader.hlsl" />
+    <FxCompile Include="src\shaders\deferred\deferred_pixel_shader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_buffers.hlsli" />
