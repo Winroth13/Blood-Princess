@@ -33,6 +33,7 @@ class Renderer
     bool CreateInterface(HWND hWnd);
 
 public:
+	bool PreInitialize(const AppContext &appContext);
 	bool Initialize(const AppContext &appContext);
 	void Shutdown();
 
