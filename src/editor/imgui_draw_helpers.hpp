@@ -85,6 +85,64 @@ static bool DrawInt(const std::string &name, int &value, const std::string &unit
     return changed;
 }
 
+static bool DrawFloat2(const std::string& name, XMFLOAT2& values, float resetValue = 0.0f)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    auto boldFont = io.Fonts->Fonts[0];
+
+    BeginMemberDraw(name);
+
+    bool changed = false;
+
+    ImGui::PushMultiItemsWidths(2, ImGui::CalcItemWidth());
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0,0 });
+    ImGui::PushStyleColor(ImGuiCol_SeparatorActive, { 0,0,0,0 });
+
+    float lineHeight = ImGui::GetFontSize() + GImGui->Style.FramePadding.y * 2.0f;
+    ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+
+    /* X */
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+    ImGui::PushFont(boldFont);
+    if (ImGui::Button("X", buttonSize))
+    {
+        values.x = resetValue;
+        changed = true;
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    changed |= ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    /* Y */
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.5f, 0.1f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.15f, 0.6f, 0.15f, 1.0f });
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.5f, 0.1f, 1.0f });
+    ImGui::PushFont(boldFont);
+    if (ImGui::Button("Y", buttonSize))
+    {
+        values.y = resetValue;
+        changed = true;
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    changed |= ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+
+    ImGui::PopStyleColor(1);
+    ImGui::PopStyleVar();
+
+    EndMemberDraw();
+
+    return changed;
+}
 static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetValue = 0.0f, bool isAngle = false)
 {
     ImGuiIO &io = ImGui::GetIO();

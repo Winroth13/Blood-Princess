@@ -3,6 +3,8 @@
 #include "scene/entity.hpp"
 #include "components/transform_component.hpp"
 #include "input/input.hpp"
+#include "input/action.hpp"
+#include <algorithm>
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -10,18 +12,20 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (!this->canUseDodge)
+	if (!this->canUseDash)
 	{
-		this->dodgeCooldownTimer -= deltaTime;
+		this->dashCooldownTimer -= deltaTime;
 	}
 
-	if (dodgeCooldownTimer <= 0)
+	if (dashCooldownTimer <= 0)
 	{
-		this->canUseDodge = true;
-		dodgeCooldownTimer = 3.0f;
+		this->canUseDash = true;
+		dashCooldownTimer = 3.0f;
 	}
 
-	auto transform = GetOwner()->GetComponent<TransformComponent>();
+	HandleMovement(deltaTime);
+	HandleCameraLook(deltaTime);
+	HandleCombat(deltaTime);
 
 }
 
@@ -33,21 +37,83 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 void PlayerControllerComponent::HandleMovement(float deltaTime)
 {
 	auto transform = GetOwner()->GetComponent<TransformComponent>();
-	DirectX::XMFLOAT3 position = transform->GetWorldPosition();
+	float yawRad = XMConvertToRadians(this->yaw);
+
+	DirectX::XMVECTOR forward = XMVectorSet(sinf(yawRad), 0.0f, cosf(yawRad), 0.0f);
+	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
+
+	DirectX::XMVECTOR moveDir = XMVectorZero();
+
+
+	if (Action::IsActionDown("MoveForward")) {
+		moveDir = XMVectorAdd(moveDir, forward);
+	}
+	if (Action::IsActionDown("MoveBackward")) {
+		moveDir = XMVectorSubtract(moveDir, forward);
+	}
+	if (Action::IsActionDown("MoveRight")) {
+		moveDir = XMVectorAdd(moveDir, right);
+	}
+	if (Action::IsActionDown("MoveLeft")) {
+		moveDir = XMVectorSubtract(moveDir, right);
+	}
+
+	if (!DirectX::XMVector3Equal(moveDir, XMVectorZero())) {
+		moveDir = XMVector3Normalize(moveDir);
+
+		XMFLOAT3 currentPos = transform->GetLocalPosition();
+		XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
+
+		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * this->moveSpeed);
+		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
+
+		XMFLOAT3 newPos;
+		XMStoreFloat3(&newPos, newPosV);
+
+		transform->SetLocalPosition(newPos);
+	}
 }
 
 void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 {
+	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
+	float deltaX = Input::GetMouseDeltaX();
+	float deltaY = Input::GetMouseDeltaY();
+
+	this->yaw += deltaX * this->mouseSensitivity.x;
+	this->pitch += deltaY * this->mouseSensitivity.y;
+
+	this->pitch = std::clamp(this->pitch, -89.9f, 89.9f);
+	transform->SetLocalRotation(this->pitch, this->yaw, 0.0f);
+	
+}
+
+void PlayerControllerComponent::HandleCombat(float deltaTime)
+{
+	if (Action::IsActionPressed("LightAttack")) {
+		PerformLightAttack();
+	}
+	if (Action::IsActionPressed("HeavyAttack"))
+	{
+		PerformHeavyAttack();
+	}
+	if (Action::IsActionPressed("Dash") && this->canUseDash) {
+		PerformDash();
+	}
 }
 
 void PlayerControllerComponent::PerformLightAttack()
 {
+	LogInfo("Attack with light attack.");
 }
 
 void PlayerControllerComponent::PerformHeavyAttack()
 {
+
+	LogInfo("Attack with Heavy attack.");
 }
 
-void PlayerControllerComponent::PerformDodge()
+void PlayerControllerComponent::PerformDash()
 {
+	LogInfo("The player has Dashed.");
 }
