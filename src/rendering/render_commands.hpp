@@ -21,6 +21,9 @@ struct GeometryCommand
     DirectX::XMFLOAT3 tint;
 
     DirectX::XMFLOAT4X4 worldMatrix;
+
+    ID3D11ShaderResourceView *albedoSRV;
+    ID3D11ShaderResourceView *normalSRV;
 };
 
 struct DirectionalLightCommand 

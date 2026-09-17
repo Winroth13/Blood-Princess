@@ -5,7 +5,8 @@
 bool GBuffer::Initialize(
 	ID3D11Device *device,
 	uint32_t width,
-	uint32_t height
+	uint32_t height,
+	DXGI_FORMAT format
 )
 {
 	LogInfo("Creating GBuffer...");
@@ -35,7 +36,7 @@ bool GBuffer::Initialize(
 		desc.Height = static_cast<UINT>(height);
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Format = format;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;

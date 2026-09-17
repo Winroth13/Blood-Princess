@@ -16,7 +16,8 @@ public:
 	bool Initialize(
 		ID3D11Device* device,
 		uint32_t width, 
-		uint32_t height
+		uint32_t height,
+        DXGI_FORMAT format
 	);
 
 	ID3D11Texture2D *GetTexture() { return this->texture; }

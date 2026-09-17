@@ -13,13 +13,15 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 	{
 		gBuffers.resize(+GBufferType::SIZE);
 
-		for (size_t bufferIndex = 0; bufferIndex < +GBufferType::SIZE; ++bufferIndex)
+
+        DXGI_FORMAT formats[] = 
 		{
-			if (!this->gBuffers[bufferIndex].Initialize(device, width, height))
-			{
-				LogError("Failed to create GBuffer with index %zu", bufferIndex);
-			}
-		} 
+			DXGI_FORMAT_R8G8B8A8_UNORM, // albedo.rgb | specular exponent / 1000
+            DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
+		};
+		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
+			if (!this->gBuffers[i].Initialize(device, width, height, formats[i]))
+				LogError("Failed to create GBuffer with index %zu", i);
 	}
 #pragma endregion
 
@@ -191,22 +193,19 @@ void DeferredPass::RenderGeometryPass(
 	sharedResources->BindSamplers(deviceContext);
 	sharedResources->UploadPerViewData(deviceContext, *view);
 
-	ID3D11RenderTargetView *rtvs[3] = {
-		this->GetGBuffer(GBufferType::POSITION).GetRenderTargetView(),
-		this->GetGBuffer(GBufferType::NORMAL).GetRenderTargetView(),
-		backBuffer.GetView(),
+	ID3D11RenderTargetView *rtvs[2] = {
+		this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::NORMAL_SPECULAR).GetRenderTargetView(),
 	};
 
-	const float clearAlbedo[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	const float clearNormal[4] = { 0.5f, 0.5f, 1.0f, 0.0f };
-	const float clearPosition[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	const float clearAlbedoSpecularExponent[4] = { 0.0f, 0.0f, 0.0f, 70.0f / 1000.0f };
+	const float clearNormalSpecular[4] = { 0.5f, 0.5f, 1.0f, 0.7f };
 
-	deviceContext->ClearRenderTargetView(rtvs[0], clearAlbedo);
-	deviceContext->ClearRenderTargetView(rtvs[1], clearNormal);
-	deviceContext->ClearRenderTargetView(rtvs[2], clearPosition);
+	deviceContext->ClearRenderTargetView(rtvs[0], clearAlbedoSpecularExponent);
+	deviceContext->ClearRenderTargetView(rtvs[1], clearNormalSpecular);
 	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceContext->OMSetRenderTargets(3, rtvs, this->depthStencilView);
+	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, rtvs, this->depthStencilView);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetInputLayout(this->inputLayout);
@@ -230,24 +229,24 @@ void DeferredPass::RenderGeometryPass(
 		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix,XMMatrixInverse(nullptr, worldMatrix));
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerObject(), perObjectData);
 
-		XMFLOAT3 diffuse = {
+		XMFLOAT3 tint = {
 			command.material.baseColor.x * command.tint.x,
 			command.material.baseColor.y * command.tint.y,
 			command.material.baseColor.z * command.tint.z
 		};
 
 		PerMaterialData perMaterialData{};
-		//perMaterialData.materialDiffuse = diffuse;
-		//perMaterialData.materialSpecular = material->specularColour;
-		//perMaterialData.materialSpecularExponent = material->specularExponent;
+		perMaterialData.materialTint = tint;
+		perMaterialData.materialSpecular = 0.8f;
+		perMaterialData.materialSpecularExponent = 80.0f;
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerMaterial(), perMaterialData);
 
-		//ID3D11ShaderResourceView *srvs[2] = {
-		//	material->diffuseTexture.Get()->shaderResourceView,
-		//	material->normalTexture.Get()->shaderResourceView
-		//};
-		//deviceContext->PSSetShaderResources(0, 2, srvs);
+		ID3D11ShaderResourceView *srvs[2] = {
+            command.albedoSRV,
+			command.normalSRV
+		};
+		deviceContext->PSSetShaderResources(0, 2, srvs);
 
 		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;

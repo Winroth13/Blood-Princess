@@ -6,6 +6,8 @@
 #include <DirectXMath.h>
 #include "render_view.hpp"
 
+#define AssertCBufferSize(type) static_assert(sizeof(type) % 16 == 0)
+
 //struct PerFrameBuffer
 //{
 //	DirectX::XMFLOAT3 ambientColor;
@@ -29,26 +31,23 @@ struct PerViewData
 	DirectX::XMFLOAT3   cameraPosition;
 	float               pad0;
 };
+AssertCBufferSize(PerViewData);
 
 struct PerObjectData
 {
 	DirectX::XMFLOAT4X4 worldMatrix;
 	DirectX::XMFLOAT4X4 worldInverseTransposeMatrix;
 };
+AssertCBufferSize(PerObjectData);
 
 struct PerMaterialData
 {
-	DirectX::XMFLOAT3 ambientCoefficient;
-	float phongExponent;
-	DirectX::XMFLOAT3 diffuseCoefficient;
-	float reflectiveness;
-	DirectX::XMFLOAT3 specularCoefficient;
-	uint32_t materialFlags;
-	float maxTessFactor;
-	float maxTessDistance;
-	float minTessDistance;
-	float dispStrength;
+    XMFLOAT3 materialTint;
+    float    materialSpecular;
+    float    materialSpecularExponent;
+    float	 pad0[3];
 };
+AssertCBufferSize(PerMaterialData);
 
 enum class SamplerSlot {
 	LINEAR_WRAP,

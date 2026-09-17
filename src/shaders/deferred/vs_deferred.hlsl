@@ -1,4 +1,4 @@
-#include "../shared_buffers.hlsli"
+#include "../shared_resources.hlsli"
 
 // Input
 struct VertexShaderInput
@@ -30,13 +30,12 @@ VertexShaderOutput main(VertexShaderInput input)
     output.clipPosition = clipPos;
     output.worldPosition = worldPos.xyz;
 
-    output.worldNormal = normalize(mul(input.normal, (float3x3) worldInvTransposeMatrix));
-    output.uv = input.uv;
-    
-    float3 tangent = input.tangent;
     float3 normal = normalize(input.normal);
     
-    output.tangent = normalize(tangent - dot(tangent, normal) * normal);
+    output.worldNormal = normalize(mul(normal, (float3x3)worldInvTransposeMatrix));
+    output.uv = input.uv;
+    
+    output.tangent = normalize(input.tangent - dot(input.tangent, normal) * normal);
     output.bitangent = cross(normal, output.tangent);
     
     return output;

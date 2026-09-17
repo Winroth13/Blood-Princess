@@ -1,4 +1,4 @@
-#include "../shared_buffers.hlsli"
+#include "../shared_resources.hlsli"
 
 RWTexture2DArray<unorm float4> backBufferUAV;
 
