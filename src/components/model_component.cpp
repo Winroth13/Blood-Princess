@@ -28,6 +28,8 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
             command.startIndex = subMesh.startIndex;
             command.indexCount = subMesh.numIndicies;
 
+            command.tint = this->tint;
+
             command.material = this->model->GetMaterials()[subMesh.materialIndex];
 
             XMStoreFloat4x4(&command.worldMatrix, worldMatrix);

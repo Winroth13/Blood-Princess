@@ -13,10 +13,12 @@ struct GeometryCommand
 {	
     ID3D11Buffer *vertexBuffer;
     ID3D11Buffer *indexBuffer;
+
     uint32_t startIndex;
     uint32_t indexCount;
 
     Material material;
+    DirectX::XMFLOAT3 tint;
 
     DirectX::XMFLOAT4X4 worldMatrix;
 };

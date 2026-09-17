@@ -14,6 +14,8 @@ bool VertexShader::Create(const std::string &bytecode, ID3D11Device *device)
 	LogInfo("Creating Vertex Shader");
 	LogIndent();
 
+	this->bytecode = bytecode;
+
 	HRESULT hr = device->CreateVertexShader(
 		bytecode.c_str(),
 		bytecode.length(),
