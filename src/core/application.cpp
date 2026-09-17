@@ -90,8 +90,10 @@ bool Application::Initialize()
     this->isRunning = true;
 
     Action::Initialize();
+   
+    const std::string configPath = std::string(SDL_GetBasePath()) + "bindings.cfg";
 
-    if (!Action::LoadBindings("bindings.cfg"))
+    if (!Action::LoadBindings(configPath))
     {
         Action::AddAction("MoveForward", Key::W);
         Action::AddAction("MoveBackward", Key::S);
@@ -103,9 +105,10 @@ bool Application::Initialize()
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
 
-        Action::SaveBindings("bindings.cfg");
-
+        Action::SaveBindings(configPath);
     }
+
+    LogInfo("Bindings path: %s", configPath.c_str());
 
 
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
