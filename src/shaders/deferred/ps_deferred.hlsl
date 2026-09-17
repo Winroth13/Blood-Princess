@@ -37,7 +37,7 @@ PixelShaderOutput main(PixelShaderInput input)
     //);
     //float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
     
-    float3 normal = input.worldNormal;
+    float3 normal = input.worldNormal * 0.5f + 0.5f;
      
     output.albedoSpecularExponent = float4(albedo, materialSpecular / 1000.0f);
     output.normalSpecular = float4(normal, materialSpecularExponent);
