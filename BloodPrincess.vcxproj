@@ -215,6 +215,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\audio\audio_manager.cpp" />
     <ClCompile Include="src\components\audio_component.cpp" />
     <ClCompile Include="src\components\camera_component.cpp" />
+    <ClCompile Include="src\components\collision_component.cpp" />
     <ClCompile Include="src\components\model_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
     <ClCompile Include="src\components\spot_light_component.cpp" />
@@ -281,6 +282,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\collision\collision_manager.hpp" />
     <ClInclude Include="src\components\audio_component.hpp" />
     <ClInclude Include="src\components\camera_component.hpp" />
+    <ClInclude Include="src\components\collision_component.hpp" />
     <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
     <ClInclude Include="src\components\spot_light_component.hpp" />
