@@ -1,6 +1,8 @@
 #pragma once
 #include "scene/component.hpp"
 
+#include <d3d11.h>
+
 #include <memory>
 
 class Model;
@@ -10,6 +12,7 @@ class ModelComponent : public Component
     RegisterComponent(ModelComponent)
 
     ExportProperty(std::shared_ptr<Model>, model, nullptr);
+    ExportPropertyColor(DirectX::XMFLOAT3, tint, { 1.0f, 1.0f, 1.0f });
 
 public:
     ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
