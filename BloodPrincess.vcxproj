@@ -220,6 +220,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\spot_light_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
+    <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
     <ClCompile Include="src\editor\editor.cpp" />
     <ClCompile Include="src\editor\inspector_panel.cpp" />
@@ -287,6 +288,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
+    <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
     <ClInclude Include="src\editor\editor.hpp" />
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
