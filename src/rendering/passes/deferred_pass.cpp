@@ -225,11 +225,9 @@ void DeferredPass::RenderGeometryPass(
 
 	for (GeometryCommand &command : view->queue.geometryCommands) {
 		PerObjectData perObjectData{};
-		perObjectData.worldMatrix = command.worldMatrix;
-		XMStoreFloat4x4(
-			&perObjectData.worldInverseTransposeMatrix,
-			XMMatrixInverse(nullptr, XMMatrixTranspose(XMLoadFloat4x4(&command.worldMatrix)))
-		);
+        XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
+        XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
+		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix,XMMatrixInverse(nullptr, worldMatrix));
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerObject(), perObjectData);
 
 		XMFLOAT3 diffuse = {
