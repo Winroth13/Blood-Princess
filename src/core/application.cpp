@@ -93,7 +93,7 @@ bool Application::Initialize()
    
     const std::string configPath = std::string(SDL_GetBasePath()) + "bindings.cfg";
 
-    if (!Action::LoadBindings(configPath))
+    if (!Action::LoadBindings("bindings.cfg"))
     {
         Action::AddAction("MoveForward", Key::W);
         Action::AddAction("MoveBackward", Key::S);
@@ -105,7 +105,7 @@ bool Application::Initialize()
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
 
-        Action::SaveBindings(configPath);
+        Action::SaveBindings("bindings.cfg");
     }
 
     LogInfo("Bindings path: %s", configPath.c_str());
@@ -140,7 +140,20 @@ void Application::Run()
             isFullscreen = !isFullscreen;
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
+        if (Input::IsKeyPressed(Key::F1))
+        {
+            MouseMode nextMode = MouseMode::VISIBLE;
 
+            switch (Input::GetMouseMode())
+            {
+            case MouseMode::VISIBLE: nextMode = MouseMode::HIDDEN; break;
+            case MouseMode::HIDDEN: nextMode = MouseMode::CAPTURED; break;
+            case MouseMode::CAPTURED: nextMode = MouseMode::VISIBLE; break;
+            }
+
+            Input::SetMouseMode(nextMode, this->window.GetSdlWindow());
+            LogInfo("Mouse Mode: %d", static_cast<int>(nextMode));
+        }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();

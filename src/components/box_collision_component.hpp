@@ -3,33 +3,27 @@
 #include "DirectXMath.h"
 #include "d3d11.h"
 #include "collision/Rect_2d.hpp"
+#include "collision/collision_component.hpp"
 
+class SphereCollisionComponent;
+class CapsuleCollisionComponent;
 
-class SphereColliderComponent;
-class CapsuleColliderComponent;
-
-class BoxColliderComponent : public Component
+class BoxCollisionComponent : public CollisionComponent
 {
-	RegisterComponent(BoxColliderComponent);
+	RegisterComponent(BoxCollisionComponent);
 	ExportProperty(XMFLOAT3, extents, { 0.5f, 0.5f, 0.5f });
 	DirectX::BoundingOrientedBox worldOBB{};
-
 public:
 
-	BoxColliderComponent(Entity* owner, bool isActive) : Component(owner, isActive){ NoRender();};
 
-	//Rect2D GetBoundingRect2D() override;
-	//bool Intersects() override;
+	BoxCollisionComponent(Entity* owner, bool isActive) : CollisionComponent(owner, isActive){};
+
+	//Rect2D GetBoundingRect2D() override { return rect2D; };
+	bool Intersects(CollisionComponent* other) override { return true; };
 
 	BoundingOrientedBox GetWorldOBB() const { return this->worldOBB; }
 	void UpdateWorldOBB();
 
 	XMFLOAT3 GetExtents() const { return this->extents; };
 	void SetExtents(const XMFLOAT3& extents) { this->extents = extents; }
-
-
-
-
-private:
-
 };

@@ -128,7 +128,7 @@ bool Action::SaveBindings(const std::string &path)
 	
 	if (!file)
 	{
-		LogError("Could not open %s for writing", path.c_str());		
+		LogWarn("Could not open %s for writing", path.c_str());		
 		return false;
 	}
 	
