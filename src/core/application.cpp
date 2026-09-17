@@ -140,7 +140,20 @@ void Application::Run()
             isFullscreen = !isFullscreen;
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
+        if (Input::IsKeyPressed(Key::F1))
+        {
+            MouseMode nextMode = MouseMode::VISIBLE;
 
+            switch (Input::GetMouseMode())
+            {
+            case MouseMode::VISIBLE: nextMode = MouseMode::HIDDEN; break;
+            case MouseMode::HIDDEN: nextMode = MouseMode::CAPTURED; break;
+            case MouseMode::CAPTURED: nextMode = MouseMode::VISIBLE; break;
+            }
+
+            Input::SetMouseMode(nextMode, this->window.GetSdlWindow());
+            LogInfo("Mouse Mode: %d", static_cast<int>(nextMode));
+        }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();

@@ -11,6 +11,7 @@
 #include <DirectXMath.h>
 #include <fstream>
 #include <vector>
+#include <d3d11_1.h>
 
 using namespace DirectX;
 
@@ -166,12 +167,21 @@ void Renderer::Render(Scene *scene)
 
     scene->GatherRenderCommands(this->views);
 
+    ID3DUserDefinedAnnotation *annot;
+    deviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&annot);
+
+    annot->BeginEvent(L"Deferred Pass :)");
+
     this->deferredPass.Render(
         this->device, 
         this->deviceContext, 
-        &this->sharedResources, 
+        &this->sharedResources,
+        this->backBuffer,
         this->views
     );
+
+    annot->EndEvent();
+    annot->Release();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
