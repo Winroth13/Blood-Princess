@@ -99,6 +99,7 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 	}
 	if (Action::IsActionPressed("Dash") && this->canUseDash) {
 		PerformDash(deltaTime, this->dashDistance, this->dashDuration);
+		this->canUseDash = false;
 	}
 }
 
