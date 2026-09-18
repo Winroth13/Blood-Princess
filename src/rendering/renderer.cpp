@@ -66,6 +66,10 @@ bool Renderer::CreateInterface(HWND hWnd)
         return false;
     }
 
+    RenderUtils::SetDebugName(this->device, "Device");
+    RenderUtils::SetDebugName(this->deviceContext, "Device Context");
+    RenderUtils::SetDebugName(this->swapChain, "Swap Chain");
+
     LogInfo("Device and Swap Chain created");
 
     return true;

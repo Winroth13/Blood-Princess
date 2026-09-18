@@ -10,7 +10,6 @@
 #include <vector>
 #include <unordered_map>
 
-
 template<typename T>
 std::vector<T> ReadAccessorData(tg3_model *model, int32_t accessorIndex)
 {
@@ -210,7 +209,7 @@ void GLTFLoader::ReadTextures()
 			width,
 			height,
 			channels,
-			"?",
+			tImage.name.data,
 			device,
 			deviceContext
 		);
@@ -368,7 +367,7 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 
 	if (node.light != -1)
 	{
-		LogWarn("Emitter node is unsupported");
+		LogWarn("Light node is unsupported");
 	}
 
 	for (size_t childIndex = 0; childIndex < node.children_count; ++childIndex)
