@@ -136,8 +136,22 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 		};
 
 		material.albedoTextureIndex = pbr.base_color_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Albedo Texture");
+		}
+
 		material.normalTextureIndex = tMaterial.normal_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Normal Texture");
+		}
+
 		material.metallicRoughnessTextureIndex = pbr.metallic_roughness_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Metallic Roughness Texture");
+		}
 
 		materials.push_back(material);
 	}
@@ -529,7 +543,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		subMesh.materialIndex = primitive.material;
 		subMeshes.push_back(subMesh);
 
-		for (int32_t i = indicies.size() - 1; i >= 0; --i)
+		for (int32_t i = static_cast<int32_t>(indicies.size()) - 1; i >= 0; --i)
 		{
 			meshIndicies.push_back(indicies[i] + indexOffset);
 		}

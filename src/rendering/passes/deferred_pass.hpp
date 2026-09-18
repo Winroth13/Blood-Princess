@@ -16,9 +16,8 @@ class ComputeShader;
 
 enum class GBufferType
 {
-	ALBEDO_SPECULAR_EXPONENT,	// albedo.rgb | specular exponent / 1000
-	NORMAL_SPECULAR,			// encoded normal | specular
-
+	ALBEDO_METALLIC,	// Albedo | Metallic
+	NORMAL_ROUGHNESS,	// Encoded Normal | Roughness
 	SIZE
 };
 
