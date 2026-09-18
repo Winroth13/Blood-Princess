@@ -132,7 +132,7 @@ void ImGuiLayer::Present()
 	BeginAnnotation("ImGui Editor");
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	EndAnnoration();
+	EndAnnotation();
 }
 
 void ImGuiLayer::Shutdown()

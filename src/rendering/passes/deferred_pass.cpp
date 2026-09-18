@@ -16,17 +16,26 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 		gBuffers.resize(+GBufferType::SIZE);
 
 
-        DXGI_FORMAT formats[] = 
+		DXGI_FORMAT formats[] =
 		{
 			DXGI_FORMAT_R8G8B8A8_UNORM, // albedo.rgb | specular exponent / 1000
-            DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
+			DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
 		};
+
+		std::string names[] =
+		{
+			"Albedo GBuffer",
+			"Normal GBuffer"
+		};
+
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
+		{
 			if (!this->gBuffers[i].Initialize(device, this->width, this->height, formats[i]))
+			{
 				LogError("Failed to create GBuffer with index %zu", i);
-		
-		if (+GBufferType::SIZE > 0)
-			this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
+			}
+			RenderUtils::SetDebugName(this->gBuffers[i].GetTexture(), names[i]);
+		}
 	}
 #pragma endregion
 
