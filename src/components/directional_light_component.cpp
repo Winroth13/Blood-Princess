@@ -1,68 +1,23 @@
 #include "directional_light_component.hpp"
+#include "components/transform_component.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 
-DirectionalLightComponent::DirectionalLightComponent(Entity* owner, bool isActive) : Component(owner, isActive)
-{
+void DirectionalLightComponent::Update(const AppContext &context, float deltaTime) {
+    // TODO: Create views
 }
 
 void DirectionalLightComponent::Render(const RenderView& view, RenderQueue& queue)
 {
-	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	if (transform && this->IsActive()) {
-		DirectionalLightCommand command{};
-		command.color = this->color;
-		command.direction = transform->GetForward();
-		command.intensity = this->intensity;
+    TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
+    if (!transform)
+        return;
 
-		queue.Submit(command);
-	}
-}
+	DirectionalLightCommand command{};
 
-DirectX::XMFLOAT3 DirectionalLightComponent::GetColor()
-{
-	return this->color;
-}
+	command.colour = this->colour;
+	command.direction = transform->GetForward();
+	command.intensity = this->intensity;
 
-bool DirectionalLightComponent::SetColor(DirectX::XMFLOAT3 color)
-{
-	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	if (!transform) {
-		LogWarn("The Point Lighte dose not have transform!");
-		return false;
-	}
-	this->color = color;
-	return true;
-}
-
-float DirectionalLightComponent::GetIntensity()
-{
-	return this->intensity;
-}
-
-bool DirectionalLightComponent::SetIntensity(float intensity)
-{
-	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	if (!transform) {
-		LogWarn("The Point Lighte dose not have transform!");
-		return false;
-	}
-	this->intensity = intensity;
-	return true;
-}
-
-bool DirectionalLightComponent::GeneratingShadow()
-{
-	return this->ProduceShadow;
-}
-
-bool DirectionalLightComponent::SetGeneratingShadow(bool state)
-{
-	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	if (!transform) {
-		LogWarn("The Point Lighte dose not have transform!");
-		return false;
-	}
-	this->ProduceShadow = state;
-	return true;
+	queue.Submit(command);
 }

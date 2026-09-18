@@ -64,6 +64,7 @@
     <ClCompile Include="src\rendering\shared_resources.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
     <ClCompile Include="src\assets\asset_utils.cpp" />
+    <ClCompile Include="src\components\ambient_light_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -148,6 +149,8 @@
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\rendering\shared_resources.hpp" />
     <ClInclude Include="src\assets\asset_utils.hpp" />
+    <ClInclude Include="src\rendering\render_data.hpp" />
+    <ClInclude Include="src\components\ambient_light_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

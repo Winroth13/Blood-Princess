@@ -80,6 +80,7 @@ constexpr float DEFAULT_SPEED = 0.1f;
 // 
 // Example: 
 // ExportPropertyClampedAngle(float, rotation, 0.0f, 3.14 / 4.0, 0.0f)
+// TODO: Change this to take in angle in degrees
 #define ExportPropertyClampedAngle(MemberType, MemberName, MemberMin, MemberMax, ...) \
     MemberType MemberName = __VA_ARGS__; \
     REGISTER_MEMBER_PRIVATE(ClassName, MemberName, (ExportInfo{"degrees", MemberMin, MemberMax, DEFAULT_SPEED, ExportFlags_Angle, CategoryResolver<__LINE__>::Value}));
