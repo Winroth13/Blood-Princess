@@ -47,7 +47,6 @@ void InspectorPanel::ImGuiRender()
             else
             {
                 componentCounter[id]++;
-                //name += '(' + std::to_string(componentCounter[id]) + ')';
                 name += " #" + std::to_string(componentCounter[id]);
             }
 
@@ -69,45 +68,81 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
         ImGuiTreeNodeFlags_Framed | 
         ImGuiTreeNodeFlags_SpanAvailWidth;
 
-    if (ImGui::TreeNodeEx(name.c_str(), flags))
+    ImGui::SetNextItemAllowOverlap();
+   
+    bool open = false;
+    bool active = component->IsActive();
+
+    if (ImGui::BeginTable("TreeNodeTable", 2, ImGuiTableFlags_SizingStretchProp))
     {
-        std::unordered_map<std::string, std::vector<MemberId::MemberInfo>> memberGroups;
+        ImGui::TableSetupColumn("NodeCol", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("CheckCol", ImGuiTableColumnFlags_WidthFixed, ImGui::GetFrameHeight());
 
-        const ImGuiTreeNodeFlags flags =
-            ImGuiTreeNodeFlags_DefaultOpen |
-            ImGuiTreeNodeFlags_SpanAvailWidth;
+        ImGui::TableNextRow();
 
-        // find groups
-        for (auto &member : MemberId::GetMemberInfos(id))
+        ImGui::TableSetColumnIndex(0);
+        open = ImGui::TreeNodeEx(name.c_str(), flags);
+
+        ImGui::TableSetColumnIndex(1);
+        if (ImGui::Checkbox(("##" + name).c_str(), &active))
+            component->SetActive(active);
+
+        if (open)
         {
-            if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
-                memberGroups[member.ExportInfo.Group] = { member };
-            else
-                memberGroups[member.ExportInfo.Group].push_back(member);
-        }
+            if (!active)
+                ImGui::BeginDisabled();
 
-        // draw groups
-        for (auto &[key, value] : memberGroups)
-        {
-            if (!key.empty())
+            std::unordered_map<std::string, std::vector<MemberId::MemberInfo>> memberGroups;
+
+            const ImGuiTreeNodeFlags flags =
+                ImGuiTreeNodeFlags_DefaultOpen |
+                ImGuiTreeNodeFlags_SpanAvailWidth;
+
+            // find groups
+            for (auto &member : MemberId::GetMemberInfos(id))
             {
-                if (ImGui::TreeNodeEx(key.c_str(), flags))
+                if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
+                    memberGroups[member.ExportInfo.Group] = { member };
+                else
+                    memberGroups[member.ExportInfo.Group].push_back(member);
+            }
+
+            // draw groups
+            for (auto &[key, value] : memberGroups)
+            {
+                if (!key.empty())
                 {
-                    for (auto &member : value)
-                        DrawComponentMemberNode(component, member);
-                    ImGui::TreePop();
+                    if (ImGui::TreeNodeEx(key.c_str(), flags))
+                    {
+                        for (auto &member : value) 
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            DrawComponentMemberNode(component, member);
+                        }
+                        ImGui::TreePop();
+                    }
                 }
             }
+
+            // draw non grouped nodes
+            if (memberGroups.find("") != memberGroups.end())
+            {
+                for (auto &member : memberGroups[""]) 
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    DrawComponentMemberNode(component, member);
+                }
+            }
+
+            if (!active)
+                ImGui::EndDisabled();
+
+            ImGui::TreePop();
         }
 
-        // draw non grouped nodes
-        if (memberGroups.find("") != memberGroups.end())
-        {
-            for (auto &member : memberGroups[""])
-                DrawComponentMemberNode(component, member);
-        }
-
-        ImGui::TreePop();
+        ImGui::EndTable();
     }
 }
 
