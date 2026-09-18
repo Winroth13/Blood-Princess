@@ -35,8 +35,11 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 
             command.material = material;
 
-            command.albedoSRV = this->model->GetTexture(material.colorTextureIndex)->GetShaderResourceView();
-            command.normalSRV = this->model->GetTexture(material.normalTextureIndex)->GetShaderResourceView();
+            if (material.colorTextureIndex != -1)
+                command.albedoSRV = this->model->GetTexture(material.colorTextureIndex)->GetShaderResourceView();
+
+            if (material.normalTextureIndex != -1)
+                command.normalSRV = this->model->GetTexture(material.normalTextureIndex)->GetShaderResourceView();
 
             XMStoreFloat4x4(&command.worldMatrix, worldMatrix);
 

@@ -61,6 +61,9 @@ bool GLTFLoader::Load(
 	LogInfo("Parsing file...");
 	LogIndent();
 
+	this->device = device;
+	this->deviceContext = deviceContext;
+
 	this->opts = {};
 	this->errors = {};
 	this->model = {};
@@ -99,66 +102,9 @@ bool GLTFLoader::Load(
 		return false;
 	}
 
-	for (size_t meshIndex = 0; meshIndex < this->model.meshes_count; ++meshIndex)
-	{
-		const tg3_mesh &tMesh = this->model.meshes[meshIndex];
-
-		std::vector<Vertex> meshVertices = {};
-		std::vector<uint32_t> meshIndicies = {};
-		std::vector<SubMesh> subMeshes = {};
-		
-		for (size_t primIndex = 0; primIndex < tMesh.primitives_count; ++primIndex)
-		{
-			const tg3_primitive &primitive = tMesh.primitives[primIndex];
-			
-			std::vector<DirectX::XMFLOAT3> positions = {};
-			std::vector<DirectX::XMFLOAT3> normals = {};
-			std::vector<DirectX::XMFLOAT2> uvs = {};
-			std::vector<uint32_t> indicies = {};
-
-			ReadPrimitiveAtrributes(primitive, positions, normals, uvs);
-			ReadPrimitiveIndicies(primitive, indicies);
-
-			for (size_t i = 0; i < positions.size(); ++i)
-			{
-				Vertex vertex(
-					positions[i],
-					normals[i],
-					uvs[i]
-				);
-				meshVertices.push_back(vertex);
-			}
-			vertexCount += static_cast<uint32_t>(meshVertices.size());
-
-			uint32_t indexOffset = static_cast<uint32_t>(meshIndicies.size());
-
-			SubMesh subMesh = {};
-			subMesh.startIndex = indexOffset;
-			subMesh.numIndicies = static_cast<uint32_t>(indicies.size());
-			subMesh.materialIndex = primitive.material;
-			subMeshes.push_back(subMesh);
-			subMeshCount++;
-
-			for (uint32_t i = 0; i < indicies.size(); ++i)
-			{
-				meshIndicies.push_back(indicies[i] + indexOffset);
-			}
-			indexCount += static_cast<uint32_t>(indicies.size());
-		}
-
-		Mesh *mesh = new Mesh();
-		mesh->Create(
-			std::string(tMesh.name.data, tMesh.name.len),
-			meshVertices, 
-			meshIndicies, 
-			subMeshes, 
-			device
-		);
-		meshes.push_back(mesh);
-	}
-
+	ReadScenes();
 	ReadMaterials(this->materials);
-	ReadTextures(device, deviceContext);
+	ReadTextures();
 
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
@@ -178,8 +124,7 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 		const tg3_material &tMaterial = this->model.materials[matIndex];
 
 		Material material = {};
-		// TODO: Materials should have names.
-		// material.name = std::string(tMaterial.name.data, tMaterial.name.len);
+		material.name = std::string(tMaterial.name.data, tMaterial.name.len);
 
 		const tg3_pbr_metallic_roughness &pbr = tMaterial.pbr_metallic_roughness;
 		
@@ -197,7 +142,7 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 	}
 }
 
-void GLTFLoader::ReadTextures(ID3D11Device *device, ID3D11DeviceContext *deviceContext)
+void GLTFLoader::ReadTextures()
 {
 	for (uint32_t i = 0; i < this->model.images_count; ++i)
 	{
@@ -340,4 +285,154 @@ void GLTFLoader::ReadPrimitiveIndicies(const tg3_primitive &primitive, std::vect
 			LogError("Unsupported index component type: %d", indexAccessor.component_type);
 			break;
 	}
+}
+
+void GLTFLoader::ReadScenes()
+{
+	for (size_t sceneIndex = 0; sceneIndex < this->model.scenes_count; ++sceneIndex)
+	{
+		const tg3_scene &tScene = this->model.scenes[sceneIndex];
+		LogInfo("Scene '%s'", std::string(tScene.name.data, tScene.name.len).c_str());
+		LogIndent();
+
+		for (size_t i = 0; i < tScene.nodes_count; ++i)
+		{
+			const int32_t nodeIndex = tScene.nodes[i];
+			XMMATRIX matrix = XMMatrixIdentity();
+
+			ReadNode(nodeIndex, matrix);
+		}
+
+		LogUnindent();
+	}
+}
+
+void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
+{
+	const tg3_node &node = this->model.nodes[nodeIndex];
+
+	LogInfo("Node '%s'", std::string(node.name.data, node.name.len).c_str());
+	LogIndent();
+
+	XMMATRIX matrix = XMMatrixScaling(
+		static_cast<float>(node.scale[0]), 
+		static_cast<float>(node.scale[1]),
+		static_cast<float>(node.scale[2])
+	);
+	matrix *= XMMatrixRotationRollPitchYaw(
+		static_cast<float>(node.rotation[0]), 
+		static_cast<float>(node.rotation[1]),
+		static_cast<float>(node.rotation[2])
+	);
+	matrix *= XMMatrixTranslation(
+		static_cast<float>(node.translation[0]),
+		static_cast<float>(node.translation[1]),
+		static_cast<float>(node.translation[2])
+	);
+	matrix = XMMatrixMultiply(parentMatrix, matrix);
+
+	const int32_t meshIndex = node.mesh;
+	if (meshIndex != -1)
+	{
+		ReadMesh(meshIndex, matrix);
+	}
+
+	if (node.camera != -1)
+	{
+		LogWarn("Camera node is unsupported");
+	}
+
+	if (node.emitter != -1)
+	{
+		LogWarn("Emitter node is unsupported");
+	}
+
+	if (node.light != -1)
+	{
+		LogWarn("Emitter node is unsupported");
+	}
+
+	for (size_t childIndex = 0; childIndex < node.children_count; ++childIndex)
+	{
+		const int32_t childNodeIndex = node.children[childIndex];
+		ReadNode(childNodeIndex, matrix);
+	}
+
+	LogUnindent();
+}
+
+void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
+{
+	const tg3_mesh &tMesh = this->model.meshes[meshIndex];
+	LogInfo("Mesh '%s'", std::string(tMesh.name.data, tMesh.name.len).c_str());
+	LogIndent();
+
+	XMMATRIX inverseTransposeMatrix = matrix;
+	inverseTransposeMatrix.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	inverseTransposeMatrix = XMMatrixTranspose(XMMatrixInverse(nullptr, inverseTransposeMatrix));
+
+	std::vector<Vertex> meshVertices = {};
+	std::vector<uint32_t> meshIndicies = {};
+	std::vector<SubMesh> subMeshes = {};
+
+	for (size_t primIndex = 0; primIndex < tMesh.primitives_count; ++primIndex)
+	{
+		const tg3_primitive &primitive = tMesh.primitives[primIndex];
+		
+		std::vector<DirectX::XMFLOAT3> positions = {};
+		std::vector<DirectX::XMFLOAT3> normals = {};
+		std::vector<DirectX::XMFLOAT2> uvs = {};
+		std::vector<uint32_t> indicies = {};
+
+		ReadPrimitiveAtrributes(primitive, positions, normals, uvs);
+		ReadPrimitiveIndicies(primitive, indicies);
+
+		for (size_t i = 0; i < positions.size(); ++i)
+		{
+			XMVECTOR position = XMVector3Transform(XMLoadFloat3(&positions[i]), matrix);
+			XMStoreFloat3(&positions[i], position);
+
+			XMVECTOR normal = XMLoadFloat3(&normals[i]);
+			normal = XMVector3TransformNormal(normal, inverseTransposeMatrix);
+			normal = XMVector3Normalize(normal);
+			XMStoreFloat3(&normals[i], normal);
+		}
+		
+		for (size_t i = 0; i < positions.size(); ++i)
+		{
+			Vertex vertex(
+				positions[i],
+				normals[i],
+				uvs[i]
+			);
+			meshVertices.push_back(vertex);
+		}
+		vertexCount += static_cast<uint32_t>(meshVertices.size());
+
+		uint32_t indexOffset = static_cast<uint32_t>(meshIndicies.size());
+
+		SubMesh subMesh = {};
+		subMesh.startIndex = indexOffset;
+		subMesh.numIndicies = static_cast<uint32_t>(indicies.size());
+		subMesh.materialIndex = primitive.material;
+		subMeshes.push_back(subMesh);
+
+		for (uint32_t i = 0; i < indicies.size(); ++i)
+		{
+			meshIndicies.push_back(indicies[i] + indexOffset);
+		}
+		indexCount += static_cast<uint32_t>(indicies.size());
+	}
+
+	Mesh *mesh = new Mesh();
+	mesh->Create(
+		std::string(tMesh.name.data, tMesh.name.len),
+		meshVertices,
+		meshIndicies,
+		subMeshes,
+		device
+	);
+	meshes.push_back(mesh);
+
+	LogUnindent();
 }

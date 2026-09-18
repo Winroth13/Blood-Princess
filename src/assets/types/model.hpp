@@ -110,6 +110,7 @@ public:
 #pragma region Material
 struct Material
 {
+	std::string name;
 	DirectX::XMFLOAT4 baseColor = { 1, 1, 1, 1 };
 	int32_t colorTextureIndex = -1;
 	int32_t normalTextureIndex = -1;
@@ -140,7 +141,7 @@ public:
     const std::vector<Material> &GetMaterials() const { return this->materials; }
     const std::vector<std::unique_ptr<Texture2D>> &GetTextures() const { return this->textures; }
 
-	Texture2D *GetTexture(uint32_t index) { return this->textures[index].get(); }
+	Texture2D *GetTexture(int32_t index);
 };
 
 #pragma endregion

@@ -147,6 +147,16 @@ Model::~Model()
 	LogInfo("Destroying Model '%s'", this->path.c_str());
 }
 
+Texture2D *Model::GetTexture(int32_t index)
+{
+	if (index < 0 || index >= this->textures.size()) {
+		LogWarn("Texture with index: %d doesn't exist on material", index);
+		return nullptr;
+	}
+
+	return this->textures[index].get();
+}
+
 void Model::DrawImGui()
 {
 	if (ImGui::TreeNode("Meshes"))
