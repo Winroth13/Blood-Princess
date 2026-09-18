@@ -261,8 +261,8 @@ void DeferredPass::RenderGeometryPass(
 		deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	}
 
-	ID3D11RenderTargetView *nullRtvs[3] = {};
-	deviceContext->OMSetRenderTargets(3, nullRtvs, nullptr);
+	ID3D11RenderTargetView *nullRtvs[+GBufferType::SIZE] = {};
+	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, nullRtvs, nullptr);
 
 	ID3D11ShaderResourceView *nullSRVs[2] = {};
 	deviceContext->PSSetShaderResources(0, 2, nullSRVs);
@@ -276,12 +276,35 @@ void DeferredPass::RenderLightingPass(
 	std::vector<RenderView> &views
 )
 {
-	// RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
-	// if (!view)
-	// {
-	// 		LogWarn("Could not find a primary view to render to");
-	// 		return;
-	// }
+	 RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
+	 if (!view)
+	 {
+	    LogWarn("Could not find a primary view to render to");
+	    return;
+	 }
+
+	 ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
+	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
+
+	 ID3D11ShaderResourceView *srvs[2] = {
+		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView(),
+		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView()
+	 };
+	 deviceContext->CSSetShaderResources(0, 2, srvs);
+
+	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
+
+	 const UINT groupsX = (this->width + 7) / 8;
+	 const UINT groupsY = (this->height + 7) / 8;
+	 deviceContext->Dispatch(groupsX, groupsY, 1);
+
+	 ID3D11ShaderResourceView *nullSrvs[2] = {};
+	 deviceContext->CSSetShaderResources(0, 2, nullSrvs);
+
+	 ID3D11UnorderedAccessView *nullUav = nullptr;
+	 deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+
+	 deviceContext->CSSetShader(nullptr, nullptr, 0);
 }
 
 void DeferredPass::Render(
