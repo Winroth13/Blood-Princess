@@ -27,10 +27,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/falcata_sword.glb"));
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
-    auto sfxClip = appContext.assetManager->Get<AudioClip>("looping.ogg");
-    auto musicClip = appContext.assetManager->Get<AudioClip>("Test1.ogg");
+    auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
+    auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test1.ogg");
     if (sfxClip) {
         AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
         MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
@@ -43,7 +43,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    //playerEntity->AddComponent<PlayerControllerComponent>();
+    // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
     playerEntity->AddComponent<BoxCollisionComponent>();
     outScene.PrintEntityHierarchy();
 }

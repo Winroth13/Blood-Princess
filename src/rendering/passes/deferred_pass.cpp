@@ -120,9 +120,9 @@ bool DeferredPass::Initialize(
 
 #pragma region Load Shaders
 
-	this->vertexShader = assetManager->Get<VertexShader>("assets/vs_deferred.cso");
-	this->pixelShader = assetManager->Get<PixelShader>("assets/ps_deferred.cso");
-	this->computeShader = assetManager->Get<ComputeShader>("assets/cs_deferred.cso");
+	this->vertexShader = assetManager->Get<VertexShader>("assets/shaders/vs_deferred.cso");
+	this->pixelShader = assetManager->Get<PixelShader>("assets/shaders/ps_deferred.cso");
+	this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_deferred.cso");
 
 #pragma endregion
 
