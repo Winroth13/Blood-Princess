@@ -200,6 +200,12 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     LogInfo("Resizing window...");
     LogIndent();
 
+    this->width = width;
+    this->height = height;
+
+    this->viewport.Width = static_cast<float>(this->width);
+    this->viewport.Height = static_cast<float>(this->height);
+
     this->backBuffer.Release();
 
     this->deviceContext->ClearState();
@@ -225,12 +231,6 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     }
 
     // this->SetViewport(width, height);
-    this->width = width;
-    this->height = height;
-
-    this->viewport.Width = static_cast<float>(this->width);
-    this->viewport.Height = static_cast<float>(this->height);
-
     // this->frameGraph.OnResize(width, height);
 
     LogUnindent();
