@@ -135,8 +135,23 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 			static_cast<float>(pbr.base_color_factor[3])
 		};
 
-		material.colorTextureIndex = pbr.base_color_texture.index;
+		material.albedoTextureIndex = pbr.base_color_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Albedo Texture");
+		}
+
 		material.normalTextureIndex = tMaterial.normal_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Normal Texture");
+		}
+
+		material.metallicRoughnessTextureIndex = pbr.metallic_roughness_texture.index;
+		if (!material.albedoTextureIndex)
+		{
+			LogWarn("No Metallic Roughness Texture");
+		}
 
 		materials.push_back(material);
 	}
@@ -319,11 +334,15 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 		static_cast<float>(node.scale[1]),
 		static_cast<float>(node.scale[2])
 	);
-	matrix *= XMMatrixRotationRollPitchYaw(
+
+	XMVECTOR quaternion = XMVectorSet(
 		static_cast<float>(node.rotation[0]), 
-		static_cast<float>(node.rotation[1]),
-		static_cast<float>(node.rotation[2])
+		static_cast<float>(node.rotation[1]), 
+		static_cast<float>(node.rotation[2]), 
+		static_cast<float>(node.rotation[3])
 	);
+	matrix *= XMMatrixRotationQuaternion(quaternion);
+
 	matrix *= XMMatrixTranslation(
 		static_cast<float>(node.translation[0]),
 		static_cast<float>(node.translation[1]),
@@ -497,6 +516,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		{
 			XMVECTOR position = XMVector3Transform(XMLoadFloat3(&positions[i]), matrix);
 			XMStoreFloat3(&positions[i], position);
+			positions[i].z *= -1; // GLTF uses right-handed coordinate system.
 
 			XMVECTOR normal = XMLoadFloat3(&normals[i]);
 			normal = XMVector3TransformNormal(normal, inverseTransposeMatrix);
@@ -523,7 +543,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		subMesh.materialIndex = primitive.material;
 		subMeshes.push_back(subMesh);
 
-		for (uint32_t i = 0; i < indicies.size(); ++i)
+		for (int32_t i = static_cast<int32_t>(indicies.size()) - 1; i >= 0; --i)
 		{
 			meshIndicies.push_back(indicies[i] + indexOffset);
 		}

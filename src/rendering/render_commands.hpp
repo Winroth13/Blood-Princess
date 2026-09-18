@@ -24,6 +24,7 @@ struct GeometryCommand
 
     ID3D11ShaderResourceView *albedoSRV;
     ID3D11ShaderResourceView *normalSRV;
+    ID3D11ShaderResourceView *metallicRoughnessSRV;
 };
 
 struct DirectionalLightCommand 

@@ -18,14 +18,14 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 		DXGI_FORMAT formats[] =
 		{
-			DXGI_FORMAT_R8G8B8A8_UNORM, // albedo.rgb | specular exponent / 1000
-			DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
+			DXGI_FORMAT_R8G8B8A8_UNORM, // Albedo | Metallic
+			DXGI_FORMAT_R8G8B8A8_UNORM, // Encoded Normal | Roughness
 		};
 
 		std::string names[] =
 		{
-			"GBuffer Albedo",
-			"GBuffer Normal"
+			"Albedo and Metallic GBuffer",
+			"Normal and Roughness GBuffer"
 		};
 
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
@@ -203,8 +203,8 @@ void DeferredPass::RenderGeometryPass(
 	sharedResources->UploadPerViewData(deviceContext, *view);
 
 	ID3D11RenderTargetView *rtvs[2] = {
-		this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetRenderTargetView(),
-		this->GetGBuffer(GBufferType::NORMAL_SPECULAR).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetRenderTargetView(),
 	};
 
 	const float clearAlbedoSpecularExponent[4] = { 0.0f, 0.0f, 0.0f, 70.0f / 1000.0f };
@@ -231,6 +231,8 @@ void DeferredPass::RenderGeometryPass(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
+	constexpr int TEXTURE_COUNT = 3;
+
 	for (GeometryCommand &command : view->queue.geometryCommands) {
 		PerObjectData perObjectData{};
         XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
@@ -251,11 +253,13 @@ void DeferredPass::RenderGeometryPass(
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerMaterial(), perMaterialData);
 
-		ID3D11ShaderResourceView *srvs[2] = {
+		
+		ID3D11ShaderResourceView *srvs[TEXTURE_COUNT] = {
             command.albedoSRV,
-			command.normalSRV
+			command.normalSRV,
+			command.metallicRoughnessSRV
 		};
-		deviceContext->PSSetShaderResources(0, 2, srvs);
+		deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, srvs);
 
 		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;
@@ -268,8 +272,8 @@ void DeferredPass::RenderGeometryPass(
 	ID3D11RenderTargetView *nullRtvs[+GBufferType::SIZE] = {};
 	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, nullRtvs, nullptr);
 
-	ID3D11ShaderResourceView *nullSRVs[2] = {};
-	deviceContext->PSSetShaderResources(0, 2, nullSRVs);
+	ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
+	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
 }
 
 void DeferredPass::RenderLightingPass(
@@ -291,8 +295,8 @@ void DeferredPass::RenderLightingPass(
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 
 	 ID3D11ShaderResourceView *srvs[2] = {
-		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView(),
-		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView()
+		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
+		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView()
 	 };
 	 deviceContext->CSSetShaderResources(0, 2, srvs);
 

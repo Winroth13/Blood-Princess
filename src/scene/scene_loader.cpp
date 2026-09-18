@@ -24,10 +24,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *modelEntity = outScene.AddEntity("model");
     modelEntity->AddComponent<TransformComponent>();
-    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
+    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/monkey.glb"));
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/falcata_sword.glb"));
 
     auto sfxClip = appContext.assetManager->Get<AudioClip>("looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("Test1.ogg");
@@ -43,7 +43,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    playerEntity->AddComponent<PlayerControllerComponent>();
+    //playerEntity->AddComponent<PlayerControllerComponent>();
     playerEntity->AddComponent<BoxCollisionComponent>();
     outScene.PrintEntityHierarchy();
 }

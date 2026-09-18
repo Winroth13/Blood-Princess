@@ -2,8 +2,8 @@
 
 RWTexture2D<float4> backBufferUAV;
 
-Texture2D<float4> albedoSpecularExponentTexture : register(t0);
-Texture2D<float4> normalSpecularTexture : register(t1);
+Texture2D<float4> albedoMetallicTexture : register(t0);
+Texture2D<float4> normalRoughnessTexture : register(t1);
 
 struct DirectionalLight
 {
@@ -44,7 +44,7 @@ void main(uint3 id : SV_DispatchThreadID)
         
     uint2 screenPos = id.xy;
     
-    float3 color = albedoSpecularExponentTexture[screenPos].rgb;
+    float3 color = albedoMetallicTexture[screenPos].rgb;
     
     backBufferUAV[screenPos] = float4(color, 1.0f);
 }
