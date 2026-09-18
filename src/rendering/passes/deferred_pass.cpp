@@ -24,15 +24,9 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
 			if (!this->gBuffers[i].Initialize(device, width, height, formats[i]))
 				LogError("Failed to create GBuffer with index %zu", i);
-			//if (!this->gBuffers[bufferIndex].Initialize(device, width, height))
-			//{
-			//	LogError("Failed to create GBuffer with index %zu", bufferIndex);
-			//}
-			//if (bufferIndex == 0)
-			//{
-			//	this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
-			//}
-
+		
+		if (+GBufferType::SIZE > 0)
+			this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
 	}
 #pragma endregion
 
