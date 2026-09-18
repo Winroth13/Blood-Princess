@@ -1,106 +1,29 @@
 #include "spot_light_component.hpp"
+#include "components/transform_component.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 
-SpotLightComponent::SpotLightComponent(Entity* owner, bool isActive) : Component(owner, isActive)
+void SpotLightComponent::Update(const AppContext &context, float deltaTime)
 {
+    // TODO: Create views
 }
 
 void SpotLightComponent::Render(const RenderView& view, RenderQueue& queue)
 {
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (transform && this->IsActive())
-    {
-        SpotLightCommand command{};
-        command.innerAngleCos = cosf(this->GetInnerAngle());
-        command.outerAngleCos = cosf(this->GetOuterAngle());
-        command.attenuation = this->attenuation;
-        command.color = this->color;
-        command.direction = transform->GetForward();
-        command.intensity = this->intensity;
-        command.position = transform->GetWorldPosition();
-        command.range = this->range;
+    TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
+    if (!transform)
+        return;
 
-        queue.Submit(command);
-    }
-}
+    SpotLightCommand command{};
+    command.innerAngle = this->innerAngle;
+    command.outerAngle = this->outerAngle;
+    command.attenuation = this->attenuation;
+    command.colour = this->colour;
+    command.direction = transform->GetForward();
+    command.intensity = this->intensity;
+    command.position = transform->GetRenderPosition();
+    command.range = this->range;
+    command.castShadows = this->castShadows;
 
-DirectX::XMFLOAT3 SpotLightComponent::GetColor()
-{
-    return this->color;
-}
-
-bool SpotLightComponent::SetColor(DirectX::XMFLOAT3 color)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->color = color;
-    return true;
-}
-
-float SpotLightComponent::GetRange()
-{
-    return this->range;
-}
-
-bool SpotLightComponent::SetRange(float range)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->range = range;
-    return true;
-}
-
-float SpotLightComponent::GetAttenuation()
-{
-    return this->attenuation;
-}
-
-bool SpotLightComponent::SetAttenuation(float attenuation)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->attenuation = attenuation;
-    return true;
-}
-
-float SpotLightComponent::GetIntensity()
-{
-    return this->intensity;
-}
-
-bool SpotLightComponent::SetIntensity(float intensity)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->intensity = intensity;
-    return true;
-}
-
-bool SpotLightComponent::GeneratingShadow()
-{
-    return this->ProduceShadow;
-}
-
-bool SpotLightComponent::SetGeneratingShadow(bool state)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->ProduceShadow = state;
-    return true;
+    queue.Submit(command);
 }

@@ -1,6 +1,7 @@
 #include "shared_resources.hpp"
 #include "core/logging.hpp"
 #include "rendering/render_utils.hpp"
+#include "rendering/render_data.hpp"
 
 using namespace DirectX;
 

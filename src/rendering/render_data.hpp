@@ -1,16 +1,92 @@
 #pragma once
+#include <DirectXMath.h>
+
+using namespace DirectX;
+
+#define AssertCBufferSize(type) static_assert(sizeof(type) % 16 == 0)
+
+//struct PerFrameBuffer
+//{
+//	DirectX::XMFLOAT3 ambientColor;
+//	uint32_t numDirectionalLights;
+//	uint32_t numPointLights;
+//	uint32_t numSpotLights;
+//	uint32_t flags;
+//	float pad0;
+//	std::array<uint32_t, 2> screenDimensions;
+//	DirectX::XMFLOAT2 pad1;
+//};
+
+struct PerViewData
+{
+    XMFLOAT4X4 viewMatrix;
+    XMFLOAT4X4 invViewMatrix;
+    XMFLOAT4X4 projectionMatrix;
+    XMFLOAT4X4 invProjectionMatrix;
+    XMFLOAT4X4 viewProjectionMatrix;
+    XMFLOAT4X4 invViewProjectionMatrix;
+    XMFLOAT3   cameraPosition;
+    float      pad0;
+};
+AssertCBufferSize(PerViewData);
+
+struct PerObjectData
+{
+    XMFLOAT4X4 worldMatrix;
+    XMFLOAT4X4 worldInverseTransposeMatrix;
+};
+AssertCBufferSize(PerObjectData);
+
+struct PerMaterialData
+{
+    XMFLOAT3 materialTint;
+    float    materialSpecular;
+    float    materialSpecularExponent;
+    float	 pad0[3];
+};
+AssertCBufferSize(PerMaterialData);
+
+struct DirectionalLightData 
+{
+    XMFLOAT3   direction;
+    float      intensity;
+    XMFLOAT3   color;
+
+    int        castShadows;
+    XMFLOAT4X4 viewProjectionMatrix;
+    int        shadowArrayIndex;
+    float      pad0[3];
+};
+AssertCBufferSize(DirectionalLightData);
 
 struct PointLightData
 {
+    XMFLOAT3    position;
+    float       attenuation;
+    XMFLOAT3    color;
+    float       intensity;
+    float       radius;
 
+    int         castShadows;
+    int         shadowArrayIndex;
+    float       pad0;
 };
-
-struct DirectionalLightData
-{
-
-};
+AssertCBufferSize(PointLightData);
 
 struct SpotLightData
 {
+    XMFLOAT3   position;
+    float      range;
+    XMFLOAT3   direction;
+    float      intensity;
+    XMFLOAT3   color;
 
+    float      innerAngleCos;
+    float      outerAngleCos;
+
+    int        castShadows;
+    XMFLOAT4X4 viewProjectionMatrix;
+    int        shadowArrayIndex;
+    float      pad0;
 };
+AssertCBufferSize(SpotLightData);

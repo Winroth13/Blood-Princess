@@ -1,6 +1,7 @@
 #include "deferred_pass.hpp"
 #include "core/logging.hpp"
 #include "rendering/render_utils.hpp"
+#include "rendering/render_data.hpp"
 
 #include "assets/asset_manager.hpp"
 
