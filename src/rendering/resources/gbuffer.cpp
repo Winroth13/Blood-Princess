@@ -9,7 +9,7 @@ bool GBuffer::Initialize(
 	DXGI_FORMAT format
 )
 {
-	LogInfo("Creating GBuffer...");
+	LogInfo("Creating GBuffer (%u, %u)...", width, height);
 	LogIndent();
 
 	if (!device)

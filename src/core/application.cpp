@@ -20,6 +20,7 @@ void Application::Update(float deltaTime)
 
 void Application::Render() 
 {
+    this->editor.ImGuiRender(this->appContext);
     this->renderer.Render(this->sceneManager.GetCurrentScene());
     this->imGuiLayer.Present();
     this->renderer.Present();
@@ -164,8 +165,6 @@ void Application::Run()
         this->imGuiLayer.NewFrame();
 
         this->Update(deltaTime);
-
-        this->editor.ImGuiRender(this->appContext);
 
         this->Render();
     }
