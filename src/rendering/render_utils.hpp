@@ -35,6 +35,21 @@ namespace RenderUtils
 		deviceContext->Unmap(buffer, 0);
 	}
 
+#ifdef _DEBUG
+
+	template <typename T>
+	void SetDebugName(T object, std::string name)
+	{
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(name), name.data());
+	}
+
+#else
+
+	template <typename T>
+	void SetDebugName(T object, std::string name) {}
+
+#endif // _DEBUG
+
 	namespace Impl
 	{
 		bool Initialize(ID3D11DeviceContext *deviceContext);
@@ -47,9 +62,9 @@ namespace RenderUtils
 #ifdef _DEBUG
 
 #define InitializeAnnotator(deviceContext) RenderUtils::Impl::Initialize(deviceContext)
-#define ShhutdownAnnotator() RenderUtils::Impl::Shutdown()
+#define ShutdownAnnotator() RenderUtils::Impl::Shutdown()
 #define BeginAnnotation(name) RenderUtils::Impl::BeginEvent(name)
-#define EndAnnoration() RenderUtils::Impl::EndEvent()
+#define EndAnnotation() RenderUtils::Impl::EndEvent()
 
 #else // _DEBUG
 

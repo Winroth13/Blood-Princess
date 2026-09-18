@@ -43,7 +43,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    // playerEntity->AddComponent<PlayerControllerComponent>();
+    playerEntity->AddComponent<PlayerControllerComponent>();
     playerEntity->AddComponent<BoxCollisionComponent>();
     outScene.PrintEntityHierarchy();
 }

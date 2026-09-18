@@ -49,5 +49,4 @@ namespace RenderUtils
             annotator->EndEvent();
         }
     }
-
 }

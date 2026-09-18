@@ -132,7 +132,7 @@ void Renderer::Shutdown()
     LogInfo("Shutting down Renderer...");
     LogIndent();
 
-    ShhutdownAnnotator();
+    ShutdownAnnotator();
 
     this->sharedResources.Shutdown();
 
@@ -180,7 +180,7 @@ void Renderer::Render(Scene *scene)
         this->views
     );
 
-    EndAnnoration();
+    EndAnnotation();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
