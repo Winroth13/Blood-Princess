@@ -61,6 +61,8 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
+		RenderUtils::SetDebugName(this->depthStencilTexture, "Depth Stencil", "Deferred");
+
 		LogInfo("Depth Stencil Texture created");
 
 		result = device->CreateDepthStencilView(this->depthStencilTexture, nullptr, &this->depthStencilView);
@@ -70,6 +72,8 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			LogError("Failed to create the Depth Stencil View");
 			return false;
 		}
+
+		RenderUtils::SetDebugName(this->depthStencilView, "Depth Stencil", "Deferred", "DSV");
 
 		LogInfo("Depth Stencil View created");
 	}
@@ -103,6 +107,8 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 		LogError("Failed to create Input Layout");
 		return false;
 	}
+
+	RenderUtils::SetDebugName(this->inputLayout, "Input Layout", "Deferred");
 
 	LogIndent();
 
