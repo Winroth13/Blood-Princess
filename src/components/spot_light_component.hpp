@@ -10,7 +10,8 @@ class SpotLightComponent : public Component
 	ExportPropertyRanged(float, range, "m", 0.0f, 10.0f, 0.01f, 4.0f);
 	ExportProperty(float, attenuation, 1.0f);
 	ExportProperty(float, intensity, 1.0f);
-	ExportPropertyClampedAngle(float, angle,0.0f, DirectX::XM_PI ,DirectX::XM_PI/4.0f);
+	ExportPropertyClampedAngle(float, innerAngle, 0.0f, DirectX::XM_PI ,DirectX::XM_PI/4.0f);
+	ExportPropertyClampedAngle(float, outerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PI / 4.0f);
 	ExportProperty(bool, ProduceShadow, false);
 
 public:
@@ -33,8 +34,11 @@ public:
 	float GetIntensity();
 	bool SetIntensity(float intensity);
 
-	float GetAngle();
-	bool SetAngle(float angle);
+	float GetInnerAngle() const { return this->innerAngle; }
+	float GetOuterAngle() const { return this->outerAngle; }
+
+	void SetInnerAngle(float angle) { this->innerAngle = angle; }
+	void SetOuterAngle(float angle) { this->outerAngle = angle; }
 
 	bool GeneratingShadow();
 	bool SetGeneratingShadow(bool state);

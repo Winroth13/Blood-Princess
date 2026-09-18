@@ -317,6 +317,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
     <ClInclude Include="src\rendering\render_commands.hpp" />
+    <ClInclude Include="src\rendering\render_data.hpp" />
     <ClInclude Include="src\rendering\render_queue.hpp" />
     <ClInclude Include="src\rendering\render_utils.hpp" />
     <ClInclude Include="src\rendering\render_view.hpp" />

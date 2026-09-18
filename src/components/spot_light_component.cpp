@@ -12,7 +12,8 @@ void SpotLightComponent::Render(const RenderView& view, RenderQueue& queue)
     if (transform && this->IsActive())
     {
         SpotLightCommand command{};
-        command.angle = this->angle;
+        command.innerAngleCos = cosf(this->GetInnerAngle());
+        command.outerAngleCos = cosf(this->GetOuterAngle());
         command.attenuation = this->attenuation;
         command.color = this->color;
         command.direction = transform->GetForward();
@@ -85,22 +86,6 @@ bool SpotLightComponent::SetIntensity(float intensity)
         return false;
     }
     this->intensity = intensity;
-    return true;
-}
-
-float SpotLightComponent::GetAngle()
-{
-    return this->angle;
-}
-
-bool SpotLightComponent::SetAngle(float angle)
-{
-    auto transform = GetOwner()->GetComponent<TransformComponent>();
-    if (!transform) {
-        LogWarn("The Point Lighte dose not have transform!");
-        return false;
-    }
-    this->angle = angle;
     return true;
 }
 

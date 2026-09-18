@@ -51,7 +51,8 @@ struct SpotLightCommand
     float range;
     float attenuation;
     float intensity;
-    float angle;
+    float innerAngleCos;
+    float outerAngleCos;
 };
 
 struct SkyboxCommand 
