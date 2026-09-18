@@ -11,7 +11,6 @@
 #include <DirectXMath.h>
 #include <fstream>
 #include <vector>
-#include <d3d11_1.h>
 
 using namespace DirectX;
 
@@ -86,6 +85,8 @@ bool Renderer::PreInitialize(const AppContext &appContext)
         return false;
     }
 
+    InitializeAnnotator(this->deviceContext);
+
     if (!this->backBuffer.Create(this->device, this->swapChain))
     {
         LogError("Failed to create Back Buffer");
@@ -131,6 +132,8 @@ void Renderer::Shutdown()
     LogInfo("Shutting down Renderer...");
     LogIndent();
 
+    ShhutdownAnnotator();
+
     this->sharedResources.Shutdown();
 
     this->deferredPass.Shutdown();
@@ -167,10 +170,7 @@ void Renderer::Render(Scene *scene)
 
     scene->GatherRenderCommands(this->views);
 
-    ID3DUserDefinedAnnotation *annot;
-    deviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&annot);
-
-    annot->BeginEvent(L"Deferred Pass :)");
+    BeginAnnotation("Deferred Pass");
 
     this->deferredPass.Render(
         this->device, 
@@ -180,8 +180,7 @@ void Renderer::Render(Scene *scene)
         this->views
     );
 
-    annot->EndEvent();
-    annot->Release();
+    EndAnnoration();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
