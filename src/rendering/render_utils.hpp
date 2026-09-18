@@ -75,14 +75,14 @@ namespace RenderUtils
 			finalName = finalName + " " + sufix;
 		finalName = "[BP] " + finalName;
 
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)finalName.length(), finalName.data());
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
 	}
 
 	template <class T>
 	void SetDebugName(T *object, const std::string &name)
 	{
 		std::string finalName = "[BP] " + name;
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)finalName.length(), finalName.data());
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
 	}
 
 #else

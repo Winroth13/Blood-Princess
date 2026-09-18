@@ -46,9 +46,9 @@ bool SharedResources::UploadLightMetaData(ID3D11DeviceContext *deviceContext, co
     if (alc.has_value())
         data.ambientColour = alc->colour * alc->intensity;
 
-    data.directionalLightCount = view.queue.directionalLightCommands.size();
-    data.spotLightCount = view.queue.spotLightCommands.size();
-    data.pointLightCount = view.queue.pointLightCommands.size();
+    data.directionalLightCount = static_cast<int>(view.queue.directionalLightCommands.size());
+    data.spotLightCount = static_cast<int>(view.queue.spotLightCommands.size());
+    data.pointLightCount = static_cast<int>(view.queue.pointLightCommands.size());
 
     if (!RenderUtils::UploadConstantBuffer(deviceContext, this->lightBufferCB, data))
         return false;
@@ -70,7 +70,6 @@ bool SharedResources::UploadDirectionalLights(ID3D11DeviceContext *deviceContext
             data.castShadows = 1;
             XMStoreFloat4x4(&data.viewProjectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&dlc.viewProjectionMatrix)));
             data.shadowArrayIndex = shadowIndex++;
-
         }
         else {
             data.castShadows = 0;
@@ -80,7 +79,7 @@ bool SharedResources::UploadDirectionalLights(ID3D11DeviceContext *deviceContext
         directionalLightData.push_back(data);
     }
 
-    if (!RenderUtils::UploadStructuredBuffer(deviceContext, directionalLightData.size(), this->directionalLightBufferSB, directionalLightData.data()))
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(directionalLightData.size()), this->directionalLightBufferSB, directionalLightData.data()))
         return false;
 
     return true;
@@ -114,7 +113,7 @@ bool SharedResources::UploadSpotLights(ID3D11DeviceContext *deviceContext, const
         spotLightData.push_back(data);
     }
 
-    if (!RenderUtils::UploadStructuredBuffer(deviceContext, spotLightData.size(), this->spotLightBufferSB, spotLightData.data()))
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(spotLightData.size()), this->spotLightBufferSB, spotLightData.data()))
         return false;
 
     return true;
@@ -144,7 +143,7 @@ bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, cons
         pointLightData.push_back(data);
     }
 
-    if (!RenderUtils::UploadStructuredBuffer(deviceContext, pointLightData.size(), this->pointLightBufferSB, pointLightData.data()))
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(pointLightData.size()), this->pointLightBufferSB, pointLightData.data()))
         return false;
 
     return true;

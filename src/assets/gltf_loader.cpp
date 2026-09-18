@@ -91,7 +91,7 @@ bool GLTFLoader::Load(
 		std::stringstream errorMessage;
 		for (uint32_t i = 0; i < errors.count; i++)
 		{
-			errorMessage << (stderr, "[%d] %s\n", (int)errors.entries[i].severity,
+			errorMessage << (stderr, "[%d] %s\n", static_cast<int>(errors.entries[i].severity),
 				errors.entries[i].message ? errors.entries[i].message : "(null)");
 		}
 		LogUnindent();
