@@ -39,6 +39,7 @@ struct DirectionalLightCommand
     XMFLOAT3 colour;
     float intensity;
     bool castShadows;
+    XMFLOAT4X4 viewProjectionMatrix;
 };
 
 struct PointLightCommand 
@@ -49,6 +50,7 @@ struct PointLightCommand
     float radius;
     float intensity;
     bool castShadows;
+    XMFLOAT4X4 viewProjectionMatrix;
 };
 
 struct SpotLightCommand 
@@ -62,6 +64,7 @@ struct SpotLightCommand
     float innerAngle; // radians
     float outerAngle; // radians
     bool castShadows;
+    XMFLOAT4X4 viewProjectionMatrix;
 };
 
 struct SkyboxCommand 

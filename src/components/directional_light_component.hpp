@@ -11,6 +11,8 @@ class DirectionalLightComponent : public Component
 	ExportProperty(float, intensity, 1.0f);
 	ExportProperty(bool, castShadows, false);
 
+    DirectX::XMFLOAT4X4 viewProjectionMatrix{};
+
 public:
 	DirectionalLightComponent(Entity* owner, bool isActive) : Component(owner, isActive) {}
 

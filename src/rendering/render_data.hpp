@@ -46,16 +46,23 @@ struct PerMaterialData
 };
 AssertCBufferSize(PerMaterialData);
 
+struct LightData
+{
+    XMFLOAT3 ambientColour;
+    int directionalLightCount;
+    int spotLightCount;
+    int pointLightCount;
+    float pad0[2];
+};
+AssertCBufferSize(LightData);
+
 struct DirectionalLightData 
 {
     XMFLOAT3   direction;
-    float      intensity;
-    XMFLOAT3   color;
-
     int        castShadows;
+    XMFLOAT3   color;
     XMFLOAT4X4 viewProjectionMatrix;
     int        shadowArrayIndex;
-    float      pad0[3];
 };
 AssertCBufferSize(DirectionalLightData);
 
@@ -64,12 +71,10 @@ struct PointLightData
     XMFLOAT3    position;
     float       attenuation;
     XMFLOAT3    color;
-    float       intensity;
     float       radius;
-
     int         castShadows;
     int         shadowArrayIndex;
-    float       pad0;
+    float       pad0[2];
 };
 AssertCBufferSize(PointLightData);
 
@@ -78,15 +83,12 @@ struct SpotLightData
     XMFLOAT3   position;
     float      range;
     XMFLOAT3   direction;
-    float      intensity;
-    XMFLOAT3   color;
-
     float      innerAngleCos;
+    XMFLOAT3   color;
     float      outerAngleCos;
-
     int        castShadows;
     XMFLOAT4X4 viewProjectionMatrix;
     int        shadowArrayIndex;
-    float      pad0;
+    float      pad0[2];
 };
 AssertCBufferSize(SpotLightData);

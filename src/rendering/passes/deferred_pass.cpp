@@ -292,6 +292,8 @@ void DeferredPass::RenderLightingPass(
 	    return;
 	 }
 
+     sharedResources->UploadLights(deviceContext, *view);
+
 	 ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 

@@ -5,6 +5,7 @@
 
 void DirectionalLightComponent::Update(const AppContext &context, float deltaTime) {
     // TODO: Create views
+    // TODO: Cache viewProjectionMatrix
 }
 
 void DirectionalLightComponent::Render(const RenderView& view, RenderQueue& queue)
@@ -18,6 +19,7 @@ void DirectionalLightComponent::Render(const RenderView& view, RenderQueue& queu
 	command.colour = this->colour;
 	command.direction = transform->GetForward();
 	command.intensity = this->intensity;
+    command.viewProjectionMatrix = this->viewProjectionMatrix;
 
 	queue.Submit(command);
 }
