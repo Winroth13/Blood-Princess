@@ -288,7 +288,7 @@ void DeferredPass::RenderLightingPass(
 
 	 ID3D11ShaderResourceView *srvs[2] = {
 		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView(),
-		 this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetShaderResourceView()
+		 this->GetGBuffer(GBufferType::NORMAL_SPECULAR).GetShaderResourceView()
 	 };
 	 deviceContext->CSSetShaderResources(0, 2, srvs);
 

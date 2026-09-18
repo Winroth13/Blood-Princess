@@ -112,8 +112,10 @@ struct Material
 {
 	std::string name;
 	DirectX::XMFLOAT4 baseColor = { 1, 1, 1, 1 };
-	int32_t colorTextureIndex = -1;
+
+	int32_t albedoTextureIndex = -1;
 	int32_t normalTextureIndex = -1;
+	int32_t metallicRoughnessTextureIndex = -1;
 };
 #pragma endregion
 
