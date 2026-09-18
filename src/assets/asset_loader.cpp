@@ -9,6 +9,8 @@
 #include "assets/gltf_loader.hpp"
 #include "rendering/renderer.hpp"
 #include "assets/asset_manager.hpp"
+#include "rendering/render_utils.hpp"
+#include <filesystem>
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -203,6 +205,18 @@ std::shared_ptr<VertexShader> AssetLoader::Load<VertexShader>(const std::string 
 	{
 		LogError("Failed to create Vertex Shader");
 	}
+
+	std::filesystem::path filePath = path;
+
+	std::string shaderName = filePath.filename().replace_extension("").string();
+
+	shaderName = shaderName.substr(3, shaderName.size());
+
+	shaderName[0] = std::toupper(shaderName[0]);
+
+	shaderName = "VS " + shaderName;
+
+	RenderUtils::SetDebugName(vertexShader->GetShader(), shaderName);
 
 	return vertexShader;
 }

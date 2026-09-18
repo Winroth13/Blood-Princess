@@ -38,15 +38,16 @@ namespace RenderUtils
 #ifdef _DEBUG
 
 	template <typename T>
-	void SetDebugName(T object, std::string name)
+	void SetDebugName(T object, const std::string &name)
 	{
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(name), name.data());
+		std::string finalName = "[BP] " + name;
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(name), finalName.data());
 	}
 
 #else
 
 	template <typename T>
-	void SetDebugName(T object, std::string name) {}
+	void SetDebugName(T object, const std::string &name) {}
 
 #endif // _DEBUG
 
