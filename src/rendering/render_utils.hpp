@@ -37,17 +37,33 @@ namespace RenderUtils
 
 #ifdef _DEBUG
 
-	template <typename T>
-	void SetDebugName(T object, const std::string &name)
+	template <class T>
+	void SetDebugName(T *object, const std::string &prefix, const std::string &name, const std::string &sufix = "")
+	{
+		std::string finalName = name;
+		if (prefix.length() != 0)
+			finalName = prefix + " " + finalName;
+		if (sufix.length() != 0)
+			finalName = finalName + " " + sufix;
+		finalName = "[BP] " + finalName;
+
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)finalName.length(), finalName.data());
+	}
+
+	template <class T>
+	void SetDebugName(T *object, const std::string &name)
 	{
 		std::string finalName = "[BP] " + name;
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(name), finalName.data());
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)finalName.length(), finalName.data());
 	}
 
 #else
 
-	template <typename T>
-	void SetDebugName(T object, const std::string &name) {}
+	template <class T>
+	void SetDebugName(T *object, const std::string &prefix, const std::string &name, const std::string &sufix = "") {}
+
+	template <class T>
+	void SetDebugName(T *object, const std::string &name) {}
 
 #endif // _DEBUG
 
@@ -55,7 +71,7 @@ namespace RenderUtils
 	{
 		bool Initialize(ID3D11DeviceContext *deviceContext);
 		void Shutdown();
-		void BeginEvent(std::string &&name);
+		void BeginEvent(const std::string &&name);
 		void EndEvent();
 	}
 }

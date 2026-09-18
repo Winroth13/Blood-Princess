@@ -35,7 +35,7 @@ namespace RenderUtils
             SafeRelease(annotator);
         }
 
-        void BeginEvent(std::string &&name)
+        void BeginEvent(const std::string &&name)
         {
             wchar_t wideBuffer[32];
             size_t dummy = 0;

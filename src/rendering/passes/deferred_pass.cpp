@@ -24,8 +24,8 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 		std::string names[] =
 		{
-			"GBuffer Albedo and Metallic",
-			"GBuffer Normal and Roughness"
+			"Albedo and Metallic",
+			"Normal and Roughness"
 		};
 
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)

@@ -53,7 +53,7 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->texture, name);
+		RenderUtils::SetDebugName(this->texture, "GBuffer", name);
 
 		result = device->CreateShaderResourceView(this->texture, nullptr, &this->srv);
 
@@ -63,8 +63,7 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
-		std::string subName = name + " SRV";
-		RenderUtils::SetDebugName(this->srv, subName);
+		RenderUtils::SetDebugName(this->srv, "GBuffer", name, "SRV");
 
 		result = device->CreateRenderTargetView(this->texture, nullptr, &this->rtv);
 
@@ -73,9 +72,8 @@ bool GBuffer::Initialize(
 			LogError("Failed to create Render Target View");
 			return false;
 		}
-
-		subName = name + " RTV";
-		RenderUtils::SetDebugName(this->rtv, subName);
+		
+		RenderUtils::SetDebugName(this->rtv, "GBuffer", name, "RTV");
 	}
 #pragma endregion
 
