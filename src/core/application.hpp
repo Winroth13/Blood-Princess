@@ -7,6 +7,7 @@
 #include "audio/audio_manager.hpp"
 #include "editor/imgui_layer.hpp"
 #include "editor/editor.hpp"
+#include "collision/collision_manager.hpp"
 
 #include <chrono>
 
@@ -21,6 +22,7 @@ class Application
 	AudioManager audioManager;
     ImGuiLayer imGuiLayer;
     Editor editor;
+    CollisionManager collisionManager;
 
 	bool isRunning = false;
 
@@ -32,7 +34,8 @@ class Application
         &this->sceneManager,
         &this->audioManager,
         &this->imGuiLayer,
-        &this->editor
+        &this->editor,
+        &this->collisionManager
     };
 
     void Update(float deltaTime);

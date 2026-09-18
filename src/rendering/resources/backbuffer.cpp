@@ -30,7 +30,7 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 	}
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	uavDesc.Texture2DArray.MipSlice = 0;
 	uavDesc.Texture2DArray.ArraySize = 1;

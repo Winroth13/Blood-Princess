@@ -29,16 +29,14 @@ PixelShaderOutput main(PixelShaderInput input)
     
     float3 albedo = albedoSample.rgb * materialTint;
     
-    //float3 normalSample = normalTexture.Sample(samplerLinearWrap, input.uv).rgb * 2.0f - 1.0f; 
-    //float3x3 tbnMatrix = float3x3(
-    //    normalize(input.tangent),
-    //    normalize(input.bitangent),
-    //    normalize(input.worldNormal)
-    //);
-    //float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
+    float3 normalSample = normalTexture.Sample(samplerLinearWrap, input.uv).rgb * 2.0f - 1.0f; 
+    float3x3 tbnMatrix = float3x3(
+        normalize(input.tangent),
+        normalize(input.bitangent),
+        normalize(input.worldNormal)
+    );
+    float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
     
-    float3 normal = input.worldNormal * 0.5f + 0.5f;
-     
     output.albedoSpecularExponent = float4(albedo, materialSpecular / 1000.0f);
     output.normalSpecular = float4(normal, materialSpecularExponent);
     

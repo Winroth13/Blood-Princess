@@ -361,6 +361,112 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 	LogUnindent();
 }
 
+static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UINT> &indices) {
+	std::vector<XMFLOAT3> tangents(vertices.size(), { 0.0f, 0.0f, 0.0f });
+	std::vector<XMFLOAT3> bitangents(vertices.size(), { 0.0f, 0.0f, 0.0f });
+
+	for (size_t i = 0; i + 2 < indices.size(); i += 3) {
+		UINT i0 = indices[i];
+		UINT i1 = indices[i + 1];
+		UINT i2 = indices[i + 2];
+
+		const Vertex &v0 = vertices[i0];
+		const Vertex &v1 = vertices[i1];
+		const Vertex &v2 = vertices[i2];
+
+		XMVECTOR p0 = XMLoadFloat3(&v0.position);
+		XMVECTOR p1 = XMLoadFloat3(&v1.position);
+		XMVECTOR p2 = XMLoadFloat3(&v2.position);
+
+		XMVECTOR e1 = p1 - p0;
+		XMVECTOR e2 = p2 - p0;
+
+		float du1 = v1.uv.x - v0.uv.x;
+		float dv1 = v1.uv.y - v0.uv.y;
+		float du2 = v2.uv.x - v0.uv.x;
+		float dv2 = v2.uv.y - v0.uv.y;
+
+		// https://en.wikipedia.org/wiki/Cramer%27s_rule
+		float det = du1 * dv2 - du2 * dv1;
+		if (fabsf(det) < 1e-6f)
+			continue;
+
+		XMVECTOR t = (e1 * dv2 - e2 * dv1) / det;
+		XMVECTOR b = (e2 * du1 - e1 * du2) / det;
+
+		XMFLOAT3 tf;
+		XMStoreFloat3(&tf, t);
+		XMFLOAT3 bf;
+		XMStoreFloat3(&bf, b);
+
+		tangents[i0].x += tf.x;
+		tangents[i0].y += tf.y;
+		tangents[i0].z += tf.z;
+
+		bitangents[i0].x += bf.x;
+		bitangents[i0].y += bf.y;
+		bitangents[i0].z += bf.z;
+
+		tangents[i1].x += tf.x;
+		tangents[i1].y += tf.y;
+		tangents[i1].z += tf.z;
+
+		bitangents[i1].x += bf.x;
+		bitangents[i1].y += bf.y;
+		bitangents[i1].z += bf.z;
+
+		tangents[i2].x += tf.x;
+		tangents[i2].y += tf.y;
+		tangents[i2].z += tf.z;
+
+		bitangents[i2].x += bf.x;
+		bitangents[i2].y += bf.y;
+		bitangents[i2].z += bf.z;
+	}
+
+	for (size_t i = 0; i < vertices.size(); ++i) {
+		Vertex &v = vertices[i];
+
+		XMVECTOR n = XMLoadFloat3(&v.normal);
+		XMVECTOR t = XMLoadFloat3(&tangents[i]);
+		XMVECTOR b = XMLoadFloat3(&bitangents[i]);
+
+		// https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
+		XMVECTOR to = t - n * XMVector3Dot(n, t);
+
+		if (XMVectorGetX(XMVector3LengthSq(to)) < 1e-6f) {
+			XMVECTOR absN = XMVectorAbs(n);
+			float absNX = XMVectorGetX(absN);
+			float absNY = XMVectorGetY(absN);
+			float absNZ = XMVectorGetZ(absN);
+
+			if (absNX <= absNY && absNX <= absNZ)
+				b = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+			else if (absNY <= absNZ)
+				b = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			else
+				b = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+			to = XMVector3Normalize(XMVector3Cross(n, b));
+			b = XMVector3Cross(n, to);
+		}
+		else {
+			to = XMVector3Normalize(to);
+		}
+
+		XMVECTOR cross = XMVector3Cross(n, to);
+		float handedness = XMVectorGetX(XMVector3Dot(cross, b)) < 0.0f ? -1.0f : 1.0f;
+
+		XMFLOAT3 tf;
+		XMStoreFloat3(&tf, to);
+
+		v.tangent.x = tf.x;
+		v.tangent.y = tf.y;
+		v.tangent.z = tf.z;
+		v.tangent.w = handedness;
+	}
+}
+
 void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 {
 	const tg3_mesh &tMesh = this->model.meshes[meshIndex];
@@ -422,6 +528,8 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 			meshIndicies.push_back(indicies[i] + indexOffset);
 		}
 		indexCount += static_cast<uint32_t>(indicies.size());
+
+		ComputeTangents(meshVertices, meshIndicies);
 	}
 
 	Mesh *mesh = new Mesh();

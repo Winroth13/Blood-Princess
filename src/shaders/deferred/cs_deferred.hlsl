@@ -1,10 +1,9 @@
 #include "../shared_resources.hlsli"
 
-RWTexture2DArray<unorm float4> backBufferUAV;
+RWTexture2D<float4> backBufferUAV;
 
-Texture2D<float4> positionGBuffer : register(t11);
-Texture2D<float4> normalGBuffer : register(t12);
-Texture2D<float4> colorGBuffer : register(t13);
+Texture2D<float4> albedoSpecularExponentTexture : register(t0);
+Texture2D<float4> normalSpecularTexture : register(t1);
 
 struct DirectionalLight
 {
@@ -35,7 +34,17 @@ struct SpotLight
 };
 
 [numthreads(8, 8, 1)]
-void main(uint3 DTid : SV_DispatchThreadID)
+void main(uint3 id : SV_DispatchThreadID)
 {
+    uint width, height;
+    backBufferUAV.GetDimensions(width, height);
 
+    if (id.x >= width || id.y >= height)
+        return;
+        
+    uint2 screenPos = id.xy;
+    
+    float3 color = albedoSpecularExponentTexture[screenPos].rgb;
+    
+    backBufferUAV[screenPos] = float4(color, 1.0f);
 }
