@@ -14,6 +14,8 @@ class PlayerControllerComponent : public Component
 
 	ExportProperty(bool, canUseDash, true);
 	ExportProperty(float, dashCooldownTimer, 3.0f);
+	ExportProperty(float, dashDistance, 250.0f);
+	ExportProperty(float, dashDuration, 0.2f);
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { NoRender(); }
 
@@ -28,7 +30,7 @@ public:
 
 	void PerformLightAttack();
 	void PerformHeavyAttack();
-	void PerformDash();
+	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
