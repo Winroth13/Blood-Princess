@@ -22,7 +22,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
             DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
 		};
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
-			if (!this->gBuffers[i].Initialize(device, width, height, formats[i]))
+			if (!this->gBuffers[i].Initialize(device, this->width, this->height, formats[i]))
 				LogError("Failed to create GBuffer with index %zu", i);
 		
 		if (+GBufferType::SIZE > 0)
@@ -154,7 +154,7 @@ bool DeferredPass::Resize(
 	uint32_t height
 )
 {
-	LogInfo("Resizing Deferred Pass...");
+	LogInfo("Resizing Deferred Pass (%u, %u)...", width, height);
 	LogIndent();
 
 	this->gBuffers.clear();
