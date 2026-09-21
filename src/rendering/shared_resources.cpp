@@ -217,7 +217,6 @@ void SharedResources::Shutdown()
 	SafeRelease(this->perObjectCB);
 	SafeRelease(this->perMaterialCB);
 
-    SafeRelease(this->lightShaderResourceView);
     SafeRelease(this->directionalLightShaderResourceView);
     SafeRelease(this->spotLightShaderResourceView);
     SafeRelease(this->pointLightShaderResourceView);

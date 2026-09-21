@@ -60,6 +60,21 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     wallCol->SetLayer(CollisionLayer::ENVIRONMENT);
     wallCol->SetStatic(true);
     wallCol->SetExtents({ 3.0f, 2.0f, 0.5f });
+    //playerEntity->AddComponent<PointLightComponent>();
+    //playerEntity->AddComponent<DirectionalLightComponent>();
+    //playerEntity->AddComponent<DirectionalLightComponent>();
+    //playerEntity->AddComponent<SpotLightComponent>();
+    // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
+    playerEntity->AddComponent<BoxCollisionComponent>();
+
+    /*Entity *lightEntity = outScene.AddEntity("light");
+    lightEntity->AddComponent<AmbientLightComponent>();
+    lightEntity->AddComponent<TransformComponent>();
+    lightEntity->AddComponent<DirectionalLightComponent>();
+
+    ModelComponent *lightModelComponent = lightEntity->AddComponent<ModelComponent>();
+    lightModelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/arrow.glb"));*/
+
     outScene.PrintEntityHierarchy();
 }
 
