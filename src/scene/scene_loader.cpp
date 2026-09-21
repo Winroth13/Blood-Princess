@@ -33,12 +33,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");
     if (sfxClip) {
-        AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
-        MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
-        audioComponent->SetLooping(true);
-        audioComponent->SetAudio3D(true);
+        //AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
+        //MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
+        //audioComponent->SetLooping(true);
+        //audioComponent->SetAudio3D(true);
 
-        audioComponent->Play();
+        //audioComponent->Play();
     }
     playerEntity->AddComponent<AmbientLightComponent>();
     playerEntity->AddComponent<PointLightComponent>();
@@ -64,6 +64,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
     modelCol->SetStatic(true);
     modelCol->SetExtents({ 1.0f, 1.0f, 1.0f }); 
+
     outScene.PrintEntityHierarchy();
 }
 

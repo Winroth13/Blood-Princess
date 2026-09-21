@@ -11,6 +11,8 @@ class Scene;
 class Component;
 
 class Entity {
+    friend class Scene;
+
     Scene *scene = nullptr;
 
     bool isActive = true;
@@ -28,7 +30,6 @@ class Entity {
     void OnComponentAdded(Component *component);
     void OnComponentRemoved(Component *component);
 
-    friend class Scene;
     void RemoveComponentImmediate(Component *component);
 
 public:
@@ -38,10 +39,13 @@ public:
     Entity(const Entity &other) = delete;
     Entity &operator=(const Entity &other) = delete;
 
+private:
+    // These should only ever be called through the main frame loop
     void OnStart(const AppContext &context);
     void Update(const AppContext &context, float deltaTime);
     void OnDestroy(const AppContext &context);
 
+public:
     template <typename T, typename... Args>
     T *AddComponent(Args&&... args) {
         auto *ptr = new T(this, true, std::forward<Args>(args)...);
@@ -79,6 +83,19 @@ public:
     }
 
     std::vector<Component *> GetComponents();
+
+    template <typename T>
+    bool HasComponent() {
+        for (auto &component : this->components) {
+            if (component->IsPendingDestroy())
+                continue;
+
+            if (T *ptr = dynamic_cast<T *>(component.get()))
+                return true;
+        }
+
+        return false;
+    }
 
     void SetParent(Entity *parent);
     Entity *GetParent() const { return this->parent; }
