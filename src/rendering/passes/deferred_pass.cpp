@@ -46,11 +46,11 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 		textureDesc.Height = static_cast<UINT>(height);
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		textureDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
 
@@ -66,7 +66,11 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 		LogInfo("Depth Stencil Texture created");
 
-		result = device->CreateDepthStencilView(this->depthStencilTexture, nullptr, &this->depthStencilView);
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+		result = device->CreateDepthStencilView(this->depthStencilTexture, &depthStencilViewDesc, &this->depthStencilView);
 
 		if (FAILED(result))
 		{
@@ -77,6 +81,23 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 		RenderUtils::SetDebugName(this->depthStencilView, "Depth Stencil", "Deferred", "DSV");
 
 		LogInfo("Depth Stencil View created");
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+
+		result = device->CreateShaderResourceView(this->depthStencilTexture, &srvDesc, &this->depthStencilSRV);
+
+		if (FAILED(result))
+		{
+			LogError("Failed to create the Depth Stencil Shader Resource View");
+			return false;
+		}
+
+		RenderUtils::SetDebugName(this->depthStencilView, "Depth Stencil", "Deferred", "SRV");
+
+		LogInfo("Depth Stencil Shader Resource View created");
 	}
 #pragma endregion
 
@@ -157,6 +178,7 @@ void DeferredPass::Shutdown()
 
 	SafeRelease(this->depthStencilTexture);
 	SafeRelease(this->depthStencilView);
+	SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->inputLayout);
 }
 
@@ -304,10 +326,11 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 
-	 std::array<ID3D11ShaderResourceView *, 5> srvs = {
+	 std::array<ID3D11ShaderResourceView *, 6> srvs = {
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
+		 this->depthStencilSRV,
 		 // Light Buffer
 		 sharedResources.GetDirectionalLightsSRV(),
 		 sharedResources.GetSpotLightsSRV(),

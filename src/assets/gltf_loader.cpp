@@ -515,12 +515,13 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		{
 			XMVECTOR position = XMVector3Transform(XMLoadFloat3(&positions[i]), matrix);
 			XMStoreFloat3(&positions[i], position);
-			positions[i].z *= -1; // GLTF uses right-handed coordinate system.
+			positions[i].x *= -1; // GLTF uses right-handed coordinate system.
 
 			XMVECTOR normal = XMLoadFloat3(&normals[i]);
 			normal = XMVector3TransformNormal(normal, inverseTransposeMatrix);
 			normal = XMVector3Normalize(normal);
 			XMStoreFloat3(&normals[i], normal);
+			normals[i].x *= -1; // GLTF uses right-handed coordinate system.
 		}
 		
 		for (size_t i = 0; i < positions.size(); ++i)

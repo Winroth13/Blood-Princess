@@ -28,9 +28,11 @@ static constexpr int operator+(GBufferType val) noexcept {
 class DeferredPass
 {
 	std::vector<GBuffer> gBuffers{};
-	ID3D11Texture2D *depthStencilTexture{ nullptr };
-	ID3D11DepthStencilView *depthStencilView{ nullptr };
-	ID3D11InputLayout *inputLayout{ nullptr };
+	ID3D11Texture2D *depthStencilTexture = nullptr;
+	ID3D11DepthStencilView *depthStencilView = nullptr;
+	ID3D11ShaderResourceView *depthStencilSRV = nullptr;
+
+	ID3D11InputLayout *inputLayout = nullptr;
 
 	// TODO: Change to unique ptr and expose the load 
 	// functions in asset loader without having to use the Asset Manager.
