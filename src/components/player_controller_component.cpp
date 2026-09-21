@@ -76,6 +76,9 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 
 void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 {
+	if (Input::GetMouseMode() != MouseMode::CAPTURED)
+		return;
+
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
 	float deltaX = Input::GetMouseDeltaX();
 	float deltaY = Input::GetMouseDeltaY();
