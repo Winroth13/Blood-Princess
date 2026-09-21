@@ -15,7 +15,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 #pragma region GBuffers
 	{
-		gBuffers.resize(+GBufferType::SIZE);
+		gBuffers.resize(+GBufferType::COUNT);
 
 
 		DXGI_FORMAT formats[] =
@@ -30,7 +30,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			"Normal and Roughness" // Encoded Normal | Roughness
 		};
 
-		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
+		for (size_t i = 0; i < +GBufferType::COUNT; ++i)
 			if (!this->gBuffers[i].Initialize(device, this->width, this->height, formats[i], names[i]))
 				LogError("Failed to create GBuffer with index %zu", i);
 	}

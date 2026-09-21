@@ -6,7 +6,8 @@
 enum class CollisionShape {
     BOX,
     SPHERE,
-    CAPSULE
+    CAPSULE,
+    COUNT
 };
 
 class CollisionComponent : public Component

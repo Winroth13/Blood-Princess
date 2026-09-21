@@ -18,7 +18,7 @@ enum class GBufferType
 {
 	ALBEDO_METALLIC,	// Albedo | Metallic
 	NORMAL_ROUGHNESS,	// Encoded Normal | Roughness
-	SIZE
+	COUNT
 };
 
 static constexpr int operator+(GBufferType val) noexcept {

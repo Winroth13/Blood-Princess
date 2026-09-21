@@ -16,7 +16,7 @@ enum class DebugCategory {
 	SHADER,
 	TEXTURE,
 	EMPTY,
-	COUNT_COLOURS,
+	COUNT
 };
 
 static constexpr int operator+(DebugCategory val) noexcept {
