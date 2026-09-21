@@ -86,16 +86,14 @@ public:
 
     template <typename T>
     bool HasComponent() {
-        for (auto &component : this->components) {
-            if (component->IsPendingDestroy())
-                continue;
-
-            if (T *ptr = dynamic_cast<T *>(component.get()))
+        for (auto &component : this->components)
+            if (!component->IsPendingDestroy() && dynamic_cast<T *>(component.get()))
                 return true;
-        }
 
         return false;
     }
+
+    bool HasComponent(Component *component);
 
     void SetParent(Entity *parent);
     Entity *GetParent() const { return this->parent; }

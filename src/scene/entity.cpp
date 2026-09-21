@@ -81,6 +81,14 @@ std::vector<Component *> Entity::GetComponents() {
     return result;
 }
 
+bool Entity::HasComponent(Component *component) {
+    return std::find_if(
+        this->components.begin(),
+        this->components.end(),
+        [&](const std::unique_ptr<Component> &ptr) { return ptr.get() == component; }
+    ) != this->components.end();
+}
+
 void Entity::SetParent(Entity *parent) {
     if (parent == this->parent)
         return;
