@@ -95,7 +95,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilView, "Depth Stencil", "Deferred", "SRV");
+		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "SRV");
 
 		LogInfo("Depth Stencil Shader Resource View created");
 	}
