@@ -30,28 +30,43 @@ void InspectorPanel::ImGuiRender()
 
     if (this->entity)
     {
-        std::unordered_map<TypeId, size_t> componentCounter{};
+        ImGuiIO &io = ImGui::GetIO();
+        auto boldFont = io.Fonts->Fonts[0];
+        ImGui::PushFont(boldFont);
 
-        for (auto component : entity->GetComponents())
+        DrawFramedText(FormatName(entity->GetName()).c_str());
+
+        ImGui::PopFont();
+
+        DrawShadowSeperator();
+
+        ImVec2 childSize = ImGui::GetContentRegionAvail();
+        if (ImGui::BeginChild("Components"), childSize, ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysAutoResize)
         {
-            TypeId id = component->GetTypeId();
+            std::unordered_map<TypeId, size_t> componentCounter{};
 
-            std::string name = std::string(id.GetTypeName());
-            name.erase(0, 6); // remove the class prefix
-            name = FormatName(name);
-
-            if (componentCounter.find(id) == componentCounter.end())
+            for (auto component : entity->GetComponents())
             {
-                componentCounter[id] = 0;
-            }
-            else
-            {
-                componentCounter[id]++;
-                name += " #" + std::to_string(componentCounter[id]);
-            }
+                TypeId id = component->GetTypeId();
 
-            DrawComponentNode(component, name, id);
+                std::string name = std::string(id.GetTypeName());
+                name.erase(0, 6); // remove the class prefix
+                name = FormatName(name);
+
+                if (componentCounter.find(id) == componentCounter.end())
+                {
+                    componentCounter[id] = 0;
+                }
+                else
+                {
+                    componentCounter[id]++;
+                    name += " #" + std::to_string(componentCounter[id]);
+                }
+
+                DrawComponentNode(component, name, id);
+            }
         }
+        ImGui::EndChild();
     }
     else
     {
