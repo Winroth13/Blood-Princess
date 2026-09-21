@@ -45,8 +45,21 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
-    playerEntity->AddComponent<BoxCollisionComponent>();
+
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    auto playerCol = playerEntity->AddComponent<BoxCollisionComponent>();
+    playerCol->SetLayer(CollisionLayer::PLAYER);
+    playerCol->SetStatic(false);
+    playerCol->SetExtents({ 0.5f, 1.0f, 0.5f });
+
+    Entity* EntitywallEntity = outScene.AddEntity("wall");
+    auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
+    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f }); 
+
+    auto wallCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    wallCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    wallCol->SetStatic(true);
+    wallCol->SetExtents({ 3.0f, 2.0f, 0.5f });
     outScene.PrintEntityHierarchy();
 }
 
