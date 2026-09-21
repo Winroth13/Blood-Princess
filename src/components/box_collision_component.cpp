@@ -33,9 +33,13 @@ bool BoxCollisionComponent::Intersects(CollisionComponent* other)
 {
     if (!other || !other->IsActive()) return false;
 
-    auto otherBox = static_cast<BoxCollisionComponent*>(other);
-    return this->worldOBB.Intersects(otherBox->GetWorldOBB());
+    if (other->GetShape() == CollisionShape::BOX)
+    {
+        auto otherBox = static_cast<BoxCollisionComponent*>(other);
+        return this->worldOBB.Intersects(otherBox->GetWorldOBB());
+    }
 
+    return false;
 }
 
 void BoxCollisionComponent::OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal)
@@ -58,21 +62,11 @@ void BoxCollisionComponent::UpdateWorldOBB()
     {
         return;
     }
-    DirectX::XMFLOAT3 worldPos = transform->GetWorldPosition();
-    DirectX::XMFLOAT3 worldScale = transform->GetWorldScale();
-    DirectX::XMFLOAT4 worldRot = transform->GetWorldRotationQuaternion();
-    
-    this->worldOBB.Center = DirectX::XMFLOAT3(
-        worldPos.x + this->centerOffset.x,
-        worldPos.y + this->centerOffset.y,
-        worldPos.z + this->centerOffset.z
-    );
-    
-    this->worldOBB.Extents = DirectX::XMFLOAT3(
-        this->extents.x * worldScale.x,
-        this->extents.y * worldScale.y,
-        this->extents.z * worldScale.z
-    );
-    
-    this->worldOBB.Orientation = worldRot;
+
+    DirectX::BoundingOrientedBox localBox;
+    localBox.Center = this->centerOffset;
+    localBox.Extents = this->extents;
+    localBox.Orientation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    localBox.Transform(this->worldOBB, transform->GetWorldMatrix());
 }

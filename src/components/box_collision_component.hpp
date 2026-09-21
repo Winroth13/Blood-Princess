@@ -1,12 +1,9 @@
 #pragma once
 #include "scene/component.hpp"
 #include "DirectXMath.h"
-#include "d3d11.h"
-#include "collision/Rect_2d.hpp"
+#include <DirectXCollision.h>
 #include "collision/collision_component.hpp"
 #include "scene/entity.hpp"
-//class SphereCollisionComponent;
-//class CapsuleCollisionComponent;
 
 class BoxCollisionComponent : public CollisionComponent
 {
