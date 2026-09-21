@@ -37,7 +37,6 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-        outScene.Update(0.0f);
 
         audioComponent->Play();
     }
@@ -56,25 +55,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
     wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f }); 
 
-    auto wallCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
-    wallCol->SetLayer(CollisionLayer::ENVIRONMENT);
-    wallCol->SetStatic(true);
-    wallCol->SetExtents({ 3.0f, 2.0f, 0.5f });
-    //playerEntity->AddComponent<PointLightComponent>();
-    //playerEntity->AddComponent<DirectionalLightComponent>();
-    //playerEntity->AddComponent<DirectionalLightComponent>();
-    //playerEntity->AddComponent<SpotLightComponent>();
-    // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
-    playerEntity->AddComponent<BoxCollisionComponent>();
-
-    /*Entity *lightEntity = outScene.AddEntity("light");
-    lightEntity->AddComponent<AmbientLightComponent>();
-    lightEntity->AddComponent<TransformComponent>();
-    lightEntity->AddComponent<DirectionalLightComponent>();
-
-    ModelComponent *lightModelComponent = lightEntity->AddComponent<ModelComponent>();
-    lightModelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/arrow.glb"));*/
-
+    auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    modelCol->SetStatic(true);
+    modelCol->SetExtents({ 1.0f, 1.0f, 1.0f }); 
     outScene.PrintEntityHierarchy();
 }
 

@@ -13,7 +13,7 @@ bool CollisionManager::CheckBoxOverlap(BoxCollisionComponent* a, BoxCollisionCom
     }
 
     BoundingOrientedBox boxA = a->GetWorldOBB();
-    BoundingOrientedBox boxB = a->GetWorldOBB();
+    BoundingOrientedBox boxB = b->GetWorldOBB();
 
     if (!boxA.Intersects(boxB)) {
         return false;
