@@ -18,7 +18,7 @@ class Entity {
     bool isActive = true;
     bool hasStarted = false;
 
-    bool isStatic = false;
+    // bool isStatic = false;
 
     std::string name;
 
@@ -108,8 +108,8 @@ public:
     void MarkStarted() { this->hasStarted = true; }
     bool HasStarted() const{ return this->hasStarted; }
 
-    bool IsStatic() const { return this->isStatic; }
-    void SetStatic(bool isStatic) { this->isStatic = isStatic; }
+    //bool IsStatic() const { return this->isStatic; }
+    //void SetStatic(bool isStatic) { this->isStatic = isStatic; }
 
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }
