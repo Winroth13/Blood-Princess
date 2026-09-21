@@ -65,6 +65,7 @@
     <ClCompile Include="src\collision\collision_manager.cpp" />
     <ClCompile Include="src\assets\asset_utils.cpp" />
     <ClCompile Include="src\components\ambient_light_component.cpp" />
+    <ClCompile Include="src\components\box_collision_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -143,9 +144,7 @@
     <ClInclude Include="src\collision\collision_layer.hpp" />
     <ClInclude Include="src\collision\Rect_2d.hpp" />
     <ClInclude Include="src\components\box_collision_component.hpp" />
-    <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\collision\collision_component.hpp" />
-    <ClInclude Include="src\components\sphere_collider_component.hpp" />
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\rendering\shared_resources.hpp" />
     <ClInclude Include="src\assets\asset_utils.hpp" />

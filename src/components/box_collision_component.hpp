@@ -4,22 +4,26 @@
 #include "d3d11.h"
 #include "collision/Rect_2d.hpp"
 #include "collision/collision_component.hpp"
-
-class SphereCollisionComponent;
-class CapsuleCollisionComponent;
+#include "scene/entity.hpp"
+//class SphereCollisionComponent;
+//class CapsuleCollisionComponent;
 
 class BoxCollisionComponent : public CollisionComponent
 {
 	RegisterComponent(BoxCollisionComponent);
 	ExportProperty(XMFLOAT3, extents, { 0.5f, 0.5f, 0.5f });
+	
 	DirectX::BoundingOrientedBox worldOBB{};
 public:
+	BoxCollisionComponent(Entity* owner, bool isActive);
 
+	void OnStart(const AppContext& context) override;
+	void Update(const AppContext& context, float deltaTime) override;
+	void Render(const RenderView& view, RenderQueue& queue) override {};
+	void OnDestroy(const AppContext& context) override;
 
-	BoxCollisionComponent(Entity* owner, bool isActive) : CollisionComponent(owner, isActive){};
-
-	//Rect2D GetBoundingRect2D() override { return rect2D; };
-	bool Intersects(CollisionComponent* other) override { return true; };
+	bool Intersects(CollisionComponent* other) override;
+	void OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal) override;
 
 	BoundingOrientedBox GetWorldOBB() const { return this->worldOBB; }
 	void UpdateWorldOBB();

@@ -65,7 +65,7 @@ bool Texture2D::Create(
         return false;
 	}
 
-	RenderUtils::SetDebugName(this->texture, "Texture", name);
+	RenderUtils::SetDebugName(this->texture, DebugCategory::TEXTURE, "Texture", name);
 
 	LogInfo("DirectX Texture created");
 
@@ -94,7 +94,7 @@ bool Texture2D::Create(
 
 	deviceContext->GenerateMips(this->shaderResourceView);
 
-	RenderUtils::SetDebugName(this->shaderResourceView, "Texture", name, "SRV");
+	RenderUtils::SetDebugName(this->shaderResourceView, DebugCategory::TEXTURE, "Texture", name, "SRV");
 
 	return true;
 }

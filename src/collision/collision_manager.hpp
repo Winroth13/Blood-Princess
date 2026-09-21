@@ -14,6 +14,7 @@ class CapsuleCollisionComponent;
 struct CollisionHit
 {
 	CollisionComponent *collider = nullptr;
+	bool isColliding = false;
 	DirectX::XMFLOAT3 normal{ 0.0f, 0.0f, 0.0f };
 	float depth = 0.0f;
 };
@@ -25,8 +26,8 @@ private:
 	std::vector<CollisionComponent *> dynamicColliders;
 
 	bool CheckBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
-	bool CheckSphereOverlap(SphereCollisionComponent* a, SphereCollisionComponent* b, CollisionHit& outHit);
-	bool CheckCapsuleOverlap(CapsuleCollisionComponent* a, CapsuleCollisionComponent* b, CollisionHit& outHit);
+	//bool CheckSphereOverlap(SphereCollisionComponent* a, SphereCollisionComponent* b, CollisionHit& outHit);
+	//bool CheckCapsuleOverlap(CapsuleCollisionComponent* a, CapsuleCollisionComponent* b, CollisionHit& outHit);
 
 	void ResolvePairs();
 

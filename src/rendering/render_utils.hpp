@@ -8,11 +8,31 @@
 
 #define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
 
+enum class DebugCategory {
+	CORE,
+	BUFFER,
+	RENDER_PASS,
+	GBUFFER,
+	SHADER,
+	TEXTURE,
+	EMPTY,
+	COUNT_COLOURS,
+};
+
+static constexpr int operator+(DebugCategory val) noexcept {
+	return static_cast<int>(val);
+}
+
 namespace RenderUtils
 {
     RenderView *GetView(std::vector<RenderView> &views, ViewType type, int index = 0); 
 
-    bool CreateConstantBuffer(ID3D11Device *device, UINT bufferSize, ID3D11Buffer **outBuffer);
+    bool CreateConstantBuffer(
+		ID3D11Device *device,
+		UINT bufferSize,
+		ID3D11Buffer **outBuffer,
+		const std::string &debugName
+	);
 
 	template <typename T>
 	inline bool UploadConstantBuffer(ID3D11DeviceContext *deviceContext, ID3D11Buffer *buffer, const T &data) {
@@ -45,7 +65,7 @@ namespace RenderUtils
         UINT elementCount,
         ID3D11Buffer **outBuffer,
         ID3D11ShaderResourceView **outSRV,
-        const char *debugName
+        const std::string &debugName
     );
 
     template <typename T>
@@ -65,43 +85,58 @@ namespace RenderUtils
 
 #ifdef _DEBUG
 
-	template <class T>
-	void SetDebugName(T *object, const std::string &prefix, const std::string &name, const std::string &sufix = "")
-	{
-		std::string finalName = name;
-		if (prefix.length() != 0)
-			finalName = prefix + " " + finalName;
-		if (sufix.length() != 0)
-			finalName = finalName + " " + sufix;
-		finalName = "[BP] " + finalName;
-
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
-	}
-
-	template <class T>
-	void SetDebugName(T *object, const std::string &name)
-	{
-		std::string finalName = "[BP] " + name;
-		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
-	}
-
-#else
-
-	template <class T>
-	void SetDebugName(T *object, const std::string &prefix, const std::string &name, const std::string &sufix = "") {}
-
-	template <class T>
-	void SetDebugName(T *object, const std::string &name) {}
-
-#endif // _DEBUG
-
 	namespace Impl
 	{
+		std::string categorySymbols[];
+
 		bool Initialize(ID3D11DeviceContext *deviceContext);
 		void Shutdown();
 		void BeginEvent(const std::string &&name);
 		void EndEvent();
 	}
+
+	template <class T>
+	void SetDebugName(
+		T *object,
+		DebugCategory category,
+		const std::string &prefix,
+		const std::string &name,
+		const std::string &sufix = ""
+	) {
+		std::string finalName = name;
+		if (prefix.length() != 0)
+			finalName = prefix + " " + finalName;
+		if (sufix.length() != 0)
+			finalName = finalName + " " + sufix;
+		finalName = "[BP] " + RenderUtils::Impl::categorySymbols[+category] + " " + finalName;
+
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
+	}
+
+	template <class T>
+	void SetDebugName(T *object, DebugCategory category, const std::string &name)
+	{
+		std::string finalName = "[BP] " + RenderUtils::Impl::categorySymbols[+category] + " " + name;
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(finalName.length()), finalName.data());
+	}
+
+#else
+
+	namespace Impl {}
+
+	template <class T>
+	void SetDebugName(
+		T *object,
+		DebugCategory category,
+		const std::string &prefix,
+		const std::string &name,
+		const std::string &sufix = ""
+	) {}
+
+	template <class T>
+	void SetDebugName(T *object, DebugCategory category, const std::string &name) {}
+
+#endif // _DEBUG
 }
 
 #ifdef _DEBUG
