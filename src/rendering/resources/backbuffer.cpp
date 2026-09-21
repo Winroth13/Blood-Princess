@@ -17,6 +17,8 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		return false;
 	}
 
+	RenderUtils::SetDebugName(texture, DebugCategory::CORE,"Backbuffer");
+
 	HRESULT hr = device->CreateRenderTargetView(
 		texture,
 		nullptr,
@@ -29,7 +31,7 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		return false;
 	}
 
-	RenderUtils::SetDebugName(this->view, "", "Backbuffer", "RTV");
+	RenderUtils::SetDebugName(this->view, DebugCategory::CORE, "", "Backbuffer", "RTV");
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
@@ -45,7 +47,7 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		return false;
 	}
 
-	RenderUtils::SetDebugName(this->uav, "", "Backbuffer", "UAV");
+	RenderUtils::SetDebugName(this->uav, DebugCategory::CORE, "", "Backbuffer", "UAV");
 
 	LogUnindent();
 

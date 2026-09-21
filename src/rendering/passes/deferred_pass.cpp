@@ -26,8 +26,8 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 		std::string names[] =
 		{
-			"Albedo and Metallic",
-			"Normal and Roughness"
+			"Albedo and Metallic", // Albedo | Metallic
+			"Normal and Roughness" // Encoded Normal | Roughness
 		};
 
 		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
@@ -62,7 +62,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilTexture, "Depth Stencil", "Deferred");
+		RenderUtils::SetDebugName(this->depthStencilTexture, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred");
 
 		LogInfo("Depth Stencil Texture created");
 
@@ -78,7 +78,7 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilView, "Depth Stencil", "Deferred", "DSV");
+		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "DSV");
 
 		LogInfo("Depth Stencil View created");
 
@@ -130,7 +130,7 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 		return false;
 	}
 
-	RenderUtils::SetDebugName(this->inputLayout, "Input Layout", "Deferred");
+	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Deferred");
 
 	LogIndent();
 

@@ -53,7 +53,7 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->texture, "GBuffer", name);
+		RenderUtils::SetDebugName(this->texture, DebugCategory::GBUFFER, "GBuffer", name);
 
 		result = device->CreateShaderResourceView(this->texture, nullptr, &this->srv);
 
@@ -63,7 +63,7 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->srv, "GBuffer", name, "SRV");
+		RenderUtils::SetDebugName(this->srv, DebugCategory::GBUFFER, "GBuffer", name, "SRV");
 
 		result = device->CreateRenderTargetView(this->texture, nullptr, &this->rtv);
 
@@ -73,7 +73,7 @@ bool GBuffer::Initialize(
 			return false;
 		}
 		
-		RenderUtils::SetDebugName(this->rtv, "GBuffer", name, "RTV");
+		RenderUtils::SetDebugName(this->rtv, DebugCategory::GBUFFER, "GBuffer", name, "RTV");
 	}
 #pragma endregion
 

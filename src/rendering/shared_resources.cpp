@@ -35,6 +35,8 @@ bool SharedResources::CreateSamplers(ID3D11Device *device)
 		return false;
 	}
 
+    RenderUtils::SetDebugName(this->samplers[+SamplerSlot::LINEAR_WRAP], DebugCategory::CORE, "Sampler", "Linear-Wrap");
+
 	return true;
 }
 
@@ -155,16 +157,16 @@ bool SharedResources::Initialize(ID3D11Device* device)
 	LogInfo("Creating Shared Resources...");
 	LogIndent();
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerViewData), &this->perViewCB))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerViewData), &this->perViewCB, "Per View"))
         return false;
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerObjectData), &this->perObjectCB))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerObjectData), &this->perObjectCB, "Per Obejct"))
         return false;
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerMaterialData), &this->perMaterialCB))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerMaterialData), &this->perMaterialCB, "Per Material"))
         return false;
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(LightData), &this->lightBufferCB))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(LightData), &this->lightBufferCB, "Light Buffer"))
         return false;
 
     if (!RenderUtils::CreateStructuredBuffer(
@@ -173,7 +175,7 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_DIRECTIONAL_LIGHT_COUNT,
         &this->directionalLightBufferSB,
         &this->directionalLightShaderResourceView,
-        "Directional light structured buffer")
+        "Directional Light")
     ) {
         return false;
     }
@@ -184,7 +186,7 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_SPOT_LIGHT_COUNT,
         &this->spotLightBufferSB,
         &this->spotLightShaderResourceView,
-        "Spot light structured buffer")
+        "Spot Light")
     ) {
         return false;
     }
@@ -195,7 +197,7 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_POINT_LIGHT_COUNT,
         &this->pointLightBufferSB,
         &this->pointLightShaderResourceView,
-        "Point light structured buffer")
+        "Point Light")
     ) {
         return false;
     }

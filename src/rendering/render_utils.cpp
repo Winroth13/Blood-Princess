@@ -13,7 +13,12 @@ namespace RenderUtils
         return nullptr;
     }
 
-    bool CreateConstantBuffer(ID3D11Device *device, UINT bufferSize, ID3D11Buffer **outBuffer) {
+    bool CreateConstantBuffer(
+        ID3D11Device *device,
+        UINT bufferSize,
+        ID3D11Buffer **outBuffer,
+        const std::string &debugName
+    ) {
         D3D11_BUFFER_DESC desc = {};
         desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -28,9 +33,11 @@ namespace RenderUtils
         HRESULT result = device->CreateBuffer(&desc, &data, outBuffer);
         if (FAILED(result))
         {
-            LogWarn("Failed to create Constant Buffer");
+            LogWarn("Failed to create Constant Buffer '%s'", debugName.data());
             return false;
         }
+
+        RenderUtils::SetDebugName(*outBuffer, DebugCategory::BUFFER, "CB", debugName);
 
         return true;
     }
@@ -41,7 +48,7 @@ namespace RenderUtils
         UINT elementCount, 
         ID3D11Buffer **outBuffer, 
         ID3D11ShaderResourceView **outSRV, 
-        const char *debugName
+        const std::string &debugName
     ) {
         D3D11_BUFFER_DESC desc{};
         desc.ByteWidth = elementSize * elementCount;
@@ -53,9 +60,11 @@ namespace RenderUtils
 
         HRESULT result = device->CreateBuffer(&desc, nullptr, outBuffer);
         if (FAILED(result)) {
-            LogError("Failed to create Structured Buffer '%s'", debugName);
+            LogError("Failed to create Structured Buffer '%s'", debugName.data());
             return false;
         }
+
+        RenderUtils::SetDebugName(*outBuffer, DebugCategory::BUFFER, "SB", debugName);
 
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
         srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -65,15 +74,24 @@ namespace RenderUtils
 
         result = device->CreateShaderResourceView(*outBuffer, &srvDesc, outSRV);
         if (FAILED(result)) {
-            LogError("Failed to create SRV for '%s'", debugName);
+            LogError("Failed to create SRV for '%s'", debugName.data());
             return false;
         }
+
+        RenderUtils::SetDebugName(*outSRV, DebugCategory::BUFFER, "SB", debugName, "SRV");
 
         return true;
     }
 
+#ifdef _DEBUG
+
     namespace Impl
     {
+        std::string categorySymbols[7]
+        {
+            "🟥", "🟦", "🟧", "🟨", "🟩", "🟪", "🟫" // Happy pride!
+        };
+
         ID3DUserDefinedAnnotation *annotator;
 
         bool Initialize(ID3D11DeviceContext *deviceContext)
@@ -108,4 +126,10 @@ namespace RenderUtils
             annotator->EndEvent();
         }
     }
+
+#else
+
+    namespace Impl {}
+
+#endif // _DEBUG
 }

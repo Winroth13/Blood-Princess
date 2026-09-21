@@ -209,7 +209,7 @@ std::shared_ptr<VertexShader> AssetLoader::Load<VertexShader>(const std::string 
 	std::string shaderName = AssetUtils::GetNameFromPath(path);
 	shaderName = AssetUtils::FormatShaderName(shaderName);
 
-	RenderUtils::SetDebugName(vertexShader->GetShader(), "VS", shaderName);
+	RenderUtils::SetDebugName(vertexShader->GetShader(), DebugCategory::SHADER, "VS", shaderName);
 
 	return vertexShader;
 }
@@ -233,7 +233,7 @@ std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &p
 	std::string shaderName = AssetUtils::GetNameFromPath(path);
 	shaderName = AssetUtils::FormatShaderName(shaderName);
 
-	RenderUtils::SetDebugName(pixelShader->GetShader(), "PS", shaderName);
+	RenderUtils::SetDebugName(pixelShader->GetShader(), DebugCategory::SHADER, "PS", shaderName);
 
 	return pixelShader;
 }
@@ -257,7 +257,7 @@ std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::strin
 	std::string shaderName = AssetUtils::GetNameFromPath(path);
 	shaderName = AssetUtils::FormatShaderName(shaderName);
 
-	RenderUtils::SetDebugName(computeShader->GetShader(), "CS", shaderName);
+	RenderUtils::SetDebugName(computeShader->GetShader(), DebugCategory::SHADER, "CS", shaderName);
 
 	return computeShader;
 }
