@@ -44,8 +44,8 @@ public:
 
     template <typename T, typename... Args>
     T *AddComponent(Args&&... args) {
-        this->components.emplace_back(std::make_unique<T>(this, true, std::forward<Args>(args)...));
-        T *ptr = static_cast<T *>(this->components.back().get());
+        auto *ptr = new T(this, true, std::forward<Args>(args)...);
+        this->components.emplace_back(ptr);
         this->OnComponentAdded(ptr);
         return ptr;
     }

@@ -158,5 +158,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />
+    <None Include="src\shaders\deferred\pbr.hlsli" />
   </ItemGroup>
 </Project>

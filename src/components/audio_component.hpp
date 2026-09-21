@@ -24,11 +24,13 @@ class AudioComponent : public Component
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
 
+private:
     void OnStart(const AppContext& context) override;
     void Update(const AppContext& context, float deltaTime) override;
     void Render(const RenderView& view, RenderQueue& queue) override {};
     void OnDestroy(const AppContext& context) override;
 
+public:
     void Play();
     bool StopPlaying();
     

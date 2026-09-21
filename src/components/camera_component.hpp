@@ -13,6 +13,7 @@ class CameraComponent : public Component
 public:
     CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoRender(); }
 
+private:
     void OnStart(const AppContext &context) override {}
     void Update(const AppContext &context, float deltaTime) override;
     void Render(const RenderView &view, RenderQueue &queue) override {}
