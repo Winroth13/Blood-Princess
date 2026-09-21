@@ -65,6 +65,11 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     modelCol->SetStatic(true);
     modelCol->SetExtents({ 1.0f, 1.0f, 1.0f }); 
 
+    //Entity *animatedEntity = outScene.AddEntity("animated_entity");
+    //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
+    //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
+    //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+
     outScene.PrintEntityHierarchy();
 }
 
