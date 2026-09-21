@@ -4,7 +4,7 @@
 #include "components/box_collision_component.hpp"
 #include "components/transform_component.hpp"
 
-bool CollisionManager::CheckBoxOverlap(BoxCollisionComponent* a, BoxCollisionComponent* b, CollisionHit& outHit)
+bool CollisionManager::CheckBoxBoxOverlap(BoxCollisionComponent* a, BoxCollisionComponent* b, CollisionHit& outHit)
 {
     outHit.isColliding = false;
 
@@ -117,7 +117,7 @@ void CollisionManager::ResolvePairs()
             wallBox->UpdateWorldOBB();
 
             CollisionHit hit;
-            if (this->CheckBoxOverlap(playerBox, wallBox, hit))
+            if (this->CheckBoxBoxOverlap(playerBox, wallBox, hit))
             {
                 DirectX::XMFLOAT3 currentPos = playerTransform->GetWorldPosition();
                 currentPos.x += hit.normal.x * hit.depth;

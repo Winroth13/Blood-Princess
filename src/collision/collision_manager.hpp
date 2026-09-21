@@ -25,9 +25,14 @@ private:
 	std::vector<CollisionComponent *> staticColliders;
 	std::vector<CollisionComponent *> dynamicColliders;
 
-	bool CheckBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
-	//bool CheckSphereOverlap(SphereCollisionComponent* a, SphereCollisionComponent* b, CollisionHit& outHit);
-	//bool CheckCapsuleOverlap(CapsuleCollisionComponent* a, CapsuleCollisionComponent* b, CollisionHit& outHit);
+	bool CheckBoxBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
+
+	bool CheckSphereSphereOverlap(SphereCollisionComponent *a, SphereCollisionComponent *b, CollisionHit &outHit);
+	bool CheckSphereBoxOverlap(SphereCollisionComponent *sphere, BoxCollisionComponent *box, CollisionHit &outHit);
+
+	bool CheckCapsuleCapsuleOverlap(CapsuleCollisionComponent *a, CapsuleCollisionComponent *b, CollisionHit &outHit);
+	bool CheckCapsuleSphereOverlap(CapsuleCollisionComponent *capsule, SphereCollisionComponent *sphere, CollisionHit &outHit);
+	bool CheckCapsuleBoxOverlap(CapsuleCollisionComponent *capsule, BoxCollisionComponent *box, CollisionHit &outHit);
 
 	void ResolvePairs();
 
