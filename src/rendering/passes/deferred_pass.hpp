@@ -54,7 +54,7 @@ class DeferredPass
 	void RenderGeometryPass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
@@ -62,7 +62,7 @@ class DeferredPass
 	void RenderLightingPass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
@@ -92,7 +92,7 @@ public:
 	void Render(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);

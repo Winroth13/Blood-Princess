@@ -44,6 +44,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<AmbientLightComponent>();
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
+    playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
     // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
     playerEntity->AddComponent<BoxCollisionComponent>();

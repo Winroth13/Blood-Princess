@@ -5,33 +5,9 @@ RWTexture2D<float4> backBufferUAV;
 Texture2D<float4> albedoMetallicTexture : register(t0);
 Texture2D<float4> normalRoughnessTexture : register(t1);
 
-struct DirectionalLight
-{
-    float4x4 viewProjMatrix;
-    float3 direction;
-    float intensity;
-    float3 color;
-    float pad0;
-};
-
-struct PointLight
-{
-    float3 position;
-    float attenuation;
-    float3 color;
-    float intensity;
-};
-
-struct SpotLight
-{
-    float4x4 viewProjMatrix;
-    float3 position;
-    float attenuation;
-    float3 color;
-    float intensity;
-    float3 direction;
-    float angle;
-};
+StructuredBuffer<DirectionalLight> directionalLights : register(t2);
+StructuredBuffer<SpotLight> spotLights : register(t3);
+StructuredBuffer<PointLight> pointLights : register(t4);
 
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)
@@ -44,7 +20,7 @@ void main(uint3 id : SV_DispatchThreadID)
         
     uint2 screenPos = id.xy;
     
-    float3 color = albedoMetallicTexture[screenPos].rgb;
+    float3 color = directionalLights[0].colour; //albedoMetallicTexture[screenPos].rgb;
     
     backBufferUAV[screenPos] = float4(color, 1.0f);
 }

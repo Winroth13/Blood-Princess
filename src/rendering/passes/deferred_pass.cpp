@@ -6,6 +6,7 @@
 #include "assets/asset_manager.hpp"
 
 #include <d3d11.h>
+#include <array>
 
 bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 {
@@ -186,7 +187,7 @@ bool DeferredPass::Resize(
 void DeferredPass::RenderGeometryPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
@@ -206,8 +207,8 @@ void DeferredPass::RenderGeometryPass(
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	sharedResources->BindSamplers(deviceContext);
-	sharedResources->UploadPerViewData(deviceContext, *view);
+	sharedResources.BindSamplers(deviceContext);
+	sharedResources.UploadPerViewData(deviceContext, *view);
 
 	ID3D11RenderTargetView *rtvs[2] = {
 		this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetRenderTargetView(),
@@ -229,9 +230,9 @@ void DeferredPass::RenderGeometryPass(
 	deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
 	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
 
-	ID3D11Buffer *perView = sharedResources->GetPerView();
-	ID3D11Buffer *perObject = sharedResources->GetPerObject();
-	ID3D11Buffer *perMaterial = sharedResources->GetPerMaterial();
+	ID3D11Buffer *perView = sharedResources.GetPerView();
+	ID3D11Buffer *perObject = sharedResources.GetPerObject();
+	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
 	deviceContext->VSSetConstantBuffers(0, 1, &perView);
 	deviceContext->VSSetConstantBuffers(1, 1, &perObject);
 	deviceContext->PSSetConstantBuffers(2, 1, &perMaterial);
@@ -245,7 +246,7 @@ void DeferredPass::RenderGeometryPass(
         XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
         XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
 		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix,XMMatrixInverse(nullptr, worldMatrix));
-		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerObject(), perObjectData);
+		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
 
 		XMFLOAT3 tint = {
 			command.material.baseColor.x * command.tint.x,
@@ -258,7 +259,7 @@ void DeferredPass::RenderGeometryPass(
 		perMaterialData.materialSpecular = 0.8f;
 		perMaterialData.materialSpecularExponent = 80.0f;
 
-		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerMaterial(), perMaterialData);
+		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 
 		
 		ID3D11ShaderResourceView *srvs[TEXTURE_COUNT] = {
@@ -286,7 +287,7 @@ void DeferredPass::RenderGeometryPass(
 void DeferredPass::RenderLightingPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
@@ -298,16 +299,24 @@ void DeferredPass::RenderLightingPass(
 	    return;
 	 }
 
-     sharedResources->UploadLights(deviceContext, *view);
+     sharedResources.UploadLights(deviceContext, *view);
 
 	 ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 
-	 ID3D11ShaderResourceView *srvs[2] = {
+	 std::array<ID3D11ShaderResourceView *, 5> srvs = {
+		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
-		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView()
+		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
+		 // Light Buffer
+		 sharedResources.GetDirectionalLightsSRV(),
+		 sharedResources.GetSpotLightsSRV(),
+		 sharedResources.GetPointLightsSRV()
 	 };
-	 deviceContext->CSSetShaderResources(0, 2, srvs);
+	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
+
+	 ID3D11Buffer *light = sharedResources.GetLightBuffer();
+	 deviceContext->CSSetConstantBuffers(3, 1, &light);
 
 	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
@@ -315,8 +324,8 @@ void DeferredPass::RenderLightingPass(
 	 const UINT groupsY = (this->height + 7) / 8;
 	 deviceContext->Dispatch(groupsX, groupsY, 1);
 
-	 ID3D11ShaderResourceView *nullSrvs[2] = {};
-	 deviceContext->CSSetShaderResources(0, 2, nullSrvs);
+	 ID3D11ShaderResourceView *nullSrvs[srvs.size()] = {};
+	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), nullSrvs);
 
 	 ID3D11UnorderedAccessView *nullUav = nullptr;
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
@@ -327,7 +336,7 @@ void DeferredPass::RenderLightingPass(
 void DeferredPass::Render(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )

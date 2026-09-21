@@ -179,7 +179,7 @@ void Renderer::Render(Scene *scene)
     this->deferredPass.Render(
         this->device, 
         this->deviceContext, 
-        &this->sharedResources,
+        this->sharedResources,
         this->backBuffer,
         this->views
     );
