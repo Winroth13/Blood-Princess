@@ -20,7 +20,7 @@ class Texture2D : public Asset
 	uint32_t height = 0;
 	uint32_t channels = 0;
 
-	DXGI_FORMAT const GetDXGITextureFormat(uint32_t stbiChannels);
+	DXGI_FORMAT const GetDXGITextureFormat(uint32_t stbiChannels, bool isRGB);
 
 public:
 	Texture2D() = default;
@@ -32,6 +32,7 @@ public:
 		const uint32_t height,
 		const uint32_t channels,
 		const std::string &name,
+		bool isRGB,
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext
 	);

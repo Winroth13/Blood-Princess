@@ -54,7 +54,7 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 
 	bool result = texture->Create(
 		data, width, height,
-		channels, path,
+		channels, path, false,
 		this->device, this->deviceContext
 	);
 

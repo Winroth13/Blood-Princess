@@ -343,6 +343,9 @@ void DeferredPass::RenderLightingPass(
 
 	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
+	 ID3D11Buffer *perView = sharedResources.GetPerView();
+	 deviceContext->CSSetConstantBuffers(0, 1, &perView);
+
 	 const UINT groupsX = (this->width + 7) / 8;
 	 const UINT groupsY = (this->height + 7) / 8;
 	 deviceContext->Dispatch(groupsX, groupsY, 1);

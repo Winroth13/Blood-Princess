@@ -48,13 +48,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     // playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(false);
     playerEntity->AddComponent<BoxCollisionComponent>();
 
-    /*Entity *lightEntity = outScene.AddEntity("light");
+    Entity *lightEntity = outScene.AddEntity("light");
     lightEntity->AddComponent<AmbientLightComponent>();
-    lightEntity->AddComponent<TransformComponent>();
-    lightEntity->AddComponent<DirectionalLightComponent>();
+    lightEntity->AddComponent<PointLightComponent>()->SetIntensity(3.0f);
 
-    ModelComponent *lightModelComponent = lightEntity->AddComponent<ModelComponent>();
-    lightModelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/arrow.glb"));*/
+    TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
+    transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
 
     outScene.PrintEntityHierarchy();
 }

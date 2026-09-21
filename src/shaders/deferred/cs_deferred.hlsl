@@ -1,4 +1,5 @@
 #include "../shared_resources.hlsli"
+#include "pbr.hlsli"
 
 RWTexture2D<float4> backBufferUAV;
 
@@ -35,37 +36,54 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float4 albedoMetallicSample = albedoMetallicTexture[pixel];
     float3 albedoColour = albedoMetallicSample.rgb;
-    float metalllic = albedoMetallicSample.a;
+    float metallic = albedoMetallicSample.a;
 
     float4 normalRoughnessSample = normalRoughnessTexture[pixel];
     float3 normalV = normalize(normalRoughnessSample.rgb * 2.0f - 1.0f);
-    bool roughness = normalRoughnessSample.a;
+    float roughness = normalRoughnessSample.a;
     
     float3 positionWorld = ReconstructWorldPosition(uv, depth);
     float3 viewV = normalize(cameraPosition - positionWorld);
     
-    float3 ambient = ambientColour;
-    float3 diffuse = float3(0.0f, 0.0f, 0.0f);
-    float3 specular = float3(0.0f, 0.0f, 0.0f);
+    float3 F0 = float3(0.04f, 0.04f, 0.04f);
+    F0 = lerp(F0, albedoColour, metallic);
     
-    for (int i = 0; i < directionalLightCount; ++i)
+    float3 Lo = float3(0.0f, 0.0f, 0.0f);
+    for (int i = 0; i < pointLightCount; ++i)
     {
-        float3 lightV = -directionalLights[i].direction;
+        PointLight light = pointLights[i];
         
-        float diffuseFactor = dot(normalV, lightV);
-        if (diffuseFactor <= 0.0f)
-            continue;
+        // calculate per light radiance
+        float3 L = normalize(light.position - positionWorld);
+        float3 H = normalize(viewV + L);
+        float distance = length(light.position - positionWorld);
+        float attenuation = 1.0 / (distance * distance);
+        float3 radiance = light.colour * attenuation;
         
-        float3 radiance = directionalLights[i].colour;
-
-        diffuse += radiance * diffuseFactor;
-
-        float3 halfV = normalize(lightV + viewV);
-        float specularFactor = saturate(dot(normalV, halfV));
-        specular += radiance * pow(specularFactor, 70.0f);
+        // cook-torrance brdf
+        float NDF = DistributionGGX(normalV, H, roughness);
+        float G = GeometrySmith(normalV, viewV, L, roughness);
+        float3 F = FresnelSchlick(max(dot(H, viewV), 0.0), F0);
+        
+        float3 kS = F;
+        float3 kD = float3(1.0, 1.0, 1.0) - kS;
+        kD *= 1.0 - metallic;
+        
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(normalV, viewV), 0.0) * max(dot(normalV, L), 0.0) + 0.0001;
+        float3 specular = numerator / denominator;
+        
+        // add to outgoing radiance Lo
+        float NdotL = max(dot(normalV, L), 0.0);
+        Lo += (kD * albedoColour / PI + specular) * radiance * NdotL;
     }
     
-    float3 finalColour = (ambient + diffuse) * albedoColour + specular * float3(1, 1, 1);
+    float3 ambient = ambientColour * albedoColour;
+    float3 color = ambient + Lo;
+   
+    // Remove this later (Gamma Correct and Tonemap)
+    // color = color / (color + float3(1.0, 1.0, 1.0));
+    color = pow(color, 1.0 / 2.2);
 
-    backBufferUAV[pixel] = float4(finalColour, 1.0f);
+    backBufferUAV[pixel] = float4(color, 1.0f);
 }

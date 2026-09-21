@@ -162,6 +162,16 @@ void GLTFLoader::ReadTextures()
 	{
 		const tg3_image &tImage = this->model.images[i];
 		
+		bool isColor = false;
+		for (const Material &material : this->materials)
+		{
+			if (i == material.albedoTextureIndex)
+			{
+				isColor = true;
+				break;
+			}
+		}
+
 		const unsigned char *compressedData = nullptr;
 		int dataSize = 0;
 
@@ -210,6 +220,7 @@ void GLTFLoader::ReadTextures()
 			height,
 			channels,
 			tImage.name.data,
+			isColor,
 			device,
 			deviceContext
 		);

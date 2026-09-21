@@ -366,6 +366,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\shaders\deferred\pbr.hlsli" />
     <None Include="src\shaders\shared_resources.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
