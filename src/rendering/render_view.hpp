@@ -7,7 +7,8 @@
 enum class ViewType 
 {
     PRIMARY,
-    SHADOW_MAP_POINT
+    SHADOW_MAP_POINT,
+    COUNT
 };
 
 struct RenderView 
