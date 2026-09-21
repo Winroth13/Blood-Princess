@@ -244,7 +244,7 @@ void DeferredPass::RenderGeometryPass(
 	deviceContext->ClearRenderTargetView(rtvs[1], clearNormalSpecular);
 	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, rtvs, this->depthStencilView);
+	deviceContext->OMSetRenderTargets(+GBufferType::COUNT, rtvs, this->depthStencilView);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetInputLayout(this->inputLayout);
@@ -299,8 +299,8 @@ void DeferredPass::RenderGeometryPass(
 		deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	}
 
-	ID3D11RenderTargetView *nullRtvs[+GBufferType::SIZE] = {};
-	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, nullRtvs, nullptr);
+	ID3D11RenderTargetView *nullRtvs[+GBufferType::COUNT] = {};
+	deviceContext->OMSetRenderTargets(+GBufferType::COUNT, nullRtvs, nullptr);
 
 	ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
 	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
