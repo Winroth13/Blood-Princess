@@ -66,6 +66,7 @@
     <ClCompile Include="src\assets\asset_utils.cpp" />
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
+    <ClCompile Include="src\rendering\passes\output_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -150,11 +151,13 @@
     <ClInclude Include="src\assets\asset_utils.hpp" />
     <ClInclude Include="src\rendering\render_data.hpp" />
     <ClInclude Include="src\components\ambient_light_component.hpp" />
+    <ClInclude Include="src\rendering\passes\output_pass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
     <FxCompile Include="src\shaders\deferred\ps_deferred.hlsl" />
     <FxCompile Include="src\shaders\deferred\vs_deferred.hlsl" />
+    <FxCompile Include="src\shaders\output\cs_output.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />

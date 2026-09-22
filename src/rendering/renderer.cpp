@@ -126,6 +126,12 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->outputPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
+    {
+        LogError("Failed to create Output Pass");
+        return false;
+    }
+
     LogUnindent();
 
 	return true;
@@ -185,6 +191,18 @@ void Renderer::Render(Scene *scene)
     );
 
     EndAnnotation();
+    BeginAnnotation("Output Pass");
+
+    this->outputPass.Render(
+        this->device, 
+        this->deviceContext, 
+        this->sharedResources,
+        this->deferredPass,
+        this->backBuffer,
+        this->views
+    );
+
+    EndAnnotation();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
@@ -231,6 +249,12 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     if (!this->deferredPass.Resize(this->device, this->width, this->height))
     {
         LogError("Failed to resize Deferred Pass");
+        return false;
+    }
+
+    if (!this->outputPass.Resize(this->device, this->width, this->height))
+    {
+        LogError("Failed to resize Output Pass");
         return false;
     }
 

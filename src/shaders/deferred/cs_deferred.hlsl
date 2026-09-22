@@ -112,10 +112,6 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float3 ambient = ambientColour * albedoColour;
     float3 color = ambient + outRadiance;
-   
-    // Remove this later (Gamma Correct and Tonemap)
-    // color = color / (color + float3(1.0, 1.0, 1.0));
-    color = pow(color, 1.0 / 2.2);
 
     backBufferUAV[pixel] = float4(color, 1.0f);
 }

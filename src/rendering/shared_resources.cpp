@@ -269,6 +269,8 @@ void SharedResources::UploadPerViewData(ID3D11DeviceContext *deviceContext, cons
 	XMStoreFloat4x4(&data.viewProjectionMatrix, XMMatrixTranspose(viewProjectionMatrix));
 	XMStoreFloat4x4(&data.invViewProjectionMatrix, XMMatrixTranspose(XMMatrixInverse(nullptr, viewProjectionMatrix)));
 	data.cameraPosition = view.cameraPosition;
+    data.farPlane = view.farPlane;
+    data.nearPlane = view.nearPlane;
 
 	RenderUtils::UploadConstantBuffer(deviceContext, this->perViewCB, data);
 }
