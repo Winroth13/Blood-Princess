@@ -7,7 +7,6 @@ class PointLightComponent : public Component
 	RegisterComponent(PointLightComponent);
 
 	ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f,1.0f,1.0f });
-	ExportProperty(float, attenuation, 1.0f);
 	ExportProperty(float, intensity, 1.0f);
 	ExportPropertyRanged(float, radius, "m", 0.0f, 10.0f, 0.01f, 4.0f);
 	ExportProperty(bool, castShadows, false);
@@ -27,9 +26,6 @@ public:
 
     float GetIntensity() const { return this->intensity; }
     void SetIntensity(float intensity) { this->intensity = intensity; }
-
-	float GetAttenuation() const { return this->attenuation; }
-    void SetAttenuation(float attenuation) { this->attenuation = attenuation; }
 
 	float GetRadius() const { return this->radius; }
     void SetRadius(float radius) { this->radius = radius; }

@@ -38,7 +38,7 @@ void InspectorPanel::ImGuiRender()
 
         ImGui::PopFont();
 
-        DrawShadowSeperator();
+        DrawShadowSeperator(8.0f);
 
         ImVec2 childSize = ImGui::GetContentRegionAvail();
         if (ImGui::BeginChild("Components"), childSize, ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysAutoResize)
@@ -104,6 +104,8 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
 
         if (open)
         {
+            ImGui::Dummy(ImVec2(0.0f, 2.0f));
+
             if (!active)
                 ImGui::BeginDisabled();
 
@@ -113,8 +115,10 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
                 ImGuiTreeNodeFlags_DefaultOpen |
                 ImGuiTreeNodeFlags_SpanAvailWidth;
 
+            auto &memberInfo = MemberId::GetMemberInfos(id);
+
             // find groups
-            for (auto &member : MemberId::GetMemberInfos(id))
+            for (auto &member : memberInfo)
             {
                 if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
                     memberGroups[member.ExportInfo.Group] = { member };
@@ -122,34 +126,55 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
                     memberGroups[member.ExportInfo.Group].push_back(member);
             }
 
-            // draw groups
-            for (auto &[key, value] : memberGroups)
             {
-                if (!key.empty())
+                size_t memberCount = memberInfo.size();
+                size_t index = 0;
+
+                // draw groups
+                for (auto &[key, value] : memberGroups)
                 {
-                    if (ImGui::TreeNodeEx(key.c_str(), flags))
+                    if (!key.empty())
                     {
-                        for (auto &member : value) 
+                        if (ImGui::TreeNodeEx(key.c_str(), flags))
                         {
-                            ImGui::TableNextRow();
-                            ImGui::TableNextColumn();
-                            DrawComponentMemberNode(component, member);
+                            for (auto &member : value)
+                            {
+                                ImGui::TableNextRow();
+                                ImGui::TableNextColumn();
+                                DrawComponentMemberNode(component, member);
+                                index++;
+                            }
+
+                            if (index < memberCount)
+                            {
+                                ImGui::Dummy(ImVec2(0.0f, 1.0f));
+                                DrawShadowSeperator(3.0f);
+                            }
+
+                            ImGui::TreePop();
                         }
-                        ImGui::TreePop();
+                    }
+                }
+
+                // draw non grouped nodes
+                if (memberGroups.find("") != memberGroups.end())
+                {
+                    for (auto &member : memberGroups[""])
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        DrawComponentMemberNode(component, member);
+                        index++;
+
+                        if (index < memberCount)
+                        {
+                            ImGui::Dummy(ImVec2(0.0f, 1.0f));
+                            DrawShadowSeperator(3.0f);
+                        }
                     }
                 }
             }
 
-            // draw non grouped nodes
-            if (memberGroups.find("") != memberGroups.end())
-            {
-                for (auto &member : memberGroups[""]) 
-                {
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    DrawComponentMemberNode(component, member);
-                }
-            }
 
             if (!active)
                 ImGui::EndDisabled();

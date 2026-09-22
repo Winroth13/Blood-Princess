@@ -13,7 +13,6 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
     float4 clipPosition : SV_POSITION;
-    float3 worldPosition : WORLD_POSITION;
     float3 worldNormal : WORLD_NORMAL;
     float2 uv : UV;
     float3 tangent : TANGENT;
@@ -28,7 +27,6 @@ VertexShaderOutput main(VertexShaderInput input)
     float4 clipPos = mul(worldPos, viewProjectionMatrix);
 
     output.clipPosition = clipPos;
-    output.worldPosition = worldPos.xyz;
 
     float3 normal = normalize(input.normal);
     

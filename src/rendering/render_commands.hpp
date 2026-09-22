@@ -46,7 +46,6 @@ struct PointLightCommand
 {
     XMFLOAT3 position;
     XMFLOAT3 colour;
-    float attenuation;
     float radius;
     float intensity;
     bool castShadows;
@@ -59,7 +58,6 @@ struct SpotLightCommand
     XMFLOAT3 direction;
     XMFLOAT3 colour;
     float range;
-    float attenuation;
     float intensity;
     float innerAngle; // radians
     float outerAngle; // radians

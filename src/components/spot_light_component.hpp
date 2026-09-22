@@ -8,7 +8,6 @@ class SpotLightComponent : public Component
 
 	ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f, 1.0f, 1.0f });
 	ExportPropertyRanged(float, range, "m", 0.0f, 10.0f, 0.01f, 4.0f);
-	ExportProperty(float, attenuation, 1.0f);
 	ExportProperty(float, intensity, 1.0f);
 	ExportPropertyClampedAngle(float, innerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV4);
 	ExportPropertyClampedAngle(float, outerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV2);
@@ -31,9 +30,6 @@ public:
 
     float GetRange() const { return this->range; }
     void SetRange(float range) { this->range = range; }
-
-	float GetAttenuation() const { return this->attenuation; }
-    void SetAttenuation(float attenuation) { this->attenuation = attenuation; }
 
     float GetIntensity() const { return this->intensity; }
     void SetIntensity(float intensity) { this->intensity = intensity; }

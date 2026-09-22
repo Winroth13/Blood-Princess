@@ -47,12 +47,12 @@ struct DirectionalLight
 struct PointLight
 {
     float3 position;
-    float attenuation;
+    float pad0;
     float3 colour;
     float radius;
     int castShadows;
     int shadowArrayIndex;
-    float2 pad0;
+    float2 pad1;
 };
 
 struct SpotLight

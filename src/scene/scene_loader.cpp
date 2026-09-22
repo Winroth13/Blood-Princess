@@ -33,26 +33,23 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");
     if (sfxClip) {
-        //AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
-        //MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
-        //audioComponent->SetLooping(true);
-        //audioComponent->SetAudio3D(true);
+        AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
+        MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
+        audioComponent->SetLooping(true);
+        audioComponent->SetAudio3D(true);
 
-        //audioComponent->Play();
+        audioComponent->Play();
     }
-    playerEntity->AddComponent<AmbientLightComponent>();
-    playerEntity->AddComponent<PointLightComponent>();
-    playerEntity->AddComponent<DirectionalLightComponent>();
-    playerEntity->AddComponent<SpotLightComponent>();
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<BoxCollisionComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
     playerCol->SetStatic(false);
     playerCol->SetExtents({ 0.5f, 1.0f, 0.5f });
+
     Entity *lightEntity = outScene.AddEntity("light");
     lightEntity->AddComponent<AmbientLightComponent>();
-    lightEntity->AddComponent<PointLightComponent>()->SetIntensity(3.0f);
+    lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
 
     Entity* EntitywallEntity = outScene.AddEntity("wall");
     auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
