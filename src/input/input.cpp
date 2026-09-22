@@ -16,7 +16,7 @@ void Input::Initialize()
 
 void Input::Update()
 {
-	lastMouseState.wheel = { 0.0f, 0.0f };
+	lastMouseState.wheel = {0.0f, 0.0f};
 	int numKeys = 0;
 	const bool* state = SDL_GetKeyboardState(&numKeys);
 

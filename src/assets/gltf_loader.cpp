@@ -559,9 +559,9 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 			meshIndicies.push_back(indicies[i] + indexOffset);
 		}
 		indexCount += static_cast<uint32_t>(indicies.size());
-
-		ComputeTangents(meshVertices, meshIndicies);
 	}
+
+    ComputeTangents(meshVertices, meshIndicies);
 
 	Mesh *mesh = new Mesh();
 	mesh->Create(

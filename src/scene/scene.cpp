@@ -24,7 +24,7 @@ void Scene::StartPendingEntities() {
 void Scene::RemovePendingEntities() {
     while (!this->entitiesPendingRemove.empty()) {
         std::vector<Entity *> batch;
-        batch.swap(this->entitiesPendingStart);
+        batch.swap(this->entitiesPendingRemove);
 
         for (Entity *entity : batch) {
             auto iter = std::find_if(
@@ -136,8 +136,8 @@ void Scene::InitializeComponent(Component *component) {
 
     component->OnStart(*this->context);
 
-    Entity *owner = component->GetOwner();
-    const bool isStatic = owner && owner->isStatic;
+    //Entity *owner = component->GetOwner();
+    //const bool isStatic = owner && owner->isStatic;
 
     this->culler.AddComponent(component);
 }

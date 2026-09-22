@@ -11,12 +11,14 @@ class Scene;
 class Component;
 
 class Entity {
+    friend class Scene;
+
     Scene *scene = nullptr;
 
     bool isActive = true;
     bool hasStarted = false;
 
-    bool isStatic = false;
+    // bool isStatic = false;
 
     std::string name;
 
@@ -28,7 +30,6 @@ class Entity {
     void OnComponentAdded(Component *component);
     void OnComponentRemoved(Component *component);
 
-    friend class Scene;
     void RemoveComponentImmediate(Component *component);
 
 public:
@@ -38,14 +39,17 @@ public:
     Entity(const Entity &other) = delete;
     Entity &operator=(const Entity &other) = delete;
 
+private:
+    // These should only ever be called through the main frame loop
     void OnStart(const AppContext &context);
     void Update(const AppContext &context, float deltaTime);
     void OnDestroy(const AppContext &context);
 
+public:
     template <typename T, typename... Args>
     T *AddComponent(Args&&... args) {
-        this->components.emplace_back(std::make_unique<T>(this, true, std::forward<Args>(args)...));
-        T *ptr = static_cast<T *>(this->components.back().get());
+        auto *ptr = new T(this, true, std::forward<Args>(args)...);
+        this->components.emplace_back(ptr);
         this->OnComponentAdded(ptr);
         return ptr;
     }
@@ -80,6 +84,17 @@ public:
 
     std::vector<Component *> GetComponents();
 
+    template <typename T>
+    bool HasComponent() {
+        for (auto &component : this->components)
+            if (!component->IsPendingDestroy() && dynamic_cast<T *>(component.get()))
+                return true;
+
+        return false;
+    }
+
+    bool HasComponent(Component *component);
+
     void SetParent(Entity *parent);
     Entity *GetParent() const { return this->parent; }
     const std::vector<Entity *> &GetChildren() const { return this->children; }
@@ -91,8 +106,8 @@ public:
     void MarkStarted() { this->hasStarted = true; }
     bool HasStarted() const{ return this->hasStarted; }
 
-    bool IsStatic() const { return this->isStatic; }
-    void SetStatic(bool isStatic) { this->isStatic = isStatic; }
+    //bool IsStatic() const { return this->isStatic; }
+    //void SetStatic(bool isStatic) { this->isStatic = isStatic; }
 
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }

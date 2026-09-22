@@ -11,14 +11,17 @@ class BoxCollisionComponent : public CollisionComponent
 	ExportProperty(XMFLOAT3, extents, { 0.5f, 0.5f, 0.5f });
 	
 	DirectX::BoundingOrientedBox worldOBB{};
+
 public:
 	BoxCollisionComponent(Entity* owner, bool isActive);
 
+private:
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override {};
 	void OnDestroy(const AppContext& context) override;
 
+public:
 	bool Intersects(CollisionComponent* other) override;
 	void OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal) override;
 
