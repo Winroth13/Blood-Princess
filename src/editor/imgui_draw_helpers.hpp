@@ -401,5 +401,5 @@ static void DrawShadowSeperator(float height = 8.0f)
     drawList->AddRectFilledMultiColor(start, end, topColor, topColor, botColor, botColor);
 
     // Manually move the next imgui item down
-    ImGui::Dummy(ImVec2(0.0f, height / 3.0f));
+    ImGui::Dummy(ImVec2(0.0f, height));
 }
