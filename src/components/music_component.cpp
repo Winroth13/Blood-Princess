@@ -4,6 +4,9 @@
 MusicComponent::MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip)
 	: Component(owner, isActive)
 {
+	NoLateUpdate();
+	NoRender();
+
 	this->audioClip = audioClip;
 	if (audioClip == nullptr) {
 		LogWarn("There are not any audio provided.");

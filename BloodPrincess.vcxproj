@@ -89,7 +89,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -116,7 +116,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -144,7 +144,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -174,7 +174,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -224,6 +224,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\collision\collision_component.cpp" />
     <ClCompile Include="src\components\model_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
+    <ClCompile Include="src\components\sphere_collision_component.cpp" />
     <ClCompile Include="src\components\spot_light_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
@@ -240,6 +241,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
     <ClCompile Include="src\rendering\passes\particle_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\output_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
@@ -301,6 +304,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
     <ClInclude Include="src\components\sphere_collider_component.hpp" />
+    <ClInclude Include="src\components\sphere_collision_component.hpp" />
     <ClInclude Include="src\components\spot_light_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
@@ -311,6 +315,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
+    <ClInclude Include="src\events\event_manager.hpp" />
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
@@ -322,6 +327,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
     <ClInclude Include="src\rendering\passes\particle_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\output_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -369,9 +376,38 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="src\shaders\shadow\ps_linear_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\shadow\ps_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\shadow\vs_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\output\cs_output.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\deferred\pbr.hlsli" />
+    <None Include="src\shaders\deferred\shadows.hlsli" />
     <None Include="src\shaders\shared_resources.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

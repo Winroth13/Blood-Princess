@@ -43,11 +43,12 @@ public:
     static XMFLOAT3 QuaternionToEulerAngles(const XMFLOAT4 &quaternion);
     static XMFLOAT4 EulerAnglesToQuaternion(const XMFLOAT3 &euler);
 
-    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
+    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
 
 private:
     void OnStart(const AppContext &context) override {}
     void Update(const AppContext &context, float deltaTime) override {}
+    void LateUpdate(const AppContext &context, float deltaTime) override {}
     void Render(const RenderView &view, RenderQueue &queue) override {}
     void OnDestroy(const AppContext &context) override {}
 

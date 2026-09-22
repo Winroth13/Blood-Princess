@@ -3,6 +3,9 @@
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 
+constexpr float NEAR_PLANE = 0.1f;
+constexpr float FAR_PLANE = 512.0f;
+
 void SpotLightComponent::Update(const AppContext &context, float deltaTime)
 {
     // TODO: Create views

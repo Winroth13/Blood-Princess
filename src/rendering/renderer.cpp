@@ -6,6 +6,7 @@
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/model.hpp"
 #include "editor/imgui_layer.hpp"
+#include "input/input.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -129,6 +130,17 @@ bool Renderer::Initialize(const AppContext &appContext)
     if (!this->particlePass.Initialize(this->device))
     {
         LogError("Failed to create Particle Pass");
+    }
+    
+    if (!this->shadowPass.Initialize(this->device, appContext.assetManager, this->shadowSize))
+    {
+        LogError("Failed to create Shadow Pass");
+        return false;
+    }
+
+    if (!this->outputPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
+    {
+        LogError("Failed to create Output Pass");
         return false;
     }
 
@@ -148,6 +160,8 @@ void Renderer::Shutdown()
 
     this->deferredPass.Shutdown();
     this->particlePass.Shutdown();
+    this->outputPass.Shutdown();
+    this->shadowPass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -187,6 +201,21 @@ void Renderer::Render(Scene *scene)
         this->device, 
         this->deviceContext, 
         this->sharedResources,
+        this->backBuffer,
+        this->views
+    );
+
+    EndAnnotation();
+    BeginAnnotation("Output Pass");
+
+    if (Input::IsKeyPressed(Key::C))
+        this->outputPass.SetDebugView(static_cast<DebugView>((+this->outputPass.GetDebugView() + 1) % +DebugView::COUNT));
+
+    this->outputPass.Render(
+        this->device, 
+        this->deviceContext, 
+        this->sharedResources,
+        this->deferredPass,
         this->backBuffer,
         this->views
     );
@@ -250,6 +279,12 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     if (!this->deferredPass.Resize(this->device, this->width, this->height))
     {
         LogError("Failed to resize Deferred Pass");
+        return false;
+    }
+
+    if (!this->outputPass.Resize(this->device, this->width, this->height))
+    {
+        LogError("Failed to resize Output Pass");
         return false;
     }
 

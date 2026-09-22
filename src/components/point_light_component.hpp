@@ -12,11 +12,12 @@ class PointLightComponent : public Component
 	ExportProperty(bool, castShadows, false);
 
 public:
-    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
+    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(); }
 
 private:
 	void OnStart(const AppContext& context) override {};
     void Update(const AppContext &context, float deltaTime) override;
+    void LateUpdate(const AppContext &context, float deltaTime) override {}
 	void Render(const RenderView& view, RenderQueue& queue) override;
 	void OnDestroy(const AppContext& context) override {};
 

@@ -21,10 +21,6 @@ class SharedResources
 	ID3D11Buffer *perObjectCB = nullptr;
 	ID3D11Buffer *perMaterialCB = nullptr;
 
-    static constexpr int MAX_DIRECTIONAL_LIGHT_COUNT = 4;
-    static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
-    static constexpr int MAX_POINT_LIGHT_COUNT = 64;
-
     ID3D11Buffer *lightBufferCB = nullptr;
     ID3D11Buffer *directionalLightBufferSB = nullptr;
     ID3D11Buffer *spotLightBufferSB = nullptr;
@@ -44,6 +40,10 @@ class SharedResources
     bool UploadPointLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
 
 public:
+	static constexpr int MAX_DIRECTIONAL_LIGHT_COUNT = 4;
+	static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
+	static constexpr int MAX_POINT_LIGHT_COUNT = 64;
+
 	SharedResources() = default;
 	~SharedResources() = default;
 	

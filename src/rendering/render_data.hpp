@@ -26,7 +26,9 @@ struct PerViewData
     XMFLOAT4X4 viewProjectionMatrix;
     XMFLOAT4X4 invViewProjectionMatrix;
     XMFLOAT3   cameraPosition;
-    float      pad0;
+    float      nearPlane;
+    float      farPlane;
+    XMFLOAT3   pad0;
 };
 AssertCBufferSize(PerViewData);
 

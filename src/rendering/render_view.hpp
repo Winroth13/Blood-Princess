@@ -7,6 +7,8 @@
 enum class ViewType 
 {
     PRIMARY,
+    SHADOW_MAP_DIRECTIONAL,
+    SHADOW_MAP_SPOT,
     SHADOW_MAP_POINT,
     COUNT
 };

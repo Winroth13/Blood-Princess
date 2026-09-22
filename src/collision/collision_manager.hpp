@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include <vector>
+#include <unordered_map>
 
 class CollisionComponent;
 class BoxCollisionComponent;
@@ -22,17 +23,17 @@ struct CollisionHit
 class CollisionManager
 {
 private:
+	
+
 	std::vector<CollisionComponent *> staticColliders;
 	std::vector<CollisionComponent *> dynamicColliders;
 
-	bool CheckBoxBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
+	std::unordered_map<uint32_t, uint32_t> layerCollisionMatrix;
 
+	bool CheckBoxBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
 	bool CheckSphereSphereOverlap(SphereCollisionComponent *a, SphereCollisionComponent *b, CollisionHit &outHit);
 	bool CheckSphereBoxOverlap(SphereCollisionComponent *sphere, BoxCollisionComponent *box, CollisionHit &outHit);
-
-	bool CheckCapsuleCapsuleOverlap(CapsuleCollisionComponent *a, CapsuleCollisionComponent *b, CollisionHit &outHit);
-	bool CheckCapsuleSphereOverlap(CapsuleCollisionComponent *capsule, SphereCollisionComponent *sphere, CollisionHit &outHit);
-	bool CheckCapsuleBoxOverlap(CapsuleCollisionComponent *capsule, BoxCollisionComponent *box, CollisionHit &outHit);
+	bool CheckOverlap(CollisionComponent* a, CollisionComponent* b, CollisionHit& outHit);
 
 	void ResolvePairs();
 
@@ -42,6 +43,10 @@ public:
 
 	CollisionManager(const CollisionManager &other) = delete;
 	CollisionManager &operator=(const CollisionManager &other) = delete;
+
+	void SetLayerCollision(CollisionLayer a, CollisionLayer b, bool enable);
+	bool ShouldCollide(CollisionLayer a, CollisionLayer b) const;
+	void SetDefaultLayerMatrix();
 
 	bool Initialize();
 	void Shutdown();

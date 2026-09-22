@@ -2,9 +2,14 @@
 #include "components/transform_component.hpp"
 #include "collision/collision_manager.hpp"
 #include "core/logging.hpp"
+#include "components/model_component.hpp"
+#include "DirectXMath.h"
+#include "components/sphere_collision_component.hpp"
 BoxCollisionComponent::BoxCollisionComponent(Entity* owner, bool isActive) 
     : CollisionComponent(owner, isActive)
 {
+    NoLateUpdate();
+    NoRender();
     this->SetShape(CollisionShape::BOX);
 }
 
@@ -38,6 +43,11 @@ bool BoxCollisionComponent::Intersects(CollisionComponent* other)
         auto otherBox = static_cast<BoxCollisionComponent*>(other);
         return this->worldOBB.Intersects(otherBox->GetWorldOBB());
     }
+    if (other->GetShape() == CollisionShape::SPHERE)
+    {
+        auto otherSphere = static_cast<SphereCollisionComponent*>(other);
+        return this->worldOBB.Intersects(otherSphere->GetWorldSphere());
+    }
 
     return false;
 }
@@ -49,6 +59,17 @@ void BoxCollisionComponent::OnCollision(CollisionComponent* other, DirectX::XMFL
 
 }
 
+
+bool BoxCollisionComponent::GetWorldBounds(BoundingBox& outerBox)
+{
+    DirectX::XMFLOAT3 corners[DirectX::BoundingOrientedBox::CORNER_COUNT];
+
+    worldOBB.GetCorners(corners);
+
+    DirectX::BoundingBox::CreateFromPoints(outerBox, DirectX::BoundingOrientedBox::CORNER_COUNT, corners, sizeof(DirectX::XMFLOAT3));
+
+    return true;
+}
 
 void BoxCollisionComponent::UpdateWorldOBB()
 {
@@ -69,4 +90,11 @@ void BoxCollisionComponent::UpdateWorldOBB()
     localBox.Orientation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
     localBox.Transform(this->worldOBB, transform->GetWorldMatrix());
+}
+
+void BoxCollisionComponent::UpdateExtents(float width, float height, float depth)
+{
+    this->extents = DirectX::XMFLOAT3(width / 2.0f, height / 2.0f, depth / 2.0f);
+
+    UpdateWorldOBB();
 }
