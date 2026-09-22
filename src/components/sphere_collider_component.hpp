@@ -10,6 +10,7 @@ class SphereCollisionComponent : public CollisionComponent
 	RegisterComponent(SphereCollisionComponent);
 	ExportProperty(float, radius, 1.0f);
 	BoundingSphere worldSphere{};
+
 public:
 	SphereCollisionComponent(Entity* owner, bool isActive) : CollisionComponent(owner, isActive){};
 

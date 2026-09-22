@@ -34,7 +34,6 @@
     <ClCompile Include="src\assets\types\pixel_shader.cpp" />
     <ClCompile Include="src\components\audio_component.cpp" />
     <ClCompile Include="src\components\camera_component.cpp" />
-    <ClCompile Include="src\components\collision_component.cpp" />
     <ClCompile Include="src\components\music_component.cpp" />
     <ClCompile Include="src\components\transform_component.cpp" />
     <ClCompile Include="src\input\action.cpp" />
@@ -60,6 +59,13 @@
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
+    <ClCompile Include="src\collision\collision_component.cpp" />
+    <ClCompile Include="src\core\rng.cpp" />
+    <ClCompile Include="src\rendering\shared_resources.cpp" />
+    <ClCompile Include="src\collision\collision_manager.cpp" />
+    <ClCompile Include="src\assets\asset_utils.cpp" />
+    <ClCompile Include="src\components\ambient_light_component.cpp" />
+    <ClCompile Include="src\components\box_collision_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -103,7 +109,6 @@
     <ClInclude Include="src\assets\types\pixel_shader.hpp" />
     <ClInclude Include="src\components\audio_component.hpp" />
     <ClInclude Include="src\components\camera_component.hpp" />
-    <ClInclude Include="src\components\collision_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\input\action.hpp" />
@@ -137,16 +142,22 @@
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\collision\collision_layer.hpp" />
-    <ClInclude Include="src\components\box_collider_component.hpp" />
     <ClInclude Include="src\collision\Rect_2d.hpp" />
+    <ClInclude Include="src\components\box_collision_component.hpp" />
+    <ClInclude Include="src\collision\collision_component.hpp" />
+    <ClInclude Include="src\core\rng.hpp" />
+    <ClInclude Include="src\rendering\shared_resources.hpp" />
+    <ClInclude Include="src\assets\asset_utils.hpp" />
+    <ClInclude Include="src\rendering\render_data.hpp" />
+    <ClInclude Include="src\components\ambient_light_component.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\shaders\deferred\deferred_vertex_shader.hlsl" />
-    <FxCompile Include="src\shaders\deferred\deferred_compute_shader.hlsl" />
-    <FxCompile Include="src\shaders\deferred\deferred_pixel_shader.hlsl" />
+    <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
+    <FxCompile Include="src\shaders\deferred\ps_deferred.hlsl" />
+    <FxCompile Include="src\shaders\deferred\vs_deferred.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\shared_buffers.hlsli" />
-    <None Include="shadertoolsconfig.json" />
+    <None Include="src\shaders\shared_resources.hlsli" />
+    <None Include="src\shaders\deferred\pbr.hlsli" />
   </ItemGroup>
 </Project>

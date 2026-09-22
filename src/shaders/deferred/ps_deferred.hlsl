@@ -2,6 +2,7 @@
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
+Texture2D metallicRoughnessTexture : register(t2);
 
 struct PixelShaderInput
 {
@@ -15,8 +16,8 @@ struct PixelShaderInput
 
 struct PixelShaderOutput
 {
-    float4 albedoSpecularExponent : SV_Target0;
-    float4 normalSpecular : SV_Target1;
+    float4 albedoMetallic : SV_Target0;
+    float4 normalRoughness : SV_Target1;
 };
 
 PixelShaderOutput main(PixelShaderInput input)
@@ -27,20 +28,20 @@ PixelShaderOutput main(PixelShaderInput input)
     if (albedoSample.a < 0.5f)
         discard;
     
+    float4 metallicRoughnessSample = metallicRoughnessTexture.Sample(samplerLinearWrap, input.uv);
+    
     float3 albedo = albedoSample.rgb * materialTint;
     
-    //float3 normalSample = normalTexture.Sample(samplerLinearWrap, input.uv).rgb * 2.0f - 1.0f; 
-    //float3x3 tbnMatrix = float3x3(
-    //    normalize(input.tangent),
-    //    normalize(input.bitangent),
-    //    normalize(input.worldNormal)
-    //);
-    //float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
+    float3 normalSample = normalTexture.Sample(samplerLinearWrap, input.uv).rgb * 2.0f - 1.0f; 
+    float3x3 tbnMatrix = float3x3(
+        normalize(input.tangent),
+        normalize(input.bitangent),
+        normalize(input.worldNormal)
+    );
+    float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
     
-    float3 normal = input.worldNormal * 0.5f + 0.5f;
-     
-    output.albedoSpecularExponent = float4(albedo, materialSpecular / 1000.0f);
-    output.normalSpecular = float4(normal, materialSpecularExponent);
+    output.albedoMetallic = float4(albedo, metallicRoughnessSample.b);
+    output.normalRoughness = float4(normal, metallicRoughnessSample.g);
     
     return output;
 }

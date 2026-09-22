@@ -143,6 +143,7 @@ static bool DrawFloat2(const std::string& name, XMFLOAT2& values, float resetVal
 
     return changed;
 }
+
 static bool DrawFloat3(const std::string &name, XMFLOAT3 &values, float resetValue = 0.0f, bool isAngle = false)
 {
     ImGuiIO &io = ImGui::GetIO();
@@ -383,4 +384,22 @@ static bool DrawCheckbox(const std::string &name, bool &value)
     const bool changed = ImGui::Checkbox("##value", &value);
     EndMemberDraw();
     return changed;
+}
+
+static void DrawShadowSeperator(float height = 8.0f)
+{
+    constexpr int ALPHA = 80;
+
+    ImVec2 start = ImGui::GetCursorScreenPos();
+    float width = ImGui::GetContentRegionAvail().x;
+    ImVec2 end = ImVec2(start.x + width, start.y + height);
+
+    ImU32 topColor = IM_COL32(0, 0, 0, ALPHA);
+    ImU32 botColor = IM_COL32(0, 0, 0, 0);
+
+    ImDrawList *drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilledMultiColor(start, end, topColor, topColor, botColor, botColor);
+
+    // Manually move the next imgui item down
+    ImGui::Dummy(ImVec2(0.0f, height / 3.0f));
 }

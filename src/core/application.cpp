@@ -15,10 +15,12 @@ void Application::Update(float deltaTime)
 {
     this->sceneManager.Update(deltaTime);
 	this->audioManager.Update(deltaTime);
+	this->collisionManager.Update(deltaTime);
 }
 
 void Application::Render() 
 {
+    this->editor.ImGuiRender(this->appContext);
     this->renderer.Render(this->sceneManager.GetCurrentScene());
     this->imGuiLayer.Present();
     this->renderer.Present();
@@ -142,17 +144,14 @@ void Application::Run()
         }
         if (Input::IsKeyPressed(Key::F1))
         {
-            MouseMode nextMode = MouseMode::VISIBLE;
-
-            switch (Input::GetMouseMode())
+            if (Input::GetMouseMode() == MouseMode::VISIBLE)
             {
-            case MouseMode::VISIBLE: nextMode = MouseMode::HIDDEN; break;
-            case MouseMode::HIDDEN: nextMode = MouseMode::CAPTURED; break;
-            case MouseMode::CAPTURED: nextMode = MouseMode::VISIBLE; break;
+                Input::SetMouseMode(MouseMode::CAPTURED, this->window.GetSdlWindow());
             }
-
-            Input::SetMouseMode(nextMode, this->window.GetSdlWindow());
-            LogInfo("Mouse Mode: %d", static_cast<int>(nextMode));
+            else
+            {
+                Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
+            }
         }
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
@@ -163,8 +162,6 @@ void Application::Run()
         this->imGuiLayer.NewFrame();
 
         this->Update(deltaTime);
-
-        this->editor.ImGuiRender(this->appContext);
 
         this->Render();
     }

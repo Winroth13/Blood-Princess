@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <d3d11.h>
+#include <string>
 
 class GBuffer
 {
@@ -17,7 +18,8 @@ public:
 		ID3D11Device* device,
 		uint32_t width, 
 		uint32_t height,
-        DXGI_FORMAT format
+        DXGI_FORMAT format,
+		std::string name
 	);
 
 	ID3D11Texture2D *GetTexture() { return this->texture; }

@@ -17,6 +17,8 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		return false;
 	}
 
+	RenderUtils::SetDebugName(texture, DebugCategory::CORE,"Backbuffer");
+
 	HRESULT hr = device->CreateRenderTargetView(
 		texture,
 		nullptr,
@@ -29,8 +31,10 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		return false;
 	}
 
+	RenderUtils::SetDebugName(this->view, DebugCategory::CORE, "", "Backbuffer", "RTV");
+
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	uavDesc.Texture2DArray.MipSlice = 0;
 	uavDesc.Texture2DArray.ArraySize = 1;
@@ -42,6 +46,8 @@ bool BackBuffer::Create(ID3D11Device* device, IDXGISwapChain *swapChain)
 		LogError("Failed to create Unordered Access View for the Backbuffer");
 		return false;
 	}
+
+	RenderUtils::SetDebugName(this->uav, DebugCategory::CORE, "", "Backbuffer", "UAV");
 
 	LogUnindent();
 

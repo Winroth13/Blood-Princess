@@ -11,7 +11,6 @@
 #include <DirectXMath.h>
 #include <fstream>
 #include <vector>
-#include <d3d11_1.h>
 
 using namespace DirectX;
 
@@ -67,6 +66,10 @@ bool Renderer::CreateInterface(HWND hWnd)
         return false;
     }
 
+    RenderUtils::SetDebugName(this->device, DebugCategory::CORE, "Device");
+    RenderUtils::SetDebugName(this->deviceContext, DebugCategory::CORE, "Device Context");
+    RenderUtils::SetDebugName(this->swapChain, DebugCategory::CORE, "Swap Chain");
+
     LogInfo("Device and Swap Chain created");
 
     return true;
@@ -85,6 +88,8 @@ bool Renderer::PreInitialize(const AppContext &appContext)
         LogError("Failed to create Interface");
         return false;
     }
+
+    InitializeAnnotator(this->deviceContext);
 
     if (!this->backBuffer.Create(this->device, this->swapChain))
     {
@@ -131,6 +136,8 @@ void Renderer::Shutdown()
     LogInfo("Shutting down Renderer...");
     LogIndent();
 
+    ShutdownAnnotator();
+
     this->sharedResources.Shutdown();
 
     this->deferredPass.Shutdown();
@@ -167,21 +174,17 @@ void Renderer::Render(Scene *scene)
 
     scene->GatherRenderCommands(this->views);
 
-    ID3DUserDefinedAnnotation *annot;
-    deviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&annot);
-
-    annot->BeginEvent(L"Deferred Pass :)");
+    BeginAnnotation("Deferred Pass");
 
     this->deferredPass.Render(
         this->device, 
         this->deviceContext, 
-        &this->sharedResources,
+        this->sharedResources,
         this->backBuffer,
         this->views
     );
 
-    annot->EndEvent();
-    annot->Release();
+    EndAnnotation();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
@@ -200,6 +203,12 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     LogBlank();
     LogInfo("Resizing window...");
     LogIndent();
+
+    this->width = width;
+    this->height = height;
+
+    this->viewport.Width = static_cast<float>(this->width);
+    this->viewport.Height = static_cast<float>(this->height);
 
     this->backBuffer.Release();
 
@@ -226,12 +235,6 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
     }
 
     // this->SetViewport(width, height);
-    this->width = width;
-    this->height = height;
-
-    this->viewport.Width = static_cast<float>(this->width);
-    this->viewport.Height = static_cast<float>(this->height);
-
     // this->frameGraph.OnResize(width, height);
 
     LogUnindent();

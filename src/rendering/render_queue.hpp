@@ -10,6 +10,8 @@ public:
     // TODO: Be better.
     // TODO: Add getters for these
     std::vector<GeometryCommand> geometryCommands;
+
+    std::optional<AmbientLightCommand> ambientLightCommand;
     std::vector<PointLightCommand> pointLightCommands;
     std::vector<DirectionalLightCommand> directionalLightCommands;
     std::vector<SpotLightCommand> spotLightCommands;
@@ -27,6 +29,11 @@ public:
     void Submit(const GeometryCommand &command)
     {
         this->geometryCommands.push_back(command);
+    }
+
+    void Submit(const AmbientLightCommand &command)
+    {
+        this->ambientLightCommand = command;
     }
 
     void Submit(const PointLightCommand &command)
@@ -52,6 +59,11 @@ public:
     const std::vector<GeometryCommand> &GetGeometryCommands()
     {
         return this->geometryCommands;
+    }
+
+    const std::optional<AmbientLightCommand> &GetAmbientLightCommand()
+    {
+        return this->ambientLightCommand;
     }
 
     const std::vector<PointLightCommand> &GetPointLightCommands()

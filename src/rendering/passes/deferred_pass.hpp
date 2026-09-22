@@ -16,10 +16,9 @@ class ComputeShader;
 
 enum class GBufferType
 {
-	ALBEDO_SPECULAR_EXPONENT,	// albedo.rgb | specular exponent / 1000
-	NORMAL_SPECULAR,			// encoded normal | specular
-
-	SIZE
+	ALBEDO_METALLIC,	// Albedo | Metallic
+	NORMAL_ROUGHNESS,	// Encoded Normal | Roughness
+	COUNT
 };
 
 static constexpr int operator+(GBufferType val) noexcept {
@@ -29,9 +28,11 @@ static constexpr int operator+(GBufferType val) noexcept {
 class DeferredPass
 {
 	std::vector<GBuffer> gBuffers{};
-	ID3D11Texture2D *depthStencilTexture{ nullptr };
-	ID3D11DepthStencilView *depthStencilView{ nullptr };
-	ID3D11InputLayout *inputLayout{ nullptr };
+	ID3D11Texture2D *depthStencilTexture = nullptr;
+	ID3D11DepthStencilView *depthStencilView = nullptr;
+	ID3D11ShaderResourceView *depthStencilSRV = nullptr;
+
+	ID3D11InputLayout *inputLayout = nullptr;
 
 	// TODO: Change to unique ptr and expose the load 
 	// functions in asset loader without having to use the Asset Manager.
@@ -55,7 +56,7 @@ class DeferredPass
 	void RenderGeometryPass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
@@ -63,7 +64,7 @@ class DeferredPass
 	void RenderLightingPass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);
@@ -93,7 +94,7 @@ public:
 	void Render(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
-		SharedResources *sharedResources,
+		SharedResources &sharedResources,
 		BackBuffer &backBuffer,
 		std::vector<RenderView> &views
 	);

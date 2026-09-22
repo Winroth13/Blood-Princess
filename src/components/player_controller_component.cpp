@@ -76,6 +76,9 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 
 void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 {
+	if (Input::GetMouseMode() != MouseMode::CAPTURED)
+		return;
+
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
 	float deltaX = Input::GetMouseDeltaX();
 	float deltaY = Input::GetMouseDeltaY();
@@ -98,7 +101,8 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 		PerformHeavyAttack();
 	}
 	if (Action::IsActionPressed("Dash") && this->canUseDash) {
-		PerformDash();
+		PerformDash(deltaTime, this->dashDistance, this->dashDuration);
+		this->canUseDash = false;
 	}
 }
 
@@ -113,7 +117,31 @@ void PlayerControllerComponent::PerformHeavyAttack()
 	LogInfo("Attack with Heavy attack.");
 }
 
-void PlayerControllerComponent::PerformDash()
+void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
 {
+	auto transform = GetOwner()->GetComponent<TransformComponent>();
+	float yawRad = XMConvertToRadians(this->yaw);
+
+	DirectX::XMVECTOR forward = XMVectorSet(sinf(yawRad), 0.0f, cosf(yawRad), 0.0f);
+	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
+
+	DirectX::XMVECTOR moveDir = XMVectorZero();
+	moveDir = XMVectorAdd(moveDir, forward);
+
+	if (!DirectX::XMVector3Equal(moveDir, XMVectorZero())) {
+		moveDir = XMVector3Normalize(moveDir);
+
+		XMFLOAT3 currentPos = transform->GetLocalPosition();
+		XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
+
+		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * this->moveSpeed* dashDistance);
+		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
+
+		XMFLOAT3 newPos;
+		XMStoreFloat3(&newPos, newPosV);
+
+		transform->SetLocalPosition(newPos);
+	}
+
 	LogInfo("The player has Dashed.");
 }

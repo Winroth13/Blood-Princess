@@ -1,30 +1,34 @@
 #pragma once
+
 #include "scene/component.hpp"
-#include "components/transform_component.hpp"
 #include "DirectXMath.h"
 
 class DirectionalLightComponent : public Component 
 {
 	RegisterComponent(DirectionalLightComponent);
 
-	ExportPropertyColor(DirectX::XMFLOAT3, color, { 1.0f,1.0f,1.0f });
-	ExportProperty(float, intensity,1.0f);
-	ExportProperty(bool, ProduceShadow, false);
+	ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f, 1.0f, 1.0f });
+	ExportProperty(float, intensity, 1.0f);
+	ExportProperty(bool, castShadows, false);
+
+    DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 
 public:
-	DirectionalLightComponent(Entity* owner, bool isActive);
+	DirectionalLightComponent(Entity* owner, bool isActive) : Component(owner, isActive) {}
 
+private:
 	void OnStart(const AppContext& context) override {};
-	void Update(const AppContext& context, float deltaTime) override {};
+    void Update(const AppContext &context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override;
 	void OnDestroy(const AppContext& context) override {};
 
-	DirectX::XMFLOAT3 GetColor();
-	bool SetColor(DirectX::XMFLOAT3 color);
+public:
+    const DirectX::XMFLOAT3 &GetColour() const { return this->colour; }
+    void SetColour(const DirectX::XMFLOAT3 &colour) { this->colour = colour; }
 
-	float GetIntensity();
-	bool SetIntensity(float intensity);
+    float GetIntensity() const { return this->intensity; }
+    void SetIntensity(float intensity) { this->intensity = intensity; }
 
-	bool GeneratingShadow();
-	bool SetGeneratingShadow(bool state);
+    bool GetCastShadows() const { return this->castShadows; }
+	void SetCastShadows(bool castShadows) { this->castShadows = castShadows; }
 };

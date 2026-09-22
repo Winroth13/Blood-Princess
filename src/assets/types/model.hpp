@@ -15,7 +15,7 @@ struct Vertex
 	DirectX::XMFLOAT3 position = { 0, 0, 0 };
 	DirectX::XMFLOAT3 normal = { 0, 0, 0 };
 	DirectX::XMFLOAT2 uv = { 0, 0 };
-	DirectX::XMFLOAT3 tangent = { 0, 0, 0 };
+	DirectX::XMFLOAT4 tangent = { 0, 0, 0, 0 };
 
 	Vertex(
 		const DirectX::XMFLOAT3 position,
@@ -112,8 +112,10 @@ struct Material
 {
 	std::string name;
 	DirectX::XMFLOAT4 baseColor = { 1, 1, 1, 1 };
-	int32_t colorTextureIndex = -1;
+
+	int32_t albedoTextureIndex = -1;
 	int32_t normalTextureIndex = -1;
+	int32_t metallicRoughnessTextureIndex = -1;
 };
 #pragma endregion
 

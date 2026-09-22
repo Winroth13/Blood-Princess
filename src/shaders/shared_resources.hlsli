@@ -25,3 +25,46 @@ cbuffer PerMaterial : register(b2)
     float materialSpecularExponent;
     float3 pad1;
 }
+
+cbuffer Light : register(b3)
+{
+    float3 ambientColour;
+    int directionalLightCount;
+    int spotLightCount;
+    int pointLightCount;
+    float2 pad2;
+}
+
+struct DirectionalLight
+{
+    float3 direction;
+    int castShadows;
+    float3 colour;
+    float4x4 viewProjectionMatrix;
+    int shadowArrayIndex;
+};
+
+struct PointLight
+{
+    float3 position;
+    float attenuation;
+    float3 colour;
+    float radius;
+    int castShadows;
+    int shadowArrayIndex;
+    float2 pad0;
+};
+
+struct SpotLight
+{
+    float3 position;
+    float range;
+    float3 direction;
+    float innerAngleCos;
+    float3 colour;
+    float outerAngleCos;
+    int castShadows;
+    float4x4 viewProjectionMatrix;
+    int shadowArrayIndex;
+    float2 pad0;
+};

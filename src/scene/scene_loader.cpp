@@ -14,6 +14,7 @@
 #include "components/spot_light_component.hpp"
 #include "components/player_controller_component.hpp"
 #include "components/box_collision_component.hpp"
+#include "components/ambient_light_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -24,27 +25,51 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *modelEntity = outScene.AddEntity("model");
     modelEntity->AddComponent<TransformComponent>();
-    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
+    modelEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/monkey.glb"));
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
-    auto sfxClip = appContext.assetManager->Get<AudioClip>("looping.ogg");
-    auto musicClip = appContext.assetManager->Get<AudioClip>("Test1.ogg");
+    auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
+    auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");
     if (sfxClip) {
-        AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
-        MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
-        audioComponent->SetLooping(true);
-        audioComponent->SetAudio3D(true);
-        outScene.Update(0.0f);
+        //AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
+        //MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
+        //audioComponent->SetLooping(true);
+        //audioComponent->SetAudio3D(true);
 
-        audioComponent->Play();
+        //audioComponent->Play();
     }
+    playerEntity->AddComponent<AmbientLightComponent>();
     playerEntity->AddComponent<PointLightComponent>();
     playerEntity->AddComponent<DirectionalLightComponent>();
     playerEntity->AddComponent<SpotLightComponent>();
-    // playerEntity->AddComponent<PlayerControllerComponent>();
-    playerEntity->AddComponent<BoxCollisionComponent>();
+
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    auto playerCol = playerEntity->AddComponent<BoxCollisionComponent>();
+    playerCol->SetLayer(CollisionLayer::PLAYER);
+    playerCol->SetStatic(false);
+    playerCol->SetExtents({ 0.5f, 1.0f, 0.5f });
+    Entity *lightEntity = outScene.AddEntity("light");
+    lightEntity->AddComponent<AmbientLightComponent>();
+    lightEntity->AddComponent<PointLightComponent>()->SetIntensity(3.0f);
+
+    Entity* EntitywallEntity = outScene.AddEntity("wall");
+    auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
+    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f }); 
+    TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
+    transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
+
+    auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    modelCol->SetStatic(true);
+    modelCol->SetExtents({ 1.0f, 1.0f, 1.0f }); 
+
+    //Entity *animatedEntity = outScene.AddEntity("animated_entity");
+    //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
+    //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
+    //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+
     outScene.PrintEntityHierarchy();
 }
 

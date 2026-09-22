@@ -9,6 +9,8 @@
 #include "assets/gltf_loader.hpp"
 #include "rendering/renderer.hpp"
 #include "assets/asset_manager.hpp"
+#include "rendering/render_utils.hpp"
+#include "assets/asset_utils.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -31,17 +33,17 @@ template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 {
 	int width, height, channels;
-	// TODO: Maybe we shouldn't hardcode desired channels to be four (RGBA).
+	// TODO: Maybe we shouldn't hardcode desired channels to be four (RGBA)
 	char *data = (char *)stbi_load(path.c_str(), &width, &height, &channels, 4);
 
 	if (data == nullptr)
 	{
 		LogWarn("Failed to load image data from file: %s (using fallback)", path.c_str());
-		// Use fallback texture instead.
-		// TODO: Maybe not load from file.
-		data = (char *)stbi_load("assets/fallback.png", &width, &height, &channels, 4);
+		// Use fallback texture instead
+		// TODO: Maybe not load from file
+		data = (char *)stbi_load("assets/images/fallback.png", &width, &height, &channels, 4);
 
-		// TODO: Remove once fallback has a place to stay or is built.
+		// TODO: Remove once fallback has a place to stay or is built
 		if (data == nullptr)
 		{
 			LogError("Failed to load fallback texture");
@@ -52,7 +54,7 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 
 	bool result = texture->Create(
 		data, width, height,
-		channels, path,
+		channels, path, false,
 		this->device, this->deviceContext
 	);
 
@@ -204,6 +206,11 @@ std::shared_ptr<VertexShader> AssetLoader::Load<VertexShader>(const std::string 
 		LogError("Failed to create Vertex Shader");
 	}
 
+	std::string shaderName = AssetUtils::GetNameFromPath(path);
+	shaderName = AssetUtils::FormatShaderName(shaderName);
+
+	RenderUtils::SetDebugName(vertexShader->GetShader(), DebugCategory::SHADER, "VS", shaderName);
+
 	return vertexShader;
 }
 
@@ -223,6 +230,11 @@ std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &p
 		LogError("Failed to create Pixel Shader");
 	}
 
+	std::string shaderName = AssetUtils::GetNameFromPath(path);
+	shaderName = AssetUtils::FormatShaderName(shaderName);
+
+	RenderUtils::SetDebugName(pixelShader->GetShader(), DebugCategory::SHADER, "PS", shaderName);
+
 	return pixelShader;
 }
 
@@ -241,6 +253,11 @@ std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::strin
 	{
 		LogError("Failed to create Compute Shader");
 	}
+
+	std::string shaderName = AssetUtils::GetNameFromPath(path);
+	shaderName = AssetUtils::FormatShaderName(shaderName);
+
+	RenderUtils::SetDebugName(computeShader->GetShader(), DebugCategory::SHADER, "CS", shaderName);
 
 	return computeShader;
 }

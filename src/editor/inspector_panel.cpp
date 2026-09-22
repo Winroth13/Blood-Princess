@@ -30,29 +30,43 @@ void InspectorPanel::ImGuiRender()
 
     if (this->entity)
     {
-        std::unordered_map<TypeId, size_t> componentCounter{};
+        ImGuiIO &io = ImGui::GetIO();
+        auto boldFont = io.Fonts->Fonts[0];
+        ImGui::PushFont(boldFont);
 
-        for (auto component : entity->GetComponents())
+        DrawFramedText(FormatName(entity->GetName()).c_str());
+
+        ImGui::PopFont();
+
+        DrawShadowSeperator();
+
+        ImVec2 childSize = ImGui::GetContentRegionAvail();
+        if (ImGui::BeginChild("Components"), childSize, ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_AlwaysAutoResize)
         {
-            TypeId id = component->GetTypeId();
+            std::unordered_map<TypeId, size_t> componentCounter{};
 
-            std::string name = std::string(id.GetTypeName());
-            name.erase(0, 6); // remove the class prefix
-            name = FormatName(name);
-
-            if (componentCounter.find(id) == componentCounter.end())
+            for (auto component : entity->GetComponents())
             {
-                componentCounter[id] = 0;
-            }
-            else
-            {
-                componentCounter[id]++;
-                //name += '(' + std::to_string(componentCounter[id]) + ')';
-                name += " #" + std::to_string(componentCounter[id]);
-            }
+                TypeId id = component->GetTypeId();
 
-            DrawComponentNode(component, name, id);
+                std::string name = std::string(id.GetTypeName());
+                name.erase(0, 6); // remove the class prefix
+                name = FormatName(name);
+
+                if (componentCounter.find(id) == componentCounter.end())
+                {
+                    componentCounter[id] = 0;
+                }
+                else
+                {
+                    componentCounter[id]++;
+                    name += " #" + std::to_string(componentCounter[id]);
+                }
+
+                DrawComponentNode(component, name, id);
+            }
         }
+        ImGui::EndChild();
     }
     else
     {
@@ -69,45 +83,81 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
         ImGuiTreeNodeFlags_Framed | 
         ImGuiTreeNodeFlags_SpanAvailWidth;
 
-    if (ImGui::TreeNodeEx(name.c_str(), flags))
+    ImGui::SetNextItemAllowOverlap();
+   
+    bool open = false;
+    bool active = component->IsActive();
+
+    if (ImGui::BeginTable("TreeNodeTable", 2, ImGuiTableFlags_SizingStretchProp))
     {
-        std::unordered_map<std::string, std::vector<MemberId::MemberInfo>> memberGroups;
+        ImGui::TableSetupColumn("NodeCol", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("CheckCol", ImGuiTableColumnFlags_WidthFixed, ImGui::GetFrameHeight());
 
-        const ImGuiTreeNodeFlags flags =
-            ImGuiTreeNodeFlags_DefaultOpen |
-            ImGuiTreeNodeFlags_SpanAvailWidth;
+        ImGui::TableNextRow();
 
-        // find groups
-        for (auto &member : MemberId::GetMemberInfos(id))
+        ImGui::TableSetColumnIndex(0);
+        open = ImGui::TreeNodeEx(name.c_str(), flags);
+
+        ImGui::TableSetColumnIndex(1);
+        if (ImGui::Checkbox(("##" + name).c_str(), &active))
+            component->SetActive(active);
+
+        if (open)
         {
-            if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
-                memberGroups[member.ExportInfo.Group] = { member };
-            else
-                memberGroups[member.ExportInfo.Group].push_back(member);
-        }
+            if (!active)
+                ImGui::BeginDisabled();
 
-        // draw groups
-        for (auto &[key, value] : memberGroups)
-        {
-            if (!key.empty())
+            std::unordered_map<std::string, std::vector<MemberId::MemberInfo>> memberGroups;
+
+            const ImGuiTreeNodeFlags flags =
+                ImGuiTreeNodeFlags_DefaultOpen |
+                ImGuiTreeNodeFlags_SpanAvailWidth;
+
+            // find groups
+            for (auto &member : MemberId::GetMemberInfos(id))
             {
-                if (ImGui::TreeNodeEx(key.c_str(), flags))
+                if (memberGroups.find(member.ExportInfo.Group) == memberGroups.end())
+                    memberGroups[member.ExportInfo.Group] = { member };
+                else
+                    memberGroups[member.ExportInfo.Group].push_back(member);
+            }
+
+            // draw groups
+            for (auto &[key, value] : memberGroups)
+            {
+                if (!key.empty())
                 {
-                    for (auto &member : value)
-                        DrawComponentMemberNode(component, member);
-                    ImGui::TreePop();
+                    if (ImGui::TreeNodeEx(key.c_str(), flags))
+                    {
+                        for (auto &member : value) 
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            DrawComponentMemberNode(component, member);
+                        }
+                        ImGui::TreePop();
+                    }
                 }
             }
+
+            // draw non grouped nodes
+            if (memberGroups.find("") != memberGroups.end())
+            {
+                for (auto &member : memberGroups[""]) 
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    DrawComponentMemberNode(component, member);
+                }
+            }
+
+            if (!active)
+                ImGui::EndDisabled();
+
+            ImGui::TreePop();
         }
 
-        // draw non grouped nodes
-        if (memberGroups.find("") != memberGroups.end())
-        {
-            for (auto &member : memberGroups[""])
-                DrawComponentMemberNode(component, member);
-        }
-
-        ImGui::TreePop();
+        ImGui::EndTable();
     }
 }
 

@@ -3,7 +3,6 @@
 #include "input/action.hpp"
 #include "input/input.hpp"
 
-
 class PlayerControllerComponent : public Component 
 {
 	RegisterComponent(PlayerControllerComponent);
@@ -14,21 +13,26 @@ class PlayerControllerComponent : public Component
 
 	ExportProperty(bool, canUseDash, true);
 	ExportProperty(float, dashCooldownTimer, 3.0f);
+	ExportProperty(float, dashDistance, 250.0f);
+	ExportProperty(float, dashDuration, 0.2f);
+
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { NoRender(); }
 
+private:
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override {};
 	void OnDestroy(const AppContext& context) override;
 
+public:
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
 	void HandleCombat(float deltaTime);
 
 	void PerformLightAttack();
 	void PerformHeavyAttack();
-	void PerformDash();
+	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };

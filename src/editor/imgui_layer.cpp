@@ -1,5 +1,6 @@
 #include "editor/imgui_layer.hpp"
 #include "core/logging.hpp"
+#include "rendering/render_utils.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
@@ -128,8 +129,10 @@ void ImGuiLayer::NewFrame()
 
 void ImGuiLayer::Present()
 {
+	BeginAnnotation("ImGui Editor");
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	EndAnnotation();
 }
 
 void ImGuiLayer::Shutdown()

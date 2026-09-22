@@ -1,10 +1,12 @@
 #include "deferred_pass.hpp"
 #include "core/logging.hpp"
 #include "rendering/render_utils.hpp"
+#include "rendering/render_data.hpp"
 
 #include "assets/asset_manager.hpp"
 
 #include <d3d11.h>
+#include <array>
 
 bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 {
@@ -13,20 +15,24 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 
 #pragma region GBuffers
 	{
-		gBuffers.resize(+GBufferType::SIZE);
+		gBuffers.resize(+GBufferType::COUNT);
 
 
-        DXGI_FORMAT formats[] = 
+		DXGI_FORMAT formats[] =
 		{
-			DXGI_FORMAT_R8G8B8A8_UNORM, // albedo.rgb | specular exponent / 1000
-            DXGI_FORMAT_R8G8B8A8_UNORM, // encoded normal | specular
+			DXGI_FORMAT_R8G8B8A8_UNORM, // Albedo | Metallic
+			DXGI_FORMAT_R8G8B8A8_UNORM, // Encoded Normal | Roughness
 		};
-		for (size_t i = 0; i < +GBufferType::SIZE; ++i)
-			if (!this->gBuffers[i].Initialize(device, width, height, formats[i]))
+
+		std::string names[] =
+		{
+			"Albedo and Metallic", // Albedo | Metallic
+			"Normal and Roughness" // Encoded Normal | Roughness
+		};
+
+		for (size_t i = 0; i < +GBufferType::COUNT; ++i)
+			if (!this->gBuffers[i].Initialize(device, this->width, this->height, formats[i], names[i]))
 				LogError("Failed to create GBuffer with index %zu", i);
-		
-		if (+GBufferType::SIZE > 0)
-			this->gBuffers[0].GetTexture()->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Example Texture"), "Example Texture");
 	}
 #pragma endregion
 
@@ -40,11 +46,11 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 		textureDesc.Height = static_cast<UINT>(height);
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		textureDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
 
@@ -56,9 +62,15 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
+		RenderUtils::SetDebugName(this->depthStencilTexture, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred");
+
 		LogInfo("Depth Stencil Texture created");
 
-		result = device->CreateDepthStencilView(this->depthStencilTexture, nullptr, &this->depthStencilView);
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+		result = device->CreateDepthStencilView(this->depthStencilTexture, &depthStencilViewDesc, &this->depthStencilView);
 
 		if (FAILED(result))
 		{
@@ -66,7 +78,26 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			return false;
 		}
 
+		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "DSV");
+
 		LogInfo("Depth Stencil View created");
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+
+		result = device->CreateShaderResourceView(this->depthStencilTexture, &srvDesc, &this->depthStencilSRV);
+
+		if (FAILED(result))
+		{
+			LogError("Failed to create the Depth Stencil Shader Resource View");
+			return false;
+		}
+
+		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "SRV");
+
+		LogInfo("Depth Stencil Shader Resource View created");
 	}
 #pragma endregion
 
@@ -99,6 +130,8 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 		return false;
 	}
 
+	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Deferred");
+
 	LogIndent();
 
 	return true;
@@ -116,9 +149,9 @@ bool DeferredPass::Initialize(
 
 #pragma region Load Shaders
 
-	this->vertexShader = assetManager->Get<VertexShader>("assets/vs_deferred.cso");
-	this->pixelShader = assetManager->Get<PixelShader>("assets/ps_deferred.cso");
-	this->computeShader = assetManager->Get<ComputeShader>("assets/cs_deferred.cso");
+	this->vertexShader = assetManager->Get<VertexShader>("assets/shaders/vs_deferred.cso");
+	this->pixelShader = assetManager->Get<PixelShader>("assets/shaders/ps_deferred.cso");
+	this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_deferred.cso");
 
 #pragma endregion
 
@@ -145,6 +178,7 @@ void DeferredPass::Shutdown()
 
 	SafeRelease(this->depthStencilTexture);
 	SafeRelease(this->depthStencilView);
+	SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->inputLayout);
 }
 
@@ -154,7 +188,7 @@ bool DeferredPass::Resize(
 	uint32_t height
 )
 {
-	LogInfo("Resizing Deferred Pass...");
+	LogInfo("Resizing Deferred Pass (%u, %u)...", width, height);
 	LogIndent();
 
 	this->gBuffers.clear();
@@ -175,7 +209,7 @@ bool DeferredPass::Resize(
 void DeferredPass::RenderGeometryPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
@@ -195,12 +229,12 @@ void DeferredPass::RenderGeometryPass(
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	sharedResources->BindSamplers(deviceContext);
-	sharedResources->UploadPerViewData(deviceContext, *view);
+	sharedResources.BindSamplers(deviceContext);
+	sharedResources.UploadPerViewData(deviceContext, *view);
 
 	ID3D11RenderTargetView *rtvs[2] = {
-		this->GetGBuffer(GBufferType::ALBEDO_SPECULAR_EXPONENT).GetRenderTargetView(),
-		this->GetGBuffer(GBufferType::NORMAL_SPECULAR).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetRenderTargetView(),
+		this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetRenderTargetView(),
 	};
 
 	const float clearAlbedoSpecularExponent[4] = { 0.0f, 0.0f, 0.0f, 70.0f / 1000.0f };
@@ -210,7 +244,7 @@ void DeferredPass::RenderGeometryPass(
 	deviceContext->ClearRenderTargetView(rtvs[1], clearNormalSpecular);
 	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceContext->OMSetRenderTargets(+GBufferType::SIZE, rtvs, this->depthStencilView);
+	deviceContext->OMSetRenderTargets(+GBufferType::COUNT, rtvs, this->depthStencilView);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetInputLayout(this->inputLayout);
@@ -218,21 +252,23 @@ void DeferredPass::RenderGeometryPass(
 	deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
 	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
 
-	ID3D11Buffer *perView = sharedResources->GetPerView();
-	ID3D11Buffer *perObject = sharedResources->GetPerObject();
-	ID3D11Buffer *perMaterial = sharedResources->GetPerMaterial();
+	ID3D11Buffer *perView = sharedResources.GetPerView();
+	ID3D11Buffer *perObject = sharedResources.GetPerObject();
+	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
 	deviceContext->VSSetConstantBuffers(0, 1, &perView);
 	deviceContext->VSSetConstantBuffers(1, 1, &perObject);
 	deviceContext->PSSetConstantBuffers(2, 1, &perMaterial);
 
 	deviceContext->RSSetViewports(1, &viewport);
 
+	constexpr int TEXTURE_COUNT = 3;
+
 	for (GeometryCommand &command : view->queue.geometryCommands) {
 		PerObjectData perObjectData{};
         XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
         XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
 		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix,XMMatrixInverse(nullptr, worldMatrix));
-		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerObject(), perObjectData);
+		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
 
 		XMFLOAT3 tint = {
 			command.material.baseColor.x * command.tint.x,
@@ -245,13 +281,15 @@ void DeferredPass::RenderGeometryPass(
 		perMaterialData.materialSpecular = 0.8f;
 		perMaterialData.materialSpecularExponent = 80.0f;
 
-		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources->GetPerMaterial(), perMaterialData);
+		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 
-		ID3D11ShaderResourceView *srvs[2] = {
+		
+		ID3D11ShaderResourceView *srvs[TEXTURE_COUNT] = {
             command.albedoSRV,
-			command.normalSRV
+			command.normalSRV,
+			command.metallicRoughnessSRV
 		};
-		deviceContext->PSSetShaderResources(0, 2, srvs);
+		deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, srvs);
 
 		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;
@@ -261,33 +299,70 @@ void DeferredPass::RenderGeometryPass(
 		deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	}
 
-	ID3D11RenderTargetView *nullRtvs[3] = {};
-	deviceContext->OMSetRenderTargets(3, nullRtvs, nullptr);
+	ID3D11RenderTargetView *nullRtvs[+GBufferType::COUNT] = {};
+	deviceContext->OMSetRenderTargets(+GBufferType::COUNT, nullRtvs, nullptr);
 
-	ID3D11ShaderResourceView *nullSRVs[2] = {};
-	deviceContext->PSSetShaderResources(0, 2, nullSRVs);
+	ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
+	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
 }
 
 void DeferredPass::RenderLightingPass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )
 {
-	// RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
-	// if (!view)
-	// {
-	// 		LogWarn("Could not find a primary view to render to");
-	// 		return;
-	// }
+	 RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
+	 if (!view)
+	 {
+	    LogWarn("Could not find a primary view to render to");
+	    return;
+	 }
+
+     sharedResources.UploadLights(deviceContext, *view);
+
+	 ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
+	 deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
+
+	 std::array<ID3D11ShaderResourceView *, 6> srvs = {
+		 // GBuffers
+		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
+		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
+		 this->depthStencilSRV,
+		 // Light Buffer
+		 sharedResources.GetDirectionalLightsSRV(),
+		 sharedResources.GetSpotLightsSRV(),
+		 sharedResources.GetPointLightsSRV()
+	 };
+	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
+
+	 ID3D11Buffer *light = sharedResources.GetLightBuffer();
+	 deviceContext->CSSetConstantBuffers(3, 1, &light);
+
+	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
+
+	 ID3D11Buffer *perView = sharedResources.GetPerView();
+	 deviceContext->CSSetConstantBuffers(0, 1, &perView);
+
+	 const UINT groupsX = (this->width + 7) / 8;
+	 const UINT groupsY = (this->height + 7) / 8;
+	 deviceContext->Dispatch(groupsX, groupsY, 1);
+
+	 ID3D11ShaderResourceView *nullSrvs[srvs.size()] = {};
+	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), nullSrvs);
+
+	 ID3D11UnorderedAccessView *nullUav = nullptr;
+	 deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
+
+	 deviceContext->CSSetShader(nullptr, nullptr, 0);
 }
 
 void DeferredPass::Render(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
-	SharedResources *sharedResources,
+	SharedResources &sharedResources,
 	BackBuffer &backBuffer,
 	std::vector<RenderView> &views
 )

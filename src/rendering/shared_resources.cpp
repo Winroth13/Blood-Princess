@@ -1,79 +1,20 @@
 #include "shared_resources.hpp"
 #include "core/logging.hpp"
 #include "rendering/render_utils.hpp"
+#include "rendering/render_data.hpp"
+
+#include <cmath>
 
 using namespace DirectX;
 
-bool SharedResources::CreatePerViewBuffer(ID3D11Device *device) 
+static inline XMFLOAT3 operator*(const XMFLOAT3 &v, float s) 
 {
-	D3D11_BUFFER_DESC desc = {};
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
-	desc.ByteWidth = sizeof(PerViewData);
-	desc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = &desc;
-
-	HRESULT hr = device->CreateBuffer(&desc, &data, &this->perView);
-
-	if (FAILED(hr))
-	{
-		LogError("Failed to create Per View Buffer");
-		return false;
-	}
-
-	return true;
-}
-
-bool SharedResources::CreatePerObjectBuffer(ID3D11Device *device) 
-{
-	D3D11_BUFFER_DESC desc = {};
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
-	desc.ByteWidth = sizeof(PerObjectData);
-	desc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = &desc;
-
-	HRESULT hr = device->CreateBuffer(&desc, &data, &this->perObject);
-
-	if (FAILED(hr))
-	{
-		LogError("Failed to create Per Object Buffer");
-		return false;
-	}
-
-	return true;
-}
-
-bool SharedResources::CreatePerMaterialBuffer(ID3D11Device *device) 
-{
-	D3D11_BUFFER_DESC desc = {};
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
-	desc.ByteWidth = sizeof(PerMaterialData);
-	desc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA data = {};
-	data.pSysMem = &desc;
-
-	HRESULT hr = device->CreateBuffer(&desc, &data, &this->perMaterial);
-
-	if (FAILED(hr))
-	{
-		LogError("Failed to create Per Material Buffer");
-		return false;
-	}
-
-	return true;
+    return 
+    {
+        v.x * s,
+        v.y * s,
+        v.z * s
+    };
 }
 
 bool SharedResources::CreateSamplers(ID3D11Device *device) 
@@ -94,25 +35,175 @@ bool SharedResources::CreateSamplers(ID3D11Device *device)
 		return false;
 	}
 
+    RenderUtils::SetDebugName(this->samplers[+SamplerSlot::LINEAR_WRAP], DebugCategory::CORE, "Sampler", "Linear-Wrap");
+
 	return true;
 }
+
+bool SharedResources::UploadLightMetaData(ID3D11DeviceContext *deviceContext, const RenderView &view) {
+    LightData data{};
+
+    data.ambientColour = {0.0f, 0.0f, 0.0f};
+    const auto &alc = view.queue.ambientLightCommand;
+    if (alc.has_value())
+        data.ambientColour = alc->colour * alc->intensity;
+
+    data.directionalLightCount = static_cast<int>(view.queue.directionalLightCommands.size());
+    data.spotLightCount = static_cast<int>(view.queue.spotLightCommands.size());
+    data.pointLightCount = static_cast<int>(view.queue.pointLightCommands.size());
+
+    if (!RenderUtils::UploadConstantBuffer(deviceContext, this->lightBufferCB, data))
+        return false;
+
+    return true;
+}
+
+bool SharedResources::UploadDirectionalLights(ID3D11DeviceContext *deviceContext, const RenderView &view) {
+    int shadowIndex = 0;
+    std::vector<DirectionalLightData> directionalLightData;
+    directionalLightData.reserve(MAX_DIRECTIONAL_LIGHT_COUNT);
+    for (const DirectionalLightCommand &dlc : view.queue.directionalLightCommands) {
+        DirectionalLightData data{};
+
+        data.direction = dlc.direction;
+        data.color = dlc.colour * dlc.intensity;
+
+        if (dlc.castShadows) {
+            data.castShadows = 1;
+            XMStoreFloat4x4(&data.viewProjectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&dlc.viewProjectionMatrix)));
+            data.shadowArrayIndex = shadowIndex++;
+        }
+        else {
+            data.castShadows = 0;
+            data.shadowArrayIndex = -1;
+        }
+
+        directionalLightData.push_back(data);
+    }
+
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(directionalLightData.size()), this->directionalLightBufferSB, directionalLightData.data()))
+        return false;
+
+    return true;
+}
+
+bool SharedResources::UploadSpotLights(ID3D11DeviceContext *deviceContext, const RenderView &view) {
+    int shadowIndex = 0;
+    std::vector<SpotLightData> spotLightData;
+    spotLightData.reserve(MAX_SPOT_LIGHT_COUNT);
+    for (const SpotLightCommand &slc : view.queue.spotLightCommands) {
+        SpotLightData data{};
+
+        data.position = slc.position;
+        data.range = slc.range;
+        data.direction = slc.direction;
+        data.innerAngleCos = cosf(slc.innerAngle);
+        data.color = slc.colour * slc.intensity;
+        data.outerAngleCos = cosf(slc.outerAngle);
+
+        if (slc.castShadows) {
+            data.castShadows = 1;
+            XMStoreFloat4x4(&data.viewProjectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&slc.viewProjectionMatrix)));
+            data.shadowArrayIndex = shadowIndex++;
+
+        }
+        else {
+            data.castShadows = 0;
+            data.shadowArrayIndex = -1;
+        }
+
+        spotLightData.push_back(data);
+    }
+
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(spotLightData.size()), this->spotLightBufferSB, spotLightData.data()))
+        return false;
+
+    return true;
+}
+
+bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, const RenderView &view) {
+    int shadowIndex = 0;
+    std::vector<PointLightData> pointLightData;
+    pointLightData.reserve(MAX_POINT_LIGHT_COUNT);
+    for (const PointLightCommand &plc : view.queue.pointLightCommands) {
+        PointLightData data{};
+
+        data.position = plc.position;
+        data.attenuation = plc.attenuation;
+        data.color = plc.colour * plc.intensity;
+        data.radius = plc.radius;
+
+        if (plc.castShadows) {
+            data.castShadows = 1;
+            data.shadowArrayIndex = shadowIndex++;
+        }
+        else {
+            data.castShadows = 0;
+            data.shadowArrayIndex = -1;
+        }
+
+        pointLightData.push_back(data);
+    }
+
+    if (!RenderUtils::UploadStructuredBuffer(deviceContext, static_cast<UINT>(pointLightData.size()), this->pointLightBufferSB, pointLightData.data()))
+        return false;
+
+    return true;
+}
+
 
 bool SharedResources::Initialize(ID3D11Device* device)
 {
 	LogInfo("Creating Shared Resources...");
 	LogIndent();
 
-	if (!this->CreatePerViewBuffer(device))
-		return false;
-	
-	if (!this->CreatePerObjectBuffer(device))
-		return false;
-	
-	if (!this->CreatePerMaterialBuffer(device))
-		return false;
-	
-	if (!this->CreateSamplers(device))
-		return false;
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerViewData), &this->perViewCB, "Per View"))
+        return false;
+
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerObjectData), &this->perObjectCB, "Per Obejct"))
+        return false;
+
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerMaterialData), &this->perMaterialCB, "Per Material"))
+        return false;
+
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(LightData), &this->lightBufferCB, "Light Buffer"))
+        return false;
+
+    if (!RenderUtils::CreateStructuredBuffer(
+        device,
+        sizeof(DirectionalLightData),
+        MAX_DIRECTIONAL_LIGHT_COUNT,
+        &this->directionalLightBufferSB,
+        &this->directionalLightShaderResourceView,
+        "Directional Light")
+    ) {
+        return false;
+    }
+
+    if (!RenderUtils::CreateStructuredBuffer(
+        device,
+        sizeof(SpotLightData),
+        MAX_SPOT_LIGHT_COUNT,
+        &this->spotLightBufferSB,
+        &this->spotLightShaderResourceView,
+        "Spot Light")
+    ) {
+        return false;
+    }
+
+    if (!RenderUtils::CreateStructuredBuffer(
+        device,
+        sizeof(PointLightData),
+        MAX_POINT_LIGHT_COUNT,
+        &this->pointLightBufferSB,
+        &this->pointLightShaderResourceView,
+        "Point Light")
+    ) {
+        return false;
+    }
+
+    if (!this->CreateSamplers(device))
+        return false;
 
 	LogUnindent();
 
@@ -124,14 +215,38 @@ void SharedResources::Shutdown()
 	LogInfo("Shutting down Shared Resources...");
 	LogIndent();
 
-	SafeRelease(this->perView);
-	SafeRelease(this->perObject);
-	SafeRelease(this->perMaterial);
+	SafeRelease(this->perViewCB);
+	SafeRelease(this->perObjectCB);
+	SafeRelease(this->perMaterialCB);
+
+    SafeRelease(this->directionalLightShaderResourceView);
+    SafeRelease(this->spotLightShaderResourceView);
+    SafeRelease(this->pointLightShaderResourceView);
+    SafeRelease(this->lightBufferCB);
+    SafeRelease(this->directionalLightBufferSB);
+    SafeRelease(this->spotLightBufferSB);
+    SafeRelease(this->pointLightBufferSB);
 
 	for (size_t i = 0; i < +SamplerSlot::COUNT; ++i)
 		SafeRelease(this->samplers[i]);
 	
 	LogUnindent();
+}
+
+bool SharedResources::UploadLights(ID3D11DeviceContext *deviceContext, const RenderView &view) {
+    if (!this->UploadLightMetaData(deviceContext, view))
+        return false;
+
+    if (!this->UploadDirectionalLights(deviceContext, view))
+        return false;
+
+    if (!this->UploadSpotLights(deviceContext, view))
+        return false;
+
+    if (!this->UploadPointLights(deviceContext, view))
+        return false;
+
+    return true;
 }
 
 void SharedResources::BindSamplers(ID3D11DeviceContext *deviceContext)
@@ -156,5 +271,5 @@ void SharedResources::UploadPerViewData(ID3D11DeviceContext *deviceContext, cons
 	XMStoreFloat4x4(&data.invViewProjectionMatrix, XMMatrixTranspose(XMMatrixInverse(nullptr, viewProjectionMatrix)));
 	data.cameraPosition = view.cameraPosition;
 
-	RenderUtils::UploadConstantBuffer(deviceContext, this->perView, data);
+	RenderUtils::UploadConstantBuffer(deviceContext, this->perViewCB, data);
 }

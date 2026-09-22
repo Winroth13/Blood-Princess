@@ -6,7 +6,7 @@ struct VertexShaderInput
     float3 position : POSITION;
     float3 normal : NORMAL;
     float2 uv : UV;
-    float3 tangent : TANGENT;
+    float4 tangent : TANGENT;
 };
 
 // Output
@@ -35,8 +35,8 @@ VertexShaderOutput main(VertexShaderInput input)
     output.worldNormal = normalize(mul(normal, (float3x3)worldInvTransposeMatrix));
     output.uv = input.uv;
     
-    output.tangent = normalize(input.tangent - dot(input.tangent, normal) * normal);
-    output.bitangent = cross(normal, output.tangent);
+    output.tangent = normalize(input.tangent.xyz - dot(input.tangent.xyz, normal) * normal);
+    output.bitangent = cross(normal, output.tangent) * input.tangent.w;
     
     return output;
 }

@@ -1,41 +1,48 @@
 #pragma once
 #include "scene/component.hpp"
-#include "components/transform_component.hpp"
 #include "DirectXMath.h"
 
 class SpotLightComponent : public Component
 {
 	RegisterComponent(SpotLightComponent);
-	ExportPropertyColor(DirectX::XMFLOAT3, color, { 1.0f,1.0f,1.0f });
+
+	ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f, 1.0f, 1.0f });
 	ExportPropertyRanged(float, range, "m", 0.0f, 10.0f, 0.01f, 4.0f);
 	ExportProperty(float, attenuation, 1.0f);
 	ExportProperty(float, intensity, 1.0f);
-	ExportPropertyClampedAngle(float, angle,0.0f, DirectX::XM_PI ,DirectX::XM_PI/4.0f);
-	ExportProperty(bool, ProduceShadow, false);
+	ExportPropertyClampedAngle(float, innerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV4);
+	ExportPropertyClampedAngle(float, outerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV2);
+	ExportProperty(bool, castShadows, false);
+
+    DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 
 public:
-	SpotLightComponent(Entity* owner, bool isActive);
+    SpotLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
 
+private:
 	void OnStart(const AppContext& context) override {};
-	void Update(const AppContext& context, float deltaTime) override {};
+    void Update(const AppContext &context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override;
 	void OnDestroy(const AppContext& context) override {};
 
-	DirectX::XMFLOAT3 GetColor();
-	bool SetColor(DirectX::XMFLOAT3 color);
+public:
+    const DirectX::XMFLOAT3 &GetColour() const { return this->colour; }
+    void SetColor(DirectX::XMFLOAT3 colour) { this->colour = colour; }
 
-	float GetRange();
-	bool SetRange(float range);
+    float GetRange() const { return this->range; }
+    void SetRange(float range) { this->range = range; }
 
-	float GetAttenuation();
-	bool SetAttenuation(float attenuation);
+	float GetAttenuation() const { return this->attenuation; }
+    void SetAttenuation(float attenuation) { this->attenuation = attenuation; }
 
-	float GetIntensity();
-	bool SetIntensity(float intensity);
+    float GetIntensity() const { return this->intensity; }
+    void SetIntensity(float intensity) { this->intensity = intensity; }
 
-	float GetAngle();
-	bool SetAngle(float angle);
+	float GetInnerAngle() const { return this->innerAngle; }
+	void SetInnerAngle(float angle) { this->innerAngle = angle; }
+	float GetOuterAngle() const { return this->outerAngle; }
+	void SetOuterAngle(float angle) { this->outerAngle = angle; }
 
-	bool GeneratingShadow();
-	bool SetGeneratingShadow(bool state);
+    bool GetCastShadows() const { return this->castShadows; }
+    void SetCastShadows(bool castShadows) { this->castShadows = castShadows; }
 };

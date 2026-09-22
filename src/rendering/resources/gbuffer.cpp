@@ -6,10 +6,11 @@ bool GBuffer::Initialize(
 	ID3D11Device *device,
 	uint32_t width,
 	uint32_t height,
-	DXGI_FORMAT format
+	DXGI_FORMAT format,
+	std::string name
 )
 {
-	LogInfo("Creating GBuffer...");
+	LogInfo("Creating GBuffer (%u, %u)...", width, height);
 	LogIndent();
 
 	if (!device)
@@ -52,6 +53,8 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
+		RenderUtils::SetDebugName(this->texture, DebugCategory::GBUFFER, "GBuffer", name);
+
 		result = device->CreateShaderResourceView(this->texture, nullptr, &this->srv);
 
 		if (FAILED(result))
@@ -60,6 +63,8 @@ bool GBuffer::Initialize(
 			return false;
 		}
 
+		RenderUtils::SetDebugName(this->srv, DebugCategory::GBUFFER, "GBuffer", name, "SRV");
+
 		result = device->CreateRenderTargetView(this->texture, nullptr, &this->rtv);
 
 		if (FAILED(result))
@@ -67,6 +72,8 @@ bool GBuffer::Initialize(
 			LogError("Failed to create Render Target View");
 			return false;
 		}
+		
+		RenderUtils::SetDebugName(this->rtv, DebugCategory::GBUFFER, "GBuffer", name, "RTV");
 	}
 #pragma endregion
 
