@@ -66,6 +66,7 @@
     <ClCompile Include="src\assets\asset_utils.cpp" />
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
+    <ClCompile Include="src\components\sphere_collision_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -150,6 +151,8 @@
     <ClInclude Include="src\assets\asset_utils.hpp" />
     <ClInclude Include="src\rendering\render_data.hpp" />
     <ClInclude Include="src\components\ambient_light_component.hpp" />
+    <ClInclude Include="src\components\sphere_collision_component.hpp" />
+    <ClInclude Include="src\events\event_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

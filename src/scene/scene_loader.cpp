@@ -15,7 +15,7 @@
 #include "components/player_controller_component.hpp"
 #include "components/box_collision_component.hpp"
 #include "components/ambient_light_component.hpp"
-
+#include "components/sphere_collision_component.hpp"
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -42,10 +42,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     }
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
-    auto playerCol = playerEntity->AddComponent<BoxCollisionComponent>();
+    auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
     playerCol->SetStatic(false);
-    playerCol->SetExtents({ 0.5f, 1.0f, 0.5f });
+    playerCol->SetRadius(0.5f);
 
     Entity *lightEntity = outScene.AddEntity("light");
     lightEntity->AddComponent<AmbientLightComponent>();
@@ -53,14 +53,18 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity* EntitywallEntity = outScene.AddEntity("wall");
     auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
-    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f }); 
+    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
+
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
+
+    ModelComponent* modelWallComponent = EntitywallEntity->AddComponent<ModelComponent>();
+    modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
 
     auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
     modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
     modelCol->SetStatic(true);
-    modelCol->SetExtents({ 1.0f, 1.0f, 1.0f }); 
+    modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);

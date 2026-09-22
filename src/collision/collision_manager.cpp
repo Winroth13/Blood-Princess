@@ -188,7 +188,9 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
 bool CollisionManager::CheckOverlap(CollisionComponent* a, CollisionComponent* b, CollisionHit& outHit)
 {
     if (!a || !b) return false;
-
+    if (!this->ShouldCollide(a->GetLayer(), b->GetLayer())) {
+        return false;
+    }
     CollisionShape shapeA = a->GetShape();
     CollisionShape shapeB = b->GetShape();
 
@@ -361,6 +363,61 @@ void CollisionManager::ResolvePairs()
             }
         }
     }
+}
+
+
+void CollisionManager::SetLayerCollision(CollisionLayer a, CollisionLayer b, bool enable)
+{
+    uint32_t valA = static_cast<uint32_t>(a);
+    uint32_t valB = static_cast<uint32_t>(b);
+
+    if (enable)
+    {
+        this->layerCollisionMatrix[valA] |= valB;
+        this->layerCollisionMatrix[valB] |= valA;
+    }
+    else
+    {
+        this->layerCollisionMatrix[valA] &= ~valB;
+        this->layerCollisionMatrix[valB] &= ~valA;
+    }
+}
+
+bool CollisionManager::ShouldCollide(CollisionLayer a, CollisionLayer b) const
+{
+    uint32_t valA = static_cast<uint32_t>(a);
+    uint32_t valB = static_cast<uint32_t>(b);
+
+    auto it = this->layerCollisionMatrix.find(valA);
+    if (it == this->layerCollisionMatrix.end())
+    {
+        return false;
+    }
+    return (it->second & valB) != 0;
+}
+
+void CollisionManager::SetDefaultLayerMatrix()
+{
+    this->layerCollisionMatrix.clear();
+
+    // Environment collisions
+    this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::PLAYER, true);
+    this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::ENEMY, true);
+    this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::PROJECTILE, true);
+
+    // Player collisions
+    this->SetLayerCollision(CollisionLayer::PLAYER, CollisionLayer::ENEMY, true);
+    this->SetLayerCollision(CollisionLayer::PLAYER, CollisionLayer::ENEMY_ATTACK, true);
+    this->SetLayerCollision(CollisionLayer::PLAYER, CollisionLayer::TRIGGER_HAZARD, true);
+
+    // Enemy collisions
+    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::ENEMY, true);
+    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::PLAYER_ATTACK, true);
+    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::TRIGGER_HAZARD, true);
+
+    // Projectile collisions
+    this->SetLayerCollision(CollisionLayer::PROJECTILE, CollisionLayer::PLAYER, true);
+    this->SetLayerCollision(CollisionLayer::PROJECTILE, CollisionLayer::ENEMY, true);
 }
 
 
