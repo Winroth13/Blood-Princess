@@ -7,7 +7,6 @@ Texture2D metallicRoughnessTexture : register(t2);
 struct PixelShaderInput
 {
     float4 position : SV_POSITION;
-    float3 worldPosition : WORLD_POSITION;
     float3 worldNormal : WORLD_NORMAL;
     float2 uv : UV;
     float3 tangent : TANGENT;
