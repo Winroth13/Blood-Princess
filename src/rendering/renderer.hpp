@@ -3,6 +3,7 @@
 #include "rendering/render_view.hpp"
 #include "resources/backbuffer.hpp"
 #include "passes/deferred_pass.hpp"
+#include "passes/particle_pass.hpp"
 #include "rendering/shared_resources.hpp"
 #include "core/app_context.hpp"
 
@@ -24,6 +25,7 @@ class Renderer
 
 	BackBuffer backBuffer;
 	DeferredPass deferredPass;
+	ParticlePass particlePass;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;

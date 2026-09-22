@@ -206,6 +206,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\particle_system_component.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\components\point_light_component.cpp" />
     <ClCompile Include="src\components\listener_component.cpp" />
@@ -238,6 +239,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\particle_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
@@ -277,7 +279,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\box_collision_component.hpp" />
     <ClInclude Include="src\collision\collision_layer.hpp" />
     <ClInclude Include="src\collision\Rect_2d.hpp" />
+    <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\particle_system_component.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\components\point_light_component.hpp" />
     <ClInclude Include="src\components\listener_component.hpp" />
@@ -296,6 +300,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\collision\collision_component.hpp" />
     <ClInclude Include="src\components\model_component.hpp" />
     <ClInclude Include="src\components\music_component.hpp" />
+    <ClInclude Include="src\components\sphere_collider_component.hpp" />
     <ClInclude Include="src\components\spot_light_component.hpp" />
     <ClInclude Include="src\components\transform_component.hpp" />
     <ClInclude Include="src\core\application.hpp" />
@@ -316,6 +321,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\particle_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />

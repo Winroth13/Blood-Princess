@@ -126,6 +126,12 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->particlePass.Initialize(this->device))
+    {
+        LogError("Failed to create Particle Pass");
+        return false;
+    }
+
     LogUnindent();
 
 	return true;
@@ -141,6 +147,7 @@ void Renderer::Shutdown()
     this->sharedResources.Shutdown();
 
     this->deferredPass.Shutdown();
+    this->particlePass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -181,6 +188,18 @@ void Renderer::Render(Scene *scene)
         this->deviceContext, 
         this->sharedResources,
         this->backBuffer,
+        this->views
+    );
+
+    EndAnnotation();
+
+    BeginAnnotation("Particle Pass");
+
+    this->particlePass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->backBuffer.GetView(),
         this->views
     );
 

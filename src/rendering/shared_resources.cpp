@@ -150,7 +150,6 @@ bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, cons
     return true;
 }
 
-
 bool SharedResources::Initialize(ID3D11Device* device)
 {
 	LogInfo("Creating Shared Resources...");
@@ -174,6 +173,8 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_DIRECTIONAL_LIGHT_COUNT,
         &this->directionalLightBufferSB,
         &this->directionalLightShaderResourceView,
+        nullptr,
+        D3D11_BIND_SHADER_RESOURCE,
         "Directional Light")
     ) {
         return false;
@@ -185,6 +186,8 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_SPOT_LIGHT_COUNT,
         &this->spotLightBufferSB,
         &this->spotLightShaderResourceView,
+        nullptr,
+        D3D11_BIND_SHADER_RESOURCE,
         "Spot Light")
     ) {
         return false;
@@ -196,6 +199,8 @@ bool SharedResources::Initialize(ID3D11Device* device)
         MAX_POINT_LIGHT_COUNT,
         &this->pointLightBufferSB,
         &this->pointLightShaderResourceView,
+        nullptr,
+        D3D11_BIND_SHADER_RESOURCE,
         "Point Light")
     ) {
         return false;

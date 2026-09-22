@@ -69,3 +69,27 @@ struct SkyboxCommand
 {
 	
 };
+
+struct ParticleSystemCommand
+{
+    int count;
+    XMFLOAT3 position;
+
+    float lifeTime;
+    float spawnRadius;
+
+    XMFLOAT2 atlasSize;
+    float animationSpeed;
+
+    XMFLOAT3 velocity;
+    XMFLOAT3 acceleration;
+
+    float startScale;
+    float endScale;
+
+    XMFLOAT3 startTint;
+    XMFLOAT3 endTint;
+
+    ID3D11ShaderResourceView *srv;
+    ID3D11UnorderedAccessView *uav;
+};

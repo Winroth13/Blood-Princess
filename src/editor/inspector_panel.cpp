@@ -8,6 +8,7 @@
 #include "reflection/reflection_utils.hpp"
 
 #include "assets/types/audio_clip.hpp"
+#include "assets/types/texture_2d.hpp"
 
 #include <sstream>
 #include <inttypes.h>
@@ -126,6 +127,7 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
             {
                 if (!key.empty())
                 {
+                    index = 0;
                     if (ImGui::TreeNodeEx(key.c_str(), flags))
                     {
                         if (index == 0)
@@ -148,6 +150,7 @@ void InspectorPanel::DrawComponentNode(Component *component, const std::string& 
                 }
             }
 
+            index = 0;
             // draw non grouped nodes
             if (memberGroups.find("") != memberGroups.end())
             {
@@ -202,6 +205,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
             if (DrawAsset(name, audioClip))
                 this->assetViewerPanel->SetViewingAsset(audioClip);
+
+        } break;
+
+        case GetTypeHash<std::shared_ptr<Texture2D>>():
+        {
+            std::shared_ptr<Texture2D> texture2d = GetMemberByOffset<std::shared_ptr<Texture2D>>(component, member.Offset);
+
+            if (DrawAsset(name, texture2d))
+                this->assetViewerPanel->SetViewingAsset(texture2d);
 
         } break;
 

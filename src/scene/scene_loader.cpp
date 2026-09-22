@@ -15,6 +15,7 @@
 #include "components/player_controller_component.hpp"
 #include "components/box_collision_component.hpp"
 #include "components/ambient_light_component.hpp"
+#include "components/particle_system_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -29,6 +30,8 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
+
+    modelEntity->AddComponent<ParticleSystemComponent>();
 
     auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");

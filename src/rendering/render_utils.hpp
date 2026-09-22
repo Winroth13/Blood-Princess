@@ -65,6 +65,8 @@ namespace RenderUtils
         UINT elementCount,
         ID3D11Buffer **outBuffer,
         ID3D11ShaderResourceView **outSRV,
+		ID3D11UnorderedAccessView **outUAV,
+		uint32_t flags,
         const std::string &debugName
     );
 

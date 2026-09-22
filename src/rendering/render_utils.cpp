@@ -47,14 +47,22 @@ namespace RenderUtils
         UINT elementSize, 
         UINT elementCount, 
         ID3D11Buffer **outBuffer, 
-        ID3D11ShaderResourceView **outSRV, 
+        ID3D11ShaderResourceView **outSRV,
+        ID3D11UnorderedAccessView **outUAV,
+        uint32_t flags,
         const std::string &debugName
     ) {
+        D3D11_USAGE usageFlags = D3D11_USAGE_DYNAMIC;
+
+        // If we wan't a UAV we need the usage to be default since that allows for read/write on GPU
+        if ((flags & D3D11_BIND_UNORDERED_ACCESS) == D3D11_BIND_UNORDERED_ACCESS)
+            usageFlags = D3D11_USAGE_DEFAULT;
+
         D3D11_BUFFER_DESC desc{};
         desc.ByteWidth = elementSize * elementCount;
-        desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        desc.Usage = usageFlags;
+        desc.BindFlags = flags;
+        desc.CPUAccessFlags = ((flags & D3D11_BIND_UNORDERED_ACCESS) == D3D11_BIND_UNORDERED_ACCESS) ? 0 : D3D11_CPU_ACCESS_WRITE;
         desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
         desc.StructureByteStride = elementSize;
 
@@ -66,19 +74,40 @@ namespace RenderUtils
 
         RenderUtils::SetDebugName(*outBuffer, DebugCategory::BUFFER, "SB", debugName);
 
-        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-        srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-        srvDesc.Buffer.FirstElement = 0;
-        srvDesc.Buffer.NumElements = elementCount;
+        if ((flags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
+        {
+            D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+            srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+            srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+            srvDesc.Buffer.FirstElement = 0;
+            srvDesc.Buffer.NumElements = elementCount;
 
-        result = device->CreateShaderResourceView(*outBuffer, &srvDesc, outSRV);
-        if (FAILED(result)) {
-            LogError("Failed to create SRV for '%s'", debugName.data());
-            return false;
+            result = device->CreateShaderResourceView(*outBuffer, &srvDesc, outSRV);
+            if (FAILED(result)) {
+                LogError("Failed to create SRV for '%s'", debugName.data());
+                return false;
+            }
+
+            RenderUtils::SetDebugName(*outSRV, DebugCategory::BUFFER, "SB", debugName, "SRV");
         }
 
-        RenderUtils::SetDebugName(*outSRV, DebugCategory::BUFFER, "SB", debugName, "SRV");
+        if ((flags & D3D11_BIND_UNORDERED_ACCESS) == D3D11_BIND_UNORDERED_ACCESS)
+        {
+            D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+            uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+            uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+            uavDesc.Buffer.FirstElement = 0;
+            uavDesc.Buffer.NumElements = elementCount;
+            uavDesc.Buffer.Flags = 0;
+
+            result = device->CreateUnorderedAccessView(*outBuffer, &uavDesc, outUAV);
+            if (FAILED(result)) {
+                LogError("Failed to create UAV for '%s'", debugName.data());
+                return false;
+            }
+
+            RenderUtils::SetDebugName(*outUAV, DebugCategory::BUFFER, "SB", debugName, "UAV");
+        }
 
         return true;
     }

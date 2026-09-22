@@ -18,12 +18,16 @@ public:
 
     std::optional<SkyboxCommand> skyboxCommand;
 
-    void Clear() {
+    std::vector<ParticleSystemCommand> particleSystemCommand;
+
+    void Clear() 
+    {
         this->geometryCommands.clear();
         this->pointLightCommands.clear();
         this->directionalLightCommands.clear();
         this->spotLightCommands.clear();
         this->skyboxCommand.reset();
+        this->particleSystemCommand.clear();
     }
 
     void Submit(const GeometryCommand &command)
@@ -56,33 +60,16 @@ public:
         this->skyboxCommand = command;
     }
 
-    const std::vector<GeometryCommand> &GetGeometryCommands()
+    void Submit(const ParticleSystemCommand &command)
     {
-        return this->geometryCommands;
+        this->particleSystemCommand.push_back(command);
     }
 
-    const std::optional<AmbientLightCommand> &GetAmbientLightCommand()
-    {
-        return this->ambientLightCommand;
-    }
-
-    const std::vector<PointLightCommand> &GetPointLightCommands()
-    {
-        return this->pointLightCommands;
-    }
-
-    const std::vector<DirectionalLightCommand>& GetDirectionalLightCommands()
-    {
-        return this->directionalLightCommands;
-    }
-
-    const std::vector<SpotLightCommand>& GetSpotLightCommands()
-    {
-        return this->spotLightCommands;
-    }
-
-    const std::optional<SkyboxCommand> &GetSkyboxCommand()
-    {
-        return this->skyboxCommand;
-    }
+    const std::vector<GeometryCommand> &GetGeometryCommands() { return this->geometryCommands; }
+    const std::optional<AmbientLightCommand> &GetAmbientLightCommand() { return this->ambientLightCommand; }
+    const std::vector<PointLightCommand> &GetPointLightCommands() { return this->pointLightCommands; }
+    const std::vector<DirectionalLightCommand>& GetDirectionalLightCommands() { return this->directionalLightCommands; }
+    const std::vector<SpotLightCommand>& GetSpotLightCommands() { return this->spotLightCommands; }
+    const std::optional<SkyboxCommand> &GetSkyboxCommand() { return this->skyboxCommand; }
+    const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { this->particleSystemCommand; }
 };

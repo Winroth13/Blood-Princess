@@ -92,3 +92,32 @@ struct SpotLightData
     float      pad0[2];
 };
 AssertCBufferSize(SpotLightData);
+
+struct ParticleSystemData
+{
+    float lifeTime;
+    float spawnRadius;
+    XMFLOAT2 atlasSize;
+
+    XMFLOAT3 velocity;
+    float animationSpeed;
+
+    XMFLOAT3 acceleration;
+    float startScale;
+
+    XMFLOAT3 startTint;
+    float endScale;
+
+    XMFLOAT3 endTint;
+    int count;
+};
+AssertCBufferSize(ParticleSystemData);
+
+struct ParticleData
+{
+    XMFLOAT3 position;
+    XMFLOAT3 tint;
+    float scale;
+    float lifeTime;
+};
+AssertCBufferSize(ParticleData);
