@@ -24,15 +24,13 @@ class CollisionManager
 private:
 	std::vector<CollisionComponent *> staticColliders;
 	std::vector<CollisionComponent *> dynamicColliders;
+	std::vector<CollisionComponent*> allColliders;
+
 
 	bool CheckBoxBoxOverlap(BoxCollisionComponent *a, BoxCollisionComponent *b, CollisionHit &outHit);
-
 	bool CheckSphereSphereOverlap(SphereCollisionComponent *a, SphereCollisionComponent *b, CollisionHit &outHit);
 	bool CheckSphereBoxOverlap(SphereCollisionComponent *sphere, BoxCollisionComponent *box, CollisionHit &outHit);
-
-	bool CheckCapsuleCapsuleOverlap(CapsuleCollisionComponent *a, CapsuleCollisionComponent *b, CollisionHit &outHit);
-	bool CheckCapsuleSphereOverlap(CapsuleCollisionComponent *capsule, SphereCollisionComponent *sphere, CollisionHit &outHit);
-	bool CheckCapsuleBoxOverlap(CapsuleCollisionComponent *capsule, BoxCollisionComponent *box, CollisionHit &outHit);
+	bool CheckOverlap(CollisionComponent* a, CollisionComponent* b, CollisionHit& outHit);
 
 	void ResolvePairs();
 
