@@ -71,6 +71,11 @@ bool Application::Initialize()
         return false;
     }
 
+    if (!this->collisionManager.Initialize()) {
+        LogError("Failed to create collision Manager!");
+        return false;
+    }
+
     if (!this->imGuiLayer.Initialize(
         this->window.GetSdlWindow(), 
         this->renderer.GetDevice(), 
@@ -175,8 +180,9 @@ void Application::Shutdown()
 
     this->imGuiLayer.Shutdown();
     this->sceneManager.Shutdown();
-    this->assetManager.Shutdown();
+    this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
+    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
 

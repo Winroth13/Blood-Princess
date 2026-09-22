@@ -424,6 +424,7 @@ void CollisionManager::SetDefaultLayerMatrix()
 bool CollisionManager::Initialize()
 {
     LogInfo("Collision Manager have been succefully initialized!");
+    this->SetDefaultLayerMatrix();
     return true;
 }
 
