@@ -9,6 +9,12 @@ Texture2D<float4> normalRoughnessTexture : register(t1);
 Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
 
+cbuffer DebugView : register(b4)
+{
+    int debugView;
+    float3 pad3;
+}
+
 float3 Tonemap(float3 hdr)
 {
 #if ENABLE_TONEMAP
@@ -67,7 +73,7 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float3 ldr = float3(0.0f, 0.0f, 0.0f);
     
-    const int debugMode = 0;
+    const int debugMode = debugView;
     if (debugMode == 1)
         ldr = albedoMetallicTexture.SampleLevel(samplerLinearWrap, uv, 0).rgb;
     else if (debugMode == 2)

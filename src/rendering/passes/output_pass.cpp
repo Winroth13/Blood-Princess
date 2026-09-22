@@ -13,6 +13,9 @@ bool OutputPass::Initialize(
     LogInfo("Initializing Deferred Pass...");
     LogIndent();
 
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug view"))
+        return false;
+
     this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_output.cso");
 
     this->width = width;
@@ -23,7 +26,9 @@ bool OutputPass::Initialize(
 }
 
 void OutputPass::Shutdown() {
+    LogInfo("Shutting down Output Pass");
 
+    SafeRelease(this->debugCB);
 }
 
 bool OutputPass::Resize(
@@ -53,6 +58,10 @@ void OutputPass::Render(
 
     sharedResources.UploadPerViewData(deviceContext, *view);
 
+    DebugViewData debugViewData{};
+    debugViewData.debugView = +this->debugView;
+    RenderUtils::UploadConstantBuffer(deviceContext, this->debugCB, debugViewData);
+
     DeferredPass::OutputTextures deferredOutput = deferredPass.GetOutputTextures();
 
     ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
@@ -70,6 +79,7 @@ void OutputPass::Render(
 
     ID3D11Buffer *perView = sharedResources.GetPerView();
     deviceContext->CSSetConstantBuffers(0, 1, &perView);
+    deviceContext->CSSetConstantBuffers(4, 1, &this->debugCB);
 
     const UINT groupsX = (this->width + 7) / 8;
     const UINT groupsY = (this->height + 7) / 8;

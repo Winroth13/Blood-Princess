@@ -12,11 +12,35 @@
 class AssetManager;
 class ComputeShader;
 
+struct DebugViewData {
+    int debugView;
+    float pad0[3];
+};
+
+enum class DebugView : int {
+    DEFAULT,
+    ALBEDO,
+    METALLIC,
+    NORMAL,
+    ROUGHNESS,
+    DEPTH,
+    QUAD,
+
+    COUNT
+};
+
+static constexpr int operator+(DebugView val) noexcept {
+    return static_cast<int>(val);
+}
+
 class OutputPass {
     std::shared_ptr<ComputeShader> computeShader;
 
     uint32_t width = 0;
     uint32_t height = 0;
+
+    DebugView debugView = DebugView::DEFAULT;
+    ID3D11Buffer *debugCB = nullptr;
 
 public:
     OutputPass() = default;
@@ -48,4 +72,7 @@ public:
         BackBuffer &backBuffer,
         std::vector<RenderView> &views
     );
+
+    DebugView GetDebugView() const { return this->debugView; }
+    void SetDebugView(DebugView debugView) { this->debugView = debugView; }
 };
