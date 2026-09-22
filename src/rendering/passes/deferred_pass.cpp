@@ -132,7 +132,7 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 
 	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Deferred");
 
-	LogIndent();
+	LogUnindent();
 
 	return true;
 }
