@@ -192,6 +192,7 @@ bool DeferredPass::Resize(
 	LogIndent();
 
 	this->gBuffers.clear();
+    SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->depthStencilView);
 	SafeRelease(this->depthStencilTexture);
 
