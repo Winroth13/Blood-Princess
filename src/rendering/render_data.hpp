@@ -69,12 +69,12 @@ AssertCBufferSize(DirectionalLightData);
 struct PointLightData
 {
     XMFLOAT3    position;
-    float       attenuation;
+    float       pad0;
     XMFLOAT3    color;
     float       radius;
     int         castShadows;
     int         shadowArrayIndex;
-    float       pad0[2];
+    float       pad1[2];
 };
 AssertCBufferSize(PointLightData);
 

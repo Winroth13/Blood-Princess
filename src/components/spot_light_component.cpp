@@ -17,7 +17,6 @@ void SpotLightComponent::Render(const RenderView& view, RenderQueue& queue)
     SpotLightCommand command{};
     command.innerAngle = this->innerAngle;
     command.outerAngle = this->outerAngle;
-    command.attenuation = this->attenuation;
     command.colour = this->colour;
     command.direction = transform->GetForward();
     command.intensity = this->intensity;

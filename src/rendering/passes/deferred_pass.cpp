@@ -132,7 +132,7 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 
 	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Deferred");
 
-	LogIndent();
+	LogUnindent();
 
 	return true;
 }
@@ -192,6 +192,7 @@ bool DeferredPass::Resize(
 	LogIndent();
 
 	this->gBuffers.clear();
+    SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->depthStencilView);
 	SafeRelease(this->depthStencilTexture);
 

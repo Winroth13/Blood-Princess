@@ -16,7 +16,6 @@ void PointLightComponent::Render(const RenderView& view, RenderQueue& queue)
 
     PointLightCommand command{};
 
-    command.attenuation = this->attenuation;
     command.colour = this->colour;
     command.intensity = this->intensity;
     command.position = transform->GetRenderPosition();
