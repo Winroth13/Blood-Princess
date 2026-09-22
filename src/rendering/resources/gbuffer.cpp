@@ -41,39 +41,42 @@ bool GBuffer::Initialize(
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
 		result = device->CreateTexture2D(&desc, nullptr, &this->texture);
-
 		if (FAILED(result))
 		{
 			LogError("Failed to create DirectX11 Texture2D");
 			return false;
 		}
-
 		RenderUtils::SetDebugName(this->texture, DebugCategory::GBUFFER, "GBuffer", name);
 
 		result = device->CreateShaderResourceView(this->texture, nullptr, &this->srv);
-
 		if (FAILED(result))
 		{
 			LogError("Failed to create Shader Resource View");
 			return false;
 		}
-
 		RenderUtils::SetDebugName(this->srv, DebugCategory::GBUFFER, "GBuffer", name, "SRV");
 
 		result = device->CreateRenderTargetView(this->texture, nullptr, &this->rtv);
-
 		if (FAILED(result))
 		{
 			LogError("Failed to create Render Target View");
 			return false;
 		}
-		
+	
 		RenderUtils::SetDebugName(this->rtv, DebugCategory::GBUFFER, "GBuffer", name, "RTV");
+
+        result = device->CreateUnorderedAccessView(this->texture, nullptr, &this->uav);
+        if (FAILED(result))
+        {
+            LogError("Failed to create Unordered Access View");
+            return false;
+        }
+        RenderUtils::SetDebugName(this->rtv, DebugCategory::GBUFFER, "GBuffer", name, "UAV");
 	}
 #pragma endregion
 
@@ -87,4 +90,5 @@ GBuffer::~GBuffer()
 	SafeRelease(this->texture);
 	SafeRelease(this->srv);
 	SafeRelease(this->rtv);
+    SafeRelease(this->uav);
 }

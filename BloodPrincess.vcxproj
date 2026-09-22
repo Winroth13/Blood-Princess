@@ -144,7 +144,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -174,7 +174,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -239,6 +239,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\output_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
@@ -319,6 +320,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\output_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -365,6 +367,16 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="src\shaders\output\cs_output.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

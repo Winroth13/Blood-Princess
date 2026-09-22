@@ -18,6 +18,9 @@ enum class GBufferType
 {
 	ALBEDO_METALLIC,	// Albedo | Metallic
 	NORMAL_ROUGHNESS,	// Encoded Normal | Roughness
+
+    OUTPUT,             // Not a Gbuffer but I don't care
+
 	COUNT
 };
 
@@ -27,6 +30,15 @@ static constexpr int operator+(GBufferType val) noexcept {
 
 class DeferredPass
 {
+public:
+    struct OutputTextures {
+        ID3D11ShaderResourceView *albedoMetallic;
+        ID3D11ShaderResourceView *normalRoughness;
+        ID3D11ShaderResourceView *depth;
+        ID3D11ShaderResourceView *output;
+    };
+
+private:
 	std::vector<GBuffer> gBuffers{};
 	ID3D11Texture2D *depthStencilTexture = nullptr;
 	ID3D11DepthStencilView *depthStencilView = nullptr;
@@ -62,11 +74,10 @@ class DeferredPass
 	);
 
 	void RenderLightingPass(
-		ID3D11Device *device,
-		ID3D11DeviceContext *deviceContext,
-		SharedResources &sharedResources,
-		BackBuffer &backBuffer,
-		std::vector<RenderView> &views
+        ID3D11Device *device,
+        ID3D11DeviceContext *deviceContext,
+        SharedResources &sharedResources,
+        std::vector<RenderView> &views
 	);
 
 public:
@@ -92,10 +103,12 @@ public:
 	);
 
 	void Render(
-		ID3D11Device *device,
-		ID3D11DeviceContext *deviceContext,
-		SharedResources &sharedResources,
-		BackBuffer &backBuffer,
-		std::vector<RenderView> &views
+        ID3D11Device *device,
+        ID3D11DeviceContext *deviceContext,
+        SharedResources &sharedResources,
+        BackBuffer &backBuffer,
+        std::vector<RenderView> &views
 	);
+
+    OutputTextures GetOutputTextures();
 };

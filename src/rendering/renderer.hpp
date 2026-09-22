@@ -5,6 +5,7 @@
 #include "passes/deferred_pass.hpp"
 #include "rendering/shared_resources.hpp"
 #include "core/app_context.hpp"
+#include "rendering/passes/output_pass.hpp"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -24,6 +25,7 @@ class Renderer
 
 	BackBuffer backBuffer;
 	DeferredPass deferredPass;
+    OutputPass outputPass;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;
