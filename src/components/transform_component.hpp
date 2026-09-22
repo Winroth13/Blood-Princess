@@ -20,8 +20,7 @@ class TransformComponent : public Component
     ExportProperty(XMFLOAT3, localEuler, {0.0f, 0.0f, 0.0f})
     ExportPropertyChanged(localEuler, OnLocalEulerEdited);
 
-    ExportProperty(XMFLOAT4, localRotation, { 0.0f, 0.0f, 0.0f, 1.0f }) // Quaternion
-    ExportPropertyChanged(localRotation, OnLocalRotationEdited);
+    XMFLOAT4 localRotation = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     mutable XMFLOAT4X4 cachedLocal{};
     mutable bool isLocalDirty = true;
