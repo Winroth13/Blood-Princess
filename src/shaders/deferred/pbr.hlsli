@@ -39,3 +39,34 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 	
     return ggx1 * ggx2;
 }
+
+float3 ComputePBR(
+    float3 normalV, 
+    float3 viewV, 
+    float3 lightV, 
+    float3 halfV,
+    
+    float3 albedoColour,
+    float roughness, 
+    float metallic, 
+    float3 baseReflectivity, 
+
+    float3 radiance
+)
+{
+    // cook-torrance brdf
+    float NDF = DistributionGGX(normalV, halfV, roughness);
+    float G = GeometrySmith(normalV, viewV, lightV, roughness);
+    float3 F = FresnelSchlick(max(dot(halfV, viewV), 0.0), baseReflectivity);
+    
+    float3 kS = F;
+    float3 kD = float3(1.0, 1.0, 1.0) - kS;
+    kD *= 1.0 - metallic;
+        
+    float3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(normalV, viewV), 0.0) * max(dot(normalV, lightV), 0.0) + 0.0001;
+    float3 specular = numerator / denominator;
+    
+    float NdotL = max(dot(normalV, lightV), 0.0);
+    return (kD * albedoColour / PI + specular) * radiance * NdotL;
+}

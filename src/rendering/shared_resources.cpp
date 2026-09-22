@@ -129,7 +129,6 @@ bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, cons
         PointLightData data{};
 
         data.position = plc.position;
-        data.attenuation = plc.attenuation;
         data.color = plc.colour * plc.intensity;
         data.radius = plc.radius;
 

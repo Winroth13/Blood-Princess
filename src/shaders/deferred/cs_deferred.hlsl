@@ -45,41 +45,73 @@ void main(uint3 id : SV_DispatchThreadID)
     float3 positionWorld = ReconstructWorldPosition(uv, depth);
     float3 viewV = normalize(cameraPosition - positionWorld);
     
-    float3 F0 = float3(0.04f, 0.04f, 0.04f);
-    F0 = lerp(F0, albedoColour, metallic);
+    float3 baseReflectivity = float3(0.04f, 0.04f, 0.04f);
+    baseReflectivity = lerp(baseReflectivity, albedoColour, metallic);
     
-    float3 Lo = float3(0.0f, 0.0f, 0.0f);
-    for (int i = 0; i < pointLightCount; ++i)
+    float3 outRadiance = float3(0.0f, 0.0f, 0.0f);
+    
+    int i;
+    
+    /* Point Lights */
+    for (i = 0; i < pointLightCount; ++i)
     {
         PointLight light = pointLights[i];
         
-        // calculate per light radiance
-        float3 L = normalize(light.position - positionWorld);
-        float3 H = normalize(viewV + L);
-        float distance = length(light.position - positionWorld);
-        float attenuation = 1.0 / (distance * distance);
+        float3 lightV = light.position - positionWorld;
+        float distance = length(lightV);
+        
+        if (distance > light.radius)
+            continue;
+        
+        lightV /= distance;
+        float3 halfV = normalize(viewV + lightV);
+        float window = saturate(1.0f - pow(distance / light.radius, 4.0f));
+        float attenuation = (window * window) / (distance * distance + 1.0f);
         float3 radiance = light.colour * attenuation;
         
-        // cook-torrance brdf
-        float NDF = DistributionGGX(normalV, H, roughness);
-        float G = GeometrySmith(normalV, viewV, L, roughness);
-        float3 F = FresnelSchlick(max(dot(H, viewV), 0.0), F0);
+        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
+    }
+    
+    /* Spot Lights */
+    for (i = 0; i < spotLightCount; ++i)
+    {
+        SpotLight light = spotLights[i];
         
-        float3 kS = F;
-        float3 kD = float3(1.0, 1.0, 1.0) - kS;
-        kD *= 1.0 - metallic;
+        float3 lightV = light.position - positionWorld;
+        float distance = length(lightV);
         
-        float3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(normalV, viewV), 0.0) * max(dot(normalV, L), 0.0) + 0.0001;
-        float3 specular = numerator / denominator;
+        if (distance > light.range)
+            continue;
         
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(normalV, L), 0.0);
-        Lo += (kD * albedoColour / PI + specular) * radiance * NdotL;
+        lightV /= distance;
+        
+        float t = dot(spotLights[i].direction, -lightV);
+        float coneFactor = smoothstep(light.outerAngleCos, light.innerAngleCos, t);
+        if (coneFactor <= 0.0f)
+            continue;
+        
+        float3 halfV = normalize(viewV + lightV);
+        float window = saturate(1.0f - pow(distance / light.range, 4.0f));
+        float attenuation = (window * window) / (distance * distance + 1.0f);
+        float3 radiance = light.colour * attenuation * coneFactor;
+        
+        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
+    }
+    
+    /* Directional Lights */
+    for (i = 0; i < directionalLightCount; ++i)
+    {
+        DirectionalLight light = directionalLights[i];
+        
+        float3 lightV = -light.direction;
+        float3 halfV = normalize(viewV + lightV);
+        float3 radiance = light.colour;
+        
+        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
     }
     
     float3 ambient = ambientColour * albedoColour;
-    float3 color = ambient + Lo;
+    float3 color = ambient + outRadiance;
    
     // Remove this later (Gamma Correct and Tonemap)
     // color = color / (color + float3(1.0, 1.0, 1.0));
