@@ -163,6 +163,7 @@
     <ClInclude Include="src\components\sphere_collision_component.hpp" />
     <ClInclude Include="src\events\event_manager.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
+    <ClInclude Include="src\events\event.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
