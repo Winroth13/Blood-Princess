@@ -9,8 +9,8 @@ cbuffer PerView : register(b0)
     float4x4 viewProjectionMatrix;
     float4x4 invViewProjectionMatrix;
     float3 cameraPosition;
-    float farPlane;
     float nearPlane;
+    float farPlane;
     float3 pad0;
 }
 
