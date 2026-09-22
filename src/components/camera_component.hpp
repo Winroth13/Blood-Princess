@@ -4,18 +4,19 @@
 
 class CameraComponent : public Component 
 {
-    RegisterComponent(CameraComponent)
+    RegisterComponent(CameraComponent);
 
     ExportPropertyClampedAngle(float, fieldOfView, 0.01f, XM_PI, XM_PIDIV2); // Radians
     ExportPropertyRanged(float, nearPlane, "m", 0.01f, 5000.0f, 0.01f, 0.1f);
     ExportPropertyRanged(float, farPlane, "m", 1.0f, 5000.0f, 1, 512.0f);
 
 public:
-    CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoRender(); }
+    CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(), NoRender(); }
 
 private:
     void OnStart(const AppContext &context) override {}
     void Update(const AppContext &context, float deltaTime) override;
+    void LateUpdate(const AppContext &context, float deltaTime) override {}
     void Render(const RenderView &view, RenderQueue &queue) override {}
     void OnDestroy(const AppContext &context) override {}
 };

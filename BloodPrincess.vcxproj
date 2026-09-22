@@ -89,7 +89,7 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -116,7 +116,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <FxCompile>
-      <ObjectFileOutput>$(SolutionDir)assets/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <AdditionalIncludeDirectories>$(SolutionDir)src/shaders</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
@@ -239,6 +239,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
@@ -320,6 +321,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
@@ -368,6 +370,24 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="src\shaders\shadow\ps_linear_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\shadow\ps_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\shadow\vs_shadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="src\shaders\output\cs_output.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -381,6 +401,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\deferred\pbr.hlsli" />
+    <None Include="src\shaders\deferred\shadows.hlsli" />
     <None Include="src\shaders\shared_resources.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

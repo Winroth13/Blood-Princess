@@ -15,11 +15,12 @@ class ModelComponent : public Component
     ExportPropertyColor(DirectX::XMFLOAT3, tint, { 1.0f, 1.0f, 1.0f });
 
 public:
-    ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
+    ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(); }
 
 private:
     void OnStart(const AppContext &context) override {}
     void Update(const AppContext &context, float deltaTime) override {}
+    void LateUpdate(const AppContext &context, float deltaTime) override {}
     void Render(const RenderView &view, RenderQueue &queue) override;
     void OnDestroy(const AppContext &context) override {}
 

@@ -127,6 +127,12 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->shadowPass.Initialize(this->device, appContext.assetManager, this->shadowSize))
+    {
+        LogError("Failed to create Shadow Pass");
+        return false;
+    }
+
     if (!this->outputPass.Initialize(this->device, appContext.assetManager, this->width, this->height))
     {
         LogError("Failed to create Output Pass");
@@ -149,6 +155,8 @@ void Renderer::Shutdown()
 
     this->deferredPass.Shutdown();
     this->outputPass.Shutdown();
+
+    this->shadowPass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);

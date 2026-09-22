@@ -3,6 +3,7 @@
 #include "rendering/render_view.hpp"
 #include "resources/backbuffer.hpp"
 #include "passes/deferred_pass.hpp"
+#include "passes/shadow_pass.hpp"
 #include "rendering/shared_resources.hpp"
 #include "core/app_context.hpp"
 #include "rendering/passes/output_pass.hpp"
@@ -24,12 +25,15 @@ class Renderer
 	SharedResources sharedResources;
 
 	BackBuffer backBuffer;
+
 	DeferredPass deferredPass;
+	ShadowPass shadowPass;
     OutputPass outputPass;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;
 	uint32_t height = 0;
+	uint32_t shadowSize = 256;
 	float clearColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f};
 
     std::vector<RenderView> views;

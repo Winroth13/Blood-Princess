@@ -12,6 +12,7 @@
 // Call these in the constructor to indicate that a component never wants Update()/Render()
 // Not strictly necessary, just removes a virtual function call. 
 #define NoUpdate() this->wantsUpdate = false
+#define NoLateUpdate() this->wantsLateUpdate = false
 #define NoRender() this->wantsRender = false
 
 class Entity;
@@ -29,6 +30,7 @@ class Component {
 
 protected:
     bool wantsUpdate = true;
+    bool wantsLateUpdate = true;
     bool wantsRender = true;
 
     // A component may only be created via Entity::AddComponent()
@@ -38,6 +40,7 @@ private:
     // These should only ever be called through the main frame loop
     virtual void OnStart(const AppContext &context) = 0;
     virtual void Update(const AppContext &context, float deltaTime) = 0;
+    virtual void LateUpdate(const AppContext &context, float deltaTime) = 0;
     virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
     virtual void OnDestroy(const AppContext &context) = 0;
 
