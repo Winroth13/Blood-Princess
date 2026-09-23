@@ -405,36 +405,56 @@ void GLTFLoader::ReadScenes()
 
 void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 {
+    if (nodeIndex < 0 || static_cast<uint32_t>(nodeIndex) >= this->model.nodes_count) 
+    {
+        LogWarn("Node index '%d' was out of range", nodeIndex);
+        return;
+    }
+
 	const tg3_node &node = this->model.nodes[nodeIndex];
 
-	LogInfo("Node '%s'", std::string(node.name.data, node.name.len).c_str());
+	LogInfo("Node '%s'", TG3ToString(node.name).c_str());
 	LogIndent();
 
-	XMMATRIX matrix = XMMatrixScaling(
-		static_cast<float>(node.scale[0]), 
-		static_cast<float>(node.scale[1]),
-		static_cast<float>(node.scale[2])
-	);
+    XMMATRIX localMatrix;
 
-	XMVECTOR quaternion = XMVectorSet(
-		static_cast<float>(node.rotation[0]), 
-		static_cast<float>(node.rotation[1]), 
-		static_cast<float>(node.rotation[2]), 
-		static_cast<float>(node.rotation[3])
-	);
-	matrix *= XMMatrixRotationQuaternion(quaternion);
+    if (node.has_matrix)
+    {
+        XMFLOAT4X4 matrix;
+        for (int i = 0; i < 16; ++i)
+            matrix.m[i / 4][i % 4] = static_cast<float>(node.matrix[i]);
 
-	matrix *= XMMatrixTranslation(
-		static_cast<float>(node.translation[0]),
-		static_cast<float>(node.translation[1]),
-		static_cast<float>(node.translation[2])
-	);
-	matrix = XMMatrixMultiply(parentMatrix, matrix);
+        localMatrix = XMLoadFloat4x4(&matrix);
+    }
+    else 
+    {
+        localMatrix = XMMatrixScaling(
+            static_cast<float>(node.scale[0]), 
+            static_cast<float>(node.scale[1]),
+            static_cast<float>(node.scale[2])
+        );
+
+        XMVECTOR quaternion = XMVectorSet(
+            static_cast<float>(node.rotation[0]), 
+            static_cast<float>(node.rotation[1]), 
+            static_cast<float>(node.rotation[2]), 
+            static_cast<float>(node.rotation[3])
+        );
+        localMatrix *= XMMatrixRotationQuaternion(quaternion);
+
+        localMatrix *= XMMatrixTranslation(
+            static_cast<float>(node.translation[0]),
+            static_cast<float>(node.translation[1]),
+            static_cast<float>(node.translation[2])
+    	);
+    }
+
+	const XMMATRIX matrix = XMMatrixMultiply(localMatrix, parentMatrix);
 
 	const int32_t meshIndex = node.mesh;
 	if (meshIndex != -1)
 	{
-		ReadMesh(meshIndex, matrix);
+		ReadMesh(meshIndex, node.skin != -1 ? XMMatrixIdentity() : matrix);
 	}
 
 	if (node.camera != -1)

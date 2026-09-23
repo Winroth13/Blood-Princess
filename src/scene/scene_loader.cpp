@@ -111,8 +111,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     }
 
     {
-        Entity *entity = outScene.AddEntity("sword");
-        entity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
+        Entity *entity = outScene.AddEntity("animation_entity");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(0.0f, -1.0f, 5.0f);
+        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
         modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
     }
