@@ -12,6 +12,13 @@ class BoxCollisionComponent;
 class SphereCollisionComponent;
 class CapsuleCollisionComponent;
 
+struct RayCast
+{
+	DirectX::XMFLOAT3 point{};
+	DirectX::XMFLOAT3 direction{};
+	float distance = INFINITY;
+};
+
 struct CollisionHit
 {
 	CollisionComponent *collider = nullptr;

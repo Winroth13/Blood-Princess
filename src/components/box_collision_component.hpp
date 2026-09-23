@@ -25,10 +25,12 @@ public:
 	void OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal) override;
 
 	BoundingOrientedBox GetWorldOBB() const { return this->worldOBB; }
+	void SetWorldOBB(BoundingOrientedBox OBB) { this->worldOBB = OBB; };
+
 	bool GetWorldBounds(BoundingBox &outerBox) override;
 	void UpdateWorldOBB();
 
 	XMFLOAT3 GetExtents() const { return this->extents; };
-	void SetExtents(const XMFLOAT3& extents) { this->extents = extents; }
+	void SetExtents(const XMFLOAT3& extents);
 	void UpdateExtents(float width, float height, float depth);
 };
