@@ -12,6 +12,7 @@ class AssetManager;
 class Texture2D;
 class Model;
 class AudioClip;
+class ParticleSystem;
 
 class VertexShader;
 class PixelShader;
@@ -70,3 +71,6 @@ template<>
 std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string &path);
 
 #pragma endregion
+
+template<>
+std::shared_ptr<ParticleSystem> AssetLoader::Load<ParticleSystem>(const std::string &path);

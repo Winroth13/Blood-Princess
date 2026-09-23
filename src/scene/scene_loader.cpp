@@ -117,6 +117,8 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
     //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
 
+    auto particle = appContext.assetManager->Get<ParticleSystem>("assets/particles/test.yaml");
+
     outScene.PrintEntityHierarchy();
 }
 

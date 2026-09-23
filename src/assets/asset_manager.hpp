@@ -11,6 +11,7 @@
 #include "assets/types/compute_shader.hpp"
 #include "assets/types/geometry_shader.hpp"
 #include "assets/types/domain_shader.hpp"
+#include "assets/types/particle_system.hpp"
 
 #include <unordered_map>
 #include <string>

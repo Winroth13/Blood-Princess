@@ -16,6 +16,8 @@
 #include "assets/types/pixel_shader.hpp"
 #include "assets/types/compute_shader.hpp"
 
+#include "assets/types/particle_system.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
@@ -24,6 +26,8 @@
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis/stb_vorbis.c"
+
+#include "yaml-cpp/yaml.h"
 
 #include <sstream>
 #include <fstream>
@@ -337,3 +341,45 @@ std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string 
 }
 
 #pragma endregion
+
+template<>
+std::shared_ptr<ParticleSystem> AssetLoader::Load<ParticleSystem>(const std::string &path)
+{
+	std::shared_ptr<ParticleSystem> ps = std::make_shared<ParticleSystem>();
+
+	try 
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		if (!file.IsDefined() || file.IsNull())
+		{
+			LogWarn("File is empty: %s", path.c_str());
+			return ps;
+		}
+
+		YAML::Node node = file["ParticleSystem"];
+		if (node)
+		{
+			ps->count = node["Count"].as<uint32_t>(10);
+			ps->lifeTime = node["LifeTime"].as<float>(2.0f);
+			ps->spawnRadius = node["SpawnRadius"].as<float>(1.0f);
+		}
+	}
+	catch (const YAML::BadFile &e)
+	{
+		LogWarn("Failed to open file: %s", path.c_str());
+		return ps;
+	}
+	catch (const YAML::ParserException &e) 
+	{
+		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		return ps;
+	}
+	catch (const std::exception &e) 
+	{
+		LogError("An error occurred: %s", e.what());
+		return ps;
+	}
+
+	return ps;
+}

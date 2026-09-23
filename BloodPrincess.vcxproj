@@ -129,16 +129,16 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;YAML_CPP_STATIC_DEFINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external/imgui/backends;$(ProjectDir)external/imgui;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external/imgui/backends;$(ProjectDir)external/imgui;$(ProjectDir)external/yaml_cpp/include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;dxguid.lib;yaml-cppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\yaml_cpp\lib;$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -159,7 +159,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;YAML_CPP_STATIC_DEFINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -167,7 +167,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;dxguid.lib;yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -203,6 +203,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
+    <ClCompile Include="src\assets\types\particle_system.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
     <ClCompile Include="src\components\ambient_light_component.cpp" />
@@ -278,10 +279,50 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\anchor.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\binary.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\contrib\anchordict.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\depthguard.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\dll.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\emitfromevents.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\emitter.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\emitterdef.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\emittermanip.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\emitterstyle.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\eventhandler.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\exceptions.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\fptostring.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\mark.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\convert.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\impl.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\iterator.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\iterator_fwd.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\memory.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\node.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\node_data.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\node_iterator.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\node_ref.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\detail\reverse_iterator.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\emit.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\impl.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\iterator.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\node.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\parse.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\ptr.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\node\type.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\noexcept.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\null.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\ostream_wrapper.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\parser.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
+    <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
     <ClInclude Include="src\assets\asset_utils.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
+    <ClInclude Include="src\assets\types\particle_system.hpp" />
     <ClInclude Include="src\components\ambient_light_component.hpp" />
     <ClInclude Include="src\components\box_collision_component.hpp" />
     <ClInclude Include="src\collision\collision_layer.hpp" />
@@ -351,6 +392,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
+    <ClInclude Include="src\serialization\custom_yaml_types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl">
