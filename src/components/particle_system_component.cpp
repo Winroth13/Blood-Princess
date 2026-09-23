@@ -4,6 +4,7 @@
 #include "rendering/render_utils.hpp"
 #include "rendering/render_data.hpp"
 #include "rendering/renderer.hpp"
+#include "assets/types/texture_2d.hpp"
 
 void ParticleSystemComponent::OnStart(const AppContext &context)
 {
@@ -27,6 +28,7 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
 
     ParticleSystemCommand command = {};
 
+    XMStoreFloat4x4(&command.worldMatrix, transform->GetRenderMatrix());
     command.count = this->count;
     command.position = transform->GetRenderPosition();
 
@@ -36,10 +38,17 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
     command.atlasSize = this->atlasSize;
     command.animationSpeed = this->animationSpeed;
     
-    XMVECTOR velocityV = XMVector3Transform(XMLoadFloat3(&this->velocity), transform->GetRenderMatrix());
+    XMFLOAT4 quat = transform->GetWorldRotationQuaternion();
+    XMVECTOR velocityV = XMVector3Rotate(
+        XMLoadFloat3(&this->velocity), 
+        XMLoadFloat4(&quat)
+    );
     XMStoreFloat3(&command.velocity, velocityV);
 
-    XMVECTOR accelerationV = XMVector3Transform(XMLoadFloat3(&this->acceleration), transform->GetRenderMatrix());
+    XMVECTOR accelerationV = XMVector3Rotate(
+        XMLoadFloat3(&this->acceleration),
+        XMLoadFloat4(&quat)
+    );
     XMStoreFloat3(&command.acceleration, accelerationV);
     
     command.startScale = this->startScale;
@@ -48,8 +57,9 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
     command.startTint = this->startTint;
     command.endTint = this->endTint;
 
-    command.srv = this->particleSystemSRV;
-    command.uav = this->particleSystemUAV;
+    command.colorSRV = this->atlasTexture->GetShaderResourceView();
+    command.particleSRV = this->particleSystemSRV;
+    command.particleUAV = this->particleSystemUAV;
 
     queue.Submit(command);
 }
