@@ -106,61 +106,43 @@ void Editor::ImGuiRender(const AppContext &appContext)
 				XMFLOAT3 localExtents = boxCollisionComponent->GetExtents();
 				XMFLOAT3 localCenter = boxCollisionComponent->GetCenterOffset();
 
-				float bounds[6] = {
-					localCenter.x - localExtents.x,
-					localCenter.y - localExtents.y,
-					localCenter.z - localExtents.z,
+				XMMATRIX localColliderMat = XMMatrixScaling(localExtents.x, localExtents.y, localExtents.z) *
+				                            XMMatrixTranslation(localCenter.x, localCenter.y, localCenter.z);
 
-					localCenter.x + localExtents.x,
-					localCenter.y + localExtents.y,
-					localCenter.z + localExtents.z
-				};
+				XMMATRIX entityWorldMat = transformComponent->GetWorldMatrix();
+				XMMATRIX colliderWorldMat = localColliderMat * entityWorldMat;
 
-				constexpr int MIN_X = 0;
-				constexpr int MIN_Y = 1;
-				constexpr int MIN_Z = 2;
+				XMFLOAT4X4 colliderWorldF;
+				XMStoreFloat4x4(&colliderWorldF, colliderWorldMat);
 
-				constexpr int MAX_X = 3;
-				constexpr int MAX_Y = 4;
-				constexpr int MAX_Z = 5;
+				float unitBounds[6] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 
 				ImGuizmo::Manipulate(
 					*viewF.m,
 					*projF.m,
 					this->currentOperation,
 					ImGuizmo::MODE::LOCAL,
-					*worldMatrix.m,
+					*colliderWorldF.m,
 					nullptr,
 					nullptr,
-					bounds,
+					unitBounds,
 					nullptr
 				);
 
 				if (ImGuizmo::IsUsing())
 				{
-					
-					XMFLOAT3 newExtents;
-					newExtents.x = std::abs(bounds[MAX_X] - bounds[MIN_X]) / 2.0f;
-					newExtents.y = std::abs(bounds[MAX_Y] - bounds[MIN_Y]) / 2.0f;
-					newExtents.z = std::abs(bounds[MAX_Z] - bounds[MIN_Z]) / 2.0f;
+					XMMATRIX invEntityWorld = XMMatrixInverse(nullptr, entityWorldMat);
+					XMMATRIX newLocalMat = XMLoadFloat4x4(&colliderWorldF) * invEntityWorld;
 
-					XMFLOAT3 newCenter;
-					newCenter.x = (bounds[MAX_X] + bounds[MIN_X]) / 2.0f;
-					newCenter.y = (bounds[MAX_Y] + bounds[MIN_Y]) / 2.0f;
-					newCenter.z = (bounds[MAX_Z] + bounds[MIN_Z]) / 2.0f;
+					XMFLOAT4X4 newLocalF;
+					XMStoreFloat4x4(&newLocalF, newLocalMat);
 
-					boxCollisionComponent->SetExtents(newExtents);
-					boxCollisionComponent->SetCenterOffset(newCenter);
-
-					
 					float translate[3], rotation[3], scale[3];
-					ImGuizmo::DecomposeMatrixToComponents(*worldMatrix.m, translate, rotation, scale);
+					ImGuizmo::DecomposeMatrixToComponents(*newLocalF.m, translate, rotation, scale);
 
-					transformComponent->SetLocalPosition(translate[0], translate[1], translate[2]);
-
-					boxCollisionComponent->UpdateWorldOBB();
+					boxCollisionComponent->SetCenterOffset(XMFLOAT3(translate[0], translate[1], translate[2]));
+					boxCollisionComponent->SetExtents(XMFLOAT3(std::abs(scale[0]), std::abs(scale[1]), std::abs(scale[2])));
 				}
-
 			}
 			else
 			{

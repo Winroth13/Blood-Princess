@@ -95,7 +95,13 @@ void BoxCollisionComponent::UpdateWorldOBB()
 void BoxCollisionComponent::SetExtents(const XMFLOAT3& extents)
 {
     this->extents = extents;
-    this->worldOBB.Extents = this->extents;
+    this->UpdateWorldOBB();
+}
+
+void BoxCollisionComponent::SetCenterOffset(const DirectX::XMFLOAT3& offset)
+{
+    CollisionComponent::SetCenterOffset(offset);
+    this->UpdateWorldOBB();
 }
 
 void BoxCollisionComponent::UpdateExtents(float width, float height, float depth)
