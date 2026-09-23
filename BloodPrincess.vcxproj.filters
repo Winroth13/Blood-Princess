@@ -71,6 +71,8 @@
     <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
     <ClCompile Include="src\components\sphere_collision_component.cpp" />
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
+    <ClCompile Include="src\assets\types\domain_shader.cpp" />
+    <ClCompile Include="src\assets\types\geometry_shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -163,6 +165,8 @@
     <ClInclude Include="src\components\sphere_collision_component.hpp" />
     <ClInclude Include="src\events\event_manager.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
+    <ClInclude Include="src\assets\types\domain_shader.hpp" />
+    <ClInclude Include="src\assets\types\geometry_shader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
@@ -172,6 +176,10 @@
     <FxCompile Include="src\shaders\shadow\ps_shadow.hlsl" />
     <FxCompile Include="src\shaders\shadow\ps_linear_shadow.hlsl" />
     <FxCompile Include="src\shaders\output\cs_output.hlsl" />
+    <FxCompile Include="src\shaders\particles\cs_particle_system.hlsl" />
+    <FxCompile Include="src\shaders\particles\vs_particle_system.hlsl" />
+    <FxCompile Include="src\shaders\particles\gs_particle_system.hlsl" />
+    <FxCompile Include="src\shaders\particles\ps_particle_system.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />

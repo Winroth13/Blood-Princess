@@ -39,7 +39,7 @@ class Application
     };
 
     void Update(float deltaTime);
-    void Render();
+    void Render(float deltaTime);
 
 public:
     Application() = default;

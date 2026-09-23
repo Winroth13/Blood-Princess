@@ -262,4 +262,52 @@ std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::strin
 	return computeShader;
 }
 
+template<>
+std::shared_ptr<GeometryShader> AssetLoader::Load<GeometryShader>(const std::string &path)
+{
+	std::string byteCode;
+
+	if (!LoadShaderByteCode(path, byteCode))
+	{
+		LogError("Failed to load byte shader code from %s", path.c_str());
+	}
+
+	std::shared_ptr<GeometryShader> shader = std::make_shared<GeometryShader>();
+	if (!shader->Create(byteCode, this->device))
+	{
+		LogError("Failed to create Geometry Shader");
+	}
+
+	std::string shaderName = AssetUtils::GetNameFromPath(path);
+	shaderName = AssetUtils::FormatShaderName(shaderName);
+
+	RenderUtils::SetDebugName(shader->GetShader(), DebugCategory::SHADER, "GS", shaderName);
+
+	return shader;
+}
+
+template<>
+std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string &path)
+{
+	std::string byteCode;
+
+	if (!LoadShaderByteCode(path, byteCode))
+	{
+		LogError("Failed to load byte shader code from %s", path.c_str());
+	}
+
+	std::shared_ptr<DomainShader> domainShader = std::make_shared<DomainShader>();
+	if (!domainShader->Create(byteCode, this->device))
+	{
+		LogError("Failed to create Domain Shader");
+	}
+
+	std::string shaderName = AssetUtils::GetNameFromPath(path);
+	shaderName = AssetUtils::FormatShaderName(shaderName);
+
+	RenderUtils::SetDebugName(domainShader->GetShader(), DebugCategory::SHADER, "DS", shaderName);
+
+	return domainShader;
+}
+
 #pragma endregion

@@ -40,71 +40,6 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 	}
 #pragma endregion
 
-#pragma region Depth Stencil
-	{
-
-		HRESULT result{};
-
-		D3D11_TEXTURE2D_DESC textureDesc = {};
-		textureDesc.Width = static_cast<UINT>(width);
-		textureDesc.Height = static_cast<UINT>(height);
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = 0;
-
-		result = device->CreateTexture2D(&textureDesc, nullptr, &this->depthStencilTexture);
-
-		if (FAILED(result))
-		{
-			LogError("Failed to create the Depth Stencil Texture");
-			return false;
-		}
-
-		RenderUtils::SetDebugName(this->depthStencilTexture, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred");
-
-		LogInfo("Depth Stencil Texture created");
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-
-		result = device->CreateDepthStencilView(this->depthStencilTexture, &depthStencilViewDesc, &this->depthStencilView);
-
-		if (FAILED(result))
-		{
-			LogError("Failed to create the Depth Stencil View");
-			return false;
-		}
-
-		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "DSV");
-
-		LogInfo("Depth Stencil View created");
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-
-		result = device->CreateShaderResourceView(this->depthStencilTexture, &srvDesc, &this->depthStencilSRV);
-
-		if (FAILED(result))
-		{
-			LogError("Failed to create the Depth Stencil Shader Resource View");
-			return false;
-		}
-
-		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "SRV");
-
-		LogInfo("Depth Stencil Shader Resource View created");
-	}
-#pragma endregion
-
 	return true;
 }
 
@@ -180,9 +115,6 @@ void DeferredPass::Shutdown()
 {
 	LogInfo("Shutting down Deferred Pass");
 
-	SafeRelease(this->depthStencilTexture);
-	SafeRelease(this->depthStencilView);
-	SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->inputLayout);
 }
 
@@ -196,10 +128,6 @@ bool DeferredPass::Resize(
 	LogIndent();
 
 	this->gBuffers.clear();
-    SafeRelease(this->depthStencilSRV);
-	SafeRelease(this->depthStencilView);
-	SafeRelease(this->depthStencilTexture);
-
 	if (!this->Create(device, width, height))
 	{
 		LogError("Failed to create");
@@ -247,9 +175,9 @@ void DeferredPass::RenderGeometryPass(
 
 	deviceContext->ClearRenderTargetView(rtvs[0], clearAlbedoSpecularExponent);
 	deviceContext->ClearRenderTargetView(rtvs[1], clearNormalSpecular);
-	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	deviceContext->ClearDepthStencilView(backBuffer.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceContext->OMSetRenderTargets(2, rtvs, this->depthStencilView);
+	deviceContext->OMSetRenderTargets(2, rtvs, backBuffer.GetDepthStencilView());
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetInputLayout(this->inputLayout);
@@ -260,9 +188,9 @@ void DeferredPass::RenderGeometryPass(
 	ID3D11Buffer *perView = sharedResources.GetPerView();
 	ID3D11Buffer *perObject = sharedResources.GetPerObject();
 	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
-	deviceContext->VSSetConstantBuffers(0, 1, &perView);
-	deviceContext->VSSetConstantBuffers(1, 1, &perObject);
-	deviceContext->PSSetConstantBuffers(2, 1, &perMaterial);
+	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_MATERIAL, 1, &perMaterial);
 
 	deviceContext->RSSetViewports(1, &viewport);
 
@@ -315,6 +243,7 @@ void DeferredPass::RenderLightingPass(
     ID3D11Device *device,
     ID3D11DeviceContext *deviceContext,
     SharedResources &sharedResources,
+	BackBuffer &backBuffer,
     std::vector<RenderView> &views
 )
 {
@@ -334,7 +263,7 @@ void DeferredPass::RenderLightingPass(
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
-		 this->depthStencilSRV,
+		 backBuffer.GetDepthStencilSRV(),
 		 // Light Buffer
 		 sharedResources.GetDirectionalLightsSRV(),
 		 sharedResources.GetSpotLightsSRV(),
@@ -343,7 +272,7 @@ void DeferredPass::RenderLightingPass(
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 
 	 ID3D11Buffer *light = sharedResources.GetLightBuffer();
-	 deviceContext->CSSetConstantBuffers(3, 1, &light);
+	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::LIGHT, 1, &light);
 
 	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
@@ -372,14 +301,13 @@ void DeferredPass::Render(
 )
 {
 	this->RenderGeometryPass(device, deviceContext, sharedResources, backBuffer, views);
-	this->RenderLightingPass(device, deviceContext, sharedResources, views);
+	this->RenderLightingPass(device, deviceContext, sharedResources, backBuffer, views);
 }
 
 DeferredPass::OutputTextures DeferredPass::GetOutputTextures() {
     return {
         this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
         this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
-        this->depthStencilSRV,
         this->GetGBuffer(GBufferType::OUTPUT).GetShaderResourceView()
     };
 }

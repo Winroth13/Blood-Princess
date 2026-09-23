@@ -1,6 +1,13 @@
 SamplerState samplerLinearWrap : register(s0);
 
-cbuffer PerView : register(b0)
+cbuffer PerFrame : register(b0)
+{
+    float deltaTime;
+    uint ticks;
+    float2 pad0;
+};
+
+cbuffer PerView : register(b1)
 {
     float4x4 viewMatrix;
     float4x4 invViewMatrix;
@@ -11,31 +18,46 @@ cbuffer PerView : register(b0)
     float3 cameraPosition;
     float nearPlane;
     float farPlane;
-    float3 pad0;
+    float3 pad1;
 }
 
-cbuffer PerObject : register(b1)
+cbuffer PerObject : register(b2)
 {
     float4x4 worldMatrix;
     float4x4 worldInvTransposeMatrix;
 };
 
-cbuffer PerMaterial : register(b2)
+cbuffer PerMaterial : register(b3)
 {
     float3 materialTint;
     float materialSpecular;
     float materialSpecularExponent;
-    float3 pad1;
+    float3 pad2;
 }
 
-cbuffer Light : register(b3)
+cbuffer Light : register(b4)
 {
     float3 ambientColour;
     int directionalLightCount;
     int spotLightCount;
     int pointLightCount;
-    float2 pad2;
+    float2 pad3;
 }
+
+cbuffer ParticleSystem : register(b5)
+{
+    float lifeTime;
+    float spawnRadius;
+    float2 atlasSize;
+    float3 velocity;
+    float animationSpeed;
+    float3 acceleration;
+    float startScale;
+    float3 startTint;
+    float endScale;
+    float3 endTint;
+    int count;
+};
 
 struct DirectionalLight
 {
@@ -69,4 +91,12 @@ struct SpotLight
     float4x4 viewProjectionMatrix;
     int shadowArrayIndex;
     float2 pad0;
+};
+
+struct Particle
+{
+    float3 position;
+    float3 tint;
+    float scale;
+    float lifeTime;
 };

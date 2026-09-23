@@ -27,7 +27,7 @@ class ParticleSystemComponent : public Component
 
     ExportPropertyCategory("Color");
     ExportPropertyColor(XMFLOAT3, startTint, { 1.0f, 1.0f, 1.0f });
-    ExportPropertyColor(XMFLOAT3, endTint, { 1.0f, 0.0f, 0.0f });
+    ExportPropertyColor(XMFLOAT3, endTint, { 1.0f, 1.0f, 1.0f });
 
     ID3D11Buffer *particleSystemSB = nullptr;
     ID3D11ShaderResourceView *particleSystemSRV = nullptr;
@@ -46,4 +46,15 @@ private:
     bool CreateParticleBuffer(ID3D11Device* device);
 
 public:
+    void SetLifeTime(const float lifeTime) { this->lifeTime = lifeTime; }
+    void SetSpawnRadius(const float spawnRadius) { this->spawnRadius = spawnRadius; }
+    void SetAnimationSpeed(const float animationSpeed) { this->animationSpeed = animationSpeed; }
+    void SetAtlasSize(const XMFLOAT2 atlasSize) { this->atlasSize = atlasSize; }
+    void SetAtlasTexture(std::shared_ptr<Texture2D> atlasTexture) { this->atlasTexture = atlasTexture; }
+    void SetVelocity(const XMFLOAT3 velocity) { this->velocity = velocity; }
+    void SetAcceleration(const XMFLOAT3 acceleration) { this->acceleration = acceleration; }
+    void SetStartTint(const XMFLOAT3 startTint) { this->startTint = startTint; }
+    void SetEndTint(const XMFLOAT3 endTint) { this->endTint = endTint; }
+    void SetStartScale(const float startScale) { this->startScale = startScale; }
+    void SetEndScale(const float endScale) { this->endScale = endScale; }
 };
