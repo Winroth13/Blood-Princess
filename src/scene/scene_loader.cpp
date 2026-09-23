@@ -60,7 +60,9 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *lightEntity = outScene.AddEntity("light");
     lightEntity->AddComponent<AmbientLightComponent>();
-    lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
+    auto dirLight = lightEntity->AddComponent<DirectionalLightComponent>();
+    dirLight->SetIntensity(3.0f);
+    dirLight->SetCastShadows(true);
 
     Entity* EntitywallEntity = outScene.AddEntity("wall");
     auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();

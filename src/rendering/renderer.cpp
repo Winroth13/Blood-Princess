@@ -115,7 +115,7 @@ bool Renderer::Initialize(const AppContext &appContext)
     LogInfo("Creating Renderer...");
     LogIndent();
 
-    if (!this->sharedResources.Initialize(this->device))
+    if (!this->sharedResources.Initialize(this->device, this->shadowSize))
     {
         LogError("Failed to create Shared Resources");
         return false;
@@ -195,6 +195,13 @@ void Renderer::Render(Scene *scene, float deltaTime)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
+
+    this->shadowPass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->views
+    );
 
     this->deferredPass.Render(
         this->device, 

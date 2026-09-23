@@ -36,6 +36,7 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
     );
 
     XMVECTOR lightPosition = XMVectorAdd(cameraPosition, positionOffset);
+    //lightPosition = XMVECTOR{ 0, 0, 0, 0 };
 
     XMStoreFloat3(&view.cameraPosition, lightPosition);
      

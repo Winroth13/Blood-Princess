@@ -19,10 +19,6 @@ class ShadowPass
 	std::shared_ptr<PixelShader> pixelShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShaderLinear = nullptr;
 
-	std::array<ID3D11Texture2D*, SharedResources::MAX_DIRECTIONAL_LIGHT_COUNT> directionalShadows;
-	std::array<ID3D11Texture2D*, SharedResources::MAX_SPOT_LIGHT_COUNT> spotShadows;
-	std::array<ID3D11Texture2D**, SharedResources::MAX_POINT_LIGHT_COUNT> pointShadows;
-
 	uint32_t size = 0;
 
 	bool Create(
@@ -31,6 +27,12 @@ class ShadowPass
 	);
 
 	bool CreateInputLayout(ID3D11Device *device);
+
+	void RenderShadows(
+		ID3D11DeviceContext *deviceContext,
+		SharedResources &sharedResources,
+		RenderView *view
+	);
 
 public:
 	ShadowPass() = default;

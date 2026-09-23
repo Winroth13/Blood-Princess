@@ -57,6 +57,7 @@ public:
     bool IsPendingDestroy() const { return this->isPendingDestroy; }
 
     bool WantsUpdate() const { return this->wantsUpdate; }
+    bool WantsLateUpdate() const { return this->wantsLateUpdate; }
     bool WantsRender() const { return this->wantsRender; }
 
     virtual TypeId GetTypeId() const = 0;

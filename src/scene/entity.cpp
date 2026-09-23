@@ -36,6 +36,14 @@ void Entity::Update(const AppContext &context, float deltaTime) {
     }
 }
 
+void Entity::LateUpdate(const AppContext &context, float deltaTime) {
+    for (size_t i = 0; i < this->components.size(); ++i) {
+        Component *component = this->components[i].get();
+        if (component->IsActive() && !component->IsPendingDestroy() && component->WantsLateUpdate())
+            component->LateUpdate(context, deltaTime);
+    }
+}
+
 void Entity::OnDestroy(const AppContext &context) {
     for (size_t i = 0; i < this->components.size(); ++i)
         this->components[i]->OnDestroy(context);
