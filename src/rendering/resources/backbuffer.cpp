@@ -83,7 +83,7 @@ bool BackBuffer::Create(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilTexture, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred");
+		RenderUtils::SetDebugName(this->depthStencilTexture, DebugCategory::CORE, "Depth Stencil", "Backbuffer");
 
 		LogInfo("Depth Stencil Texture created");
 
@@ -99,7 +99,7 @@ bool BackBuffer::Create(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "DSV");
+		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::CORE, "Depth Stencil", "Backbuffer", "DSV");
 
 		LogInfo("Depth Stencil View created");
 
@@ -116,7 +116,7 @@ bool BackBuffer::Create(
 			return false;
 		}
 
-		RenderUtils::SetDebugName(this->depthStencilView, DebugCategory::RENDER_PASS, "Depth Stencil", "Deferred", "SRV");
+		RenderUtils::SetDebugName(this->depthStencilSRV, DebugCategory::CORE, "Depth Stencil", "Backbuffer", "SRV");
 
 		LogInfo("Depth Stencil Shader Resource View created");
 	}
