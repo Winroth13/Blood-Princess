@@ -13,7 +13,7 @@ bool OutputPass::Initialize(
     LogInfo("Initializing Deferred Pass...");
     LogIndent();
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug view"))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug View"))
         return false;
 
     this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_output.cso");

@@ -147,6 +147,8 @@ void DeferredPass::RenderGeometryPass(
 	std::vector<RenderView> &views
 )
 {
+	BeginAnnotation("Geometry Pass");
+
 	RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
 	if (!view)
 	{
@@ -237,6 +239,8 @@ void DeferredPass::RenderGeometryPass(
 
 	ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
 	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
+
+	EndAnnotation();
 }
 
 void DeferredPass::RenderLightingPass(
@@ -247,6 +251,8 @@ void DeferredPass::RenderLightingPass(
     std::vector<RenderView> &views
 )
 {
+	BeginAnnotation("Light Pass");
+
 	 RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
 	 if (!view)
 	 {
@@ -290,6 +296,8 @@ void DeferredPass::RenderLightingPass(
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
 	 deviceContext->CSSetShader(nullptr, nullptr, 0);
+
+	 EndAnnotation();
 }
 
 void DeferredPass::Render(
