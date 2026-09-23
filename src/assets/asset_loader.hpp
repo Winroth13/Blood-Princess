@@ -61,4 +61,10 @@ std::shared_ptr<PixelShader> AssetLoader::Load<PixelShader>(const std::string &p
 template<>
 std::shared_ptr<ComputeShader> AssetLoader::Load<ComputeShader>(const std::string &path);
 
+template<>
+std::shared_ptr<GeometryShader> AssetLoader::Load<GeometryShader>(const std::string &path);
+
+template<>
+std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string &path);
+
 #pragma endregion

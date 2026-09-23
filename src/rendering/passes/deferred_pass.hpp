@@ -34,15 +34,11 @@ public:
     struct OutputTextures {
         ID3D11ShaderResourceView *albedoMetallic;
         ID3D11ShaderResourceView *normalRoughness;
-        ID3D11ShaderResourceView *depth;
         ID3D11ShaderResourceView *output;
     };
 
 private:
 	std::vector<GBuffer> gBuffers{};
-	ID3D11Texture2D *depthStencilTexture = nullptr;
-	ID3D11DepthStencilView *depthStencilView = nullptr;
-	ID3D11ShaderResourceView *depthStencilSRV = nullptr;
 
 	ID3D11InputLayout *inputLayout = nullptr;
 
@@ -77,6 +73,7 @@ private:
         ID3D11Device *device,
         ID3D11DeviceContext *deviceContext,
         SharedResources &sharedResources,
+		BackBuffer &backBuffer,
         std::vector<RenderView> &views
 	);
 

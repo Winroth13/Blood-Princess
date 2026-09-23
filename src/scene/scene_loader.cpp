@@ -32,6 +32,15 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     modelEntity->AddComponent<ParticleSystemComponent>();
 
+    ParticleSystemComponent *particleSystemComponent = modelEntity->GetComponent<ParticleSystemComponent>();
+    particleSystemComponent->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png"));
+    particleSystemComponent->SetAtlasSize({ 12, 6 });
+    particleSystemComponent->SetVelocity({ 0.0f, -1, 0.0f });
+    particleSystemComponent->SetAcceleration({ 0.0f, 2.0, 0.0f });
+    particleSystemComponent->SetLifeTime(2.0f);
+    particleSystemComponent->SetStartScale(0.2f);
+    particleSystemComponent->SetEndScale(0.4f);
+
     auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
     auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");
     if (sfxClip) {
@@ -62,6 +71,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     ModelComponent* modelWallComponent = EntitywallEntity->AddComponent<ModelComponent>();
     modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
+    modelWallComponent->SetActive(false);
 
     auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
     modelCol->SetLayer(CollisionLayer::ENVIRONMENT);

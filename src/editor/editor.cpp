@@ -14,7 +14,7 @@
 #include "rendering/renderer.hpp"
 #include "rendering/render_utils.hpp"
 #include "components/transform_component.hpp"
-
+#include "components/box_collision_component.hpp"
 bool Editor::Initialize(SceneManager &sceneManager)
 {
 	LogInfo("Creating Editor...");
@@ -79,6 +79,9 @@ void Editor::ImGuiRender(const AppContext &appContext)
 				this->currentOperation = ImGuizmo::ROTATE;
 			if (ImGui::IsKeyPressed(ImGuiKey_E))
 				this->currentOperation = ImGuizmo::SCALE;
+			if (ImGui::IsKeyPressed(ImGuiKey_B))
+				this->currentOperation = ImGuizmo::BOUNDS;
+
 
 			std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
 			RenderView *primaryView = RenderUtils::GetView(renderViews, ViewType::PRIMARY);
@@ -95,46 +98,95 @@ void Editor::ImGuiRender(const AppContext &appContext)
 			XMFLOAT4X4 projF{};
 			XMStoreFloat4x4(&projF, projT);
 
-			XMFLOAT3 originalRotation = transformComponent->GetLocalRotation();
 
-			ImGuizmo::Manipulate(
-				*viewF.m,
-				*projF.m,
-				this->currentOperation,
-				ImGuizmo::MODE::WORLD,
-				*worldMatrix.m
-			);
-
-			float translate[3] = { -1, -1, -1 };
-			float rotation[3] = { -1, -1, -1 };
-			float scale[3] = { -1, -1, -1 };
-
-			XMMATRIX worldMat = XMLoadFloat4x4(&worldMatrix);
-			XMFLOAT4 quat = transformComponent->ExtractRotation(worldMat);
-
-			ImGuizmo::DecomposeMatrixToComponents(*worldMatrix.m, translate, rotation, scale);
-
-			if (ImGuizmo::IsUsing())
+			if (entity->HasComponent<BoxCollisionComponent>() && this->currentOperation == ImGuizmo::BOUNDS)
 			{
-				if (this->currentOperation == ImGuizmo::OPERATION::TRANSLATE)
+				auto boxCollisionComponent = entity->GetComponent<BoxCollisionComponent>();
+
+				XMFLOAT3 localExtents = boxCollisionComponent->GetExtents();
+				XMFLOAT3 localCenter = boxCollisionComponent->GetCenterOffset();
+
+				XMMATRIX localColliderMat = XMMatrixScaling(localExtents.x, localExtents.y, localExtents.z) *
+				                            XMMatrixTranslation(localCenter.x, localCenter.y, localCenter.z);
+
+				XMMATRIX entityWorldMat = transformComponent->GetWorldMatrix();
+				XMMATRIX colliderWorldMat = localColliderMat * entityWorldMat;
+
+				XMFLOAT4X4 colliderWorldF;
+				XMStoreFloat4x4(&colliderWorldF, colliderWorldMat);
+
+				float unitBounds[6] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
+
+				ImGuizmo::Manipulate(
+					*viewF.m,
+					*projF.m,
+					this->currentOperation,
+					ImGuizmo::MODE::LOCAL,
+					*colliderWorldF.m,
+					nullptr,
+					nullptr,
+					unitBounds,
+					nullptr
+				);
+
+				if (ImGuizmo::IsUsing())
 				{
-					transformComponent->SetLocalPosition(
-						translate[0],
-						translate[1],
-						translate[2]
-					);
+					XMMATRIX invEntityWorld = XMMatrixInverse(nullptr, entityWorldMat);
+					XMMATRIX newLocalMat = XMLoadFloat4x4(&colliderWorldF) * invEntityWorld;
+
+					XMFLOAT4X4 newLocalF;
+					XMStoreFloat4x4(&newLocalF, newLocalMat);
+
+					float translate[3], rotation[3], scale[3];
+					ImGuizmo::DecomposeMatrixToComponents(*newLocalF.m, translate, rotation, scale);
+
+					boxCollisionComponent->SetCenterOffset(XMFLOAT3(translate[0], translate[1], translate[2]));
+					boxCollisionComponent->SetExtents(XMFLOAT3(std::abs(scale[0]), std::abs(scale[1]), std::abs(scale[2])));
 				}
-				else if (this->currentOperation == ImGuizmo::OPERATION::ROTATE)
+			}
+			else
+			{
+				XMFLOAT3 originalRotation = transformComponent->GetLocalRotation();
+
+				ImGuizmo::Manipulate(
+					*viewF.m,
+					*projF.m,
+					this->currentOperation,
+					ImGuizmo::MODE::WORLD,
+					*worldMatrix.m
+				);
+
+				float translate[3] = { -1, -1, -1 };
+				float rotation[3] = { -1, -1, -1 };
+				float scale[3] = { -1, -1, -1 };
+
+				XMMATRIX worldMat = XMLoadFloat4x4(&worldMatrix);
+				XMFLOAT4 quat = transformComponent->ExtractRotation(worldMat);
+
+				ImGuizmo::DecomposeMatrixToComponents(*worldMatrix.m, translate, rotation, scale);
+
+				if (ImGuizmo::IsUsing())
 				{
-					transformComponent->SetLocalRotationQuaternion(quat);
-				}
-				else if (this->currentOperation == ImGuizmo::OPERATION::SCALE)
-				{
-					transformComponent->SetLocalScale(
-						scale[0],
-						scale[1],
-						scale[2]
-					);
+					if (this->currentOperation == ImGuizmo::OPERATION::TRANSLATE)
+					{
+						transformComponent->SetLocalPosition(
+							translate[0],
+							translate[1],
+							translate[2]
+						);
+					}
+					else if (this->currentOperation == ImGuizmo::OPERATION::ROTATE)
+					{
+						transformComponent->SetLocalRotationQuaternion(quat);
+					}
+					else if (this->currentOperation == ImGuizmo::OPERATION::SCALE)
+					{
+						transformComponent->SetLocalScale(
+							scale[0],
+							scale[1],
+							scale[2]
+						);
+					}
 				}
 			}
 		}

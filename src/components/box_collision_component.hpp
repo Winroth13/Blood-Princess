@@ -9,6 +9,7 @@ class BoxCollisionComponent : public CollisionComponent
 {
 	RegisterComponent(BoxCollisionComponent);
 	ExportProperty(XMFLOAT3, extents, { 0.5f, 0.5f, 0.5f });
+	ExportPropertyChanged(extents, UpdateWorldOBB);
 	
 	DirectX::BoundingOrientedBox worldOBB{};
 
@@ -25,10 +26,13 @@ public:
 	void OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal) override;
 
 	BoundingOrientedBox GetWorldOBB() const { return this->worldOBB; }
+	void SetWorldOBB(BoundingOrientedBox OBB) { this->worldOBB = OBB; };
+
 	bool GetWorldBounds(BoundingBox &outerBox) override;
 	void UpdateWorldOBB();
 
 	XMFLOAT3 GetExtents() const { return this->extents; };
-	void SetExtents(const XMFLOAT3& extents) { this->extents = extents; }
+	void SetExtents(const XMFLOAT3& extents);
+	void SetCenterOffset(const DirectX::XMFLOAT3& offset) override;
 	void UpdateExtents(float width, float height, float depth);
 };

@@ -6,7 +6,23 @@
 #include <DirectXMath.h>
 #include "render_view.hpp"
 
-enum class SamplerSlot {
+enum class ConstantBufferSlot
+{
+	PER_FRAME,
+	PER_VIEW,
+	PER_OBJECT,
+	PER_MATERIAL,
+	LIGHT,
+	PARTICLE,
+	DEBUG
+};
+
+constexpr int operator+(ConstantBufferSlot slot) noexcept {
+	return static_cast<int>(slot);
+}
+
+enum class SamplerSlot 
+{
 	LINEAR_WRAP,
 	COUNT
 };
@@ -17,6 +33,7 @@ constexpr int operator+(SamplerSlot slot) noexcept {
 
 class SharedResources
 {
+	ID3D11Buffer *perFrameCB = nullptr;
 	ID3D11Buffer *perViewCB = nullptr;
 	ID3D11Buffer *perObjectCB = nullptr;
 	ID3D11Buffer *perMaterialCB = nullptr;
@@ -53,11 +70,15 @@ public:
     bool UploadLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
 
 	void BindSamplers(ID3D11DeviceContext *deviceContext);
+
 	void UploadPerViewData(
 		ID3D11DeviceContext *deviceContext, 
 		const RenderView &view
 	) const;
 
+	void UploadPerFrameData(ID3D11DeviceContext *deviceContext, float deltaTime);
+
+	ID3D11Buffer *GetPerFrame() const { return this->perFrameCB; }
 	ID3D11Buffer *GetPerView() const { return this->perViewCB; }
 	ID3D11Buffer *GetPerObject() const { return this->perObjectCB; }
 	ID3D11Buffer *GetPerMaterial() const { return this->perMaterialCB; }
