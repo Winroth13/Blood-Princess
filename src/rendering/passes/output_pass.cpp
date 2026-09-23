@@ -50,6 +50,8 @@ void OutputPass::Render(
     BackBuffer &backBuffer,
     std::vector<RenderView> &views
 ) {
+    BeginAnnotation("Output Pass");
+
     RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
     if (!view) {
         LogWarn("Could not find a primary view to render to");
@@ -92,4 +94,6 @@ void OutputPass::Render(
     deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
     deviceContext->CSSetShader(nullptr, nullptr, 0);
+
+    EndAnnotation();
 }

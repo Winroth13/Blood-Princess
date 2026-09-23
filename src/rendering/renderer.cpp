@@ -196,8 +196,6 @@ void Renderer::Render(Scene *scene, float deltaTime)
 
     scene->GatherRenderCommands(this->views);
 
-    BeginAnnotation("Deferred Pass");
-
     this->deferredPass.Render(
         this->device, 
         this->deviceContext, 
@@ -205,9 +203,6 @@ void Renderer::Render(Scene *scene, float deltaTime)
         this->backBuffer,
         this->views
     );
-
-    EndAnnotation();
-    BeginAnnotation("Output Pass");
 
     if (Input::IsKeyPressed(Key::C))
         this->outputPass.SetDebugView(static_cast<DebugView>((+this->outputPass.GetDebugView() + 1) % +DebugView::COUNT));
@@ -221,10 +216,6 @@ void Renderer::Render(Scene *scene, float deltaTime)
         this->views
     );
 
-    EndAnnotation();
-
-    BeginAnnotation("Particle Pass");
-
     this->particlePass.Render(
         this->device,
         this->deviceContext,
@@ -233,8 +224,6 @@ void Renderer::Render(Scene *scene, float deltaTime)
         this->backBuffer.GetDepthStencilView(),
         this->views
     );
-
-    EndAnnotation();
 
     ID3D11RenderTargetView *view = this->backBuffer.GetRenderTargetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);

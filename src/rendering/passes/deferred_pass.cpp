@@ -300,8 +300,12 @@ void DeferredPass::Render(
 	std::vector<RenderView> &views
 )
 {
+	BeginAnnotation("Deferred Pass");
+
 	this->RenderGeometryPass(device, deviceContext, sharedResources, backBuffer, views);
 	this->RenderLightingPass(device, deviceContext, sharedResources, backBuffer, views);
+
+	EndAnnotation();
 }
 
 DeferredPass::OutputTextures DeferredPass::GetOutputTextures() {
