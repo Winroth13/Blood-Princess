@@ -239,6 +239,9 @@ void DeferredPass::RenderGeometryPass(
 	ID3D11ShaderResourceView *nullSRVs[srvs.size()] = {};
 	deviceContext->PSSetShaderResources(0, static_cast<UINT>(srvs.size()), nullSRVs);
 
+	deviceContext->VSSetShader(nullptr, nullptr, 0);
+	deviceContext->PSSetShader(nullptr, nullptr, 0);
+
 	EndAnnotation();
 }
 
