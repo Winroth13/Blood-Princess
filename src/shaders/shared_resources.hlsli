@@ -44,19 +44,25 @@ cbuffer Light : register(b4)
     float2 pad3;
 }
 
+#define PARTICLE_FLAG_ANIMATED 1 << 0
+#define PARTICLE_FLAG_ADDITIVE 1 << 1
+#define PARTICLE_FLAG_RESET 1 << 2
+
 cbuffer ParticleSystem : register(b5)
 {
-    float lifeTime;
-    float spawnRadius;
-    float2 atlasSize;
-    float3 velocity;
-    float animationSpeed;
-    float3 acceleration;
-    float startScale;
-    float3 startTint;
-    float endScale;
-    float3 endTint;
-    int count;
+    float       lifeTime;
+    float       spawnRadius;
+    float2      atlasSize;
+    float3      velocity;
+    float       animationSpeed;
+    float3      acceleration;
+    float       startScale;
+    float3      startTint;
+    float       endScale;
+    float3      endTint;
+    int         count;
+    uint        flags;
+    float3      pad4;
 };
 
 struct DirectionalLight

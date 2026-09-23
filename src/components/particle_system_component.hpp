@@ -13,6 +13,7 @@ class ParticleSystemComponent : public Component
     ExportPropertyRanged(float, spawnRadius, "m", 0.0f, 0.0f, 0.1f, 1.0f);
 
     ExportPropertyCategory("Animation");
+    ExportProperty(bool, isAnimated, false);
     ExportPropertyRanged(float, animationSpeed, "", 0.0f, 0.0f, 0.1f, 1.0f);
     ExportPropertyRanged(XMFLOAT2, atlasSize, "", 0.0f, 0.0f, 0.1f, {1.0f, 1.0f});
     ExportProperty(std::shared_ptr<Texture2D>, atlasTexture, nullptr);
@@ -26,12 +27,15 @@ class ParticleSystemComponent : public Component
     ExportPropertyRanged(float, endScale, "", 0.0f, 0.0f, 0.1f, 1.0f);
 
     ExportPropertyCategory("Color");
+    ExportProperty(bool, isAdditive, false);
     ExportPropertyColor(XMFLOAT3, startTint, { 1.0f, 1.0f, 1.0f });
     ExportPropertyColor(XMFLOAT3, endTint, { 1.0f, 1.0f, 1.0f });
 
     ID3D11Buffer *particleSystemSB = nullptr;
     ID3D11ShaderResourceView *particleSystemSRV = nullptr;
     ID3D11UnorderedAccessView *particleSystemUAV = nullptr;
+
+    bool shouldReset = true;
 
 public:
     ParticleSystemComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }

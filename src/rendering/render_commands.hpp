@@ -74,6 +74,7 @@ struct ParticleSystemCommand
 {
     XMFLOAT4X4 worldMatrix;
     int count;
+    uint32_t flags;
     XMFLOAT3 position;
 
     float lifeTime;

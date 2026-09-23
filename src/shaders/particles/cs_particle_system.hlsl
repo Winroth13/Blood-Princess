@@ -25,7 +25,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float3 realVelocity = velocity + acceleration * particle.lifeTime;
     particle.position += realVelocity * deltaTime;
    
-    if (particle.lifeTime > lifeTime)
+    bool shouldReset = (flags & PARTICLE_FLAG_RESET) == PARTICLE_FLAG_RESET;
+    
+    if (particle.lifeTime > lifeTime || shouldReset)
     {
         particle.lifeTime = 0.0f;
         

@@ -31,6 +31,17 @@ constexpr int operator+(SamplerSlot slot) noexcept {
 	return static_cast<int>(slot);
 }
 
+enum class ParticleFlags : uint32_t
+{
+	ANIMATED = 1 << 0,
+	ADDITIVE = 1 << 1,
+	RESET = 1 << 2
+};
+
+constexpr uint32_t operator+(ParticleFlags slot) noexcept {
+	return static_cast<uint32_t>(slot);
+}
+
 class SharedResources
 {
 	ID3D11Buffer *perFrameCB = nullptr;

@@ -35,6 +35,7 @@ void ParticlePass::RenderParticlePass(
 		data.startTint = command.startTint;
 		data.endScale = command.endScale;
 		data.endTint = command.endTint;
+		data.flags = command.flags;
 
 		// Upload Particle System CBuffer
 		RenderUtils::UploadConstantBuffer(deviceContext, this->particleSystemCB, data);
@@ -116,6 +117,20 @@ void ParticlePass::RenderDrawPass(
 		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix, XMMatrixInverse(nullptr, worldMatrix));
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
 
+		UINT sampleMask = 0xffffffff;
+		float blendFactor[4] = { 0.8f, 0.8f, 0.8f, 0.0f };
+
+		if ((command.flags & +ParticleFlags::ADDITIVE) == +ParticleFlags::ADDITIVE)
+		{
+			deviceContext->OMSetBlendState(this->additiveBlendState, blendFactor, sampleMask);
+			deviceContext->OMSetDepthStencilState(this->additiveDepthStencilState, 0);
+		}
+		else
+		{
+			deviceContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+			deviceContext->OMSetDepthStencilState(nullptr, 0);
+		}
+
 		// Bind Particle Structured Buffer
 		deviceContext->VSSetShaderResources(0, 1, &command.particleSRV);
 		// Bind Texture
@@ -133,6 +148,12 @@ void ParticlePass::RenderDrawPass(
 	deviceContext->VSSetShader(nullptr, nullptr, 0);
 	deviceContext->PSSetShader(nullptr, nullptr, 0);
 	deviceContext->GSSetShader(nullptr, nullptr, 0);
+
+	// Reset
+	UINT sampleMask = 0xffffffff;
+	float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+	deviceContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+	deviceContext->OMSetDepthStencilState(nullptr, 0);
 
 	EndAnnotation();
 }
@@ -165,6 +186,12 @@ bool ParticlePass::Initialize(ID3D11Device* device, AssetManager *assetManager)
 		return false;
 	}
 	
+	if (!CreateAdditiveStates(device))
+	{
+		LogError("Failed to create blend states");
+		return false;
+	}
+
 	this->vertexShader = assetManager->Get<VertexShader>("assets/shaders/vs_particle_system.cso");
 	this->pixelShader = assetManager->Get<PixelShader>("assets/shaders/ps_particle_system.cso");
 	this->geometryShader = assetManager->Get<GeometryShader>("assets/shaders/gs_particle_system.cso");
@@ -175,9 +202,52 @@ bool ParticlePass::Initialize(ID3D11Device* device, AssetManager *assetManager)
 	return true;
 }
 
+bool ParticlePass::CreateAdditiveStates(ID3D11Device *device)
+{
+	HRESULT result;
+
+	/* Blend State */
+	D3D11_BLEND_DESC desc = {};
+	desc.RenderTarget[0].BlendEnable = true;
+	desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	result = device->CreateBlendState(&desc, &this->additiveBlendState);
+
+	if (FAILED(result))
+	{
+		LogError("DirectX failed to create Blend State");
+		return false;
+	}
+
+	/* Depth Stencil State */
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	dsDesc.StencilEnable = false;
+	
+	result = device->CreateDepthStencilState(&dsDesc, &this->additiveDepthStencilState);
+
+	if (FAILED(result))
+	{
+		LogError("DirectX failed to create Depth Stencil State");
+		return false;
+	}
+
+	return true;
+}
+
 void ParticlePass::Shutdown()
 {
 	LogInfo("Shutting down Particle Pass");
 
+	SafeRelease(this->additiveBlendState);
+	SafeRelease(this->additiveDepthStencilState);
 	SafeRelease(this->particleSystemCB);
 }

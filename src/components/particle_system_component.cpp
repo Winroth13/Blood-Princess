@@ -32,6 +32,27 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
     command.count = this->count;
     command.position = transform->GetRenderPosition();
 
+    // flags
+
+    uint32_t flags = 0;
+    if (shouldReset)
+    {
+        flags |= +ParticleFlags::RESET;
+        shouldReset = false;
+    }
+
+    if (isAdditive)
+    {
+        flags |= +ParticleFlags::ADDITIVE;
+    }
+
+    if (isAnimated)
+    {
+        flags |= +ParticleFlags::ANIMATED;
+    }
+
+    command.flags = flags;
+
     command.lifeTime = this->lifeTime;
     command.spawnRadius = this->spawnRadius;
            

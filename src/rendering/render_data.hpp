@@ -120,6 +120,8 @@ struct ParticleSystemData
 
     XMFLOAT3 endTint;
     int count;
+    uint32_t flags; // particles should reset automatically
+    float pad0[3];
 };
 AssertCBufferSize(ParticleSystemData);
 

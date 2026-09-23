@@ -20,6 +20,9 @@ class ParticlePass
 {
 	ID3D11Buffer *particleSystemCB = nullptr;
 
+	ID3D11BlendState *additiveBlendState = nullptr;
+	ID3D11DepthStencilState *additiveDepthStencilState = nullptr;
+
 	std::shared_ptr<VertexShader> vertexShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShader = nullptr;
 	std::shared_ptr<GeometryShader> geometryShader = nullptr;
@@ -54,5 +57,8 @@ public:
 	);
 
 	bool Initialize(ID3D11Device *device, AssetManager *assetManager);
+
+	bool CreateAdditiveStates(ID3D11Device* device);
+
 	void Shutdown();
 };

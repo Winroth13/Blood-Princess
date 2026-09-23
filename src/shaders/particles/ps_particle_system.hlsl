@@ -32,8 +32,15 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float2 uv;
     float lifeRatio = input.lifetime / lifeTime;
     
-    uv = AtlasUV(input.uv, lifeRatio);
-    
+    if ((flags & PARTICLE_FLAG_ANIMATED) == PARTICLE_FLAG_ANIMATED)
+    {
+        uv = AtlasUV(input.uv, lifeRatio);
+    }
+    else
+    {
+        uv = input.uv;
+    }
+
     float4 colorSample = colorTexture.Sample(samplerState, uv);
     
     /* Alpha check */

@@ -12,7 +12,7 @@ Texture2D<float4> outputTexture : register(t3);
 cbuffer DebugView : register(b6)
 {
     int debugView;
-    float3 pad4;
+    float3 pad5;
 }
 
 float3 Tonemap(float3 hdr)
