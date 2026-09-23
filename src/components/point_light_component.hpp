@@ -23,7 +23,7 @@ private:
 
 public:
     const DirectX::XMFLOAT3 &GetColour() const { return this->colour; }
-    bool SetColour(DirectX::XMFLOAT3 colour) { this->colour = colour; }
+    void SetColour(DirectX::XMFLOAT3 colour) { this->colour = colour; }
 
     float GetIntensity() const { return this->intensity; }
     void SetIntensity(float intensity) { this->intensity = intensity; }

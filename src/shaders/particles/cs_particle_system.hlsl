@@ -25,11 +25,22 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float3 realVelocity = velocity + acceleration * particle.lifeTime;
     particle.position += realVelocity * deltaTime;
    
+    float lifeRatio = particle.lifeTime / lifeTime;
+    
     bool shouldReset = (flags & PARTICLE_FLAG_RESET) == PARTICLE_FLAG_RESET;
     
     if (particle.lifeTime > lifeTime || shouldReset)
     {
-        particle.lifeTime = 0.0f;
+        if (shouldReset)
+        {
+            particle.lifeTime = lifeTime * random(float2(DTid.x + ticks + 2, DTid.x + ticks + 2));
+        }
+        else
+        {
+            particle.lifeTime = particle.lifeTime % lifeTime;
+        }
+        
+        lifeRatio = particle.lifeTime / lifeTime;
         
         float angle = random(float2(DTid.x + ticks, DTid.x + ticks)) * 3.14f * 2;
         float radiusRatio = random(float2(DTid.x + ticks + 1, DTid.x + ticks + 1));
@@ -42,7 +53,6 @@ void main( uint3 DTid : SV_DispatchThreadID )
         particle.position.z = z + realVelocity.z * particle.lifeTime;
     }
     
-    float lifeRatio = particle.lifeTime / lifeTime;
     particle.scale = lerp(startScale, endScale, lifeRatio);
     particle.tint = lerp(startTint, endTint, lifeRatio);
     

@@ -81,4 +81,7 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 		}
 		ImGui::TreePop();
 	}
+
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+		this->selectedEntity = nullptr;
 }

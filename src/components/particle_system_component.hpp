@@ -50,6 +50,7 @@ private:
     bool CreateParticleBuffer(ID3D11Device* device);
 
 public:
+    void SetCount(const uint32_t count) { this->count = count; }
     void SetLifeTime(const float lifeTime) { this->lifeTime = lifeTime; }
     void SetSpawnRadius(const float spawnRadius) { this->spawnRadius = spawnRadius; }
     void SetAnimationSpeed(const float animationSpeed) { this->animationSpeed = animationSpeed; }
@@ -61,4 +62,7 @@ public:
     void SetEndTint(const XMFLOAT3 endTint) { this->endTint = endTint; }
     void SetStartScale(const float startScale) { this->startScale = startScale; }
     void SetEndScale(const float endScale) { this->endScale = endScale; }
+
+    void SetIsAnimate(const bool isAnimated) { this->isAnimated = isAnimated; }
+    void SetIsAdditive(const bool isAdditive) { this->isAdditive = isAdditive; }
 };

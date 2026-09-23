@@ -117,6 +117,24 @@ void ParticlePass::RenderDrawPass(
 		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix, XMMatrixInverse(nullptr, worldMatrix));
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
 
+		ParticleSystemData data = {};
+		data.count = command.count;
+		data.lifeTime = command.lifeTime;
+		data.spawnRadius = command.spawnRadius;
+		data.atlasSize = command.atlasSize;
+		data.velocity = command.velocity;
+		data.animationSpeed = command.animationSpeed;
+		data.acceleration = command.acceleration;
+		data.startScale = command.startScale;
+		data.startTint = command.startTint;
+		data.endScale = command.endScale;
+		data.endTint = command.endTint;
+		data.flags = command.flags;
+
+		// Upload Particle System CBuffer
+		RenderUtils::UploadConstantBuffer(deviceContext, this->particleSystemCB, data);
+		deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
+
 		UINT sampleMask = 0xffffffff;
 		float blendFactor[4] = { 0.8f, 0.8f, 0.8f, 0.0f };
 
