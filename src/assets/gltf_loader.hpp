@@ -28,6 +28,7 @@ class GLTFLoader
 
 	uint32_t vertexCount = 0;
 	uint32_t indexCount = 0;
+    uint32_t subMeshCount = 0;
 
 	std::vector<Mesh *> meshes = {};
 	std::vector<Material> materials = {};

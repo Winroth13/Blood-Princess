@@ -119,6 +119,24 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
     }
 
+    {
+        Entity *entity = outScene.AddEntity("princess_entity");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(-3.0f, -1.0f, 5.0f);
+        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/princess.glb"));
+    }
+
+    {
+        Entity *entity = outScene.AddEntity("sword_entity");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(-6.0f, 1.0f, 5.0f);
+        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+    }
+
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
     //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();

@@ -82,7 +82,7 @@ bool GLTFLoader::Load(
 
 	this->vertexCount = 0;
 	this->indexCount = 0;
-	uint32_t subMeshCount = 0;
+	this->subMeshCount = 0;
 
 	tg3_parse_options_init(&opts);
 	tg3_error_stack_init(&errors);
@@ -121,7 +121,7 @@ bool GLTFLoader::Load(
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
 
-	LogInfo("Created %zu Meshes, %d Sub Meshes with %d Vertices, %d Indicies", this->meshes.size(), subMeshCount, this->vertexCount, this->indexCount);
+	LogInfo("Created %zu Meshes, %d Sub Meshes with %d Vertices, %d Indicies", this->meshes.size(), this->subMeshCount, this->vertexCount, this->indexCount);
 	LogInfo("Created %zu Materials", this->materials.size());
 	LogInfo("Created %zu Textures", this->textures.size());
 
@@ -589,8 +589,15 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 
 void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 {
+    if (meshIndex < 0 || static_cast<uint32_t>(meshIndex) >= this->model.meshes_count) 
+    {
+        LogWarn("Mesh index '%d' was out of range", meshIndex);
+        return;
+    }
+
 	const tg3_mesh &tMesh = this->model.meshes[meshIndex];
-	LogInfo("Mesh '%s'", std::string(tMesh.name.data, tMesh.name.len).c_str());
+    const std::string meshName = TG3ToString(tMesh.name);
+	LogInfo("Mesh '%s'", meshName.c_str());
 	LogIndent();
 
 	XMMATRIX inverseTransposeMatrix = matrix;
@@ -604,6 +611,12 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	for (size_t primIndex = 0; primIndex < tMesh.primitives_count; ++primIndex)
 	{
 		const tg3_primitive &primitive = tMesh.primitives[primIndex];
+
+        if (primitive.mode != -1 && primitive.mode != TG3_MODE_TRIANGLES) 
+        {
+            LogWarn("Primitive '%zu' on mesh '%s' uses mode '%d'; only triangle lists are supported", primIndex, meshName.c_str(), primitive.mode);
+            continue;
+        }
 		
 		std::vector<DirectX::XMFLOAT3> positions = {};
 		std::vector<DirectX::XMFLOAT3> normals = {};
@@ -625,43 +638,64 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 			XMStoreFloat3(&normals[i], normal);
 			normals[i].x *= -1; // GLTF uses right-handed coordinate system.
 		}
+
+        const uint32_t baseVertex = static_cast<uint32_t>(meshVertices.size());
 		
 		for (size_t i = 0; i < positions.size(); ++i)
-		{
-			Vertex vertex(
-				positions[i],
-				normals[i],
-				uvs[i]
-			);
-			meshVertices.push_back(vertex);
-		}
-		vertexCount += static_cast<uint32_t>(meshVertices.size());
+			meshVertices.emplace_back(positions[i], normals[i], uvs[i]);
 
-		uint32_t indexOffset = static_cast<uint32_t>(meshIndicies.size());
-
-		SubMesh subMesh = {};
-		subMesh.startIndex = indexOffset;
+		SubMesh subMesh{};
+		subMesh.startIndex = static_cast<uint32_t>(meshIndicies.size());
 		subMesh.numIndicies = static_cast<uint32_t>(indicies.size());
-		subMesh.materialIndex = primitive.material;
+
+        if (primitive.material >= 0 && static_cast<uint32_t>(primitive.material) < this->model.materials_count) 
+        {
+            subMesh.materialIndex = primitive.material;
+        }
+        else 
+        {
+            if (primitive.material != -1)
+                LogWarn("Primitive '%zu' on mesh '%s' has invalid material '%d' (using default)", primIndex, meshName.c_str(), primitive.material);
+
+            subMesh.materialIndex = GetDefaultMaterialIndex();
+        }
+
 		subMeshes.push_back(subMesh);
 
-		for (int32_t i = static_cast<int32_t>(indicies.size()) - 1; i >= 0; --i)
-		{
-			meshIndicies.push_back(indicies[i] + indexOffset);
-		}
-		indexCount += static_cast<uint32_t>(indicies.size());
+		for (size_t i = indicies.size(); i-- > 0;)
+			meshIndicies.push_back(indicies[i] + baseVertex);
+
+        this->vertexCount += static_cast<uint32_t>(positions.size());
+        this->indexCount += static_cast<uint32_t>(indicies.size());
+        ++this->subMeshCount;
 	}
+
+    if (meshVertices.empty() || meshIndicies.empty()) 
+    {
+        LogWarn("Mesh '%s' has no valid primitives (skipped)", meshName.c_str());
+        LogUnindent();
+        return;
+    }
 
     ComputeTangents(meshVertices, meshIndicies);
 
 	Mesh *mesh = new Mesh();
-	mesh->Create(
-		std::string(tMesh.name.data, tMesh.name.len),
+	bool result = mesh->Create(
+		meshName,
 		meshVertices,
 		meshIndicies,
 		subMeshes,
 		device
 	);
+    if (!result) {
+        LogWarn("Failed to create mesh '%s'", meshName.c_str());
+
+        delete mesh;
+
+        LogUnindent();
+        return;
+    }
+
 	meshes.push_back(mesh);
 
 	LogUnindent();
