@@ -19,6 +19,15 @@ struct RayCast
 	float distance = INFINITY;
 };
 
+struct RayHit
+{
+	CollisionComponent *collider = nullptr;
+	bool hasHit = false;
+	DirectX::XMFLOAT3 point{ 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 normal{ 0.0f, 0.0f, 0.0f };
+	float distance = 0.0f;
+};
+
 struct CollisionHit
 {
 	CollisionComponent *collider = nullptr;
@@ -30,8 +39,6 @@ struct CollisionHit
 class CollisionManager
 {
 private:
-	
-
 	std::vector<CollisionComponent *> staticColliders;
 	std::vector<CollisionComponent *> dynamicColliders;
 
@@ -41,6 +48,9 @@ private:
 	bool CheckSphereSphereOverlap(SphereCollisionComponent *a, SphereCollisionComponent *b, CollisionHit &outHit);
 	bool CheckSphereBoxOverlap(SphereCollisionComponent *sphere, BoxCollisionComponent *box, CollisionHit &outHit);
 	bool CheckOverlap(CollisionComponent* a, CollisionComponent* b, CollisionHit& outHit);
+
+	bool RaycastBox(const RayCast &ray, BoxCollisionComponent *box, RayHit &outHit);
+	bool RaycastSphere(const RayCast &ray, SphereCollisionComponent *sphere, RayHit &outHit);
 
 	void ResolvePairs();
 
@@ -59,6 +69,11 @@ public:
 	void Shutdown();
 
 	void Update(float deltaTime);
+
+	bool Raycast(const RayCast &ray, RayHit &outHit, uint32_t layerMask = 0xFFFFFFFF, bool ignoreTriggers = true);
+	bool Raycast(const DirectX::XMFLOAT3 &origin, const DirectX::XMFLOAT3 &direction, float maxDistance, RayHit &outHit, uint32_t layerMask = 0xFFFFFFFF, bool ignoreTriggers = true);
+	bool Raycast(const RayCast &ray, RayHit &outHit, CollisionLayer layerMask, bool ignoreTriggers = true);
+	bool Raycast(const DirectX::XMFLOAT3 &origin, const DirectX::XMFLOAT3 &direction, float maxDistance, RayHit &outHit, CollisionLayer layerMask, bool ignoreTriggers = true);
 
 	void RegisterCollider(CollisionComponent *collider);
 	void UnregisterCollider(CollisionComponent *collider);

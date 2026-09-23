@@ -111,12 +111,10 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
         return false;
     }
 
-    // Vector from Box center to Sphere center in world space
     DirectX::XMVECTOR sphereCenterVec = DirectX::XMLoadFloat3(&worldSphere.Center);
     DirectX::XMVECTOR boxCenterVec = DirectX::XMLoadFloat3(&worldBox.Center);
     DirectX::XMVECTOR dWorld = DirectX::XMVectorSubtract(sphereCenterVec, boxCenterVec);
 
-    // Orientation quaternion of the box
     DirectX::XMVECTOR boxOrientation = DirectX::XMLoadFloat4(&worldBox.Orientation);
     DirectX::XMVECTOR boxOrientationConjugate = DirectX::XMQuaternionConjugate(boxOrientation);
 
@@ -124,7 +122,6 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
     DirectX::XMFLOAT3 dLocalF3;
     DirectX::XMStoreFloat3(&dLocalF3, dLocal);
 
-    // Clamp dLocal to box extents to find closest point on box
     DirectX::XMFLOAT3 pLocalF3;
     pLocalF3.x = (std::max)(-worldBox.Extents.x, (std::min)(worldBox.Extents.x, dLocalF3.x));
     pLocalF3.y = (std::max)(-worldBox.Extents.y, (std::min)(worldBox.Extents.y, dLocalF3.y));
@@ -138,7 +135,6 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
 
     if (distSq > 1e-6f)
     {
-        // Sphere center is outside the box
         float dist = std::sqrt(distSq);
         depth = worldSphere.Radius - dist;
         if (depth <= 0.0f)
@@ -149,7 +145,6 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
     }
     else
     {
-        // Sphere center is inside the box - find minimum distance to any face
         float deltaX = worldBox.Extents.x - std::abs(dLocalF3.x);
         float deltaY = worldBox.Extents.y - std::abs(dLocalF3.y);
         float deltaZ = worldBox.Extents.z - std::abs(dLocalF3.z);
@@ -174,7 +169,6 @@ bool CollisionManager::CheckSphereBoxOverlap(SphereCollisionComponent* sphere, B
         }
     }
 
-    // Rotate normal back to world space
     DirectX::XMVECTOR normalWorldVec = DirectX::XMVector3Rotate(normalLocalVec, boxOrientation);
     normalWorldVec = DirectX::XMVector3Normalize(normalWorldVec);
 
@@ -476,6 +470,200 @@ void CollisionManager::UnregisterCollider(CollisionComponent * collider)
         );
     }
 
+}
+
+bool CollisionManager::RaycastSphere(const RayCast& ray, SphereCollisionComponent* sphere, RayHit& outHit)
+{
+    outHit.hasHit = false;
+    if (!sphere) return false;
+
+    DirectX::BoundingSphere worldSphere = sphere->GetWorldSphere();
+    DirectX::XMVECTOR rayOrigin = DirectX::XMLoadFloat3(&ray.point);
+    DirectX::XMVECTOR rayDir = DirectX::XMLoadFloat3(&ray.direction);
+
+    float dist = 0.0f;
+    if (worldSphere.Intersects(rayOrigin, rayDir, dist))
+    {
+        if (dist >= 0.0f && dist <= ray.distance)
+        {
+            outHit.hasHit = true;
+            outHit.distance = dist;
+            outHit.collider = sphere;
+
+            // Hit point in world space: rayOrigin + rayDir * dist
+            DirectX::XMVECTOR hitPosVec = DirectX::XMVectorMultiplyAdd(rayDir, DirectX::XMVectorReplicate(dist), rayOrigin);
+            DirectX::XMStoreFloat3(&outHit.point, hitPosVec);
+
+            // Normal in world space: normalize(hitPos - sphereCenter)
+            DirectX::XMVECTOR centerVec = DirectX::XMLoadFloat3(&worldSphere.Center);
+            DirectX::XMVECTOR normalVec = DirectX::XMVectorSubtract(hitPosVec, centerVec);
+            DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(normalVec);
+
+            float fLenSq = 0.0f;
+            DirectX::XMStoreFloat(&fLenSq, lengthSq);
+            if (fLenSq > 1e-6f)
+            {
+                normalVec = DirectX::XMVector3Normalize(normalVec);
+            }
+            else
+            {
+                normalVec = DirectX::XMVectorNegate(rayDir);
+            }
+            DirectX::XMStoreFloat3(&outHit.normal, normalVec);
+
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CollisionManager::RaycastBox(const RayCast& ray, BoxCollisionComponent* box, RayHit& outHit)
+{
+    outHit.hasHit = false;
+    if (!box) return false;
+
+    DirectX::BoundingOrientedBox worldOBB = box->GetWorldOBB();
+    DirectX::XMVECTOR rayOrigin = DirectX::XMLoadFloat3(&ray.point);
+    DirectX::XMVECTOR rayDir = DirectX::XMLoadFloat3(&ray.direction);
+
+    float dist = 0.0f;
+    if (worldOBB.Intersects(rayOrigin, rayDir, dist))
+    {
+        if (dist >= 0.0f && dist <= ray.distance)
+        {
+            outHit.hasHit = true;
+            outHit.distance = dist;
+            outHit.collider = box;
+
+            // Hit point in world space
+            DirectX::XMVECTOR hitPosVec = DirectX::XMVectorMultiplyAdd(rayDir, DirectX::XMVectorReplicate(dist), rayOrigin);
+            DirectX::XMStoreFloat3(&outHit.point, hitPosVec);
+
+            // Transform hit point into box's local space to determine hit normal
+            DirectX::XMVECTOR boxCenter = DirectX::XMLoadFloat3(&worldOBB.Center);
+            DirectX::XMVECTOR boxOrientation = DirectX::XMLoadFloat4(&worldOBB.Orientation);
+            DirectX::XMVECTOR boxOrientationConj = DirectX::XMQuaternionConjugate(boxOrientation);
+
+            DirectX::XMVECTOR dWorld = DirectX::XMVectorSubtract(hitPosVec, boxCenter);
+            DirectX::XMVECTOR dLocal = DirectX::XMVector3Rotate(dWorld, boxOrientationConj);
+
+            DirectX::XMFLOAT3 pLocal;
+            DirectX::XMStoreFloat3(&pLocal, dLocal);
+
+            // Find closest face by comparing distance to extents on each axis
+            float dx = (std::max)(0.0f, worldOBB.Extents.x - std::abs(pLocal.x));
+            float dy = (std::max)(0.0f, worldOBB.Extents.y - std::abs(pLocal.y));
+            float dz = (std::max)(0.0f, worldOBB.Extents.z - std::abs(pLocal.z));
+
+            DirectX::XMVECTOR localNormal;
+            if (dx <= dy && dx <= dz)
+            {
+                localNormal = DirectX::XMVectorSet(pLocal.x >= 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f, 0.0f);
+            }
+            else if (dy <= dz)
+            {
+                localNormal = DirectX::XMVectorSet(0.0f, pLocal.y >= 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                localNormal = DirectX::XMVectorSet(0.0f, 0.0f, pLocal.z >= 0.0f ? 1.0f : -1.0f, 0.0f);
+            }
+
+            // Rotate local normal back to world space
+            DirectX::XMVECTOR worldNormal = DirectX::XMVector3Rotate(localNormal, boxOrientation);
+            worldNormal = DirectX::XMVector3Normalize(worldNormal);
+            DirectX::XMStoreFloat3(&outHit.normal, worldNormal);
+
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CollisionManager::Raycast(const RayCast& ray, RayHit& outHit, uint32_t layerMask, bool ignoreTriggers)
+{
+    outHit.hasHit = false;
+    outHit.distance = ray.distance;
+    outHit.collider = nullptr;
+
+    DirectX::XMVECTOR dirVec = DirectX::XMLoadFloat3(&ray.direction);
+    DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(dirVec);
+    float fLenSq = 0.0f;
+    DirectX::XMStoreFloat(&fLenSq, lengthSq);
+    if (fLenSq < 1e-6f || ray.distance <= 0.0f)
+    {
+        return false;
+    }
+
+    RayCast normalizedRay = ray;
+    DirectX::XMStoreFloat3(&normalizedRay.direction, DirectX::XMVector3Normalize(dirVec));
+
+    float closestDist = normalizedRay.distance;
+    RayHit closestHit;
+    bool hitAny = false;
+
+    auto checkColliders = [&](const std::vector<CollisionComponent*>& colliders)
+    {
+        for (CollisionComponent* col : colliders)
+        {
+            if (!col || !col->IsActive()) continue;
+            if (ignoreTriggers && col->IsTrigger()) continue;
+
+            Entity* owner = col->GetOwner();
+            if (owner && !owner->IsActive()) continue;
+
+            if ((static_cast<uint32_t>(col->GetLayer()) & layerMask) == 0) continue;
+
+            RayHit tempHit;
+            bool hit = false;
+
+            if (col->GetShape() == CollisionShape::BOX)
+            {
+                hit = this->RaycastBox(normalizedRay, static_cast<BoxCollisionComponent*>(col), tempHit);
+            }
+            else if (col->GetShape() == CollisionShape::SPHERE)
+            {
+                hit = this->RaycastSphere(normalizedRay, static_cast<SphereCollisionComponent*>(col), tempHit);
+            }
+
+            if (hit && tempHit.distance < closestDist)
+            {
+                closestDist = tempHit.distance;
+                closestHit = tempHit;
+                hitAny = true;
+            }
+        }
+    };
+
+    checkColliders(this->staticColliders);
+    checkColliders(this->dynamicColliders);
+
+    if (hitAny)
+    {
+        outHit = closestHit;
+        return true;
+    }
+
+    return false;
+}
+
+bool CollisionManager::Raycast(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction, float maxDistance, RayHit& outHit, uint32_t layerMask, bool ignoreTriggers)
+{
+    RayCast ray;
+    ray.point = origin;
+    ray.direction = direction;
+    ray.distance = maxDistance;
+    return this->Raycast(ray, outHit, layerMask, ignoreTriggers);
+}
+
+bool CollisionManager::Raycast(const RayCast& ray, RayHit& outHit, CollisionLayer layerMask, bool ignoreTriggers)
+{
+    return this->Raycast(ray, outHit, static_cast<uint32_t>(layerMask), ignoreTriggers);
+}
+
+bool CollisionManager::Raycast(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction, float maxDistance, RayHit& outHit, CollisionLayer layerMask, bool ignoreTriggers)
+{
+    return this->Raycast(origin, direction, maxDistance, outHit, static_cast<uint32_t>(layerMask), ignoreTriggers);
 }
 
 void CollisionManager::Clear()
