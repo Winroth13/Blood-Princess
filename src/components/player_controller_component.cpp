@@ -5,9 +5,11 @@
 #include "input/input.hpp"
 #include "input/action.hpp"
 #include <algorithm>
+#include "collision/collision_manager.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
+	this->collisionRef = context.collisionManager;
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -15,23 +17,68 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
+		if (this->dashCooldownTimer <= 0)
+		{
+			this->canUseDash = true;
+			this->dashCooldownTimer = 1.5f;
+		}
 	}
 
-	if (dashCooldownTimer <= 0)
+	if (this->isDashing)
 	{
-		this->canUseDash = true;
-		dashCooldownTimer = 3.0f;
+		PerformDash(deltaTime, this->dashDistance, this->dashDuration);
+	}
+	else
+	{
+		HandleMovement(deltaTime);
+		HandleCombat(deltaTime); 
 	}
 
-	HandleMovement(deltaTime);
 	HandleCameraLook(deltaTime);
-	HandleCombat(deltaTime);
 
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
 {
 	
+}
+
+void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
+{
+	auto transform = GetOwner()->GetComponent<TransformComponent>();
+	float yawRad = XMConvertToRadians(this->yaw);
+
+	DirectX::XMVECTOR forward = XMVectorSet(sinf(yawRad), 0.0f, cosf(yawRad), 0.0f);
+	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
+
+	if (Action::IsActionDown("MoveForward")) {
+		direction = XMVectorAdd(direction, forward);
+	}
+	if (Action::IsActionDown("MoveBackward")) {
+		direction = XMVectorAdd(direction, -forward);
+	}
+	if (Action::IsActionDown("MoveRight")) {
+		direction = XMVectorAdd(direction, right);
+	}
+	if (Action::IsActionDown("MoveLeft")) {
+		direction = XMVectorAdd(direction, -right);
+	}
+	if (Action::IsActionDown("MoveForward") && Action::IsActionDown("MoveRight")) {
+		direction = XMVectorAdd(direction, forward);
+		direction = XMVectorAdd(direction, right);
+	}
+	if (Action::IsActionDown("MoveRight") && Action::IsActionDown("MoveBackward")) {
+		direction = XMVectorAdd(direction, right);
+		direction = XMVectorAdd(direction, -forward);
+	}
+	if (Action::IsActionDown("MoveBackward") && Action::IsActionDown("MoveLeft")) {
+		direction = XMVectorAdd(direction, -forward);
+		direction = XMVectorAdd(direction, -right);
+	}
+	if (Action::IsActionDown("MoveLeft") && Action::IsActionDown("MoveForward")) {
+		direction = XMVectorAdd(direction, -right);
+		direction = XMVectorAdd(direction, forward);
+	}
 }
 
 void PlayerControllerComponent::HandleMovement(float deltaTime)
@@ -101,8 +148,14 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 		PerformHeavyAttack();
 	}
 	if (Action::IsActionPressed("Dash") && this->canUseDash) {
-		PerformDash(deltaTime, this->dashDistance, this->dashDuration);
-		this->canUseDash = false;
+		this->dashDirection = DirectX::XMVectorZero();
+		GetDashDirection(this->dashDirection);
+
+		if (!DirectX::XMVector3Equal(this->dashDirection, DirectX::XMVectorZero())) {
+			this->isDashing = true;
+			this->canUseDash = false;
+			this->dashTimer = 0.0f;
+		}
 	}
 }
 
@@ -119,29 +172,27 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
 {
-	auto transform = GetOwner()->GetComponent<TransformComponent>();
-	float yawRad = XMConvertToRadians(this->yaw);
+	this->dashTimer += deltaTime;
 
-	DirectX::XMVECTOR forward = XMVectorSet(sinf(yawRad), 0.0f, cosf(yawRad), 0.0f);
-	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
-
-	DirectX::XMVECTOR moveDir = XMVectorZero();
-	moveDir = XMVectorAdd(moveDir, forward);
-
-	if (!DirectX::XMVector3Equal(moveDir, XMVectorZero())) {
-		moveDir = XMVector3Normalize(moveDir);
-
-		XMFLOAT3 currentPos = transform->GetLocalPosition();
-		XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
-
-		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * this->moveSpeed* dashDistance);
-		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
-
-		XMFLOAT3 newPos;
-		XMStoreFloat3(&newPos, newPosV);
-
-		transform->SetLocalPosition(newPos);
+	if (this->dashTimer >= dashDuration) {
+		this->isDashing = false;
+		return;
 	}
 
-	LogInfo("The player has Dashed.");
+	auto transform = GetOwner()->GetComponent<TransformComponent>();
+
+	DirectX::XMVECTOR moveDir = DirectX::XMVector3Normalize(this->dashDirection);
+
+	XMFLOAT3 currentPos = transform->GetLocalPosition();
+	XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
+
+	float dashSpeed = dashDistance / dashDuration;
+
+	XMVECTOR newVel = XMVectorScale(moveDir, dashSpeed * deltaTime);
+	XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
+
+	XMFLOAT3 newPos;
+	XMStoreFloat3(&newPos, newPosV);
+
+	transform->SetLocalPosition(newPos);
 }

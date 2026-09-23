@@ -490,11 +490,9 @@ bool CollisionManager::RaycastSphere(const RayCast& ray, SphereCollisionComponen
             outHit.distance = dist;
             outHit.collider = sphere;
 
-            // Hit point in world space: rayOrigin + rayDir * dist
             DirectX::XMVECTOR hitPosVec = DirectX::XMVectorMultiplyAdd(rayDir, DirectX::XMVectorReplicate(dist), rayOrigin);
             DirectX::XMStoreFloat3(&outHit.point, hitPosVec);
 
-            // Normal in world space: normalize(hitPos - sphereCenter)
             DirectX::XMVECTOR centerVec = DirectX::XMLoadFloat3(&worldSphere.Center);
             DirectX::XMVECTOR normalVec = DirectX::XMVectorSubtract(hitPosVec, centerVec);
             DirectX::XMVECTOR lengthSq = DirectX::XMVector3LengthSq(normalVec);
@@ -535,11 +533,9 @@ bool CollisionManager::RaycastBox(const RayCast& ray, BoxCollisionComponent* box
             outHit.distance = dist;
             outHit.collider = box;
 
-            // Hit point in world space
             DirectX::XMVECTOR hitPosVec = DirectX::XMVectorMultiplyAdd(rayDir, DirectX::XMVectorReplicate(dist), rayOrigin);
             DirectX::XMStoreFloat3(&outHit.point, hitPosVec);
 
-            // Transform hit point into box's local space to determine hit normal
             DirectX::XMVECTOR boxCenter = DirectX::XMLoadFloat3(&worldOBB.Center);
             DirectX::XMVECTOR boxOrientation = DirectX::XMLoadFloat4(&worldOBB.Orientation);
             DirectX::XMVECTOR boxOrientationConj = DirectX::XMQuaternionConjugate(boxOrientation);
@@ -550,7 +546,6 @@ bool CollisionManager::RaycastBox(const RayCast& ray, BoxCollisionComponent* box
             DirectX::XMFLOAT3 pLocal;
             DirectX::XMStoreFloat3(&pLocal, dLocal);
 
-            // Find closest face by comparing distance to extents on each axis
             float dx = (std::max)(0.0f, worldOBB.Extents.x - std::abs(pLocal.x));
             float dy = (std::max)(0.0f, worldOBB.Extents.y - std::abs(pLocal.y));
             float dz = (std::max)(0.0f, worldOBB.Extents.z - std::abs(pLocal.z));
@@ -569,7 +564,6 @@ bool CollisionManager::RaycastBox(const RayCast& ray, BoxCollisionComponent* box
                 localNormal = DirectX::XMVectorSet(0.0f, 0.0f, pLocal.z >= 0.0f ? 1.0f : -1.0f, 0.0f);
             }
 
-            // Rotate local normal back to world space
             DirectX::XMVECTOR worldNormal = DirectX::XMVector3Rotate(localNormal, boxOrientation);
             worldNormal = DirectX::XMVector3Normalize(worldNormal);
             DirectX::XMStoreFloat3(&outHit.normal, worldNormal);

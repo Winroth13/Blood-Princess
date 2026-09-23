@@ -12,9 +12,13 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, yaw, 0.0f);
 
 	ExportProperty(bool, canUseDash, true);
-	ExportProperty(float, dashCooldownTimer, 3.0f);
-	ExportProperty(float, dashDistance, 250.0f);
+	ExportProperty(bool, isDashing, false);
+	ExportProperty(float, dashCooldownTimer, .01f);
+	ExportProperty(float, dashTimer, 0.0f);
+	ExportProperty(float, dashDistance, 10.6f);
 	ExportProperty(float, dashDuration, 0.2f);
+	XMVECTOR dashDirection;
+	CollisionManager* collisionRef{ nullptr };
 
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { NoLateUpdate(), NoRender(); }
@@ -25,7 +29,7 @@ private:
 	void LateUpdate(const AppContext &context, float deltaTime) override {}
 	void Render(const RenderView& view, RenderQueue& queue) override {};
 	void OnDestroy(const AppContext& context) override;
-
+	void GetDashDirection(XMVECTOR &direction);
 public:
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
@@ -34,6 +38,7 @@ public:
 	void PerformLightAttack();
 	void PerformHeavyAttack();
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
+
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
