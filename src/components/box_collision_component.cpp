@@ -92,6 +92,18 @@ void BoxCollisionComponent::UpdateWorldOBB()
     localBox.Transform(this->worldOBB, transform->GetWorldMatrix());
 }
 
+void BoxCollisionComponent::SetExtents(const XMFLOAT3& extents)
+{
+    this->extents = extents;
+    this->UpdateWorldOBB();
+}
+
+void BoxCollisionComponent::SetCenterOffset(const DirectX::XMFLOAT3& offset)
+{
+    CollisionComponent::SetCenterOffset(offset);
+    this->UpdateWorldOBB();
+}
+
 void BoxCollisionComponent::UpdateExtents(float width, float height, float depth)
 {
     this->extents = DirectX::XMFLOAT3(width / 2.0f, height / 2.0f, depth / 2.0f);

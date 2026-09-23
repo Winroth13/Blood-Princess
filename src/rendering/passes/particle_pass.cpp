@@ -167,8 +167,12 @@ void ParticlePass::Render(
 	std::vector<RenderView> &views
 )
 {
+	BeginAnnotation("Particle Pass");
+
 	this->RenderParticlePass(device, deviceContext, sharedResources, views);
 	this->RenderDrawPass(device, deviceContext, sharedResources, renderTargetView, depthStencilView, views);
+
+	EndAnnotation();
 }
 
 bool ParticlePass::Initialize(ID3D11Device* device, AssetManager *assetManager)

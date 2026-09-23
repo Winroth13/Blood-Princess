@@ -76,7 +76,7 @@ bool GBuffer::Initialize(
             LogError("Failed to create Unordered Access View");
             return false;
         }
-        RenderUtils::SetDebugName(this->rtv, DebugCategory::GBUFFER, "GBuffer", name, "UAV");
+        RenderUtils::SetDebugName(this->uav, DebugCategory::GBUFFER, "GBuffer", name, "UAV");
 	}
 #pragma endregion
 

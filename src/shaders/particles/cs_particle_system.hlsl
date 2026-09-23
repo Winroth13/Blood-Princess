@@ -37,9 +37,9 @@ void main( uint3 DTid : SV_DispatchThreadID )
         float x = cos(angle) * spawnRadius * radiusRatio;
         float z = sin(angle) * spawnRadius * radiusRatio;
         
-        particle.position.x = x + realVelocity * particle.lifeTime;
-        particle.position.y = realVelocity * particle.lifeTime;
-        particle.position.z = z + realVelocity * particle.lifeTime;
+        particle.position.x = x + realVelocity.x * particle.lifeTime;
+        particle.position.y = realVelocity.y * particle.lifeTime;
+        particle.position.z = z + realVelocity.z * particle.lifeTime;
     }
     
     float lifeRatio = particle.lifeTime / lifeTime;

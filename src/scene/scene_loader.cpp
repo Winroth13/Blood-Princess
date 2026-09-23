@@ -73,10 +73,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
     modelWallComponent->SetActive(false);
 
-    //auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
-    //modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
-    //modelCol->SetStatic(true);
-    //modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
+    auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    modelCol->SetStatic(true);
+    modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);

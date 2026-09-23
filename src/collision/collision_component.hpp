@@ -40,7 +40,7 @@ public:
 
 
     DirectX::XMFLOAT3 GetCenterOffset() const { return this->centerOffset; }
-    void SetCenterOffset(const DirectX::XMFLOAT3& offset) { this->centerOffset = offset; }
+    virtual void SetCenterOffset(const DirectX::XMFLOAT3& offset) { this->centerOffset = offset; }
 
     CollisionShape GetShape() const { return this->shape; };
     void SetShape(CollisionShape shape) { this->shape = shape; };
