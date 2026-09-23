@@ -30,8 +30,6 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
-
-
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
@@ -110,6 +108,13 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         audioComponent->SetAudioRadius(2.0f);
         audioComponent->SetPlayOnStart(true);
 
+    }
+
+    {
+        Entity *entity = outScene.AddEntity("sword");
+        entity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
+        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
     }
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");

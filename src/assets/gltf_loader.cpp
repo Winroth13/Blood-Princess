@@ -10,6 +10,11 @@
 #include <vector>
 #include <unordered_map>
 
+static constexpr std::string TG3ToString(const tg3_str &str)
+{
+    return str.data ? std::string(str.data, str.len) : std::string();
+}
+
 template<typename T>
 std::vector<T> ReadAccessorData(tg3_model *model, int32_t accessorIndex)
 {
@@ -62,6 +67,7 @@ bool GLTFLoader::Load(
 
 	this->device = device;
 	this->deviceContext = deviceContext;
+    this->assetManager = assetManager;
 
 	this->opts = {};
 	this->errors = {};
@@ -70,6 +76,9 @@ bool GLTFLoader::Load(
 	this->meshes = {};
 	this->materials = {};
 	this->textures = {};
+
+    this->defaultTextureIndices.fill(-1);
+    this->defaultMaterialIndex = -1;
 
 	this->vertexCount = 0;
 	this->indexCount = 0;
@@ -101,9 +110,13 @@ bool GLTFLoader::Load(
 		return false;
 	}
 
-	ReadScenes();
-	ReadMaterials(this->materials);
-	ReadTextures();
+	this->ReadMaterials();
+	this->ReadTextures();
+
+    for (Material &material : this->materials)
+        this->AssignDefaultTextures(material);
+
+	this->ReadScenes();
 
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
@@ -116,14 +129,74 @@ bool GLTFLoader::Load(
 	return true;
 }
 
-void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
+int32_t GLTFLoader::GetImageIndex(int32_t textureIndex) const 
+{
+    if (textureIndex < 0)
+        return -1;
+
+    if (static_cast<uint32_t>(textureIndex) >= this->model.textures_count)
+    {
+        LogWarn("Texture index '%d' was out of range", textureIndex);
+        return -1;
+    }
+
+    const int32_t imageIndex = this->model.textures[textureIndex].source;
+    if (imageIndex < 0 || static_cast<uint32_t>(imageIndex) >= this->model.images_count) 
+    {
+        LogWarn("Texture '%d' has no image", textureIndex);
+        return -1;
+    }
+
+    return imageIndex;
+}
+
+int32_t GLTFLoader::GetDefaultTextureIndex(DefaultTexture type) 
+{
+    int32_t &index = this->defaultTextureIndices[+type];
+    if (index < 0) 
+    {
+        index = static_cast<int32_t>(this->textures.size());
+        this->textures.push_back(this->assetManager->GetDefaultTexture(type));
+    }
+
+    return index;
+}
+
+int32_t GLTFLoader::GetDefaultMaterialIndex() 
+{
+    if (this->defaultMaterialIndex < 0) 
+    {
+        Material material{};
+        material.name = "Default";
+        AssignDefaultTextures(material);
+
+        this->defaultMaterialIndex = static_cast<int32_t>(this->materials.size());
+        this->materials.push_back(material);
+    }
+
+    return this->defaultMaterialIndex;
+}
+
+void GLTFLoader::AssignDefaultTextures(Material &material) 
+{
+    if (material.albedoTextureIndex < 0)
+        material.albedoTextureIndex = GetDefaultTextureIndex(DefaultTexture::ALBEDO);
+
+    if (material.normalTextureIndex < 0)
+        material.normalTextureIndex = GetDefaultTextureIndex(DefaultTexture::NORMAL);
+
+    if (material.metallicRoughnessTextureIndex < 0)
+        material.metallicRoughnessTextureIndex = GetDefaultTextureIndex(DefaultTexture::METALLIC_ROUGHNESS);
+}
+
+void GLTFLoader::ReadMaterials()
 {
 	for (uint32_t matIndex = 0; matIndex < this->model.materials_count; ++matIndex)
 	{
 		const tg3_material &tMaterial = this->model.materials[matIndex];
 
 		Material material = {};
-		material.name = std::string(tMaterial.name.data, tMaterial.name.len);
+		material.name = TG3ToString(tMaterial.name);
 
 		const tg3_pbr_metallic_roughness &pbr = tMaterial.pbr_metallic_roughness;
 		
@@ -134,25 +207,11 @@ void GLTFLoader::ReadMaterials(std::vector<Material> &materials)
 			static_cast<float>(pbr.base_color_factor[3])
 		};
 
-		material.albedoTextureIndex = pbr.base_color_texture.index;
-		if (!material.albedoTextureIndex)
-		{
-			LogWarn("No Albedo Texture");
-		}
+        material.albedoTextureIndex = GetImageIndex(pbr.base_color_texture.index);
+        material.normalTextureIndex = GetImageIndex(tMaterial.normal_texture.index);
+        material.metallicRoughnessTextureIndex = GetImageIndex(pbr.metallic_roughness_texture.index);
 
-		material.normalTextureIndex = tMaterial.normal_texture.index;
-		if (!material.albedoTextureIndex)
-		{
-			LogWarn("No Normal Texture");
-		}
-
-		material.metallicRoughnessTextureIndex = pbr.metallic_roughness_texture.index;
-		if (!material.albedoTextureIndex)
-		{
-			LogWarn("No Metallic Roughness Texture");
-		}
-
-		materials.push_back(material);
+		this->materials.push_back(material);
 	}
 }
 
@@ -161,15 +220,21 @@ void GLTFLoader::ReadTextures()
 	for (uint32_t i = 0; i < this->model.images_count; ++i)
 	{
 		const tg3_image &tImage = this->model.images[i];
+        const std::string imageName = TG3ToString(tImage.name);
 		
 		bool isColor = false;
+        DefaultTexture textureType = DefaultTexture::METALLIC_ROUGHNESS;
 		for (const Material &material : this->materials)
 		{
-			if (i == material.albedoTextureIndex)
+			if (static_cast<int32_t>(i) == material.albedoTextureIndex)
 			{
 				isColor = true;
+                textureType = DefaultTexture::ALBEDO;
 				break;
 			}
+
+            if (static_cast<int32_t>(i) == material.normalTextureIndex)
+                textureType = DefaultTexture::NORMAL;
 		}
 
 		const unsigned char *compressedData = nullptr;
@@ -180,50 +245,56 @@ void GLTFLoader::ReadTextures()
 			const tg3_buffer_view &bufferView = this->model.buffer_views[tImage.buffer_view];
 			const tg3_buffer &buffer = this->model.buffers[bufferView.buffer];
 
-			compressedData = buffer.data.data + bufferView.byte_offset;
-			dataSize = static_cast<int>(bufferView.byte_length);
+            if (bufferView.byte_offset + bufferView.byte_length <= buffer.data.count)
+            {
+			    compressedData = buffer.data.data + bufferView.byte_offset;
+			    dataSize = static_cast<int>(bufferView.byte_length);
+            }
 		}
 		else if (tImage.uri.data != nullptr && tImage.uri.len > 0)
 		{
-			LogError("External URI textures are not implemented yet: %s", tImage.uri.data);
-			continue;
+			LogWarn("External URI textures are not implemented yet: %s (using default)", TG3ToString(tImage.uri).c_str());
 		}
 
-		if (!compressedData || dataSize <= 0)
+		int width = 0, height = 0, channels = 0;
+        unsigned char *pixelData = nullptr;
+        
+        if (compressedData && dataSize > 0)
+        {
+            pixelData = stbi_load_from_memory(
+			    compressedData,
+			    dataSize,
+			    &width,
+			    &height,
+			    &channels,
+			    STBI_rgb_alpha
+		    );
+        }
+
+        std::shared_ptr<Texture2D> texture = nullptr;
+
+		if (pixelData)
 		{
-			LogError("Failed to find data for image %s", tImage.name.data);
-			continue;
+            texture = std::make_shared<Texture2D>();
+            bool result = texture->Create(
+                (char *)pixelData,
+                width,
+                height,
+                STBI_rgb_alpha,
+                imageName,
+                isColor,
+                device,
+                deviceContext
+            );
+            if (!result)
+                texture = nullptr;
 		}
 
-		int width, height, channels = 0;
-		unsigned char *pixelData = stbi_load_from_memory(
-			compressedData,
-			dataSize,
-			&width,
-			&height,
-			&channels,
-			STBI_rgb_alpha
-		);
-
-		if (!pixelData)
-		{
-			LogError("STBI failed to decode image %s", tImage.name.data);
-			continue;
-		}
-
-		Texture2D *texture = new Texture2D();
-
-		// TODO: Should check if this fails.
-		bool result = texture->Create(
-			(char *)pixelData,
-			width,
-			height,
-			channels,
-			tImage.name.data,
-			isColor,
-			device,
-			deviceContext
-		);
+        if (!texture)
+        {
+            LogWarn("Failed to load image %u '%s' (using default)", i, imageName.c_str());
+            texture = this->assetManager->GetDefaultTexture(textureType);
+        }
 
 		this->textures.push_back(texture);
 	}

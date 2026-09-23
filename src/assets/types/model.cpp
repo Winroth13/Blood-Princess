@@ -119,7 +119,7 @@ bool Mesh::Create(
 bool Model::Create(
 	const std::vector<Mesh*> &meshes, 
 	const std::vector<Material> &materials,
-	const std::vector<Texture2D *> &textures
+	const std::vector<std::shared_ptr<Texture2D>> &textures
 )
 {
 	LogInfo("Creating Model...");
@@ -130,12 +130,8 @@ bool Model::Create(
 		this->meshes.push_back(std::unique_ptr<Mesh>(mesh));
 	}
 
-	this->materials = materials;
-	
-	for (auto &textures : textures)
-	{
-		this->textures.push_back(std::unique_ptr<Texture2D>(textures));
-	}
+	this->materials = materials;	
+	this->textures = textures;
 	
 	LogUnindent();
 
@@ -169,7 +165,7 @@ void Model::DrawImGui()
 			if (ImGui::TreeNode(label.c_str()))
 			{
 				ImGui::Text("Vertices: %d", mesh->GetNumVertices());
-				ImGui::Text("Indicies: %d", mesh->GetNumVertices());
+				ImGui::Text("Indices: %d", mesh->GetNumIndicies());
 
 				if (ImGui::TreeNode("Submeshes"))
 				{
