@@ -15,7 +15,7 @@ class PlayerControllerComponent : public Component
 	ExportProperty(bool, isDashing, false);
 	ExportProperty(float, dashCooldownTimer, .01f);
 	ExportProperty(float, dashTimer, 0.0f);
-	ExportProperty(float, dashDistance, 10.6f);
+	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
 	XMVECTOR dashDirection;
 	CollisionManager* collisionRef{ nullptr };

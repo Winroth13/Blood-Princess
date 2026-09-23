@@ -20,6 +20,7 @@ class AudioComponent : public Component
     ExportPropertyRanged(float, minDistance, "m", 0.0f, 1.0f, 0.01f, 0.0f);
     ExportPropertyRanged(float, maxDistance, "m", 0.0f, 10.0f, 0.01f, 5.0f);
     int currentSoundId = 0;
+    bool playOnStart = false;
 
 public:
     AudioComponent(Entity* owner, bool isActive,std::shared_ptr<AudioClip> audioClip);
@@ -57,5 +58,6 @@ public:
     bool SetAudioRadius(float radius = 5.0f);
 
     bool ChangeAudioClip(std::shared_ptr<AudioClip> audioClip);
+    void SetPlayOnStart(bool play);
 
 };

@@ -30,16 +30,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
-    auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/looping.ogg");
-    auto musicClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg");
-    if (sfxClip) {
-        AudioComponent* audioComponent = modelEntity->AddComponent<AudioComponent>(sfxClip);
-        MusicComponent* musicComponent = modelEntity->AddComponent<MusicComponent>(musicClip);
-        audioComponent->SetLooping(true);
-        audioComponent->SetAudio3D(true);
 
-        audioComponent->Play();
-    }
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
@@ -50,22 +41,20 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *lightEntity = outScene.AddEntity("light");
     lightEntity->AddComponent<AmbientLightComponent>();
     lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
-
-    Entity* EntitywallEntity = outScene.AddEntity("wall");
-    auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
-    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
-
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
 
+
+    Entity* EntitywallEntity = outScene.AddEntity("wall");
+    auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
+    wallTransform->SetWorldPosition({ 5.0f, 0.0f, 0.0f });
+    auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    modelCol->SetStatic(true);
+    modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
     ModelComponent* modelWallComponent = EntitywallEntity->AddComponent<ModelComponent>();
     modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
-    modelWallComponent->SetActive(false);
 
-    //auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
-    //modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
-    //modelCol->SetStatic(true);
-    //modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
 
     {
         Entity *torchEntity = outScene.AddEntity("Torch");
@@ -113,6 +102,14 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         auto pointLightC = fireParticleEntity->GetComponent<PointLightComponent>();
         pointLightC->SetColour({ 228 / 255.0f, 119 / 255.0f, 37 / 255.0f });
         pointLightC->SetIntensity(8);
+
+        auto sfxClip = appContext.assetManager->Get<AudioClip>("assets/audio/music/egomassive__fire.ogg");
+        AudioComponent* audioComponent = fireParticleEntity->AddComponent<AudioComponent>(sfxClip);
+        audioComponent->SetLooping(true);
+        audioComponent->SetAudio3D(true);
+        audioComponent->SetAudioRadius(2.0f);
+        audioComponent->SetPlayOnStart(true);
+
     }
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");

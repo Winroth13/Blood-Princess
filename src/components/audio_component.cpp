@@ -14,6 +14,11 @@ AudioComponent::AudioComponent(Entity* owner, bool isActive, std::shared_ptr<Aud
 void AudioComponent::OnStart(const AppContext& context)
 {
 	this->audioManagerRef = context.audioManager;
+
+	// If playback was requested before OnStart (scene construction time), start it now
+	if (this->playOnStart) {
+		this->Play();
+	}
 }
 
 void AudioComponent::Update(const AppContext& context, float deltaTime)
@@ -154,10 +159,9 @@ float AudioComponent::GetMinDistance()
 
 bool AudioComponent::SetMinDistance(float minDistance)
 {
-	if (!this->audioManagerRef) {
-		LogWarn("The Audio Manager referance is not valid in Audio Component!");
-		return false;
-	}
+	// It's valid to set distances before the AudioManager has been assigned
+	// (OnStart may run later). Just store the value locally; the AudioManager
+	// will be used when playing/updating the sound.
 	this->minDistance = minDistance;
 	return true;
 }
@@ -169,10 +173,9 @@ float AudioComponent::GetMaxDistance()
 
 bool AudioComponent::SetMaxDistance(float maxDistance)
 {
-	if (!this->audioManagerRef) {
-		LogWarn("The Audio Manager referance is not valid in Audio Component!");
-		return false;
-	}
+	// It's valid to set distances before the AudioManager has been assigned
+	// (OnStart may run later). Just store the value locally; the AudioManager
+	// will be used when playing/updating the sound.
 	this->maxDistance = maxDistance;
 	return true;
 }
@@ -191,4 +194,9 @@ bool AudioComponent::SetAudioRadius(float radius)
 bool AudioComponent::ChangeAudioClip(std::shared_ptr<AudioClip> audioClip)
 {
 	return false;
+}
+
+void AudioComponent::SetPlayOnStart(bool play)
+{
+	this->playOnStart = play;
 }
