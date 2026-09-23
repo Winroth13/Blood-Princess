@@ -196,7 +196,7 @@ void DeferredPass::RenderGeometryPass(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
-	constexpr int TEXTURE_COUNT = 3;
+	std::array<ID3D11ShaderResourceView *, 3> srvs;
 
 	for (GeometryCommand &command : view->queue.geometryCommands) {
 		PerObjectData perObjectData{};
@@ -218,13 +218,12 @@ void DeferredPass::RenderGeometryPass(
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 
-		
-		ID3D11ShaderResourceView *srvs[TEXTURE_COUNT] = {
-            command.albedoSRV,
+		srvs = {
+			command.albedoSRV,
 			command.normalSRV,
 			command.metallicRoughnessSRV
 		};
-		deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, srvs);
+		deviceContext->PSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 
 		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;
@@ -237,8 +236,8 @@ void DeferredPass::RenderGeometryPass(
 	ID3D11RenderTargetView *nullRtvs[2] = {};
 	deviceContext->OMSetRenderTargets(2, nullRtvs, nullptr);
 
-	ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
-	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
+	ID3D11ShaderResourceView *nullSRVs[srvs.size()] = {};
+	deviceContext->PSSetShaderResources(0, static_cast<UINT>(srvs.size()), nullSRVs);
 
 	EndAnnotation();
 }
