@@ -182,6 +182,8 @@ void ShadowPass::Render(
 	std::vector<RenderView> &views
 )
 {
+	BeginAnnotation("Shadow pass");
+
 	std::vector<RenderView*> directionalViews;
 	std::vector<RenderView*> spotViews;
 	std::vector<RenderView*> pointViews;
@@ -210,6 +212,8 @@ void ShadowPass::Render(
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
+	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	sharedResources.BindSamplers(deviceContext);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -222,7 +226,6 @@ void ShadowPass::Render(
 	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
 	deviceContext->VSSetConstantBuffers(0, 1, &perView);
 	deviceContext->VSSetConstantBuffers(1, 1, &perObject);
-	deviceContext->PSSetConstantBuffers(2, 1, &perMaterial);
 
 	deviceContext->RSSetViewports(1, &viewport);
 
@@ -237,7 +240,6 @@ void ShadowPass::Render(
 
 
 
-	//deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//constexpr int TEXTURE_COUNT = 3;
 
@@ -277,9 +279,8 @@ void ShadowPass::Render(
 	//	deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	//}
 
-	//ID3D11RenderTargetView *nullRtvs[+GBufferType::COUNT] = {};
-	//deviceContext->OMSetRenderTargets(+GBufferType::COUNT, nullRtvs, nullptr);
-
 	//ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
 	//deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
+
+	EndAnnotation();
 }

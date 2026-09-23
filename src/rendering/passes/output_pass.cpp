@@ -13,7 +13,7 @@ bool OutputPass::Initialize(
     LogInfo("Initializing Deferred Pass...");
     LogIndent();
 
-    if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug view"))
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug View"))
         return false;
 
     this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_output.cso");
@@ -50,6 +50,8 @@ void OutputPass::Render(
     BackBuffer &backBuffer,
     std::vector<RenderView> &views
 ) {
+    BeginAnnotation("Output Pass");
+
     RenderView *view = RenderUtils::GetView(views, ViewType::PRIMARY);
     if (!view) {
         LogWarn("Could not find a primary view to render to");
@@ -64,13 +66,13 @@ void OutputPass::Render(
 
     DeferredPass::OutputTextures deferredOutput = deferredPass.GetOutputTextures();
 
-    ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetUAV();
+    ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetRenderTargetUAV();
     deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 
     std::array<ID3D11ShaderResourceView *, 4> srvs = {
         deferredOutput.albedoMetallic,
         deferredOutput.normalRoughness,
-        deferredOutput.depth,
+        backBuffer.GetDepthStencilSRV(),
         deferredOutput.output
     };
     deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
@@ -78,8 +80,8 @@ void OutputPass::Render(
     deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
     ID3D11Buffer *perView = sharedResources.GetPerView();
-    deviceContext->CSSetConstantBuffers(0, 1, &perView);
-    deviceContext->CSSetConstantBuffers(4, 1, &this->debugCB);
+    deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+    deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::DEBUG, 1, &this->debugCB);
 
     const UINT groupsX = (this->width + 7) / 8;
     const UINT groupsY = (this->height + 7) / 8;
@@ -92,4 +94,6 @@ void OutputPass::Render(
     deviceContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
     deviceContext->CSSetShader(nullptr, nullptr, 0);
+
+    EndAnnotation();
 }

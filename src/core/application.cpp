@@ -18,10 +18,10 @@ void Application::Update(float deltaTime)
 	this->collisionManager.Update(deltaTime);
 }
 
-void Application::Render() 
+void Application::Render(float deltaTime) 
 {
     this->editor.ImGuiRender(this->appContext);
-    this->renderer.Render(this->sceneManager.GetCurrentScene());
+    this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
     this->imGuiLayer.Present();
     this->renderer.Present();
 }
@@ -168,7 +168,7 @@ void Application::Run()
 
         this->Update(deltaTime);
 
-        this->Render();
+        this->Render(deltaTime);
     }
 }
 

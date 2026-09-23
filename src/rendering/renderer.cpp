@@ -92,7 +92,7 @@ bool Renderer::PreInitialize(const AppContext &appContext)
 
     InitializeAnnotator(this->deviceContext);
 
-    if (!this->backBuffer.Create(this->device, this->swapChain))
+    if (!this->backBuffer.Create(this->device, this->swapChain, this->width, this->height))
     {
         LogError("Failed to create Back Buffer");
         return false;
@@ -127,7 +127,7 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
-    if (!this->particlePass.Initialize(this->device))
+    if (!this->particlePass.Initialize(this->device, appContext.assetManager))
     {
         LogError("Failed to create Particle Pass");
     }
@@ -180,22 +180,21 @@ void Renderer::NewFrame()
     this->views.clear();
 }
 
-void Renderer::Render(Scene *scene)
+void Renderer::Render(Scene *scene, float deltaTime)
 {
     if (!scene) {
         LogError("Scene was nullptr\n");
         return;
     }
 
-    this->deviceContext->ClearRenderTargetView(this->backBuffer.GetView(), this->clearColor);
+    this->deviceContext->ClearRenderTargetView(this->backBuffer.GetRenderTargetView(), this->clearColor);
+    this->sharedResources.UploadPerFrameData(this->deviceContext, deltaTime);
 
     RenderView *primary = RenderUtils::GetView(this->views, ViewType::PRIMARY);
     if (!primary)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
-
-    BeginAnnotation("Deferred Pass");
 
     this->deferredPass.Render(
         this->device, 
@@ -204,9 +203,6 @@ void Renderer::Render(Scene *scene)
         this->backBuffer,
         this->views
     );
-
-    EndAnnotation();
-    BeginAnnotation("Output Pass");
 
     if (Input::IsKeyPressed(Key::C))
         this->outputPass.SetDebugView(static_cast<DebugView>((+this->outputPass.GetDebugView() + 1) % +DebugView::COUNT));
@@ -220,21 +216,16 @@ void Renderer::Render(Scene *scene)
         this->views
     );
 
-    EndAnnotation();
-
-    BeginAnnotation("Particle Pass");
-
     this->particlePass.Render(
         this->device,
         this->deviceContext,
         this->sharedResources,
-        this->backBuffer.GetView(),
+        this->backBuffer.GetRenderTargetView(),
+        this->backBuffer.GetDepthStencilView(),
         this->views
     );
 
-    EndAnnotation();
-
-    ID3D11RenderTargetView *view = this->backBuffer.GetView();
+    ID3D11RenderTargetView *view = this->backBuffer.GetRenderTargetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
 }
 
@@ -270,7 +261,7 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
         return false;
     }
 
-    if (!this->backBuffer.Create(this->device, this->swapChain))
+    if (!this->backBuffer.Create(this->device, this->swapChain, width, height))
     {
         LogError("Failed to create Back Buffer");
         return false;

@@ -72,6 +72,7 @@ struct SkyboxCommand
 
 struct ParticleSystemCommand
 {
+    XMFLOAT4X4 worldMatrix;
     int count;
     XMFLOAT3 position;
 
@@ -90,6 +91,7 @@ struct ParticleSystemCommand
     XMFLOAT3 startTint;
     XMFLOAT3 endTint;
 
-    ID3D11ShaderResourceView *srv;
-    ID3D11UnorderedAccessView *uav;
+    ID3D11ShaderResourceView *colorSRV;
+    ID3D11ShaderResourceView *particleSRV;
+    ID3D11UnorderedAccessView *particleUAV;
 };

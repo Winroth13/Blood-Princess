@@ -9,10 +9,10 @@ Texture2D<float4> normalRoughnessTexture : register(t1);
 Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
 
-cbuffer DebugView : register(b4)
+cbuffer DebugView : register(b6)
 {
     int debugView;
-    float3 pad3;
+    float3 pad4;
 }
 
 float3 Tonemap(float3 hdr)

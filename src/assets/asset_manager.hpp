@@ -9,6 +9,8 @@
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
 #include "assets/types/compute_shader.hpp"
+#include "assets/types/geometry_shader.hpp"
+#include "assets/types/domain_shader.hpp"
 
 #include <unordered_map>
 #include <string>

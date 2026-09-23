@@ -17,6 +17,14 @@ using namespace DirectX;
 //	DirectX::XMFLOAT2 pad1;
 //};
 
+struct PerFrameData
+{
+    float deltaTime;
+    uint32_t ticks;
+    XMFLOAT2   pad0;
+};
+AssertCBufferSize(PerFrameData);
+
 struct PerViewData
 {
     XMFLOAT4X4 viewMatrix;

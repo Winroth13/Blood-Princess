@@ -3,6 +3,8 @@
 #include "rendering/render_utils.hpp"
 #include "rendering/render_data.hpp"
 
+#include "sdl3/SDL.h"
+
 #include <cmath>
 
 using namespace DirectX;
@@ -155,6 +157,9 @@ bool SharedResources::Initialize(ID3D11Device* device)
 	LogInfo("Creating Shared Resources...");
 	LogIndent();
 
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerFrameData), &this->perFrameCB, "Per Frame"))
+        return false;
+
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerViewData), &this->perViewCB, "Per View"))
         return false;
 
@@ -219,6 +224,7 @@ void SharedResources::Shutdown()
 	LogInfo("Shutting down Shared Resources...");
 	LogIndent();
 
+    SafeRelease(this->perFrameCB);
 	SafeRelease(this->perViewCB);
 	SafeRelease(this->perObjectCB);
 	SafeRelease(this->perMaterialCB);
@@ -278,4 +284,13 @@ void SharedResources::UploadPerViewData(ID3D11DeviceContext *deviceContext, cons
     data.farPlane = view.farPlane;
 
 	RenderUtils::UploadConstantBuffer(deviceContext, this->perViewCB, data);
+}
+
+void SharedResources::UploadPerFrameData(ID3D11DeviceContext *deviceContext, float deltaTime)
+{
+    PerFrameData data{};
+    data.deltaTime = deltaTime;
+    data.ticks = static_cast<uint32_t>(SDL_GetTicks());
+
+    RenderUtils::UploadConstantBuffer(deviceContext, this->perFrameCB, data);
 }
