@@ -11,6 +11,20 @@ class Renderer;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
+enum class DefaultTexture
+{
+    ALBEDO,
+    NORMAL,
+    METALLIC_ROUGHNESS,
+
+    COUNT
+};
+
+constexpr int operator+(DefaultTexture type) noexcept
+{
+    return static_cast<int>(type);
+}
+
 class Texture2D : public Asset
 {
 	ID3D11Texture2D *texture = nullptr;

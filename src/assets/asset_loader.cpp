@@ -66,6 +66,32 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 	return texture;
 }
 
+std::shared_ptr<Texture2D> AssetLoader::CreateTexture1x1(const uint8_t colour[4], bool isRGB, const std::string &name) 
+{
+    char *data = (char *)malloc(4);
+    if (!data) 
+    {
+        LogWarn("Failed to allocate pixel data for '%s'", name.c_str());
+        return nullptr;
+    }
+
+    data[0] = colour[0];
+    data[1] = colour[1];
+    data[2] = colour[2];
+    data[3] = colour[3];
+
+    std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>();
+    
+    bool result = texture->Create(data, 1, 1, STBI_rgb_alpha, name, isRGB, this->device, this->deviceContext);
+    if (!result) 
+    {
+        LogWarn("Failed to create 1x1 texture '%s'", name.c_str());
+        return nullptr;
+    }
+
+    return texture;
+}
+
 template<>
 std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 {

@@ -39,6 +39,8 @@ public:
 
 	template<class T>
 	std::shared_ptr<T> Load(const std::string &path);
+
+    std::shared_ptr<Texture2D> CreateTexture1x1(const uint8_t colour[4], bool isRGB, const std::string &name);
 };
 
 template<>

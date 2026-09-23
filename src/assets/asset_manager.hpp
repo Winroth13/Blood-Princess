@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <array>
 
 class Renderer;
 
@@ -23,6 +24,10 @@ class AssetManager
 private:
 	AssetLoader assetLoader;
 	std::unordered_map<std::string, std::weak_ptr<Asset>> assets;
+
+    std::array<std::shared_ptr<Texture2D>, +DefaultTexture::COUNT> defaultTextures;
+
+    bool CreateDefaultTextures();
 
 public:
 	bool Initialize(const Renderer *renderer);
@@ -53,4 +58,6 @@ public:
 
 		return asset;
 	}
+
+    std::shared_ptr<Texture2D> GetDefaultTexture(DefaultTexture type) const { return this->defaultTextures[+type]; }
 };
