@@ -28,7 +28,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
     Entity *modelEntity = outScene.AddEntity("model");
-    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
+    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
@@ -42,7 +42,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     lightEntity->AddComponent<AmbientLightComponent>();
     lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
-    transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
+    transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
 
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);

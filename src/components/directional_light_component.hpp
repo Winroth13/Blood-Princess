@@ -9,7 +9,7 @@ class DirectionalLightComponent : public Component
 
 	ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f, 1.0f, 1.0f });
 	ExportProperty(float, intensity, 1.0f);
-	ExportProperty(bool, castShadows, false);
+	ExportProperty(bool, castShadows, true);
 
     DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 

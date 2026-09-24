@@ -43,6 +43,7 @@ private:
     // These should only ever be called through the main frame loop
     void OnStart(const AppContext &context);
     void Update(const AppContext &context, float deltaTime);
+    void LateUpdate(const AppContext &context, float deltaTime);
     void OnDestroy(const AppContext &context);
 
 public:

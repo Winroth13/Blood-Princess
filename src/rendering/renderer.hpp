@@ -36,6 +36,7 @@ class Renderer
 	uint32_t width = 0;
 	uint32_t height = 0;
 	uint32_t shadowSize = 256;
+	uint32_t shadowSizeDirectional = 2048;
 	float clearColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f};
 
     std::vector<RenderView> views;

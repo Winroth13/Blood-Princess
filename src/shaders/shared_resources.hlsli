@@ -1,4 +1,8 @@
+#ifndef SHARED_RESOURCES
+#define SHARED_RESOURCES
+
 SamplerState samplerLinearWrap : register(s0);
+SamplerState samplerShadow : register(s1);
 
 cbuffer PerFrame : register(b0)
 {
@@ -106,3 +110,5 @@ struct Particle
     float scale;
     float lifeTime;
 };
+
+#endif
