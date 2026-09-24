@@ -136,16 +136,14 @@ void ParticlePass::RenderDrawPass(
 		deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
 
 		UINT sampleMask = 0xffffffff;
-		float blendFactor[4] = { 0.8f, 0.8f, 0.8f, 0.0f };
-
 		if ((command.flags & +ParticleFlags::ADDITIVE) == +ParticleFlags::ADDITIVE)
 		{
-			deviceContext->OMSetBlendState(this->additiveBlendState, blendFactor, sampleMask);
+			deviceContext->OMSetBlendState(this->additiveBlendState, nullptr, sampleMask);
 			deviceContext->OMSetDepthStencilState(this->additiveDepthStencilState, 0);
 		}
 		else
 		{
-			deviceContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+			deviceContext->OMSetBlendState(nullptr, nullptr, sampleMask);
 			deviceContext->OMSetDepthStencilState(nullptr, 0);
 		}
 
@@ -169,8 +167,7 @@ void ParticlePass::RenderDrawPass(
 
 	// Reset
 	UINT sampleMask = 0xffffffff;
-	float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-	deviceContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+	deviceContext->OMSetBlendState(nullptr, nullptr, sampleMask);
 	deviceContext->OMSetDepthStencilState(nullptr, 0);
 
 	EndAnnotation();
