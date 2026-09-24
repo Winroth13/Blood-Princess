@@ -46,6 +46,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
 
+    Entity *spotLightEntity = outScene.AddEntity("spot light");
+    SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
+    spotLight->SetIntensity(100.0f);
+    spotLight->SetRange(30.0f);
+    TransformComponent *spotTransform = spotLightEntity->AddComponent<TransformComponent>();
+    spotTransform->SetWorldPosition(0.0f, 0.0f, 4.5f);
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 

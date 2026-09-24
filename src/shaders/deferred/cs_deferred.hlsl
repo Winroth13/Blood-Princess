@@ -13,6 +13,7 @@ StructuredBuffer<SpotLight> spotLights : register(t4);
 StructuredBuffer<PointLight> pointLights : register(t5);
 
 Texture2DArray<float> directionalLightShadowMaps : register(t6);
+Texture2DArray<float> spotLightShadowMaps : register(t7);
 
 float3 ReconstructWorldPosition(float2 uv, float depth)
 {
@@ -55,24 +56,37 @@ void main(uint3 id : SV_DispatchThreadID)
     
     int i;
     
-    /* Point Lights */
-    for (i = 0; i < pointLightCount; ++i)
+    /* Directional Lights */
+    for (i = 0; i < directionalLightCount; ++i)
     {
-        PointLight light = pointLights[i];
+        float depth = directionalLightShadowMaps.SampleLevel(samplerShadow, float3(0, 0, 0), 0);
         
-        float3 lightV = light.position - positionWorld;
-        float distance = length(lightV);
+        DirectionalLight light = directionalLights[i];
         
-        if (distance > light.radius)
-            continue;
+        float shadowFactor;
+        if (light.castShadows)
+        {
+            shadowFactor = CalcShadowFactor(
+                positionWorld,
+                light.viewProjectionMatrix,
+                light.shadowArrayIndex,
+                directionalLightShadowMaps,
+                true
+            );
         
-        lightV /= distance;
+            if (shadowFactor <= 1e-5f)
+                continue;
+        }
+        else
+        {
+            shadowFactor = 1;
+        }
+        
+        float3 lightV = -light.direction;
         float3 halfV = normalize(viewV + lightV);
-        float window = saturate(1.0f - pow(distance / light.radius, 4.0f));
-        float attenuation = (window * window) / (distance * distance + 1.0f);
-        float3 radiance = light.colour * attenuation;
+        float3 radiance = light.colour;
         
-        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
+        outRadiance += shadowFactor * ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
     }
     
     /* Spot Lights */
@@ -93,30 +107,15 @@ void main(uint3 id : SV_DispatchThreadID)
         if (coneFactor <= 0.0f)
             continue;
         
-        float3 halfV = normalize(viewV + lightV);
-        float window = saturate(1.0f - pow(distance / light.range, 4.0f));
-        float attenuation = (window * window) / (distance * distance + 1.0f);
-        float3 radiance = light.colour * attenuation * coneFactor;
-        
-        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
-    }
-    
-    /* Directional Lights */
-    for (i = 0; i < directionalLightCount; ++i)
-    {
-        float depth = directionalLightShadowMaps.SampleLevel(samplerShadow, float3(0, 0, 0), 0);
-        
-        DirectionalLight light = directionalLights[i];
-        
         float shadowFactor;
         if (light.castShadows)
         {
             shadowFactor = CalcShadowFactor(
-            positionWorld,
-            light.viewProjectionMatrix,
-            light.shadowArrayIndex,
-            directionalLightShadowMaps,
-            true
+                positionWorld,
+                light.viewProjectionMatrix,
+                light.shadowArrayIndex,
+                spotLightShadowMaps,
+                true
             );
         
             if (shadowFactor <= 1e-5f)
@@ -127,11 +126,32 @@ void main(uint3 id : SV_DispatchThreadID)
             shadowFactor = 1;
         }
         
-        float3 lightV = -light.direction;
         float3 halfV = normalize(viewV + lightV);
-        float3 radiance = light.colour;
+        float window = saturate(1.0f - pow(distance / light.range, 4.0f));
+        float attenuation = (window * window) / (distance * distance + 1.0f);
+        float3 radiance = light.colour * attenuation * coneFactor;
         
         outRadiance += shadowFactor * ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
+    }
+    
+    /* Point Lights */
+    for (i = 0; i < pointLightCount; ++i)
+    {
+        PointLight light = pointLights[i];
+        
+        float3 lightV = light.position - positionWorld;
+        float distance = length(lightV);
+        
+        if (distance > light.radius)
+            continue;
+        
+        lightV /= distance;
+        float3 halfV = normalize(viewV + lightV);
+        float window = saturate(1.0f - pow(distance / light.radius, 4.0f));
+        float attenuation = (window * window) / (distance * distance + 1.0f);
+        float3 radiance = light.colour * attenuation;
+        
+        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
     }
     
     float3 ambient = ambientColour * albedoColour;

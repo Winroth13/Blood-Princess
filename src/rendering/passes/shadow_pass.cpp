@@ -264,7 +264,7 @@ void ShadowPass::Render(
 	{
 		RenderView &view = views[index];
 
-		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
+		ID3D11DepthStencilView *dsv = sharedResources.GetSpotShadowDSV(i);
 		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
 

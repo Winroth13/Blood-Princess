@@ -29,11 +29,19 @@ void SpotLightComponent::Update(const AppContext &context, float deltaTime)
 
     XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(
         this->outerAngle,
-        context.renderer->GetAspectRatio(),
+        1,
         NEAR_PLANE,
         FAR_PLANE
     );
     XMStoreFloat4x4(&view.projectionMatrix, projectionMatrix);
+
+    XMStoreFloat4x4(
+        &this->viewProjectionMatrix,
+        XMMatrixMultiply(
+            viewMatrix,
+            projectionMatrix
+        )
+    );
 
     context.renderer->AddView(view);
 }
@@ -53,6 +61,7 @@ void SpotLightComponent::Render(const RenderView& view, RenderQueue& queue)
     command.position = transform->GetRenderPosition();
     command.range = this->range;
     command.castShadows = this->castShadows;
+    command.viewProjectionMatrix = this->viewProjectionMatrix;
 
     queue.Submit(command);
 }

@@ -17,7 +17,6 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 	{
 		gBuffers.resize(+GBufferType::COUNT);
 
-
 		DXGI_FORMAT formats[] =
 		{
 			DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo | Metallic
@@ -267,7 +266,7 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11UnorderedAccessView *outputUAV = this->GetGBuffer(GBufferType::OUTPUT).GetUnorderedAccessView();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &outputUAV, nullptr);
 
-	 std::array<ID3D11ShaderResourceView *, 7> srvs = {
+	 std::array<ID3D11ShaderResourceView *, 8> srvs = {
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
@@ -277,7 +276,8 @@ void DeferredPass::RenderLightingPass(
 		 sharedResources.GetSpotLightsSRV(),
 		 sharedResources.GetPointLightsSRV(),
 		 // Shadow Textures
-		 sharedResources.GetDirectionalShadowsSRV()
+		 sharedResources.GetDirectionalShadowsSRV(),
+		 sharedResources.GetSpotShadowsSRV()
 	 };
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 
