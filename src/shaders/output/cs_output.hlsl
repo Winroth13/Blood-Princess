@@ -137,15 +137,26 @@ void main(uint3 id : SV_DispatchThreadID)
     else
         ldr = Tonemap(outputTexture.SampleLevel(samplerLinearWrap, uv, 0).rgb);
     
+    float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
+    float fogStart = 0.0f;
+    float fogEnd = 80.0f;
+    float fogFactor = saturate((depth - fogStart) / (fogEnd - fogStart));
+    fogFactor = clamp(fogFactor, 0.0f, 0.8f);
+
+    const float3 fogColor = float3(0.02f, 0.02f, 0.02f);
+    // float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
+    float3 afterFogColour = lerp(ldr, fogColor, fogFactor) * lerp(float3(1.0f, 1.0f, 1.0f), fogColor, fogFactor);
+    
+    
     float ditherSize = 2.0f;
     int2 pixelUV = int2(uv.x * width, uv.y * height);
     float ditherAmt = ditheringPattern(pixelUV / ditherSize);
     int colors = MAX_COLORS;
     
     float3 ditherColor = float3(
-        reduceColor(ldr.r, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
-        reduceColor(ldr.g, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
-        reduceColor(ldr.b, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1)
+        reduceColor(afterFogColour.r, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(afterFogColour.g, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(afterFogColour.b, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1)
     );
     
     float3 finalColour = GammaCorrection(ditherColor);

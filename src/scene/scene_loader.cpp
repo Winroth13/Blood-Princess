@@ -24,13 +24,13 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->AddComponent<CameraComponent>();
     playerEntity->AddComponent<ListenerComponent>();
-    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.2f, 0.0f });
+    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
-    Entity *modelEntity = outScene.AddEntity("model");
-    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
-    ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
+    //Entity *modelEntity = outScene.AddEntity("model");
+    //modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
+    //ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
+    //modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
@@ -55,32 +55,33 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
-    {
-        Entity *entity = outScene.AddEntity("animation_entity");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(0.0f, -1.0f, 5.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
-    }
+    //{
+    //    Entity *entity = outScene.AddEntity("animation_entity");
+    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
+    //    transform->SetWorldPosition(0.0f, -1.0f, 5.0f);
+    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+    //}
 
     {
         Entity *entity = outScene.AddEntity("princess_entity");
         TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-3.0f, -1.0f, 5.0f);
+        transform->SetWorldPosition(-3.0f, -2.5f, 5.0f);
         transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        transform->SetWorldScale(0.5f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
         modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/princess.glb"));
     }
 
-    {
-        Entity *entity = outScene.AddEntity("sword_entity");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-6.0f, 1.0f, 5.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
-    }
+    //{
+    //    Entity *entity = outScene.AddEntity("sword_entity");
+    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
+    //    transform->SetWorldPosition(-6.0f, 1.0f, 5.0f);
+    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+    //}
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
@@ -140,7 +141,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
         ModelComponent *wallModelComponent = wallEntity->AddComponent<ModelComponent>();
         wallModelComponent->SetModel(wallModel);
-        wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 120.0f / 255.0f});
+        wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
 
         // Upper wall segment entity stacked 1 wall higher directly on top
         std::string upperWallName = "Wall_Upper_" + std::to_string(i);
@@ -158,7 +159,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
-        upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 120.0f / 255.0f});
+        upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
 
         // Torch entity attached to the lower wall
         std::string torchName = "Torch_" + std::to_string(i);
@@ -218,8 +219,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         PointLightComponent *pointLight = fireParticleEntity->AddComponent<PointLightComponent>();
         pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
 
-		pointLight->SetRadius(6.7f);
-        pointLight->SetIntensity(16.0f);
+		pointLight->SetRadius(8.0f);
+        pointLight->SetIntensity(50.0f);
 
         // 3D Fire audio
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
