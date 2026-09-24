@@ -109,7 +109,8 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 		loader.GetMaterials(), 
 		loader.GetTextures(),
         nullptr,
-        nullptr
+        nullptr,
+		loader.GetBoundingBox()
 	);
 
 	if (!result)

@@ -15,6 +15,10 @@
 #include "rendering/render_utils.hpp"
 #include "components/transform_component.hpp"
 #include "components/box_collision_component.hpp"
+#include "components/model_component.hpp"
+
+#include "rendering/lines/line_utils.hpp"
+
 bool Editor::Initialize(SceneManager &sceneManager)
 {
 	LogInfo("Creating Editor...");
@@ -54,141 +58,163 @@ void Editor::ImGuiRender(const AppContext &appContext)
 
 	this->sceneHierarchyPanel.ImGuiRender();
 
-	this->inspectorPanel.SetEntity(sceneHierarchyPanel.GetSelectedEntity());
-	this->inspectorPanel.ImGuiRender();
+	if (sceneHierarchyPanel.GetSelectCount() == 1)
+	{
+		this->inspectorPanel.SetEntity(
+			sceneHierarchyPanel.GetSelectedEntities()[0]
+		);
+	}
+	else
+	{
+		this->inspectorPanel.SetEntity(nullptr);
+	}
 
+	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
 
-	/* ImGuizmo */
-	Entity *entity = sceneHierarchyPanel.GetSelectedEntity();
-	if (entity != nullptr)
+	this->GizmoRender(appContext);
+	this->RenderSelectionBoundingBoxes(appContext);
+}
+
+void Editor::GizmoRender(const AppContext &appContext)
+{
+	if (this->sceneHierarchyPanel.GetSelectCount() == 0)
+		return;
+
+	if (ImGui::IsKeyPressed(ImGuiKey_T))
+		this->currentOperation = ImGuizmo::TRANSLATE;
+
+	if (ImGui::IsKeyPressed(ImGuiKey_R))
+		this->currentOperation = ImGuizmo::ROTATE;
+
+	if (ImGui::IsKeyPressed(ImGuiKey_E))
+		this->currentOperation = ImGuizmo::SCALE;
+
+	if (ImGui::IsKeyPressed(ImGuiKey_B))
+		this->currentOperation = ImGuizmo::BOUNDS;
+
+	// Setup
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+
+	uint32_t width = appContext.renderer->GetWidth();
+	uint32_t height = appContext.renderer->GetHeight();
+	ImGuizmo::SetRect(0, 0, static_cast<float>(width), static_cast<float>(height));
+
+	// Make sure we have a primary view
+	std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
+	RenderView *primaryView = RenderUtils::GetView(renderViews, ViewType::PRIMARY);
+	if (!primaryView)
+		return;
+
+	// Get View and Projection Matrices
+	XMMATRIX viewT = XMLoadFloat4x4(&primaryView->viewMatrix);
+	XMMATRIX projT = XMLoadFloat4x4(&primaryView->projectionMatrix);
+
+	XMFLOAT4X4 viewF{};
+	XMStoreFloat4x4(&viewF, viewT);
+
+	XMFLOAT4X4 projF{};
+	XMStoreFloat4x4(&projF, projT);
+
+	if (this->currentOperation != ImGuizmo::BOUNDS)
 	{
-		ImGuizmo::SetOrthographic(true);
-		ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
+		RenderTransformGizmo(viewF, projF);
+		return;
+	}
+}
 
-		uint32_t width = appContext.renderer->GetWidth();
-		uint32_t height = appContext.renderer->GetHeight();
-		ImGuizmo::SetRect(0, 0, static_cast<float>(width), static_cast<float>(height));
+void Editor::RenderTransformGizmo(const XMFLOAT4X4 &view, const XMFLOAT4X4 &proj)
+{
+	std::vector<TransformComponent *> transforms;
+	for (const auto entity : this->sceneHierarchyPanel.GetSelectedEntities())
+	{
+		TransformComponent *transform = entity->GetComponent<TransformComponent>();
+		if (transform)
+			transforms.push_back(transform);
+	}
 
-		auto transformComponent = entity->GetComponent<TransformComponent>();
-		if (transformComponent)
+	if (transforms.empty())
+		return;
+
+	// Find Origin
+	XMVECTOR pivotV = XMVectorSet(0, 0, 0, 0);
+	for (TransformComponent *transform : transforms)
+	{
+		XMFLOAT3 position = transform->GetWorldPosition();
+		pivotV = XMVectorAdd(pivotV, XMLoadFloat3(&position));
+	}
+	pivotV = XMVectorScale(pivotV, 1.0f / transforms.size());
+
+	XMFLOAT3 pivot;
+	XMStoreFloat3(&pivot, pivotV);
+
+	XMMATRIX worldMatrix = XMMatrixTranslation(pivot.x, pivot.y, pivot.z);
+
+	XMFLOAT4X4 gizmoMatrix;
+	XMStoreFloat4x4(&gizmoMatrix, worldMatrix);
+
+	XMFLOAT4X4 oldGizmoMatrix = gizmoMatrix;
+
+	bool manipulating = ImGuizmo::Manipulate(
+		*view.m,
+		*proj.m,
+		this->currentOperation,
+		ImGuizmo::MODE::WORLD,
+		*gizmoMatrix.m
+	);
+
+	if (manipulating && ImGuizmo::IsUsing())
+	{
+		XMMATRIX oldMatrix = XMLoadFloat4x4(&oldGizmoMatrix);
+		XMMATRIX newMatrix = XMLoadFloat4x4(&gizmoMatrix);
+
+		XMVECTOR det;
+		XMMATRIX deltaMatrix = XMMatrixMultiply(XMMatrixInverse(&det, oldMatrix), newMatrix);
+		for (TransformComponent *transform : transforms)
 		{
-			if (ImGui::IsKeyPressed(ImGuiKey_T))
-				this->currentOperation = ImGuizmo::TRANSLATE;
-			if (ImGui::IsKeyPressed(ImGuiKey_R))
-				this->currentOperation = ImGuizmo::ROTATE;
-			if (ImGui::IsKeyPressed(ImGuiKey_E))
-				this->currentOperation = ImGuizmo::SCALE;
-			if (ImGui::IsKeyPressed(ImGuiKey_B))
-				this->currentOperation = ImGuizmo::BOUNDS;
-
-
-			std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
-			RenderView *primaryView = RenderUtils::GetView(renderViews, ViewType::PRIMARY);
-
-			XMFLOAT4X4 worldMatrix;
-			XMStoreFloat4x4(&worldMatrix, transformComponent->GetWorldMatrix());
-
-			XMMATRIX viewT = XMLoadFloat4x4(&primaryView->viewMatrix);
-			XMMATRIX projT = XMLoadFloat4x4(&primaryView->projectionMatrix);
-
-			XMFLOAT4X4 viewF{};
-			XMStoreFloat4x4(&viewF, viewT);
-
-			XMFLOAT4X4 projF{};
-			XMStoreFloat4x4(&projF, projT);
-
-
-			if (entity->HasComponent<BoxCollisionComponent>() && this->currentOperation == ImGuizmo::BOUNDS)
-			{
-				auto boxCollisionComponent = entity->GetComponent<BoxCollisionComponent>();
-
-				XMFLOAT3 localExtents = boxCollisionComponent->GetExtents();
-				XMFLOAT3 localCenter = boxCollisionComponent->GetCenterOffset();
-
-				XMMATRIX localColliderMat = XMMatrixScaling(localExtents.x, localExtents.y, localExtents.z) *
-				                            XMMatrixTranslation(localCenter.x, localCenter.y, localCenter.z);
-
-				XMMATRIX entityWorldMat = transformComponent->GetWorldMatrix();
-				XMMATRIX colliderWorldMat = localColliderMat * entityWorldMat;
-
-				XMFLOAT4X4 colliderWorldF;
-				XMStoreFloat4x4(&colliderWorldF, colliderWorldMat);
-
-				float unitBounds[6] = { -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
-
-				ImGuizmo::Manipulate(
-					*viewF.m,
-					*projF.m,
-					this->currentOperation,
-					ImGuizmo::MODE::LOCAL,
-					*colliderWorldF.m,
-					nullptr,
-					nullptr,
-					unitBounds,
-					nullptr
-				);
-
-				if (ImGuizmo::IsUsing())
-				{
-					XMMATRIX invEntityWorld = XMMatrixInverse(nullptr, entityWorldMat);
-					XMMATRIX newLocalMat = XMLoadFloat4x4(&colliderWorldF) * invEntityWorld;
-
-					XMFLOAT4X4 newLocalF;
-					XMStoreFloat4x4(&newLocalF, newLocalMat);
-
-					float translate[3], rotation[3], scale[3];
-					ImGuizmo::DecomposeMatrixToComponents(*newLocalF.m, translate, rotation, scale);
-
-					boxCollisionComponent->SetCenterOffset(XMFLOAT3(translate[0], translate[1], translate[2]));
-					boxCollisionComponent->SetExtents(XMFLOAT3(std::abs(scale[0]), std::abs(scale[1]), std::abs(scale[2])));
-				}
-			}
-			else
-			{
-				XMFLOAT3 originalRotation = transformComponent->GetLocalRotation();
-
-				ImGuizmo::Manipulate(
-					*viewF.m,
-					*projF.m,
-					this->currentOperation,
-					ImGuizmo::MODE::WORLD,
-					*worldMatrix.m
-				);
-
-				float translate[3] = { -1, -1, -1 };
-				float rotation[3] = { -1, -1, -1 };
-				float scale[3] = { -1, -1, -1 };
-
-				XMMATRIX worldMat = XMLoadFloat4x4(&worldMatrix);
-				XMFLOAT4 quat = transformComponent->ExtractRotation(worldMat);
-
-				ImGuizmo::DecomposeMatrixToComponents(*worldMatrix.m, translate, rotation, scale);
-
-				if (ImGuizmo::IsUsing())
-				{
-					if (this->currentOperation == ImGuizmo::OPERATION::TRANSLATE)
-					{
-						transformComponent->SetLocalPosition(
-							translate[0],
-							translate[1],
-							translate[2]
-						);
-					}
-					else if (this->currentOperation == ImGuizmo::OPERATION::ROTATE)
-					{
-						transformComponent->SetLocalRotationQuaternion(quat);
-					}
-					else if (this->currentOperation == ImGuizmo::OPERATION::SCALE)
-					{
-						transformComponent->SetLocalScale(
-							scale[0],
-							scale[1],
-							scale[2]
-						);
-					}
-				}
-			}
+			XMMATRIX transformWorldMatrix = transform->GetWorldMatrix();
+			XMMATRIX newTransformWorldMatrix = XMMatrixMultiply(transformWorldMatrix, deltaMatrix);
+			transform->SetWorldMatrix(newTransformWorldMatrix);
 		}
+	}
+}
+
+void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
+{
+	/*
+	* Maybe we shouldn't render these lines like this, but oh well...
+	*/
+	std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
+	RenderView *primaryView = RenderUtils::GetView(renderViews, ViewType::PRIMARY);
+
+	if (!primaryView)
+		return;
+
+	/* Right now we only draw bounding boxes if it has a model. */
+	for (Entity *entity : this->sceneHierarchyPanel.GetSelectedEntities())
+	{
+		TransformComponent *transformComp = entity->GetComponent<TransformComponent>();
+
+		if (!transformComp)
+			continue;
+
+		ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
+
+		if (!modelComp)
+			return;
+
+		std::vector<LineVertex> vertices{};
+
+		LineUtils::GetBoxVertices(
+			vertices,
+			modelComp->GetModel()->GetBoundingBox(),
+			transformComp->GetRenderMatrix(),
+			{ 1.0f, 0.75f, 0.0f }
+		);
+
+		LineCommand command = {};
+		command.points = vertices;
+		primaryView->queue.Submit(command);
 	}
 }

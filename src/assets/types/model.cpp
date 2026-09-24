@@ -5,6 +5,8 @@
 #include "assets/types/animation_library.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
 
+#include <DirectXCollision.h>
+
 #pragma region Vertex
 
 bool operator== (const Vertex &v1, const Vertex &v2)
@@ -123,7 +125,8 @@ bool Model::Create(
 	const std::vector<Material> &materials,
 	const std::vector<std::shared_ptr<Texture2D>> &textures,
     std::shared_ptr<AnimationLibrary> animations,
-    std::shared_ptr<Skeleton> skeleton
+    std::shared_ptr<Skeleton> skeleton,
+	BoundingBox boundingBox
 )
 {
 	LogInfo("Creating Model...");
@@ -138,6 +141,8 @@ bool Model::Create(
     this->animations = animations;
     this->skeleton = skeleton;
 	
+	this->boundingBox = boundingBox;
+
 	LogUnindent();
 
 	return true;

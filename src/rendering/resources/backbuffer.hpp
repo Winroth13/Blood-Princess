@@ -12,6 +12,9 @@ struct IDXGISwapChain;
 
 class BackBuffer
 {
+	uint32_t width = 0;
+	uint32_t height = 0;
+
 	ID3D11RenderTargetView *view = nullptr;
 	ID3D11UnorderedAccessView *uav = nullptr;
 
@@ -38,4 +41,7 @@ public:
 
 	ID3D11DepthStencilView *GetDepthStencilView() { return this->depthStencilView; }
 	ID3D11ShaderResourceView *GetDepthStencilSRV() { return this->depthStencilSRV; }
+
+	uint32_t GetWidth() const { return this->width; }
+	uint32_t GetHeight() const { return this->height; }
 };

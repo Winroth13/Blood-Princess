@@ -25,6 +25,11 @@ bool SceneHierarchyPanel::Initialize(SceneManager &sceneManager)
 
 void SceneHierarchyPanel::ImGuiRender()
 {
+	this->multiSelect = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+		this->selectedEntities.clear();
+
 	ImGui::Begin("Scene Hierarchy");
 	Scene *scene = this->sceneManager->GetCurrentScene();
 
@@ -40,9 +45,8 @@ void SceneHierarchyPanel::ImGuiRender()
 		if (ImGui::TreeNodeEx(sceneName.c_str(), flag))
 		{
 			for (auto entity : scene->GetRootEntities())
-			{
 				this->DrawEntityNode(entity);
-			}
+			
 			ImGui::TreePop();
 		}
 	}
@@ -53,28 +57,46 @@ void SceneHierarchyPanel::ImGuiRender()
 void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 {
 	ImGuiTreeNodeFlags flags = 
-		ImGuiTreeNodeFlags_DefaultOpen | 
 		ImGuiTreeNodeFlags_OpenOnArrow |
 		ImGuiTreeNodeFlags_SpanAvailWidth |
 		ImGuiTreeNodeFlags_DrawLinesFull;
+
+	auto it = std::find(selectedEntities.begin(), selectedEntities.end(), entity);
 
 	if (entity->GetChildren().size() == 0)
 	{
 		flags |= ImGuiTreeNodeFlags_Leaf;
 	}
 
-	if (entity == this->selectedEntity)
+	if (it != selectedEntities.end())
 	{
 		flags |= ImGuiTreeNodeFlags_Selected;
 	}
 
-	if (ImGui::TreeNodeEx(entity->GetName().c_str(), flags))
-	{
-		if (ImGui::IsItemClicked())
-		{
-			this->selectedEntity = entity;
-		}
+	bool open = ImGui::TreeNodeEx(entity->GetName().c_str(), flags);
 
+	if (ImGui::IsItemClicked())
+	{
+		if (this->multiSelect)
+		{
+			if (it != selectedEntities.end())
+			{
+				selectedEntities.erase(it);
+			}
+			else
+			{
+				selectedEntities.push_back(entity);
+			}
+		}
+		else
+		{
+			this->selectedEntities.clear();
+			selectedEntities.push_back(entity);
+		}
+	}
+
+	if (open)
+	{
 		for (auto child : entity->GetChildren())
 		{
 			DrawEntityNode(child);
@@ -82,6 +104,4 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 		ImGui::TreePop();
 	}
 
-	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-		this->selectedEntity = nullptr;
 }

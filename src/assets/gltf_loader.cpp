@@ -825,8 +825,28 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 
         const uint32_t baseVertex = static_cast<uint32_t>(meshVertices.size());
 		
-		for (size_t i = 0; i < positions.size(); ++i)
-			meshVertices.emplace_back(positions[i], normals[i], uvs[i]);
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            if (vertexCount == 0)
+            {
+                this->boundingMin = positions[i];
+                this->boundingMax = positions[i];
+            }
+            else
+            {
+                this->boundingMin.x = std::min(this->boundingMin.x, positions[i].x);
+                this->boundingMin.y = std::min(this->boundingMin.y, positions[i].y);
+                this->boundingMin.z = std::min(this->boundingMin.z, positions[i].z);
+
+                this->boundingMax.x = std::max(this->boundingMax.x, positions[i].x);
+                this->boundingMax.y = std::max(this->boundingMax.y, positions[i].y);
+                this->boundingMax.z = std::max(this->boundingMax.z, positions[i].z);
+            }
+
+            meshVertices.emplace_back(positions[i], normals[i], uvs[i]);
+
+            this->vertexCount++;
+        }
 
 		SubMesh subMesh{};
 		subMesh.startIndex = static_cast<uint32_t>(meshIndicies.size());
@@ -849,7 +869,6 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		for (size_t i = indicies.size(); i-- > 0;)
 			meshIndicies.push_back(indicies[i] + baseVertex);
 
-        this->vertexCount += static_cast<uint32_t>(positions.size());
         this->indexCount += static_cast<uint32_t>(indicies.size());
         ++this->subMeshCount;
 	}
@@ -862,6 +881,8 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
     }
 
     ComputeTangents(meshVertices, meshIndicies);
+
+    ComputeBoundingBox();
 
 	Mesh *mesh = new Mesh();
 	bool result = mesh->Create(
@@ -883,4 +904,11 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	meshes.push_back(mesh);
 
 	LogUnindent();
+}
+
+void GLTFLoader::ComputeBoundingBox()
+{
+    XMVECTOR min = XMLoadFloat3(&this->boundingMin);
+    XMVECTOR max = XMLoadFloat3(&this->boundingMax);
+    BoundingBox::CreateFromPoints(this->boundingBox, min, max);
 }

@@ -246,7 +246,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\core\window.cpp" />
     <ClCompile Include="src\editor\imgui_layer.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\rendering\lines\line_utils.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\line_pass.cpp" />
     <ClCompile Include="src\rendering\passes\particle_pass.cpp" />
     <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
@@ -340,7 +342,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\reflection\TypeHash.h" />
     <ClInclude Include="src\reflection\TypeInfo.h" />
     <ClInclude Include="src\reflection\VariableId.h" />
+    <ClInclude Include="src\rendering\lines\line_utils.hpp" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\line_pass.hpp" />
     <ClInclude Include="src\rendering\passes\particle_pass.hpp" />
     <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
@@ -354,6 +358,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\render_view.hpp" />
     <ClInclude Include="src\rendering\resources\backbuffer.hpp" />
     <ClInclude Include="src\rendering\resources\gbuffer.hpp" />
+    <ClInclude Include="src\rendering\lines\line_vertex.hpp" />
     <ClInclude Include="src\rendering\shared_resources.hpp" />
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
@@ -390,6 +395,18 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)assets/shaders/%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="src\shaders\line\ps_line.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\line\vs_line.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\shaders\particles\cs_particle_system.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>

@@ -122,6 +122,9 @@ bool BackBuffer::Create(
 	}
 #pragma endregion
 
+	this->width = width;
+	this->height = height;
+
 	LogUnindent();
 
 	return true;

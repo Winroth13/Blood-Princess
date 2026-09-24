@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <array>
 
 using namespace DirectX;
@@ -30,9 +31,13 @@ class GLTFLoader
 	uint32_t indexCount = 0;
     uint32_t subMeshCount = 0;
 
+	XMFLOAT3 boundingMin = { 0,0,0 };
+	XMFLOAT3 boundingMax = { 0,0,0 };
+
 	std::vector<Mesh *> meshes = {};
 	std::vector<Material> materials = {};
 	std::vector<std::shared_ptr<Texture2D>> textures = {};
+	BoundingBox boundingBox;
 
     std::array<int32_t, +DefaultTexture::COUNT> defaultTextureIndices = {};
     int32_t defaultMaterialIndex = -1;
@@ -57,6 +62,8 @@ class GLTFLoader
 	void ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix);
 	void ReadMesh(int32_t meshIndex, XMMATRIX matrix);
 
+	void ComputeBoundingBox();
+	
 public:
 	GLTFLoader() = default;
 	~GLTFLoader() = default;
@@ -66,4 +73,5 @@ public:
 	std::vector<Mesh*> &GetMeshes() { return this->meshes; }
 	std::vector<Material> &GetMaterials() { return this->materials; }
 	std::vector<std::shared_ptr<Texture2D>> &GetTextures() { return this->textures; }
+	BoundingBox GetBoundingBox() const { return this->boundingBox; }
 };

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "assets/types/model.hpp"
+#include "rendering/lines/line_vertex.hpp"
 
+#include <vector>
 #include <DirectXMath.h>
 #include <d3d11.h>
 
@@ -25,6 +27,11 @@ struct GeometryCommand
     ID3D11ShaderResourceView *albedoSRV;
     ID3D11ShaderResourceView *normalSRV;
     ID3D11ShaderResourceView *metallicRoughnessSRV;
+};
+
+struct LineCommand
+{
+    std::vector<LineVertex> points;
 };
 
 struct AmbientLightCommand 

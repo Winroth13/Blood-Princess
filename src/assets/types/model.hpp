@@ -4,8 +4,11 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <string>
 #include <d3d11.h>
+
+using namespace DirectX;
 
 class Texture2D;
 class AnimationLibrary;
@@ -105,7 +108,6 @@ public:
 	ID3D11Buffer *GetIndexBuffer() { return this->indexBuffer; }
 
     const std::vector<SubMesh> &GetSubMeshes() const { return this->subMeshes; }
-
 };
 #pragma endregion
 
@@ -133,6 +135,8 @@ class Model : public Asset
     std::shared_ptr<AnimationLibrary> animations;
     std::shared_ptr<Skeleton> skeleton;
 
+	BoundingBox boundingBox = {};
+
 public:
 	Model() = default;
 	~Model();
@@ -144,7 +148,8 @@ public:
 		const std::vector<Material> &materials,
 		const std::vector<std::shared_ptr<Texture2D>> &textures,
         std::shared_ptr<AnimationLibrary> animations,
-        std::shared_ptr<Skeleton> skeleton
+        std::shared_ptr<Skeleton> skeleton,
+		BoundingBox boundingBox
 	);
 
     const std::vector<std::unique_ptr<Mesh>> &GetMeshes() const { return this->meshes; }
@@ -156,6 +161,8 @@ public:
     std::shared_ptr<Skeleton> GetSkeleton() const { return this->skeleton; }
 
 	Texture2D *GetTexture(int32_t index);
+
+	BoundingBox GetBoundingBox() const { return this->boundingBox; }
 };
 
 #pragma endregion

@@ -30,4 +30,9 @@ public:
 	void Shutdown();
 
 	void ImGuiRender(const AppContext &appContext);
+	void GizmoRender(const AppContext &appContext);
+
+	void RenderTransformGizmo(const XMFLOAT4X4& view, const XMFLOAT4X4 &proj);
+
+	void RenderSelectionBoundingBoxes(const AppContext &appContext);
 };

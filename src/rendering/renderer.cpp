@@ -144,6 +144,12 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->linePass.Initialize(this->device, appContext.assetManager))
+    {
+        LogError("Failed to create Line Pass");
+        return false;
+    }
+
     LogUnindent();
 
 	return true;
@@ -162,6 +168,7 @@ void Renderer::Shutdown()
     this->particlePass.Shutdown();
     this->outputPass.Shutdown();
     this->shadowPass.Shutdown();
+    this->linePass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -229,6 +236,14 @@ void Renderer::Render(Scene *scene, float deltaTime)
         this->sharedResources,
         this->backBuffer.GetRenderTargetView(),
         this->backBuffer.GetDepthStencilView(),
+        this->views
+    );
+
+    this->linePass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->backBuffer,
         this->views
     );
 

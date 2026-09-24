@@ -25,6 +25,7 @@ private:
     void OnDestroy(const AppContext &context) override {}
 
 public:
+    std::shared_ptr<Model> GetModel() const { return this->model; }
     void SetModel(std::shared_ptr<Model> model);
 
     DirectX::XMFLOAT3 GetTint() const { return this->tint; }
