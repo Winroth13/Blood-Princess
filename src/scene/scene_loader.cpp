@@ -134,6 +134,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
         ModelComponent *wallModelComponent = wallEntity->AddComponent<ModelComponent>();
         wallModelComponent->SetModel(wallModel);
+        wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 120.0f / 255.0f});
 
         // Upper wall segment entity stacked 1 wall higher directly on top
         std::string upperWallName = "Wall_Upper_" + std::to_string(i);
@@ -151,6 +152,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
+        upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 120.0f / 255.0f});
 
         // Torch entity attached to the lower wall
         std::string torchName = "Torch_" + std::to_string(i);
