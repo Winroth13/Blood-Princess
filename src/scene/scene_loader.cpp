@@ -210,8 +210,9 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-        audioComponent->SetAudioRadius(4.0f);
-        audioComponent->SetVolume(50.0f);
+        audioComponent->SetMinDistance(3);
+        audioComponent->SetMaxDistance(10);
+        audioComponent->SetVolume(25.0f);
         audioComponent->SetPlayOnStart(true);
     }
 
