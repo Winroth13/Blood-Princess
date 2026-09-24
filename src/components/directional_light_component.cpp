@@ -7,8 +7,8 @@
 
 constexpr float NEAR_PLANE = 1.0f;
 constexpr float FAR_PLANE = 1024.0f;
-constexpr float VIEW_WIDTH = 64.0f;
-constexpr float VIEW_HEIGHT = 64.0f;
+constexpr float VIEW_WIDTH = 128.0f;
+constexpr float VIEW_HEIGHT = 128.0f;
 constexpr float DISTANCE_AWAY = 512.0f;
 
 void DirectionalLightComponent::LateUpdate(const AppContext &context, float deltaTime) {
