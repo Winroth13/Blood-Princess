@@ -18,6 +18,7 @@
 #include "components/ambient_light_component.hpp"
 #include "components/particle_system_component.hpp"
 #include "components/sphere_collision_component.hpp"
+#include "components/light_flicker_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -209,13 +210,13 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         smoke->SetVelocity({ 0.0f, 0.1f, 0.0f });
         smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
         smoke->SetLifeTime(5.0f);
-        smoke->SetStartScale(0.1f);
-        smoke->SetEndScale(0.25f);
+        smoke->SetStartScale(0.2f);
+        smoke->SetEndScale(0.5f);
         smoke->SetIsAnimate(true);
         smoke->SetIsAdditive(true);
         smoke->SetSpawnRadius(0.08f);
         smoke->SetCount(25);
-        smoke->SetStartTint({ 88.0f / 255.0f, 88.0f / 255.0f, 88.0f / 255.0f });
+        smoke->SetStartTint({ 150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f });
         smoke->SetEndTint({ 0.0f, 0.0f, 0.0f });
 
         // Point light on torch
@@ -224,6 +225,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
 		pointLight->SetRadius(8.0f);
         pointLight->SetIntensity(50.0f);
+
+        fireParticleEntity->AddComponent<LightFlickerComponent>();
 
         // 3D Fire audio
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
