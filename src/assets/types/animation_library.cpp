@@ -30,12 +30,3 @@ int32_t AnimationLibrary::FindClip(const std::string &name) const {
 
     return -1;
 }
-
-const AnimationClip &AnimationLibrary::GetClip(uint32_t index) const {
-    if (index < 0 || index >= this->clips.size()) {
-        LogWarn("Animation clip index '%u' out of range [0, %zu)", index, this->clips.size());
-        return {};
-    }
-
-    return this->clips[index];
-}

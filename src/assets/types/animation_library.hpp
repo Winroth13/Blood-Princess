@@ -48,5 +48,5 @@ public:
 
     size_t GetClipCount() const { return this->clips.size(); }
     const std::vector<AnimationClip> &GetClips() const { return this->clips; }
-    const AnimationClip &GetClip(uint32_t index) const;
+    const AnimationClip &GetClip(uint32_t index) const { return this->clips[index]; }
 };
