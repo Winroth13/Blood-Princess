@@ -73,6 +73,7 @@
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
+    <ClCompile Include="src\components\health_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -163,11 +164,12 @@
     <ClInclude Include="src\components\sphere_collider_component.hpp" />
     <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
     <ClInclude Include="src\components\sphere_collision_component.hpp" />
-    <ClInclude Include="src\events\event_manager.hpp" />
+    <ClInclude Include="src\events\signal.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
     <ClInclude Include="src\events\event.hpp" />
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
+    <ClInclude Include="src\components\health_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
