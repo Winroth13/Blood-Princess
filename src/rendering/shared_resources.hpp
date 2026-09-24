@@ -24,6 +24,7 @@ constexpr int operator+(ConstantBufferSlot slot) noexcept {
 enum class SamplerSlot 
 {
 	LINEAR_WRAP,
+	SHADOW,
 	COUNT
 };
 
@@ -58,9 +59,26 @@ class SharedResources
     ID3D11ShaderResourceView *spotLightShaderResourceView = nullptr;
     ID3D11ShaderResourceView *pointLightShaderResourceView = nullptr;
 
+	static constexpr int MAX_DIRECTIONAL_LIGHT_COUNT = 4;
+	static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
+	static constexpr int MAX_POINT_LIGHT_COUNT = 64;
+
+	ID3D11Texture2D * directionalShadowsDepthTextureArray = nullptr; // DSDTA
+	ID3D11Texture2D * spotShadowsDepthTextureArray = nullptr;
+	ID3D11Texture2D * pointShadowsTextureCubeArray = nullptr;
+
+	std::array<ID3D11DepthStencilView *, MAX_DIRECTIONAL_LIGHT_COUNT> directionalShadowsDepthStencilViews{ nullptr };
+	std::array<ID3D11DepthStencilView *, MAX_SPOT_LIGHT_COUNT> spotShadowsDepthStencilViews{ nullptr };
+	std::array<ID3D11RenderTargetView *, MAX_POINT_LIGHT_COUNT> pointShadowsRenderTargetViews{ nullptr };
+
+	ID3D11ShaderResourceView * directionalShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView * spotShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView * pointShadowsShaderResourceView = nullptr;
+
 	ID3D11SamplerState *samplers[+SamplerSlot::COUNT] = {};
 
 	bool CreateSamplers(ID3D11Device *device);
+	bool CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional);
 
     bool UploadLightMetaData(ID3D11DeviceContext *deviceContext, const RenderView &view);
     bool UploadDirectionalLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
@@ -68,14 +86,10 @@ class SharedResources
     bool UploadPointLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
 
 public:
-	static constexpr int MAX_DIRECTIONAL_LIGHT_COUNT = 4;
-	static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
-	static constexpr int MAX_POINT_LIGHT_COUNT = 64;
-
 	SharedResources() = default;
 	~SharedResources() = default;
 	
-	bool Initialize(ID3D11Device *device);
+	bool Initialize(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional);
 	void Shutdown();
 
     bool UploadLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
@@ -98,4 +112,16 @@ public:
 	ID3D11ShaderResourceView *GetDirectionalLightsSRV() const { return this->directionalLightShaderResourceView; }
 	ID3D11ShaderResourceView *GetSpotLightsSRV() const { return this->spotLightShaderResourceView; }
 	ID3D11ShaderResourceView *GetPointLightsSRV() const { return this->pointLightShaderResourceView; }
+
+	ID3D11Texture2D *GetDirectionalLightsDepthTextureArray() const { return this->directionalShadowsDepthTextureArray; }
+	ID3D11Texture2D *GetSpotLightsDepthTextureArray() const { return this->spotShadowsDepthTextureArray; }
+	ID3D11Texture2D *GetPointShadowsTextureCubeArray() const { return this->pointShadowsTextureCubeArray; }
+
+	ID3D11DepthStencilView *GetDirectionalShadowDSV(int index) const { return directionalShadowsDepthStencilViews[index]; }
+	ID3D11DepthStencilView *GetSpotShadowDSV(int index) const { return spotShadowsDepthStencilViews[index]; }
+	ID3D11RenderTargetView *GetPointShadowRTV(int index) const { return pointShadowsRenderTargetViews[index]; }
+
+	ID3D11ShaderResourceView *GetDirectionalShadowsSRV() const { return this->directionalShadowsShaderResourceView; }
+	ID3D11ShaderResourceView *GetSpotShadowsSRV() const { return this->spotShadowsShaderResourceView; }
+	ID3D11ShaderResourceView *GetPointShadowsSRV() const { return this->pointShadowsShaderResourceView; }
 };

@@ -8,7 +8,7 @@ class AmbientLightComponent : public Component
     RegisterComponent(AmbientLightComponent);
 
     ExportPropertyColor(DirectX::XMFLOAT3, colour, { 1.0f, 1.0f, 1.0f });
-    ExportProperty(float, intensity, 0.3f);
+    ExportProperty(float, intensity, 0.1f);
 
 public:
     AmbientLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(); }
