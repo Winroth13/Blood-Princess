@@ -24,7 +24,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->AddComponent<CameraComponent>();
     playerEntity->AddComponent<ListenerComponent>();
-    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
+    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.2f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
     Entity *modelEntity = outScene.AddEntity("model");
@@ -39,7 +39,9 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerCol->SetRadius(0.5f);
 
     Entity *lightEntity = outScene.AddEntity("light");
-    lightEntity->AddComponent<AmbientLightComponent>();
+    AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
+    ambientLight->SetColour({0.86f, 0.59f, 0.47f});
+    ambientLight->SetIntensity(0.2f);
     lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
@@ -159,6 +161,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Positioned on the inner face of the wall segment at eye level, offset slightly outward so the torch holder is clearly visible
         torchTransform->SetLocalPosition(0.58f, 0.0f, 0.0f);
         torchTransform->SetLocalRotation(0.0f, 0.0f, 0.0f);
+        torchTransform->SetLocalScale(2.0f, 2.0f, 2.0f);
+
 
         ModelComponent *torchModelComponent = torchEntity->AddComponent<ModelComponent>();
         torchModelComponent->SetModel(torchModel);
@@ -205,8 +209,9 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Point light on torch
         PointLightComponent *pointLight = fireParticleEntity->AddComponent<PointLightComponent>();
         pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
-        pointLight->SetIntensity(8.0f);
+
 		pointLight->SetRadius(6.7f);
+        pointLight->SetIntensity(16.0f);
 
         // 3D Fire audio
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
