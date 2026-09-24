@@ -8,6 +8,8 @@
 #include <d3d11.h>
 
 class Texture2D;
+class AnimationLibrary;
+class Skeleton;
 
 #pragma region Vertex
 struct Vertex
@@ -128,6 +130,9 @@ class Model : public Asset
 	std::vector<Material> materials;
 	std::vector<std::shared_ptr<Texture2D>> textures;
 
+    std::shared_ptr<AnimationLibrary> animations;
+    std::shared_ptr<Skeleton> skeleton;
+
 public:
 	Model() = default;
 	~Model();
@@ -137,12 +142,18 @@ public:
 	bool Create(
 		const std::vector<Mesh*> &meshes, 
 		const std::vector<Material> &materials,
-		const std::vector<std::shared_ptr<Texture2D>> &textures
+		const std::vector<std::shared_ptr<Texture2D>> &textures,
+        std::shared_ptr<AnimationLibrary> animations,
+        std::shared_ptr<Skeleton> skeleton
 	);
 
     const std::vector<std::unique_ptr<Mesh>> &GetMeshes() const { return this->meshes; }
     const std::vector<Material> &GetMaterials() const { return this->materials; }
     const std::vector<std::shared_ptr<Texture2D>> &GetTextures() const { return this->textures; }
+
+    bool IsSkinned() const { return this->skeleton != nullptr; }
+    std::shared_ptr<AnimationLibrary> GetAnimation() const { return this->animations; }
+    std::shared_ptr<Skeleton> GetSkeleton() const { return this->skeleton; }
 
 	Texture2D *GetTexture(int32_t index);
 };
