@@ -68,6 +68,17 @@ bool SphereCollisionComponent::GetWorldBounds(BoundingBox& outerBox)
 	return true;
 }
 
+bool SphereCollisionComponent::GetBounds2D(Rect2D& outRect) const
+{
+	outRect = Rect2D(
+		this->worldSphere.Center.x - this->worldSphere.Radius,
+		this->worldSphere.Center.x + this->worldSphere.Radius,
+		this->worldSphere.Center.z - this->worldSphere.Radius,
+		this->worldSphere.Center.z + this->worldSphere.Radius
+	);
+	return true;
+}
+
 void SphereCollisionComponent::UpdateWorldSphere()
 {
 	Entity* ownerEntity = this->GetOwner();

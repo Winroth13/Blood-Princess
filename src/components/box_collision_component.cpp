@@ -71,6 +71,28 @@ bool BoxCollisionComponent::GetWorldBounds(BoundingBox& outerBox)
     return true;
 }
 
+bool BoxCollisionComponent::GetBounds2D(Rect2D& outRect) const
+{
+    DirectX::XMFLOAT3 corners[DirectX::BoundingOrientedBox::CORNER_COUNT];
+    this->worldOBB.GetCorners(corners);
+
+    float minX = corners[0].x;
+    float maxX = corners[0].x;
+    float minZ = corners[0].z;
+    float maxZ = corners[0].z;
+
+    for (int i = 1; i < DirectX::BoundingOrientedBox::CORNER_COUNT; ++i)
+    {
+        minX = (std::min)(minX, corners[i].x);
+        maxX = (std::max)(maxX, corners[i].x);
+        minZ = (std::min)(minZ, corners[i].z);
+        maxZ = (std::max)(maxZ, corners[i].z);
+    }
+
+    outRect = Rect2D(minX, maxX, minZ, maxZ);
+    return true;
+}
+
 void BoxCollisionComponent::UpdateWorldOBB()
 {
     Entity* ownerEntity = this->GetOwner();

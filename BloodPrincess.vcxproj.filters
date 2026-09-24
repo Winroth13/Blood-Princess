@@ -59,6 +59,7 @@
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
+    <ClCompile Include="src\collision\quad_tree.cpp" />
     <ClCompile Include="src\collision\collision_component.cpp" />
     <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\rendering\shared_resources.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="src\assets\types\texture_2d.hpp" />
     <ClInclude Include="src\audio\audio_manager.hpp" />
     <ClInclude Include="src\collision\collision_manager.hpp" />
+    <ClInclude Include="src\collision\quad_tree.hpp" />
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\logging.hpp" />

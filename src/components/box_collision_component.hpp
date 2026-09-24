@@ -29,6 +29,7 @@ public:
 	void SetWorldOBB(BoundingOrientedBox OBB) { this->worldOBB = OBB; };
 
 	bool GetWorldBounds(BoundingBox &outerBox) override;
+	bool GetBounds2D(Rect2D &outRect) const override;
 	void UpdateWorldOBB();
 
 	XMFLOAT3 GetExtents() const { return this->extents; };
