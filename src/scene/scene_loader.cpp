@@ -155,8 +155,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         torchEntity->SetParent(wallEntity);
 
         TransformComponent *torchTransform = torchEntity->AddComponent<TransformComponent>();
-        // Positioned on the inner face (X = 0.5f) of the wall segment at eye level
-        torchTransform->SetLocalPosition(0.5f, 0.0f, 0.0f);
+        // Positioned on the inner face of the wall segment at eye level, offset slightly outward so the torch holder is clearly visible
+        torchTransform->SetLocalPosition(0.58f, 0.0f, 0.0f);
         torchTransform->SetLocalRotation(0.0f, 0.0f, 0.0f);
 
         ModelComponent *torchModelComponent = torchEntity->AddComponent<ModelComponent>();
