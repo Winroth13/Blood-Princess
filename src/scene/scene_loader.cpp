@@ -94,7 +94,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     auto floorModel = appContext.assetManager->Get<Model>("assets/models/floor.glb");
     auto flameTexture = appContext.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     auto smokeTexture = appContext.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
-    auto fireSound = appContext.assetManager->Get<AudioClip>("assets/audio/music/egomassive__fire.ogg");
+    auto fireSound = appContext.assetManager->Get<AudioClip>("assets/audio/music/egomassive__fire.ogg"); 
 
     const float wallLength = 10.0f;
     const float halfWallLength = wallLength * 0.5f;
@@ -210,7 +210,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-        audioComponent->SetAudioRadius(2.0f);
+        audioComponent->SetAudioRadius(4.0f);
+        audioComponent->SetVolume(50.0f);
         audioComponent->SetPlayOnStart(true);
     }
 
