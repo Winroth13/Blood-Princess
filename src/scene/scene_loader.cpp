@@ -24,7 +24,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->AddComponent<CameraComponent>();
     playerEntity->AddComponent<ListenerComponent>();
-    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
+    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.2f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
     Entity *modelEntity = outScene.AddEntity("model");
@@ -39,7 +39,9 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerCol->SetRadius(0.5f);
 
     Entity *lightEntity = outScene.AddEntity("light");
-    lightEntity->AddComponent<AmbientLightComponent>();
+    AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
+    ambientLight->SetColour({0.86f, 0.59f, 0.47f});
+    ambientLight->SetIntensity(0.2f);
     lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
@@ -92,6 +94,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     auto torchModel = appContext.assetManager->Get<Model>("assets/models/torch.glb");
     auto floorModel = appContext.assetManager->Get<Model>("assets/models/floor.glb");
+    auto ceilingModel = appContext.assetManager->Get<Model>("assets/models/ceiling.glb");
     auto flameTexture = appContext.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     auto smokeTexture = appContext.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
     auto fireSound = appContext.assetManager->Get<AudioClip>("assets/audio/music/egomassive__fire.ogg"); 
@@ -158,6 +161,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Positioned on the inner face of the wall segment at eye level, offset slightly outward so the torch holder is clearly visible
         torchTransform->SetLocalPosition(0.58f, 0.0f, 0.0f);
         torchTransform->SetLocalRotation(0.0f, 0.0f, 0.0f);
+        torchTransform->SetLocalScale(2.0f, 2.0f, 2.0f);
+
 
         ModelComponent *torchModelComponent = torchEntity->AddComponent<ModelComponent>();
         torchModelComponent->SetModel(torchModel);
@@ -204,7 +209,9 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Point light on torch
         PointLightComponent *pointLight = fireParticleEntity->AddComponent<PointLightComponent>();
         pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
-        pointLight->SetIntensity(8.0f);
+
+		pointLight->SetRadius(6.7f);
+        pointLight->SetIntensity(16.0f);
 
         // 3D Fire audio
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
@@ -271,7 +278,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
                 ceilingCol->SetExtents({ halfTile, 0.5f, halfTile });
 
                 ModelComponent *ceilingComp = ceilingTile->AddComponent<ModelComponent>();
-                ceilingComp->SetModel(floorModel);
+                ceilingComp->SetModel(ceilingModel);
 
                 tileIndex++;
             }
