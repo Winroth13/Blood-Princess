@@ -6,10 +6,12 @@
 #include "input/action.hpp"
 #include <algorithm>
 #include "collision/collision_manager.hpp"
-
+#include "components/audio_component.hpp"
+#include "core/rng.hpp"
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
+	
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -155,6 +157,15 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 			this->isDashing = true;
 			this->canUseDash = false;
 			this->dashTimer = 0.0f;
+
+			
+			auto dashSound = GetOwner()->GetComponent<AudioComponent>();
+			dashSound->SetAudio3D(false);
+			dashSound->SetLooping(false);
+			float genNumber = RNG::Float(0.95f, 1.05f);
+			LogInfo("Pitch %f: ", genNumber);
+			dashSound->SetPitch(genNumber);
+			dashSound->Play();
 		}
 	}
 }
@@ -172,6 +183,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
 {
+
 	this->dashTimer += deltaTime;
 
 	if (this->dashTimer >= dashDuration) {

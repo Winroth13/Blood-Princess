@@ -209,6 +209,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\health_component.cpp" />
     <ClCompile Include="src\components\particle_system_component.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\components\point_light_component.cpp" />
@@ -290,6 +291,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\collision\Rect_2d.hpp" />
     <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\health_component.hpp" />
     <ClInclude Include="src\components\particle_system_component.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\components\point_light_component.hpp" />
@@ -322,7 +324,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
     <ClInclude Include="src\events\event.hpp" />
-    <ClInclude Include="src\events\event_manager.hpp" />
+    <ClInclude Include="src\events\signal.hpp" />
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />

@@ -3,7 +3,7 @@
 #include "audio/audio_manager.hpp"
 #include "components/transform_component.hpp"
 #include <DirectXMath.h>
-
+#include <algorithm>
 class AudioComponent : public Component
 {
     RegisterComponent(AudioComponent)
