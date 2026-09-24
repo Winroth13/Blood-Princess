@@ -10,49 +10,215 @@
 #include <vector>
 #include <unordered_map>
 
+#undef min
+#undef max
+
 static constexpr std::string TG3ToString(const tg3_str &str)
 {
     return str.data ? std::string(str.data, str.len) : std::string();
 }
 
-template<typename T>
-std::vector<T> ReadAccessorData(tg3_model *model, int32_t accessorIndex)
+struct AccessorView 
 {
-	if (accessorIndex == -1)
-	{
-		return {};
-	}
+    const uint8_t *data = nullptr;
+    uint64_t elementCount = 0;
+    uint32_t elementStride = 0;
+    uint32_t componentSize = 0;
+    uint32_t componentsPerElement = 0;
+    int32_t componentType = 0;
+    bool isNormalized = false;
+};
 
-	const tg3_accessor &accessor = model->accessors[accessorIndex];
-	const tg3_buffer_view &bufferView = model->buffer_views[accessor.buffer_view];
-	const tg3_buffer &buffer = model->buffers[bufferView.buffer];
+static bool GetAccessorView(const tg3_model &model, int32_t accessorIndex, AccessorView &outView) 
+{
+    if (accessorIndex < 0 || static_cast<uint32_t>(accessorIndex) >= model.accessors_count) 
+    {
+        LogWarn("Accessor index '%d' was out of range", accessorIndex);
+        return false;
+    }
 
-	const uint8_t *baseData = buffer.data.data;
-	uint64_t offset = bufferView.byte_offset + accessor.byte_offset;
-	const T *typedData = reinterpret_cast<const T *>(baseData + offset);
+    const tg3_accessor &accessor = model.accessors[accessorIndex];
 
-	int32_t stride = tg3_accessor_byte_stride(&accessor, &bufferView);
-	int32_t elementStride = stride > 0 ? stride / sizeof(T) : sizeof(T);
+    if (accessor.sparse.is_sparse)
+        LogWarn("Sparse accessor");
 
-	std::vector<T> result;
+    if (accessor.buffer_view < 0 || static_cast<uint32_t>(accessor.buffer_view) >= model.buffer_views_count) 
+    {
+        LogWarn("Invalid buffer view");
+        return false;
+    }
 
-	uint32_t componentsPerElement = 1;
-	if (accessor.type == TG3_TYPE_VEC2) componentsPerElement = 2;
-	else if (accessor.type == TG3_TYPE_VEC3) componentsPerElement = 3;
-	else if (accessor.type == TG3_TYPE_VEC4) componentsPerElement = 4;
-	else if (accessor.type == TG3_TYPE_MAT2) componentsPerElement = 4;
-	else if (accessor.type == TG3_TYPE_MAT3) componentsPerElement = 9;
-	else if (accessor.type == TG3_TYPE_MAT4) componentsPerElement = 16;
+    const tg3_buffer_view &bufferView = model.buffer_views[accessor.buffer_view];
 
-	uint64_t totalComponents = accessor.count * componentsPerElement;
-	result.reserve(totalComponents);
+    if (bufferView.buffer < 0 || static_cast<uint32_t>(bufferView.buffer) >= model.buffers_count) 
+    {
+        LogWarn("Invalid buffer");
+        return false;
+    }
 
-	for (uint64_t i = 0; i < totalComponents; i++)
-	{
-		result.push_back(typedData[i]);
-	}
+    const tg3_buffer &buffer = model.buffers[bufferView.buffer];
 
-	return result;
+    const int32_t componentSize = tg3_component_size(accessor.component_type);
+    const int32_t componentCount = tg3_num_components(accessor.type);
+    const int32_t stride = tg3_accessor_byte_stride(&accessor, &bufferView);
+
+    if (componentSize <= 0 || componentCount <= 0 || stride <= 0) 
+    {
+        LogWarn("Invalid (component) type");
+        return false;
+    }
+
+    const uint64_t start = bufferView.byte_offset + accessor.byte_offset;
+    const uint64_t elementSize = static_cast<uint64_t>(componentSize) * componentCount;
+
+    if (accessor.count > 0) 
+    {
+        const uint64_t end = start + (accessor.count - 1) * stride + elementSize;
+        const uint64_t viewEnd = bufferView.byte_offset + bufferView.byte_length;
+
+        if (end > viewEnd || end > buffer.data.count || !buffer.data.data) 
+        {
+            LogWarn("Accessor reads out of bounds");
+            return false;
+        }
+    }
+
+    outView.data = buffer.data.data + start;
+    outView.elementCount = accessor.count;
+    outView.elementStride = static_cast<uint32_t>(stride);
+    outView.componentSize = static_cast<uint32_t>(componentSize);
+    outView.componentsPerElement = static_cast<uint32_t>(componentCount);
+    outView.componentType = accessor.component_type;
+    outView.isNormalized = accessor.normalized != 0;
+
+    return true;
+}
+
+static float ReadComponentFloat(const uint8_t *data, int32_t componentType, bool isNormalized) 
+{
+    switch (componentType) 
+    {
+        case TG3_COMPONENT_TYPE_FLOAT: {
+            float value;
+            memcpy(&value, data, sizeof(value));
+            return value;
+        }
+        case TG3_COMPONENT_TYPE_UNSIGNED_BYTE: {
+            uint8_t value = *data;
+            return isNormalized ? value / 255.0f : static_cast<float>(value);
+        }
+        case TG3_COMPONENT_TYPE_BYTE: {
+            int8_t value;
+            memcpy(&value, data, sizeof(value));
+            return isNormalized ? std::max(value / 127.0f, -1.0f) : static_cast<float>(value);
+        }
+        case TG3_COMPONENT_TYPE_UNSIGNED_SHORT: {
+            uint16_t value;
+            memcpy(&value, data, sizeof(value));
+            return isNormalized ? value / 65535.0f : static_cast<float>(value);
+        }
+        case TG3_COMPONENT_TYPE_SHORT: {
+            int16_t value;
+            memcpy(&value, data, sizeof(value));
+            return isNormalized ? std::max(value / 32767.0f, -1.0f) : static_cast<float>(value);
+        }
+        case TG3_COMPONENT_TYPE_UNSIGNED_INT: {
+            uint32_t value;
+            memcpy(&value, data, sizeof(value));
+            return static_cast<float>(value);
+        }
+
+        default:
+            return 0.0f;
+    }
+}
+
+static uint32_t ReadComponentUnsignedInt(const uint8_t *data, int32_t componentType) 
+{
+    switch (componentType) 
+    {
+        case TG3_COMPONENT_TYPE_UNSIGNED_BYTE: {
+            return *data;
+        }
+        case TG3_COMPONENT_TYPE_UNSIGNED_SHORT: {
+            uint16_t value;
+            memcpy(&value, data, sizeof(value));
+            return value;
+        }
+        case TG3_COMPONENT_TYPE_UNSIGNED_INT: {
+            uint32_t value;
+            memcpy(&value, data, sizeof(value));
+            return value;
+        }
+
+        default:
+            return 0u;
+    }
+}
+
+static bool ReadAccessorFloats(const tg3_model &model, int32_t accessorIndex, uint32_t expectedComponentPerElement, std::vector<float> &outValues) 
+{
+    AccessorView view;
+    if (!GetAccessorView(model, accessorIndex, view))
+        return false;
+
+    if (view.componentsPerElement != expectedComponentPerElement) 
+    {
+        LogWarn("Accessor had '%u' components per element, expected '%u'", view.componentsPerElement, expectedComponentPerElement);
+        return false;
+    }
+
+    outValues.resize(view.elementCount * view.componentsPerElement);
+
+    for (uint64_t i = 0; i < view.elementCount; ++i)
+    {
+        const uint8_t *element = view.data + i * view.elementStride;
+        for (uint32_t component = 0; component < view.componentsPerElement; ++component) {
+            outValues[i * view.componentsPerElement + component] = ReadComponentFloat(
+                element + component * view.componentSize,
+                view.componentType,
+                view.isNormalized
+            );
+        }
+    }
+
+    return true;
+}
+
+static bool ReadAccessorUnsignedInts(const tg3_model &model, int32_t accessorIndex, uint32_t expectedComponentPerElement, std::vector<uint32_t> &outValues) 
+{
+    AccessorView view;
+    if (!GetAccessorView(model, accessorIndex, view))
+        return false;
+
+    if (view.componentsPerElement != expectedComponentPerElement) 
+    {
+        LogWarn("Accessor had '%u' components per element, expected '%u'", view.componentsPerElement, expectedComponentPerElement);
+        return false;
+    }
+
+    if (view.componentType != TG3_COMPONENT_TYPE_UNSIGNED_BYTE &&
+        view.componentType != TG3_COMPONENT_TYPE_UNSIGNED_SHORT &&
+        view.componentType != TG3_COMPONENT_TYPE_UNSIGNED_INT
+    ) {
+        LogWarn("Component type wasn't an unsigned int");
+        return false;
+    }
+
+    outValues.resize(view.elementCount * view.componentsPerElement);
+
+    for (uint64_t i = 0; i < view.elementCount; ++i)
+    {
+        const uint8_t *element = view.data + i * view.elementStride;
+        for (uint32_t component = 0; component < view.componentsPerElement; ++component) {
+            outValues[i * view.componentsPerElement + component] = ReadComponentUnsignedInt(
+                element + component * view.componentSize,
+                view.componentType
+            );
+        }
+    }
+
+    return true;
 }
 
 bool GLTFLoader::Load(
@@ -300,87 +466,89 @@ void GLTFLoader::ReadTextures()
 	}
 }
 
-void GLTFLoader::ReadPrimitiveAtrributes(
+bool GLTFLoader::ReadPrimitiveAttributes(
 	const tg3_primitive &primitive, 
 	std::vector<DirectX::XMFLOAT3> &positions, 
 	std::vector<DirectX::XMFLOAT3> &normals, 
 	std::vector<DirectX::XMFLOAT2> &uvs
 )
 {
+    std::vector<float> data;
+
 	for (uint32_t attrIndex = 0; attrIndex < primitive.attributes_count; ++attrIndex)
 	{
 		const tg3_str_int_pair &attr = primitive.attributes[attrIndex];
-		std::string_view attrName(attr.key.data, attr.key.len);
+		const std::string attrName = TG3ToString(attr.key);
 
 		if (attrName == "POSITION")
 		{
-			std::vector<float> positionsData = ReadAccessorData<float>(&this->model, attr.value);
-			for (size_t i = 0; i < positionsData.size(); i += 3)
-			{
-				positions.push_back({
-					positionsData[i],
-					positionsData[i + 1],
-					positionsData[i + 2]
-					});
-			}
+            if (!ReadAccessorFloats(this->model, attr.value, 3, data))
+                continue;
+
+            positions.resize(data.size() / 3);
+            memcpy(positions.data(), data.data(), positions.size() * sizeof(XMFLOAT3));
 		}
 		else if (attrName == "NORMAL")
 		{
-			std::vector<float> normalsData = ReadAccessorData<float>(&this->model, attr.value);
-			for (size_t i = 0; i < normalsData.size(); i += 3)
-			{
-				normals.push_back({
-					normalsData[i],
-					normalsData[i + 1],
-					normalsData[i + 2]
-					});
-			}
+            if (!ReadAccessorFloats(this->model, attr.value, 3, data))
+                continue;
+
+            normals.resize(data.size() / 3);
+            memcpy(normals.data(), data.data(), normals.size() * sizeof(XMFLOAT3));
 		}
 		else if (attrName == "TEXCOORD_0")
 		{
-			std::vector<float> uvsData = ReadAccessorData<float>(&this->model, attr.value);
-			for (size_t i = 0; i < uvsData.size(); i += 2)
-			{
-				uvs.push_back({
-					uvsData[i],
-					uvsData[i + 1]
-					});
-			}
+            if (!ReadAccessorFloats(this->model, attr.value, 2, data))
+                continue;
+
+            uvs.resize(data.size() / 2);
+            memcpy(uvs.data(), data.data(), uvs.size() * sizeof(XMFLOAT2));
 		}
 		else
 		{
-			LogWarn("Unsupported attribute: %s", attrName.data());
+			LogWarn("Unsupported attribute: %s", attrName.c_str());
 		}
 	}
+
+    if (positions.empty()) 
+    {
+        LogWarn("Primitive had no position attributes");
+        return false;
+    }
+
+    return true;
 }
 
-void GLTFLoader::ReadPrimitiveIndicies(const tg3_primitive &primitive, std::vector<uint32_t> &indicies)
+bool GLTFLoader::ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t vertexCount, std::vector<uint32_t> &indices)
 {
 	if (primitive.indices == -1)
 	{
-		LogWarn("Primitive has no indicies");
-		return;
+        indices.resize(vertexCount);
+        for (uint32_t i = 0; i < vertexCount; ++i)
+            indices[i] = i;
 	}
+    else if (!ReadAccessorUnsignedInts(this->model, primitive.indices, 1, indices)) 
+    {
+        LogWarn("Failed to read primitive indices");
+        return false;
+    }
 
-	const tg3_accessor &indexAccessor = this->model.accessors[primitive.indices];
+    if (indices.size() % 3 != 0) 
+    {
+        LogWarn("Index count not a multiple of 3");
+        indices.resize(indices.size() - indices.size() % 3);
+    }
 
-	switch (indexAccessor.component_type)
-	{
-		case TG3_COMPONENT_TYPE_UNSIGNED_SHORT:
-		{
-			std::vector<uint16_t> shortIndices = ReadAccessorData<uint16_t>(&this->model, primitive.indices);
-			indicies.assign(shortIndices.begin(), shortIndices.end());
-		}
-		break;
+    for (uint32_t index : indices)
+    {
+        if (index >= vertexCount) 
+        {
+            LogWarn("Index out of bounds; index '%u', vertex count '%u'", index, vertexCount);
+            return false;
+        }
+    }
 
-		case TG3_COMPONENT_TYPE_UNSIGNED_INT:
-			indicies = ReadAccessorData<uint32_t>(&this->model, primitive.indices);
-			break;
-
-		default:
-			LogError("Unsupported index component type: %d", indexAccessor.component_type);
-			break;
-	}
+    return true;
 }
 
 void GLTFLoader::ReadScenes()
@@ -623,8 +791,24 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		std::vector<DirectX::XMFLOAT2> uvs = {};
 		std::vector<uint32_t> indicies = {};
 
-		ReadPrimitiveAtrributes(primitive, positions, normals, uvs);
-		ReadPrimitiveIndicies(primitive, indicies);
+        if (!ReadPrimitiveAttributes(primitive, positions, normals, uvs) ||
+            !ReadPrimitiveIndices(primitive, static_cast<uint32_t>(positions.size()), indicies)
+        ) {
+            LogWarn("Primitive could not be read (skipped)");
+            continue;
+        }
+
+        if (normals.size() != positions.size()) 
+        {
+            LogWarn("Primitve has '%zu' positions but only '%zu' normals", positions.size(), normals.size());
+            normals.assign(positions.size(), {0.0f, 0.0f, 1.0f});
+        }
+
+        if (uvs.size() != positions.size()) 
+        {
+            LogWarn("Primitve has '%zu' positions but only '%zu' UVs", positions.size(), uvs.size());
+            uvs.assign(positions.size(), {0.0f, 0.0f});
+        }
 
 		for (size_t i = 0; i < positions.size(); ++i)
 		{

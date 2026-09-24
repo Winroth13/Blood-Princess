@@ -45,13 +45,13 @@ class GLTFLoader
 	void ReadMaterials();
 	void ReadTextures();
 
-	void ReadPrimitiveAtrributes(
+	bool ReadPrimitiveAttributes(
 		const tg3_primitive &primitive,
 		std::vector<DirectX::XMFLOAT3> &positions,
 		std::vector<DirectX::XMFLOAT3> &normals,
 		std::vector<DirectX::XMFLOAT2> &uvs
 	);
-	void ReadPrimitiveIndicies(const tg3_primitive &primitive, std::vector<uint32_t> &indicies);
+	bool ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t vertexCount, std::vector<uint32_t> &indicies);
 
 	void ReadScenes();
 	void ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix);
