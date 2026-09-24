@@ -111,7 +111,9 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 	bool result = model->Create(
 		loader.GetMeshes(), 
 		loader.GetMaterials(), 
-		loader.GetTextures()
+		loader.GetTextures(),
+        nullptr,
+        nullptr
 	);
 
 	if (!result)

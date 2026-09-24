@@ -27,7 +27,7 @@ bool AssetManager::CreateDefaultTextures()
         std::shared_ptr<Texture2D> texture = this->assetLoader.CreateTexture1x1(desc.colour, desc.isRGB, desc.name);
         if (!texture)
         {
-            LogError("Failed to create default texture '%s'", desc.name);
+            LogError("Failed to create default texture '%s'", desc.name.c_str());
             return false;
         }
 

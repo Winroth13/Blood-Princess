@@ -29,6 +29,54 @@ float3 Tonemap(float3 hdr)
 #endif
 }
 
+#define MAX_COLORS 128
+
+float ditheringPattern(int2 pixelCoord)
+{
+    const float pattern[] =
+    {
+        0.00f, 0.50f, 0.10f, 0.65f,
+		0.75f, 0.25f, 0.90f, 0.35f,
+		0.20f, 0.70f, 0.05f, 0.50f,
+		0.95f, 0.40f, 0.80f, 0.30f
+    };
+    
+    int x = pixelCoord.x % 4;
+    int y = pixelCoord.y % 4;
+
+    return pattern[y * 4 + x];
+}
+
+float reduceColor(float raw, float dither, int depth)
+{
+    float div = 1.0f / float(depth);
+    float val = 0.0f;
+    int i = 0.0f;
+    
+    while (i <= MAX_COLORS)
+    {
+        if (raw > div * (float(i + 1)))
+        {
+            i = i + 1;
+            continue;
+        }
+        
+        if (raw * float(depth) - float(i) <= dither * 0.999)
+        {
+            val = div * float(i);
+        }
+        else
+        {
+            val = div * float(i + 1);
+        }
+        return val;
+
+        i = i + 1;
+    }
+    
+    return val;
+}
+
 float3 GammaCorrection(float3 ldr)
 {
     return pow(ldr, 1.0f / 2.2f);
@@ -89,7 +137,29 @@ void main(uint3 id : SV_DispatchThreadID)
     else
         ldr = Tonemap(outputTexture.SampleLevel(samplerLinearWrap, uv, 0).rgb);
     
-    float3 finalColour = GammaCorrection(ldr);
+    float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
+    float fogStart = 0.0f;
+    float fogEnd = 80.0f;
+    float fogFactor = saturate((depth - fogStart) / (fogEnd - fogStart));
+    fogFactor = clamp(fogFactor, 0.0f, 0.8f);
+
+    const float3 fogColor = float3(0.02f, 0.02f, 0.02f);
+    // float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
+    float3 afterFogColour = lerp(ldr, fogColor, fogFactor) * lerp(float3(1.0f, 1.0f, 1.0f), fogColor, fogFactor);
+    
+    
+    float ditherSize = 2.0f;
+    int2 pixelUV = int2(uv.x * width, uv.y * height);
+    float ditherAmt = ditheringPattern(pixelUV / ditherSize);
+    int colors = MAX_COLORS;
+    
+    float3 ditherColor = float3(
+        reduceColor(afterFogColour.r, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(afterFogColour.g, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(afterFogColour.b, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1)
+    );
+    
+    float3 finalColour = GammaCorrection(ditherColor);
 
     backBufferUAV[pixel] = float4(finalColour, 1.0f);
 }

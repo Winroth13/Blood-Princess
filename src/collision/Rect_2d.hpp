@@ -1,6 +1,7 @@
 #pragma once
 class Rect2D 
 {
+public:
 	float minX = 0.0f;
 	float maxX = 0.0f;
 	float minZ = 0.0f;

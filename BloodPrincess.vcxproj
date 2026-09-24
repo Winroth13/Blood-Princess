@@ -200,15 +200,20 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
     <ClCompile Include="src\assets\asset_utils.cpp" />
+    <ClCompile Include="src\assets\types\animation_library.cpp" />
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
     <ClCompile Include="src\assets\types\particle_system.cpp" />
+    <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
+    <ClCompile Include="src\collision\quad_tree.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
+    <ClCompile Include="src\components\health_component.cpp" />
+    <ClCompile Include="src\components\light_flicker_component.cpp" />
     <ClCompile Include="src\components\particle_system_component.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\components\point_light_component.cpp" />
@@ -319,16 +324,21 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
     <ClInclude Include="src\assets\asset_utils.hpp" />
+    <ClInclude Include="src\assets\types\animation_library.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
     <ClInclude Include="src\assets\types\particle_system.hpp" />
+    <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\components\ambient_light_component.hpp" />
     <ClInclude Include="src\components\box_collision_component.hpp" />
     <ClInclude Include="src\collision\collision_layer.hpp" />
+    <ClInclude Include="src\collision\quad_tree.hpp" />
     <ClInclude Include="src\collision\Rect_2d.hpp" />
     <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
+    <ClInclude Include="src\components\health_component.hpp" />
+    <ClInclude Include="src\components\light_flicker_component.hpp" />
     <ClInclude Include="src\components\particle_system_component.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\components\point_light_component.hpp" />
@@ -361,7 +371,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
     <ClInclude Include="src\events\event.hpp" />
-    <ClInclude Include="src\events\event_manager.hpp" />
+    <ClInclude Include="src\events\signal.hpp" />
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\core\logging.hpp" />
@@ -486,7 +496,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\deferred\pbr.hlsli" />
-    <None Include="src\shaders\deferred\shadows.hlsli" />
+    <None Include="src\shaders\shadow\shadows.hlsli" />
     <None Include="src\shaders\shared_resources.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

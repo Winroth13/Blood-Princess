@@ -17,6 +17,7 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <typeindex>
 
 class Renderer;
 
@@ -24,7 +25,8 @@ class AssetManager
 {
 private:
 	AssetLoader assetLoader;
-	std::unordered_map<std::string, std::weak_ptr<Asset>> assets;
+
+	std::unordered_map<std::type_index, std::unordered_map<std::string, std::weak_ptr<Asset>>> assets;
 
     std::array<std::shared_ptr<Texture2D>, +DefaultTexture::COUNT> defaultTextures;
 
@@ -37,25 +39,29 @@ public:
 	template<class T>
 	std::shared_ptr<T> Get(const std::string &path)
 	{
-		auto result = assets.find(path);
+        std::unordered_map<std::string, std::weak_ptr<Asset>> &typedAssets = this->assets[std::type_index(typeid(T))];
 
-		if (result != assets.end())
-		{
+		auto result = typedAssets.find(path);
+
+		if (result != typedAssets.end())
 			if (auto asset = result->second.lock())
-			{
 				return std::static_pointer_cast<T>(asset);
-			}
-		}
 
 		LogInfo("Loading %s", path.c_str());
 		LogIndent();
 
 		std::shared_ptr<T> asset = this->assetLoader.Load<T>(path);
-		asset->SetPath(path);
 
 		LogUnindent();
 
-		assets[path] = asset;
+        if (!asset) 
+        {
+            LogWarn("Failed to load '%s'", path.c_str());
+            return nullptr;
+        }
+
+        asset->SetPath(path);
+        typedAssets[path] = asset;
 
 		return asset;
 	}

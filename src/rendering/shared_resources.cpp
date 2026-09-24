@@ -21,25 +21,197 @@ static inline XMFLOAT3 operator*(const XMFLOAT3 &v, float s)
 
 bool SharedResources::CreateSamplers(ID3D11Device *device) 
 {
-	D3D11_SAMPLER_DESC desc{};
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.MaxAnisotropy = 1;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
+#pragma region Linear-Wrap
+	D3D11_SAMPLER_DESC linearWrapDesc{};
+    linearWrapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    linearWrapDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.MaxAnisotropy = 1;
+    linearWrapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    linearWrapDesc.MinLOD = 0;
+    linearWrapDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	HRESULT result = device->CreateSamplerState(&desc, &this->samplers[+SamplerSlot::LINEAR_WRAP]);
+	HRESULT result = device->CreateSamplerState(&linearWrapDesc, &this->samplers[+SamplerSlot::LINEAR_WRAP]);
 	if (FAILED(result)) {
 		LogError("Failed to create Linear Wrap Sampler");
 		return false;
 	}
 
     RenderUtils::SetDebugName(this->samplers[+SamplerSlot::LINEAR_WRAP], DebugCategory::CORE, "Sampler", "Linear-Wrap");
+#pragma endregion
+
+#pragma region Shadow
+    D3D11_SAMPLER_DESC shadowDesc = {};
+    shadowDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    shadowDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.BorderColor[0] = 1.0f;
+    shadowDesc.BorderColor[1] = 1.0f;
+    shadowDesc.BorderColor[2] = 1.0f;
+    shadowDesc.BorderColor[3] = 1.0f;
+    shadowDesc.MipLODBias = 0.0f;
+    shadowDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    shadowDesc.MinLOD = 0;
+    shadowDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    result = device->CreateSamplerState(&shadowDesc, &this->samplers[+SamplerSlot::SHADOW]);
+    if (FAILED(result)) {
+        LogError("Failed to create Shadow Sampler");
+        return false;
+    }
+
+    RenderUtils::SetDebugName(this->samplers[+SamplerSlot::SHADOW], DebugCategory::CORE, "Sampler", "Shadow");
+#pragma endregion
 
 	return true;
+}
+
+bool SharedResources::CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional)
+{
+
+#pragma region Directional Lights
+    {
+        /* Create Depth Texture Array */
+        D3D11_TEXTURE2D_DESC arrDesc = {};
+        arrDesc.Width = static_cast<UINT>(shadowSizeDirectional);
+        arrDesc.Height = static_cast<UINT>(shadowSizeDirectional);
+        arrDesc.MipLevels = 1;
+        arrDesc.ArraySize = static_cast<UINT>(MAX_DIRECTIONAL_LIGHT_COUNT);
+        arrDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+        arrDesc.SampleDesc.Count = 1;
+        arrDesc.SampleDesc.Quality = 0;
+        arrDesc.Usage = D3D11_USAGE_DEFAULT;
+        arrDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+        arrDesc.CPUAccessFlags = 0;
+        arrDesc.MiscFlags = 0;
+
+        HRESULT hr = device->CreateTexture2D(&arrDesc, nullptr, &directionalShadowsDepthTextureArray);
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Directional Shadows Depth Texture Array");
+            return false;
+        }
+
+        RenderUtils::SetDebugName(directionalShadowsDepthTextureArray, DebugCategory::CORE, "Directional Shadows Depth Texture Array");
+
+        /* Create Depth Stencil Views */
+        D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+        dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+        dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+        dsvDesc.Texture2DArray.MipSlice = 0;
+        dsvDesc.Texture2DArray.ArraySize = 1;
+
+        for (UINT dsvIndex = 0; dsvIndex < MAX_DIRECTIONAL_LIGHT_COUNT; ++dsvIndex)
+        {
+            dsvDesc.Texture2DArray.FirstArraySlice = dsvIndex;
+
+            hr = device->CreateDepthStencilView(
+                directionalShadowsDepthTextureArray,
+                &dsvDesc,
+                &directionalShadowsDepthStencilViews[dsvIndex]
+            );
+            if (FAILED(hr))
+            {
+                LogError("Failed to create Directional Shadows Depth Stencil Views");
+                return false;
+            }
+        }
+
+        //RenderUtils::SetDebugName(directionalShadowsDepthStencilViews, DebugCategory::CORE, "", "Directional Shadows", "DSV");
+
+        /* Set Shader Resource View Desc */
+        D3D11_SHADER_RESOURCE_VIEW_DESC srcDesc = {};
+        srcDesc.Format = DXGI_FORMAT_R32_FLOAT;
+        srcDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+        srcDesc.Texture2DArray.MostDetailedMip = 0;
+        srcDesc.Texture2DArray.MipLevels = 1;
+        srcDesc.Texture2DArray.FirstArraySlice = 0;
+        srcDesc.Texture2DArray.ArraySize = static_cast<UINT>(MAX_DIRECTIONAL_LIGHT_COUNT);
+
+        hr = device->CreateShaderResourceView(directionalShadowsDepthTextureArray, &srcDesc, &directionalShadowsShaderResourceView);
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Directional Shadows Shader Resource View");
+            return false;
+        }
+
+        RenderUtils::SetDebugName(directionalShadowsShaderResourceView, DebugCategory::CORE, "", "Directional Shadows Depth", "SRV");
+    }
+#pragma endregion
+
+#pragma region Spot Lights
+    {
+        /* Create Depth Texture Array */
+        D3D11_TEXTURE2D_DESC arrDesc = {};
+        arrDesc.Width = static_cast<UINT>(shadowSize);
+        arrDesc.Height = static_cast<UINT>(shadowSize);
+        arrDesc.MipLevels = 1;
+        arrDesc.ArraySize = static_cast<UINT>(MAX_SPOT_LIGHT_COUNT);
+        arrDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+        arrDesc.SampleDesc.Count = 1;
+        arrDesc.SampleDesc.Quality = 0;
+        arrDesc.Usage = D3D11_USAGE_DEFAULT;
+        arrDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+        arrDesc.CPUAccessFlags = 0;
+        arrDesc.MiscFlags = 0;
+
+        HRESULT hr = device->CreateTexture2D(&arrDesc, nullptr, &spotShadowsDepthTextureArray);
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Spot Shadows Depth Texture Array");
+            return false;
+        }
+
+        RenderUtils::SetDebugName(spotShadowsDepthTextureArray, DebugCategory::CORE, "Spot Shadows Depth Texture Array");
+
+        /* Create Depth Stencil Views */
+        D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+        dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+        dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+        dsvDesc.Texture2DArray.MipSlice = 0;
+        dsvDesc.Texture2DArray.ArraySize = 1;
+
+        for (UINT dsvIndex = 0; dsvIndex < MAX_SPOT_LIGHT_COUNT; ++dsvIndex)
+        {
+            dsvDesc.Texture2DArray.FirstArraySlice = dsvIndex;
+
+            hr = device->CreateDepthStencilView(
+                spotShadowsDepthTextureArray,
+                &dsvDesc,
+                &spotShadowsDepthStencilViews[dsvIndex]
+            );
+            if (FAILED(hr))
+            {
+                LogError("Failed to create Spot Shadows Depth Stencil Views");
+                return false;
+            }
+        }
+
+        //RenderUtils::SetDebugName(directionalShadowsDepthStencilViews, DebugCategory::CORE, "", "Directional Shadows", "DSV");
+
+        /* Set Shader Resource View Desc */
+        D3D11_SHADER_RESOURCE_VIEW_DESC srcDesc = {};
+        srcDesc.Format = DXGI_FORMAT_R32_FLOAT;
+        srcDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+        srcDesc.Texture2DArray.MostDetailedMip = 0;
+        srcDesc.Texture2DArray.MipLevels = 1;
+        srcDesc.Texture2DArray.FirstArraySlice = 0;
+        srcDesc.Texture2DArray.ArraySize = static_cast<UINT>(MAX_SPOT_LIGHT_COUNT);
+
+        hr = device->CreateShaderResourceView(spotShadowsDepthTextureArray, &srcDesc, &spotShadowsShaderResourceView);
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Spot Shadows Shader Resource View");
+            return false;
+        }
+
+        RenderUtils::SetDebugName(spotShadowsShaderResourceView, DebugCategory::CORE, "", "Spot Shadows Depth", "SRV");
+    }
+#pragma endregion
+
+    return true;
 }
 
 bool SharedResources::UploadLightMetaData(ID3D11DeviceContext *deviceContext, const RenderView &view) {
@@ -99,9 +271,9 @@ bool SharedResources::UploadSpotLights(ID3D11DeviceContext *deviceContext, const
         data.position = slc.position;
         data.range = slc.range;
         data.direction = slc.direction;
-        data.innerAngleCos = cosf(slc.innerAngle);
+        data.innerAngleCos = cosf(slc.innerAngle / 2);
         data.color = slc.colour * slc.intensity;
-        data.outerAngleCos = cosf(slc.outerAngle);
+        data.outerAngleCos = cosf(slc.outerAngle / 2);
 
         if (slc.castShadows) {
             data.castShadows = 1;
@@ -152,7 +324,7 @@ bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, cons
     return true;
 }
 
-bool SharedResources::Initialize(ID3D11Device* device)
+bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize, uint32_t shadowSizeDirectional)
 {
 	LogInfo("Creating Shared Resources...");
 	LogIndent();
@@ -211,6 +383,9 @@ bool SharedResources::Initialize(ID3D11Device* device)
         return false;
     }
 
+    if (!this->CreateShadowMaps(device, shadowSize, shadowSizeDirectional))
+        return false;
+
     if (!this->CreateSamplers(device))
         return false;
 
@@ -236,6 +411,21 @@ void SharedResources::Shutdown()
     SafeRelease(this->directionalLightBufferSB);
     SafeRelease(this->spotLightBufferSB);
     SafeRelease(this->pointLightBufferSB);
+
+    SafeRelease(this->directionalShadowsDepthTextureArray);
+    SafeRelease(this->spotShadowsDepthTextureArray);
+    SafeRelease(this->pointShadowsTextureCubeArray);
+
+    for (int i = 0; i < MAX_DIRECTIONAL_LIGHT_COUNT; ++i)
+        SafeRelease(this->directionalShadowsDepthStencilViews[i]);
+    for (int i = 0; i < MAX_SPOT_LIGHT_COUNT; ++i)
+        SafeRelease(this->spotShadowsDepthStencilViews[i]);
+    for (int i = 0; i < MAX_POINT_LIGHT_COUNT; ++i)
+        SafeRelease(this->pointShadowsRenderTargetViews[i]);
+
+    SafeRelease(this->directionalShadowsShaderResourceView);
+    SafeRelease(this->spotShadowsShaderResourceView);
+    SafeRelease(this->pointShadowsShaderResourceView);
 
 	for (size_t i = 0; i < +SamplerSlot::COUNT; ++i)
 		SafeRelease(this->samplers[i]);

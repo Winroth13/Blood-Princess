@@ -5,9 +5,10 @@
 
 #include "assets/asset_manager.hpp"
 
-bool ShadowPass::Create(ID3D11Device *device, uint32_t size)
+bool ShadowPass::Create(ID3D11Device *device, uint32_t size, uint32_t sizeDirectional)
 {
 	this->size = size;
+	this->sizeDirectional = sizeDirectional;
 
 #pragma region Depth Stencil
 	{
@@ -111,7 +112,8 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 bool ShadowPass::Initialize(
 	ID3D11Device *device,
 	AssetManager *assetManager,
-	uint32_t size
+	uint32_t size,
+	uint32_t sizeDirectional
 )
 {
 	LogInfo("Initializing Shadow Pass...");
@@ -125,7 +127,7 @@ bool ShadowPass::Initialize(
 
 #pragma endregion
 
-	if (!this->Create(device, size))
+	if (!this->Create(device, size, sizeDirectional))
 	{
 		LogError("Failed to create the Shadow Pass");
 		return false;
@@ -152,27 +154,30 @@ void ShadowPass::Shutdown()
 	SafeRelease(this->inputLayout);
 }
 
-bool ShadowPass::Resize(
-	ID3D11Device *device,
-	uint32_t size
+void ShadowPass::RenderShadows(
+	ID3D11DeviceContext *deviceContext,
+	SharedResources &sharedResources,
+	RenderView *view
 )
 {
-	LogInfo("Resizing Shadow Pass (%u, %u)...", size, size);
-	LogIndent();
+	sharedResources.UploadPerViewData(deviceContext, *view);
 
-	SafeRelease(this->depthStencilSRV);
-	SafeRelease(this->depthStencilView);
-	SafeRelease(this->depthStencilTexture);
+	for (GeometryCommand &command : view->queue.geometryCommands) {
+		PerObjectData perObjectData{};
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
+		XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
+		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix, XMMatrixInverse(nullptr, worldMatrix));
+		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
 
-	if (!this->Create(device, size))
-	{
-		LogError("Failed to create");
-		return false;
+		deviceContext->PSSetShaderResources(0, 1, &command.albedoSRV);
+
+		const UINT stride = sizeof(Vertex);
+		const UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, &command.vertexBuffer, &stride, &offset);
+		deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	}
-
-	LogUnindent();
-
-	return true;
 }
 
 void ShadowPass::Render(
@@ -184,35 +189,27 @@ void ShadowPass::Render(
 {
 	BeginAnnotation("Shadow pass");
 
-	std::vector<RenderView*> directionalViews;
-	std::vector<RenderView*> spotViews;
-	std::vector<RenderView*> pointViews;
+	std::vector<int> directionalViewIndices;
+	std::vector<int> spotViewIndices;
+	std::vector<int> pointViewIndices;
 
-	for (RenderView view : views)
+	for (int i = 0; i < views.size(); ++i)
 	{
-		if (view.type == ViewType::SHADOW_MAP_DIRECTIONAL)
+		if (views[i].type == ViewType::SHADOW_MAP_DIRECTIONAL)
 		{
-			directionalViews.push_back(&view);
+			directionalViewIndices.push_back(i);
 		}
-		else if (view.type == ViewType::SHADOW_MAP_SPOT)
+		else if (views[i].type == ViewType::SHADOW_MAP_SPOT)
 		{
-			spotViews.push_back(&view);
+			spotViewIndices.push_back(i);
 		}
-		else if (view.type == ViewType::SHADOW_MAP_POINT)
+		else if (views[i].type == ViewType::SHADOW_MAP_POINT)
 		{
-			pointViews.push_back(&view);
+			pointViewIndices.push_back(i);
 		}
 	}
 
-	D3D11_VIEWPORT viewport{};
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	viewport.Width = static_cast<float>(this->size);
-	viewport.Height = static_cast<float>(this->size);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-
-	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	sharedResources.BindSamplers(deviceContext);
 
@@ -223,64 +220,65 @@ void ShadowPass::Render(
 
 	ID3D11Buffer *perView = sharedResources.GetPerView();
 	ID3D11Buffer *perObject = sharedResources.GetPerObject();
-	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
-	deviceContext->VSSetConstantBuffers(0, 1, &perView);
-	deviceContext->VSSetConstantBuffers(1, 1, &perObject);
+	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
+
+	// Directional lights
+	D3D11_VIEWPORT viewport{};
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = static_cast<float>(this->sizeDirectional);
+	viewport.Height = static_cast<float>(this->sizeDirectional);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
 
 	deviceContext->RSSetViewports(1, &viewport);
 
-	// Directional lights
-	for (RenderView *view : directionalViews)
+	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
+
+	BeginAnnotation("Directional Lights");
+	int i = 0;
+	for (int index : directionalViewIndices)
 	{
-		sharedResources.UploadPerViewData(deviceContext, *view);
+		RenderView &view = views[index];
 
-		deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
+		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
+		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
+
+		this->RenderShadows(deviceContext, sharedResources, &view);
+
+		i++;
 	}
+	EndAnnotation();
 
+	// Other Lights
+	viewport.Width = static_cast<float>(this->size);
+	viewport.Height = static_cast<float>(this->size);
 
+	deviceContext->RSSetViewports(1, &viewport);
 
+	BeginAnnotation("Spot Lights");
+	i = 0;
+	for (int index : spotViewIndices)
+	{
+		RenderView &view = views[index];
 
+		ID3D11DepthStencilView *dsv = sharedResources.GetSpotShadowDSV(i);
+		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
 
-	//constexpr int TEXTURE_COUNT = 3;
+		this->RenderShadows(deviceContext, sharedResources, &view);
 
-	//for (GeometryCommand &command : view->queue.geometryCommands) {
-	//	PerObjectData perObjectData{};
-	//	XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
-	//	XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
-	//	XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix, XMMatrixInverse(nullptr, worldMatrix));
-	//	RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerObject(), perObjectData);
+		i++;
+	}
+	EndAnnotation();
 
-	//	XMFLOAT3 tint = {
-	//		command.material.baseColor.x * command.tint.x,
-	//		command.material.baseColor.y * command.tint.y,
-	//		command.material.baseColor.z * command.tint.z
-	//	};
+	ID3D11ShaderResourceView *nullSRV = {};
+	deviceContext->PSSetShaderResources(0, 1, &nullSRV);
 
-	//	PerMaterialData perMaterialData{};
-	//	perMaterialData.materialTint = tint;
-	//	perMaterialData.materialSpecular = 0.8f;
-	//	perMaterialData.materialSpecularExponent = 80.0f;
-
-	//	RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
-
-
-	//	ID3D11ShaderResourceView *srvs[TEXTURE_COUNT] = {
-	//		command.albedoSRV,
-	//		command.normalSRV,
-	//		command.metallicRoughnessSRV
-	//	};
-	//	deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, srvs);
-
-	//	const UINT stride = sizeof(Vertex);
-	//	const UINT offset = 0;
-	//	deviceContext->IASetVertexBuffers(0, 1, &command.vertexBuffer, &stride, &offset);
-	//	deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	//	deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
-	//}
-
-	//ID3D11ShaderResourceView *nullSRVs[TEXTURE_COUNT] = {};
-	//deviceContext->PSSetShaderResources(0, TEXTURE_COUNT, nullSRVs);
+	deviceContext->VSSetShader(nullptr, nullptr, 0);
+	deviceContext->PSSetShader(nullptr, nullptr, 0);
 
 	EndAnnotation();
 }

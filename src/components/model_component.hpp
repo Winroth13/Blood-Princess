@@ -26,4 +26,7 @@ private:
 
 public:
     void SetModel(std::shared_ptr<Model> model);
+
+    DirectX::XMFLOAT3 GetTint() const { return this->tint; }
+    void SetTint(DirectX::XMFLOAT3 tint) { this->tint = tint; }
 };

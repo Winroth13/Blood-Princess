@@ -7,13 +7,16 @@
 
 constexpr float NEAR_PLANE = 1.0f;
 constexpr float FAR_PLANE = 1024.0f;
-constexpr float VIEW_WIDTH = 512.0f;
-constexpr float VIEW_HEIGHT = 512.0f;
+constexpr float VIEW_WIDTH = 128.0f;
+constexpr float VIEW_HEIGHT = 128.0f;
 constexpr float DISTANCE_AWAY = 512.0f;
 
 void DirectionalLightComponent::LateUpdate(const AppContext &context, float deltaTime) {
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
     if (!transform)
+        return;
+
+    if (!this->castShadows)
         return;
 
     RenderView view{};
@@ -22,7 +25,7 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
     view.nearPlane = NEAR_PLANE;
     view.farPlane = FAR_PLANE;
     
-    XMVECTOR cameraPosition = XMLoadFloat3(
+    XMVECTOR primaryCameraPosition = XMLoadFloat3(
         &RenderUtils::GetView(
             context.renderer->GetViews(),
             ViewType::PRIMARY
@@ -35,16 +38,16 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
         -DISTANCE_AWAY
     );
 
-    XMVECTOR lightPosition = XMVectorAdd(cameraPosition, positionOffset);
+    XMVECTOR lightCameraPosition = XMVectorAdd(primaryCameraPosition, positionOffset);
 
-    XMStoreFloat3(&view.cameraPosition, lightPosition);
+    XMStoreFloat3(&view.cameraPosition, lightCameraPosition);
      
-    XMFLOAT4 quaternionRotation = transform->GetLocalRotationQuaternion();
+    XMFLOAT4 quaternionRotation = transform->GetWorldRotationQuaternion();
     XMMATRIX matrix = XMMatrixMultiply(
         XMMatrixRotationQuaternion(
             XMLoadFloat4(&quaternionRotation)
         ),
-        XMMatrixTranslationFromVector(lightPosition)
+        XMMatrixTranslationFromVector(lightCameraPosition)
     );
 
     XMMATRIX viewMatrix = XMMatrixInverse(nullptr, matrix);
@@ -58,6 +61,14 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
     );
     XMStoreFloat4x4(&view.projectionMatrix, projectionMatrix);
 
+    XMStoreFloat4x4(
+        &this->viewProjectionMatrix,
+        XMMatrixMultiply(
+            viewMatrix,
+            projectionMatrix
+        )
+    );
+
     context.renderer->AddView(view);
 }
 
@@ -70,6 +81,7 @@ void DirectionalLightComponent::Render(const RenderView& view, RenderQueue& queu
 	DirectionalLightCommand command{};
 
 	command.colour = this->colour;
+    command.castShadows = this->castShadows;
 	command.direction = transform->GetForward();
 	command.intensity = this->intensity;
     command.viewProjectionMatrix = this->viewProjectionMatrix;

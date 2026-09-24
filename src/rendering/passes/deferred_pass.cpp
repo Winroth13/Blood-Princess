@@ -17,21 +17,20 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 	{
 		gBuffers.resize(+GBufferType::COUNT);
 
-
 		DXGI_FORMAT formats[] =
 		{
-			DXGI_FORMAT_R8G8B8A8_UNORM,    // Albedo | Metallic
-			DXGI_FORMAT_R8G8B8A8_UNORM,    // Encoded Normal | Roughness
+			DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo | Metallic
+			DXGI_FORMAT_R8G8B8A8_UNORM,		// Encoded Normal | Roughness
 
-            DXGI_FORMAT_R32G32B32A32_FLOAT // Output
+            DXGI_FORMAT_R32G32B32A32_FLOAT	// Output
 		};
 
 		std::string names[] =
 		{
-			"Albedo and Metallic",  // Albedo | Metallic
-			"Normal and Roughness", // Encoded Normal | Roughness
+			"Albedo and Metallic",			// Albedo | Metallic
+			"Normal and Roughness",			// Encoded Normal | Roughness
 
-            "Output"
+            "Output"						// Output
 		};
 
 		for (size_t i = 0; i < +GBufferType::COUNT; ++i)
@@ -267,7 +266,7 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11UnorderedAccessView *outputUAV = this->GetGBuffer(GBufferType::OUTPUT).GetUnorderedAccessView();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &outputUAV, nullptr);
 
-	 std::array<ID3D11ShaderResourceView *, 6> srvs = {
+	 std::array<ID3D11ShaderResourceView *, 8> srvs = {
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
@@ -275,7 +274,10 @@ void DeferredPass::RenderLightingPass(
 		 // Light Buffer
 		 sharedResources.GetDirectionalLightsSRV(),
 		 sharedResources.GetSpotLightsSRV(),
-		 sharedResources.GetPointLightsSRV()
+		 sharedResources.GetPointLightsSRV(),
+		 // Shadow Textures
+		 sharedResources.GetDirectionalShadowsSRV(),
+		 sharedResources.GetSpotShadowsSRV()
 	 };
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 

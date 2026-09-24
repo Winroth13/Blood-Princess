@@ -2,6 +2,8 @@
 #include "assets/types/texture_2d.hpp"
 #include "core/logging.hpp"
 #include "imgui/imgui.h"
+#include "assets/types/animation_library.hpp"
+#include "assets/types/sub_types/skeleton.hpp"
 
 #pragma region Vertex
 
@@ -119,23 +121,22 @@ bool Mesh::Create(
 bool Model::Create(
 	const std::vector<Mesh*> &meshes, 
 	const std::vector<Material> &materials,
-	const std::vector<Texture2D *> &textures
+	const std::vector<std::shared_ptr<Texture2D>> &textures,
+    std::shared_ptr<AnimationLibrary> animations,
+    std::shared_ptr<Skeleton> skeleton
 )
 {
 	LogInfo("Creating Model...");
 	LogIndent();
 
-	for (auto &mesh : meshes)
-	{
+	for (Mesh *mesh : meshes)
 		this->meshes.push_back(std::unique_ptr<Mesh>(mesh));
-	}
 
-	this->materials = materials;
-	
-	for (auto &textures : textures)
-	{
-		this->textures.push_back(std::unique_ptr<Texture2D>(textures));
-	}
+	this->materials = materials;	
+	this->textures = textures;
+
+    this->animations = animations;
+    this->skeleton = skeleton;
 	
 	LogUnindent();
 
@@ -169,7 +170,7 @@ void Model::DrawImGui()
 			if (ImGui::TreeNode(label.c_str()))
 			{
 				ImGui::Text("Vertices: %d", mesh->GetNumVertices());
-				ImGui::Text("Indicies: %d", mesh->GetNumVertices());
+				ImGui::Text("Indices: %d", mesh->GetNumIndicies());
 
 				if (ImGui::TreeNode("Submeshes"))
 				{
@@ -195,4 +196,14 @@ void Model::DrawImGui()
 
 		ImGui::TreePop();
 	}
+
+    if (this->animations && ImGui::TreeNode("Animations")) {
+        this->animations->DrawImGui();
+        ImGui::TreePop();
+    }
+
+    if (this->skeleton && ImGui::TreeNode("Skeleton")) {
+        ImGui::Text("I have a skeleton :3");
+        ImGui::TreePop();
+    }
 }
