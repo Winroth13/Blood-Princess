@@ -271,9 +271,9 @@ bool SharedResources::UploadSpotLights(ID3D11DeviceContext *deviceContext, const
         data.position = slc.position;
         data.range = slc.range;
         data.direction = slc.direction;
-        data.innerAngleCos = cosf(slc.innerAngle);
+        data.innerAngleCos = cosf(slc.innerAngle / 2);
         data.color = slc.colour * slc.intensity;
-        data.outerAngleCos = cosf(slc.outerAngle);
+        data.outerAngleCos = cosf(slc.outerAngle / 2);
 
         if (slc.castShadows) {
             data.castShadows = 1;
