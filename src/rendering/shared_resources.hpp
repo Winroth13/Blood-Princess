@@ -24,6 +24,7 @@ constexpr int operator+(ConstantBufferSlot slot) noexcept {
 enum class SamplerSlot 
 {
 	LINEAR_WRAP,
+	SHADOW,
 	COUNT
 };
 
@@ -66,7 +67,7 @@ class SharedResources
 	ID3D11SamplerState *samplers[+SamplerSlot::COUNT] = {};
 
 	bool CreateSamplers(ID3D11Device *device);
-	bool CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize);
+	bool CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional);
 
     bool UploadLightMetaData(ID3D11DeviceContext *deviceContext, const RenderView &view);
     bool UploadDirectionalLights(ID3D11DeviceContext *deviceContext, const RenderView &view);
@@ -77,7 +78,7 @@ public:
 	SharedResources() = default;
 	~SharedResources() = default;
 	
-	bool Initialize(ID3D11Device *device, uint32_t shadowSize);
+	bool Initialize(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional);
 	void Shutdown();
 
     bool UploadLights(ID3D11DeviceContext *deviceContext, const RenderView &view);

@@ -267,7 +267,7 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11UnorderedAccessView *outputUAV = this->GetGBuffer(GBufferType::OUTPUT).GetUnorderedAccessView();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &outputUAV, nullptr);
 
-	 std::array<ID3D11ShaderResourceView *, 6> srvs = {
+	 std::array<ID3D11ShaderResourceView *, 7> srvs = {
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
@@ -275,7 +275,9 @@ void DeferredPass::RenderLightingPass(
 		 // Light Buffer
 		 sharedResources.GetDirectionalLightsSRV(),
 		 sharedResources.GetSpotLightsSRV(),
-		 sharedResources.GetPointLightsSRV()
+		 sharedResources.GetPointLightsSRV(),
+		 // Shadow Textures
+		 sharedResources.GetDirectionalShadowsSRV()
 	 };
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 

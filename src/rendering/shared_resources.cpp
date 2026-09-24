@@ -21,35 +21,61 @@ static inline XMFLOAT3 operator*(const XMFLOAT3 &v, float s)
 
 bool SharedResources::CreateSamplers(ID3D11Device *device) 
 {
-	D3D11_SAMPLER_DESC desc{};
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.MaxAnisotropy = 1;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
+#pragma region Linear-Wrap
+	D3D11_SAMPLER_DESC linearWrapDesc{};
+    linearWrapDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    linearWrapDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    linearWrapDesc.MaxAnisotropy = 1;
+    linearWrapDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    linearWrapDesc.MinLOD = 0;
+    linearWrapDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	HRESULT result = device->CreateSamplerState(&desc, &this->samplers[+SamplerSlot::LINEAR_WRAP]);
+	HRESULT result = device->CreateSamplerState(&linearWrapDesc, &this->samplers[+SamplerSlot::LINEAR_WRAP]);
 	if (FAILED(result)) {
 		LogError("Failed to create Linear Wrap Sampler");
 		return false;
 	}
 
     RenderUtils::SetDebugName(this->samplers[+SamplerSlot::LINEAR_WRAP], DebugCategory::CORE, "Sampler", "Linear-Wrap");
+#pragma endregion
+
+#pragma region Shadow
+    D3D11_SAMPLER_DESC shadowDesc = {};
+    shadowDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    shadowDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    shadowDesc.BorderColor[0] = 1.0f;
+    shadowDesc.BorderColor[1] = 1.0f;
+    shadowDesc.BorderColor[2] = 1.0f;
+    shadowDesc.BorderColor[3] = 1.0f;
+    shadowDesc.MipLODBias = 0.0f;
+    shadowDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    shadowDesc.MinLOD = 0;
+    shadowDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    result = device->CreateSamplerState(&shadowDesc, &this->samplers[+SamplerSlot::SHADOW]);
+    if (FAILED(result)) {
+        LogError("Failed to create Shadow Sampler");
+        return false;
+    }
+
+    RenderUtils::SetDebugName(this->samplers[+SamplerSlot::SHADOW], DebugCategory::CORE, "Sampler", "Shadow");
+#pragma endregion
 
 	return true;
 }
 
-bool SharedResources::CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize)
+bool SharedResources::CreateShadowMaps(ID3D11Device *device, uint32_t shadowSize, uint32_t shadowSizeDirectional)
 {
 
 #pragma region Directional Light
     /* Create Depth Texture Array */
     D3D11_TEXTURE2D_DESC arrDesc = {};
-    arrDesc.Width = static_cast<UINT>(shadowSize);
-    arrDesc.Height = static_cast<UINT>(shadowSize);
+    arrDesc.Width = static_cast<UINT>(shadowSizeDirectional);
+    arrDesc.Height = static_cast<UINT>(shadowSizeDirectional);
     arrDesc.MipLevels = 1;
     arrDesc.ArraySize = static_cast<UINT>(MAX_DIRECTIONAL_LIGHT_COUNT);
     arrDesc.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -226,7 +252,7 @@ bool SharedResources::UploadPointLights(ID3D11DeviceContext *deviceContext, cons
     return true;
 }
 
-bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize)
+bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize, uint32_t shadowSizeDirectional)
 {
 	LogInfo("Creating Shared Resources...");
 	LogIndent();
@@ -285,7 +311,7 @@ bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize)
         return false;
     }
 
-    if (!this->CreateShadowMaps(device, shadowSize))
+    if (!this->CreateShadowMaps(device, shadowSize, shadowSizeDirectional))
         return false;
 
     if (!this->CreateSamplers(device))

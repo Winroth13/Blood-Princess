@@ -182,7 +182,6 @@ void Scene::Update(float deltaTime) {
         if (entity->IsActive())
             entity->Update(*this->context, deltaTime);
 
-    // TODO: entityLateUpdateOrder?
     for (Entity *entity : this->entityUpdateOrder)
         if (entity->IsActive())
             entity->LateUpdate(*this->context, deltaTime);

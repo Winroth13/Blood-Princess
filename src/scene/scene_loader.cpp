@@ -26,9 +26,16 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
 
     Entity *modelEntity = outScene.AddEntity("model");
-    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.13f, -0.12f, 0.4f });
+    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
     ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
+
+    Entity *modelEntity2 = outScene.AddEntity("model2");
+    TransformComponent *transformComponent2 = modelEntity2->AddComponent<TransformComponent>();
+    transformComponent2->SetWorldPosition({ 0.0f, 0.0f, 1.0f });
+    transformComponent2->SetWorldScale(10.0f, 10.0f, 1.0f);
+    ModelComponent *modelComponent2 = modelEntity2->AddComponent<ModelComponent>();
+    modelComponent2->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
     modelEntity->AddComponent<ParticleSystemComponent>();
 
@@ -64,21 +71,21 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     dirLight->SetIntensity(3.0f);
     dirLight->SetCastShadows(true);
 
-    Entity* EntitywallEntity = outScene.AddEntity("wall");
-    auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
-    wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
+    //Entity* EntitywallEntity = outScene.AddEntity("wall");
+    //auto wallTransform = EntitywallEntity->AddComponent<TransformComponent>();
+    //wallTransform->SetWorldPosition({ 0.0f, 0.0f, 3.0f });
 
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
-    transform->SetWorldPosition(0.36f, 0.05f, 0.31f);
+    transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
 
-    ModelComponent* modelWallComponent = EntitywallEntity->AddComponent<ModelComponent>();
-    modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
-    modelWallComponent->SetActive(false);
+    //ModelComponent* modelWallComponent = EntitywallEntity->AddComponent<ModelComponent>();
+    //modelWallComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/wall.glb"));
+    //modelWallComponent->SetActive(false);
 
-    auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
-    modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
-    modelCol->SetStatic(true);
-    modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
+    //auto modelCol = EntitywallEntity->AddComponent<BoxCollisionComponent>();
+    //modelCol->SetLayer(CollisionLayer::ENVIRONMENT);
+    //modelCol->SetStatic(true);
+    //modelCol->SetExtents({ 0.5f, 2.5f, 5.0f }); 
 
     //Entity *animatedEntity = outScene.AddEntity("animated_entity");
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);

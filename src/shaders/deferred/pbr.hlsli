@@ -1,3 +1,6 @@
+#ifndef PBR
+#define PBR
+
 static const float PI = 3.14159265359f;
 
 float3 FresnelSchlick(float cosTheta, float3 F0)
@@ -70,3 +73,5 @@ float3 ComputePBR(
     float NdotL = max(dot(normalV, lightV), 0.0);
     return (kD * albedoColour / PI + specular) * radiance * NdotL;
 }
+
+#endif

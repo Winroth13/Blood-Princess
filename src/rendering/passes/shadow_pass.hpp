@@ -20,10 +20,12 @@ class ShadowPass
 	std::shared_ptr<PixelShader> pixelShaderLinear = nullptr;
 
 	uint32_t size = 0;
+	uint32_t sizeDirectional = 0;
 
 	bool Create(
 		ID3D11Device *device,
-		uint32_t size
+		uint32_t size,
+		uint32_t sizeDirectional
 	);
 
 	bool CreateInputLayout(ID3D11Device *device);
@@ -44,15 +46,11 @@ public:
 	bool Initialize(
 		ID3D11Device *device,
 		AssetManager *assetManager,
-		uint32_t size
+		uint32_t size,
+		uint32_t sizeDirecional
 	);
 
 	void Shutdown();
-
-	bool Resize(
-		ID3D11Device *device,
-		uint32_t size
-	);
 
 	void Render(
 		ID3D11Device *device,

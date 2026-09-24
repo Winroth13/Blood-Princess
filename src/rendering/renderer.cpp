@@ -115,7 +115,7 @@ bool Renderer::Initialize(const AppContext &appContext)
     LogInfo("Creating Renderer...");
     LogIndent();
 
-    if (!this->sharedResources.Initialize(this->device, this->shadowSize))
+    if (!this->sharedResources.Initialize(this->device, this->shadowSize, this->shadowSizeDirectional))
     {
         LogError("Failed to create Shared Resources");
         return false;
@@ -132,7 +132,7 @@ bool Renderer::Initialize(const AppContext &appContext)
         LogError("Failed to create Particle Pass");
     }
     
-    if (!this->shadowPass.Initialize(this->device, appContext.assetManager, this->shadowSize))
+    if (!this->shadowPass.Initialize(this->device, appContext.assetManager, this->shadowSize, this->shadowSizeDirectional))
     {
         LogError("Failed to create Shadow Pass");
         return false;
