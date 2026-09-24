@@ -5,9 +5,10 @@
 
 #include "assets/asset_manager.hpp"
 
-bool ShadowPass::Create(ID3D11Device *device, uint32_t size)
+bool ShadowPass::Create(ID3D11Device *device, uint32_t size, uint32_t sizeDirectional)
 {
 	this->size = size;
+	this->sizeDirectional = sizeDirectional;
 
 #pragma region Depth Stencil
 	{
@@ -82,33 +83,33 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 	LogInfo("Creating Input Layout");
 	LogIndent();
 
-	//D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
-	//{
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
-
-	//HRESULT result = device->CreateInputLayout(
-	//	layoutDesc, 2,
-	//	this->vertexShader->GetByteCode().data(),
-	//	this->vertexShader->GetByteCode().length(),
-	//	&this->inputLayout
-	//);
-
 	D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	HRESULT result = device->CreateInputLayout(
-		layoutDesc, 4,
+		layoutDesc, 2,
 		this->vertexShader->GetByteCode().data(),
 		this->vertexShader->GetByteCode().length(),
 		&this->inputLayout
 	);
+
+	//D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
+	//{
+	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//	{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//	{ "TANGENT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	//};
+
+	//HRESULT result = device->CreateInputLayout(
+	//	layoutDesc, 4,
+	//	this->vertexShader->GetByteCode().data(),
+	//	this->vertexShader->GetByteCode().length(),
+	//	&this->inputLayout
+	//);
 
 	if (FAILED(result))
 	{
@@ -126,7 +127,8 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 bool ShadowPass::Initialize(
 	ID3D11Device *device,
 	AssetManager *assetManager,
-	uint32_t size
+	uint32_t size,
+	uint32_t sizeDirectional
 )
 {
 	LogInfo("Initializing Shadow Pass...");
@@ -140,7 +142,7 @@ bool ShadowPass::Initialize(
 
 #pragma endregion
 
-	if (!this->Create(device, size))
+	if (!this->Create(device, size, sizeDirectional))
 	{
 		LogError("Failed to create the Shadow Pass");
 		return false;
@@ -165,29 +167,6 @@ void ShadowPass::Shutdown()
 	SafeRelease(this->depthStencilView);
 	SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->inputLayout);
-}
-
-bool ShadowPass::Resize(
-	ID3D11Device *device,
-	uint32_t size
-)
-{
-	LogInfo("Resizing Shadow Pass (%u, %u)...", size, size);
-	LogIndent();
-
-	SafeRelease(this->depthStencilSRV);
-	SafeRelease(this->depthStencilView);
-	SafeRelease(this->depthStencilTexture);
-
-	if (!this->Create(device, size))
-	{
-		LogError("Failed to create");
-		return false;
-	}
-
-	LogUnindent();
-
-	return true;
 }
 
 void ShadowPass::RenderShadows(
@@ -245,15 +224,7 @@ void ShadowPass::Render(
 		}
 	}
 
-	D3D11_VIEWPORT viewport{};
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	viewport.Width = static_cast<float>(this->size);
-	viewport.Height = static_cast<float>(this->size);
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-
-	deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	sharedResources.BindSamplers(deviceContext);
 
@@ -267,20 +238,40 @@ void ShadowPass::Render(
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
 
+	// Directional lights
+	D3D11_VIEWPORT viewport{};
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = static_cast<float>(this->sizeDirectional);
+	viewport.Height = static_cast<float>(this->sizeDirectional);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
 	deviceContext->RSSetViewports(1, &viewport);
 
-	// Directional lights
+	BeginAnnotation("Directional Lights");
+	int i = 0;
 	for (int index : directionalViewIndices)
 	{
 		RenderView &view = views[index];
 
 		deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
 
-		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(index);
+		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
+		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
 
 		this->RenderShadows(deviceContext, sharedResources, &view);
+
+		i++;
 	}
+	EndAnnotation();
+
+	// Others
+	viewport.Width = static_cast<float>(this->size);
+	viewport.Height = static_cast<float>(this->size);
+
+	deviceContext->RSSetViewports(1, &viewport);
 
 	ID3D11ShaderResourceView *nullSRV = {};
 	deviceContext->PSSetShaderResources(0, 1, &nullSRV);

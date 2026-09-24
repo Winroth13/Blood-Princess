@@ -1,5 +1,6 @@
 #include "../shared_resources.hlsli"
 #include "pbr.hlsli"
+#include "../shadow/shadows.hlsli"
 
 RWTexture2D<float4> backBufferUAV;
 
@@ -10,6 +11,8 @@ Texture2D<float4> depthStencilTexture : register(t2);
 StructuredBuffer<DirectionalLight> directionalLights : register(t3);
 StructuredBuffer<SpotLight> spotLights : register(t4);
 StructuredBuffer<PointLight> pointLights : register(t5);
+
+Texture2DArray<float> directionalLightShadowMaps : register(t6);
 
 float3 ReconstructWorldPosition(float2 uv, float depth)
 {
@@ -101,13 +104,26 @@ void main(uint3 id : SV_DispatchThreadID)
     /* Directional Lights */
     for (i = 0; i < directionalLightCount; ++i)
     {
+        float depth = directionalLightShadowMaps.SampleLevel(samplerShadow, float3(0, 0, 0), 0);
+        
         DirectionalLight light = directionalLights[i];
+        
+        float shadowFactor = CalcShadowFactor(
+            positionWorld,
+            light.viewProjectionMatrix,
+            light.shadowArrayIndex,
+            directionalLightShadowMaps,
+            true
+        );
+        
+        if (shadowFactor <= 1e-5f)
+            continue;
         
         float3 lightV = -light.direction;
         float3 halfV = normalize(viewV + lightV);
         float3 radiance = light.colour;
         
-        outRadiance += ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
+        outRadiance += shadowFactor * ComputePBR(normalV, viewV, lightV, halfV, albedoColour, roughness, metallic, baseReflectivity, radiance);
     }
     
     float3 ambient = ambientColour * albedoColour;
