@@ -108,16 +108,24 @@ void main(uint3 id : SV_DispatchThreadID)
         
         DirectionalLight light = directionalLights[i];
         
-        float shadowFactor = CalcShadowFactor(
+        float shadowFactor;
+        if (light.castShadows)
+        {
+            shadowFactor = CalcShadowFactor(
             positionWorld,
             light.viewProjectionMatrix,
             light.shadowArrayIndex,
             directionalLightShadowMaps,
             true
-        );
+            );
         
-        if (shadowFactor <= 1e-5f)
-            continue;
+            if (shadowFactor <= 1e-5f)
+                continue;
+        }
+        else
+        {
+            shadowFactor = 1;
+        }
         
         float3 lightV = -light.direction;
         float3 halfV = normalize(viewV + lightV);

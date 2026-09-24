@@ -96,21 +96,6 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 		&this->inputLayout
 	);
 
-	//D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
-	//{
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	//	{ "TANGENT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	//};
-
-	//HRESULT result = device->CreateInputLayout(
-	//	layoutDesc, 4,
-	//	this->vertexShader->GetByteCode().data(),
-	//	this->vertexShader->GetByteCode().length(),
-	//	&this->inputLayout
-	//);
-
 	if (FAILED(result))
 	{
 		LogError("Failed to create Input Layout");
@@ -249,13 +234,13 @@ void ShadowPass::Render(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
+	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
+
 	BeginAnnotation("Directional Lights");
 	int i = 0;
 	for (int index : directionalViewIndices)
 	{
 		RenderView &view = views[index];
-
-		deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
 
 		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
 		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -267,11 +252,27 @@ void ShadowPass::Render(
 	}
 	EndAnnotation();
 
-	// Others
+	// Other Lights
 	viewport.Width = static_cast<float>(this->size);
 	viewport.Height = static_cast<float>(this->size);
 
 	deviceContext->RSSetViewports(1, &viewport);
+
+	BeginAnnotation("Spot Lights");
+	i = 0;
+	for (int index : spotViewIndices)
+	{
+		RenderView &view = views[index];
+
+		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
+		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
+
+		this->RenderShadows(deviceContext, sharedResources, &view);
+
+		i++;
+	}
+	EndAnnotation();
 
 	ID3D11ShaderResourceView *nullSRV = {};
 	deviceContext->PSSetShaderResources(0, 1, &nullSRV);

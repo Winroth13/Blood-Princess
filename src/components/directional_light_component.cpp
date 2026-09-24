@@ -16,6 +16,9 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
     if (!transform)
         return;
 
+    if (!this->castShadows)
+        return;
+
     RenderView view{};
     view.type = ViewType::SHADOW_MAP_DIRECTIONAL;
 

@@ -11,7 +11,7 @@ class SpotLightComponent : public Component
 	ExportProperty(float, intensity, 1.0f);
 	ExportPropertyClampedAngle(float, innerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV4);
 	ExportPropertyClampedAngle(float, outerAngle, 0.0f, DirectX::XM_PI, DirectX::XM_PIDIV2);
-	ExportProperty(bool, castShadows, false);
+	ExportProperty(bool, castShadows, true);
 
     DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 
