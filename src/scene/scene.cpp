@@ -182,6 +182,10 @@ void Scene::Update(float deltaTime) {
         if (entity->IsActive())
             entity->Update(*this->context, deltaTime);
 
+    for (Entity *entity : this->entityUpdateOrder)
+        if (entity->IsActive())
+            entity->LateUpdate(*this->context, deltaTime);
+
     this->RemovePendingComponents();
     this->RemovePendingEntities();
 }

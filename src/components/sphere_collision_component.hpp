@@ -26,6 +26,7 @@ public:
 
 	BoundingSphere GetWorldSphere() const { return this->worldSphere; }
 	bool GetWorldBounds(BoundingBox &outerBox) override;
+	bool GetBounds2D(Rect2D &outRect) const override;
 	void UpdateWorldSphere();
 
 	float GetRadius() const { return this->radius; }
