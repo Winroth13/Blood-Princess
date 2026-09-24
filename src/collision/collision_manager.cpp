@@ -232,6 +232,62 @@ bool CollisionManager::CheckOverlap(CollisionComponent* a, CollisionComponent* b
     return false;
 }
 
+void CollisionManager::BuildStaticTree()
+{
+    this->staticQuadTree.Clear();
+    if (this->staticColliders.empty())
+    {
+        this->isStaticTreeDirty = false;
+        return;
+    }
+
+    float minX = 1e9f, maxX = -1e9f;
+    float minZ = 1e9f, maxZ = -1e9f;
+
+    for (CollisionComponent* staticCol : this->staticColliders)
+    {
+        if (staticCol)
+        {
+            Rect2D b;
+            if (staticCol->GetBounds2D(b))
+            {
+                minX = (std::min)(minX, b.minX);
+                maxX = (std::max)(maxX, b.maxX);
+                minZ = (std::min)(minZ, b.minZ);
+                maxZ = (std::max)(maxZ, b.maxZ);
+            }
+        }
+    }
+
+    float padding = 10.0f;
+    if (minX > maxX)
+    {
+        minX = -100.0f; maxX = 100.0f;
+        minZ = -100.0f; maxZ = 100.0f;
+    }
+    else
+    {
+        minX -= padding; maxX += padding;
+        minZ -= padding; maxZ += padding;
+    }
+
+    this->staticQuadTree.Init(Rect2D(minX, maxX, minZ, maxZ));
+
+    for (CollisionComponent* staticCol : this->staticColliders)
+    {
+        if (staticCol)
+        {
+            Rect2D b;
+            if (staticCol->GetBounds2D(b))
+            {
+                this->staticQuadTree.Insert(staticCol, b);
+            }
+        }
+    }
+
+    this->isStaticTreeDirty = false;
+}
+
 void CollisionManager::ResolvePairs()
 {
     
@@ -257,7 +313,14 @@ void CollisionManager::ResolvePairs()
         }
     }
 
-    
+    if (this->isStaticTreeDirty)
+    {
+        this->BuildStaticTree();
+    }
+
+    std::vector<CollisionComponent*> potentialStatic;
+    potentialStatic.reserve(32);
+
     for (CollisionComponent* dynamicCol : this->dynamicColliders)
     {
         if (!dynamicCol || !dynamicCol->IsActive()) continue;
@@ -268,9 +331,27 @@ void CollisionManager::ResolvePairs()
         TransformComponent* dynamicTransform = dynamicOwner->GetComponent<TransformComponent>();
         if (!dynamicTransform) continue;
 
-        for (CollisionComponent* staticCol : this->staticColliders)
+        Rect2D dynamicBounds;
+        if (!dynamicCol->GetBounds2D(dynamicBounds)) continue;
+
+        potentialStatic.clear();
+        this->staticQuadTree.Query(dynamicBounds, potentialStatic);
+
+        for (size_t k = 0; k < potentialStatic.size(); ++k)
         {
+            CollisionComponent* staticCol = potentialStatic[k];
             if (!staticCol || !staticCol->IsActive()) continue;
+
+            bool duplicate = false;
+            for (size_t prev = 0; prev < k; ++prev)
+            {
+                if (potentialStatic[prev] == staticCol)
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate) continue;
 
             Entity* staticOwner = staticCol->GetOwner();
             if (!staticOwner || !staticOwner->IsActive()) continue;
@@ -441,6 +522,7 @@ void CollisionManager::RegisterCollider(CollisionComponent * collider)
         auto iter = std::find(this->staticColliders.begin(), this->staticColliders.end(), collider);
         if (iter == this->staticColliders.end()) {
             this->staticColliders.push_back(collider);
+            this->isStaticTreeDirty = true;
         }
     }
     else
@@ -461,6 +543,7 @@ void CollisionManager::UnregisterCollider(CollisionComponent * collider)
             std::remove(this->staticColliders.begin(),this->staticColliders.end(), collider),
             this->staticColliders.end()
         );
+        this->isStaticTreeDirty = true;
     }
     else
     {
@@ -664,4 +747,6 @@ void CollisionManager::Clear()
 {
     this->staticColliders.clear();
     this->dynamicColliders.clear();
+    this->staticQuadTree.Clear();
+    this->isStaticTreeDirty = true;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "collision/collision_layer.hpp"
+#include "collision/quad_tree.hpp"
 
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
@@ -41,6 +42,10 @@ class CollisionManager
 private:
 	std::vector<CollisionComponent *> staticColliders;
 	std::vector<CollisionComponent *> dynamicColliders;
+
+	QuadTree staticQuadTree;
+	bool isStaticTreeDirty = true;
+	void BuildStaticTree();
 
 	std::unordered_map<uint32_t, uint32_t> layerCollisionMatrix;
 
