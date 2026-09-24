@@ -92,6 +92,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     auto torchModel = appContext.assetManager->Get<Model>("assets/models/torch.glb");
     auto floorModel = appContext.assetManager->Get<Model>("assets/models/floor.glb");
+    auto ceilingModel = appContext.assetManager->Get<Model>("assets/models/ceiling.glb");
     auto flameTexture = appContext.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     auto smokeTexture = appContext.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
     auto fireSound = appContext.assetManager->Get<AudioClip>("assets/audio/music/egomassive__fire.ogg"); 
@@ -205,6 +206,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         PointLightComponent *pointLight = fireParticleEntity->AddComponent<PointLightComponent>();
         pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
         pointLight->SetIntensity(8.0f);
+		pointLight->SetRadius(6.7f);
 
         // 3D Fire audio
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
@@ -270,7 +272,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
                 ceilingCol->SetExtents({ halfTile, 0.5f, halfTile });
 
                 ModelComponent *ceilingComp = ceilingTile->AddComponent<ModelComponent>();
-                ceilingComp->SetModel(floorModel);
+                ceilingComp->SetModel(ceilingModel);
 
                 tileIndex++;
             }
