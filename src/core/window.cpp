@@ -1,6 +1,7 @@
 #include "core/window.hpp"
 #include "core/logging.hpp"
 #include "input/input.hpp"
+#include "core/application.hpp"
 
 bool Window::Initialize(
     const std::string& title,
@@ -44,7 +45,9 @@ void Window::PollEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+#if ENABLE_IMGUI_EDITOR
         this->imGuiLayer->PollEvent(&event);
+#endif
 
         switch (event.type)
         {

@@ -20,9 +20,13 @@ void Application::Update(float deltaTime)
 
 void Application::Render(float deltaTime) 
 {
+#if ENABLE_IMGUI_EDITOR
     this->editor.ImGuiRender(this->appContext);
+#endif
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
+#if ENABLE_IMGUI_EDITOR
     this->imGuiLayer.Present();
+#endif
     this->renderer.Present();
 }
 
@@ -76,6 +80,7 @@ bool Application::Initialize()
         return false;
     }
 
+#if ENABLE_IMGUI_EDITOR
     if (!this->imGuiLayer.Initialize(
         this->window.GetSdlWindow(), 
         this->renderer.GetDevice(), 
@@ -92,6 +97,7 @@ bool Application::Initialize()
         LogError("Failed to create Editor");
         return false;
     }
+#endif
 
     Input::Initialize();
     this->isRunning = true;
@@ -116,7 +122,6 @@ bool Application::Initialize()
     }
 
     LogInfo("Bindings path: %s", configPath.c_str());
-
 
     Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 
@@ -164,7 +169,9 @@ void Application::Run()
         prevTime = currentTime;
 
         this->renderer.NewFrame();
+#if ENABLE_IMGUI_EDITOR
         this->imGuiLayer.NewFrame();
+#endif
 
         this->Update(deltaTime);
 
@@ -178,7 +185,9 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+#if ENABLE_IMGUI_EDITOR
     this->imGuiLayer.Shutdown();
+#endif
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();

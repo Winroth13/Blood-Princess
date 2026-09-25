@@ -11,6 +11,8 @@
 
 #include <chrono>
 
+#define ENABLE_IMGUI_EDITOR 1
+
 struct AppContext;
 
 class Application 
