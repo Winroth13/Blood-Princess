@@ -33,6 +33,11 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     //modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
+    Entity *musicEntity = outScene.AddEntity("music_entity");
+    musicEntity->AddComponent<TransformComponent>();
+    MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+    musicComponent->SetVolume(0.2f);
+
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
