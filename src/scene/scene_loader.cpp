@@ -46,6 +46,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
+    transform->SetWorldRotation(30.0f, 0.0f, 0.0f);
 
     Entity *spotLightEntity = outScene.AddEntity("spot light");
     SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
