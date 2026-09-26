@@ -133,3 +133,10 @@ struct ParticleData
     float lifeTime;
 };
 AssertCBufferSize(ParticleData);
+
+struct PaintData
+{
+    XMFLOAT3 paintPosition;
+    float pad0;
+};
+AssertCBufferSize(PaintData);

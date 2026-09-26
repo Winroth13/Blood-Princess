@@ -77,6 +77,11 @@
     <ClCompile Include="src\components\health_component.cpp" />
     <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\assets\types\animation_library.cpp" />
+    <ClCompile Include="src\components\light_flicker_component.cpp" />
+    <ClCompile Include="src\rendering\lines\line_utils.cpp" />
+    <ClCompile Include="src\rendering\passes\line_pass.cpp" />
+    <ClCompile Include="src\components\paintable_component.cpp" />
+    <ClCompile Include="src\rendering\passes\paint_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -176,6 +181,12 @@
     <ClInclude Include="src\components\health_component.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\assets\types\animation_library.hpp" />
+    <ClInclude Include="src\components\light_flicker_component.hpp" />
+    <ClInclude Include="src\rendering\lines\line_utils.hpp" />
+    <ClInclude Include="src\rendering\passes\line_pass.hpp" />
+    <ClInclude Include="src\rendering\lines\line_vertex.hpp" />
+    <ClInclude Include="src\components\paintable_component.hpp" />
+    <ClInclude Include="src\rendering\passes\paint_pass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
@@ -189,6 +200,10 @@
     <FxCompile Include="src\shaders\particles\vs_particle_system.hlsl" />
     <FxCompile Include="src\shaders\particles\gs_particle_system.hlsl" />
     <FxCompile Include="src\shaders\particles\ps_particle_system.hlsl" />
+    <FxCompile Include="src\shaders\line\ps_line.hlsl" />
+    <FxCompile Include="src\shaders\line\vs_line.hlsl" />
+    <FxCompile Include="src\shaders\paint\vs_paint.hlsl" />
+    <FxCompile Include="src\shaders\paint\ps_paint.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />

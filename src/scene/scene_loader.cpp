@@ -19,6 +19,7 @@
 #include "components/particle_system_component.hpp"
 #include "components/sphere_collision_component.hpp"
 #include "components/light_flicker_component.hpp"
+#include "components/paintable_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -97,6 +98,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
     //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
     //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+
+    auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
+    Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
+    paintableWallEntity->AddComponent<TransformComponent>();
+    paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
+    paintableWallEntity->AddComponent<PaintableComponent>()->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
 
     outScene.PrintEntityHierarchy();
 }

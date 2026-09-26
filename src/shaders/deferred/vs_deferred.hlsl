@@ -4,19 +4,21 @@
 struct VertexShaderInput
 {
     float3 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : UV;
-    float4 tangent : TANGENT;
+    float3 normal   : NORMAL;
+    float2 uv0      : TEXCOORD0;
+    float2 uv1      : TEXCOORD1;
+    float4 tangent  : TANGENT;
 };
 
 // Output
 struct VertexShaderOutput
 {
-    float4 clipPosition : SV_POSITION;
-    float3 worldNormal : WORLD_NORMAL;
-    float2 uv : UV;
-    float3 tangent : TANGENT;
-    float3 bitangent : BITANGENT;
+    float4 clipPosition     : SV_POSITION;
+    float3 worldNormal      : WORLD_NORMAL;
+    float2 uv0              : TEXCOORD0;
+    float2 uv1              : TEXCOORD1;
+    float3 tangent          : TANGENT;
+    float3 bitangent        : BITANGENT;
 };
 
 VertexShaderOutput main(VertexShaderInput input)
@@ -31,7 +33,9 @@ VertexShaderOutput main(VertexShaderInput input)
     float3 normal = normalize(input.normal);
     
     output.worldNormal = normalize(mul(normal, (float3x3)worldInvTransposeMatrix));
-    output.uv = input.uv;
+    
+    output.uv0 = input.uv0;
+    output.uv1 = input.uv1;
     
     output.tangent = normalize(input.tangent.xyz - dot(input.tangent.xyz, normal) * normal);
     output.bitangent = cross(normal, output.tangent) * input.tangent.w;

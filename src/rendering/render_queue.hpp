@@ -21,6 +21,8 @@ public:
 
     std::vector<ParticleSystemCommand> particleSystemCommand;
 
+    std::vector<PaintCommand> paintCommands;
+
     void Clear() 
     {
         this->geometryCommands.clear();
@@ -30,6 +32,7 @@ public:
         this->spotLightCommands.clear();
         this->skyboxCommand.reset();
         this->particleSystemCommand.clear();
+        this->paintCommands.clear();
     }
 
     void Submit(const GeometryCommand &command)
@@ -72,6 +75,11 @@ public:
         this->particleSystemCommand.push_back(command);
     }
 
+    void Submit(const PaintCommand &command)
+    {
+        this->paintCommands.push_back(command);
+    }
+
     const std::vector<GeometryCommand> &GetGeometryCommands() { return this->geometryCommands; }
     const std::vector<LineCommand> &GetLineCommands() { return this->lineCommands; }
     const std::optional<AmbientLightCommand> &GetAmbientLightCommand() { return this->ambientLightCommand; }
@@ -79,5 +87,6 @@ public:
     const std::vector<DirectionalLightCommand>& GetDirectionalLightCommands() { return this->directionalLightCommands; }
     const std::vector<SpotLightCommand>& GetSpotLightCommands() { return this->spotLightCommands; }
     const std::optional<SkyboxCommand> &GetSkyboxCommand() { return this->skyboxCommand; }
-    const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { this->particleSystemCommand; }
+    const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { return this->particleSystemCommand; }
+    const std::vector<PaintCommand> &GetPaintCommands() { return this->paintCommands; }
 };

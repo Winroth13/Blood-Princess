@@ -21,8 +21,11 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 			v1.normal.y == v2.normal.y &&
 			v1.normal.z == v2.normal.z &&
 
-			v1.uv.x == v2.uv.x &&
-			v1.uv.y == v2.uv.y
+			v1.uv0.x == v2.uv0.x &&
+			v1.uv0.y == v2.uv0.y &&
+
+			v1.uv1.x == v2.uv1.x &&
+			v1.uv1.y == v2.uv1.y
 			);
 }
 

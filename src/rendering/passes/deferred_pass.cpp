@@ -47,16 +47,17 @@ bool DeferredPass::CreateInputLayout(ID3D11Device *device)
 	LogInfo("Creating Input Layout");
 	LogIndent();
 
-	D3D11_INPUT_ELEMENT_DESC layoutDesc[] = 
+	std::array<D3D11_INPUT_ELEMENT_DESC, 5> layoutDesc = 
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV",		  0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		D3D11_INPUT_ELEMENT_DESC{ "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		D3D11_INPUT_ELEMENT_DESC{ "NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD",	1, DXGI_FORMAT_R32G32_FLOAT,       0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		D3D11_INPUT_ELEMENT_DESC{ "TANGENT",	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	HRESULT result = device->CreateInputLayout(
-		layoutDesc, 4, 
+		layoutDesc.data(), static_cast<UINT>(layoutDesc.size()),
 		this->vertexShader->GetByteCode().data(), 
 		this->vertexShader->GetByteCode().length(),
 		&this->inputLayout
@@ -195,7 +196,7 @@ void DeferredPass::RenderGeometryPass(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
-	std::array<ID3D11ShaderResourceView *, 3> srvs;
+	std::array<ID3D11ShaderResourceView *, 4> srvs;
 
 	for (GeometryCommand &command : view->queue.geometryCommands) {
 		PerObjectData perObjectData{};
@@ -220,7 +221,8 @@ void DeferredPass::RenderGeometryPass(
 		srvs = {
 			command.albedoSRV,
 			command.normalSRV,
-			command.metallicRoughnessSRV
+			command.metallicRoughnessSRV,
+			command.paintMaskSRV
 		};
 		deviceContext->PSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 
