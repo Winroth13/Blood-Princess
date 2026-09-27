@@ -124,8 +124,8 @@ bool Model::Create(
 	const std::vector<Mesh*> &meshes, 
 	const std::vector<Material> &materials,
 	const std::vector<std::shared_ptr<Texture2D>> &textures,
-    std::shared_ptr<AnimationLibrary> animations,
     std::shared_ptr<Skeleton> skeleton,
+    std::shared_ptr<AnimationLibrary> animations,
 	BoundingBox boundingBox
 )
 {
@@ -138,8 +138,8 @@ bool Model::Create(
 	this->materials = materials;	
 	this->textures = textures;
 
-    this->animations = animations;
     this->skeleton = skeleton;
+    this->animations = animations;
 	
 	this->boundingBox = boundingBox;
 

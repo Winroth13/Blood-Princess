@@ -132,8 +132,8 @@ class Model : public Asset
 	std::vector<Material> materials;
 	std::vector<std::shared_ptr<Texture2D>> textures;
 
-    std::shared_ptr<AnimationLibrary> animations;
     std::shared_ptr<Skeleton> skeleton;
+    std::shared_ptr<AnimationLibrary> animations;
 
 	BoundingBox boundingBox = {};
 
@@ -147,8 +147,8 @@ public:
 		const std::vector<Mesh*> &meshes, 
 		const std::vector<Material> &materials,
 		const std::vector<std::shared_ptr<Texture2D>> &textures,
-        std::shared_ptr<AnimationLibrary> animations,
         std::shared_ptr<Skeleton> skeleton,
+        std::shared_ptr<AnimationLibrary> animations,
 		BoundingBox boundingBox
 	);
 

@@ -19,6 +19,8 @@ class Editor
 
 	ImGuizmo::OPERATION currentOperation{ ImGuizmo::OPERATION::TRANSLATE };
 
+    void DrawSkeleton(const AppContext &appContext);
+
 public:
 	Editor() = default;
 	~Editor() = default;

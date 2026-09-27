@@ -16,8 +16,101 @@
 #include "components/transform_component.hpp"
 #include "components/box_collision_component.hpp"
 #include "components/model_component.hpp"
+#include "assets/types/sub_types/skeleton.hpp"
 
 #include "rendering/lines/line_utils.hpp"
+
+#include <algorithm>
+
+#undef min
+#undef max
+
+static XMFLOAT3 GetJointWorldPosition(const XMFLOAT4X4 &jointMatrix, const XMMATRIX &renderMatrix)
+{
+    XMFLOAT3 position;
+    XMStoreFloat3(&position, XMVector3Transform(XMVectorSet(jointMatrix._41, jointMatrix._42, jointMatrix._43, 1.0f), renderMatrix));
+    return position;
+}
+
+void Editor::DrawSkeleton(const AppContext &appContext)
+{
+    constexpr size_t MAX_POINTS_PER_COMMAND = 32;
+    const XMFLOAT3 boneColor = { 1.0f, 0.0f, 1.0f };
+
+    Scene *scene = appContext.sceneManager->GetCurrentScene();
+
+    RenderView *primaryView = RenderUtils::GetView(appContext.renderer->GetViews(), ViewType::PRIMARY);
+    if (!primaryView)
+        return;
+
+    std::vector<XMFLOAT4X4> jointMatrices;
+    std::vector<LineVertex> vertices;
+
+    for (Entity *entity : scene->GetEntities()) 
+    {
+        if (!entity->IsActive())
+            continue;
+
+        TransformComponent *transform = entity->GetComponent<TransformComponent>();
+        if (!transform)
+            continue;
+
+        ModelComponent *modelComponent = entity->GetComponent<ModelComponent>();
+        if (!modelComponent)
+            continue;
+
+        std::shared_ptr<Model> model = modelComponent->GetModel();
+        if (!model)
+            continue;
+
+        std::shared_ptr<Skeleton> skeleton = model->GetSkeleton();
+        if (!skeleton)
+            continue;
+
+        const std::vector<Joint> &joints = skeleton->GetJoints();
+
+        jointMatrices.resize(joints.size());
+        for (size_t i = 0; i < joints.size(); ++i)
+        {
+            const BindTransform &bind = joints[i].bindTransform;
+
+            XMMATRIX matrix =
+                XMMatrixScalingFromVector(XMLoadFloat3(&bind.scale)) *
+                XMMatrixRotationQuaternion(XMLoadFloat4(&bind.rotation)) *
+                XMMatrixTranslationFromVector(XMLoadFloat3(&bind.translation)
+            );
+
+            if (joints[i].parentIndex != -1)
+                matrix *= XMLoadFloat4x4(&jointMatrices[joints[i].parentIndex]);
+
+            XMStoreFloat4x4(&jointMatrices[i], matrix);
+        }
+
+        const XMMATRIX renderMatrix = transform->GetRenderMatrix();
+
+        vertices.clear();
+        for (size_t i = 0; i < joints.size(); ++i)
+        {
+            const int32_t jointIndex = static_cast<int32_t>(i);
+            const int32_t parentIndex = joints[i].parentIndex;
+
+            if (parentIndex == -1 || !skeleton->IsSkinJoint(jointIndex) || !skeleton->IsSkinJoint(parentIndex))
+                continue;
+
+            vertices.push_back({ GetJointWorldPosition(jointMatrices[parentIndex], renderMatrix), boneColor });
+            vertices.push_back({ GetJointWorldPosition(jointMatrices[i], renderMatrix), boneColor });
+        }
+
+        for (size_t start = 0; start < vertices.size(); start += MAX_POINTS_PER_COMMAND)
+        {
+            const size_t end = std::min(start + MAX_POINTS_PER_COMMAND, vertices.size());
+
+            LineCommand command{};
+            command.points.assign(vertices.begin() + start, vertices.begin() + end);
+            primaryView->queue.Submit(command);
+        }
+    }
+}
 
 bool Editor::Initialize(SceneManager &sceneManager)
 {
@@ -71,6 +164,8 @@ void Editor::ImGuiRender(const AppContext &appContext)
 
 	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
+
+    this->DrawSkeleton(appContext);
 
 	this->GizmoRender(appContext);
 	this->RenderSelectionBoundingBoxes(appContext);

@@ -108,8 +108,8 @@ std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path)
 		loader.GetMeshes(), 
 		loader.GetMaterials(), 
 		loader.GetTextures(),
-        nullptr,
-        nullptr,
+        loader.GetSkeleton(),
+        loader.GetAnimations(),
 		loader.GetBoundingBox()
 	);
 
