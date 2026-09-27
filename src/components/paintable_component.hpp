@@ -15,6 +15,8 @@ class PaintableComponent : public Component
     RegisterComponent(PaintableComponent);
 
     ExportProperty(std::shared_ptr<Texture2D>, paintMask, nullptr);
+    uint32_t paintMaskWidth = 256;
+    uint32_t paintMaskHeight = 256;
 
     std::vector<ID3D11Texture2D *> maskTextures{};
     std::vector<ID3D11ShaderResourceView *> maskSRVs{};
@@ -33,7 +35,9 @@ private:
     void CreatePaintMask(ID3D11Device *device, ID3D11DeviceContext *deviceContext, uint32_t index);
 
 public:
-    void SetPaintMask(std::shared_ptr<Texture2D> paintMask) const { this->paintMask; }
+    void SetPaintMask(std::shared_ptr<Texture2D> paintMask) { this->paintMask = paintMask; }
+    void SetPaintMaskWidth(uint32_t width) { this->paintMaskWidth = width; }
+    void SetPaintMaskHeight(uint32_t height) { this->paintMaskHeight = height; }
 
     ID3D11ShaderResourceView *GetMaskSRV(uint32_t index) const { return this->maskSRVs[index]; }
     ID3D11RenderTargetView *GetMaskRTV(uint32_t index) const { return this->maskRTVs[index]; }

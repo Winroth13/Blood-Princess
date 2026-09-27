@@ -5,6 +5,8 @@
 #include "components/model_component.hpp"
 #include "components/transform_component.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "input/input.hpp"
+#include "core/rng.hpp"
 
 #include <d3d11.h>
 
@@ -37,6 +39,9 @@ void PaintableComponent::OnStart(const AppContext &context)
 
 void PaintableComponent::Render(const RenderView &view, RenderQueue &queue)
 {
+	if (!Input::IsKeyDown(Key::SPACE))
+		return;
+
 	if (view.type != ViewType::PRIMARY)
 		return;
 
@@ -71,6 +76,10 @@ void PaintableComponent::Render(const RenderView &view, RenderQueue &queue)
 			XMStoreFloat4x4(&command.worldMatrix, transformComponent->GetRenderMatrix());
 
 			command.paintPosition = { 0,0,0 };
+			command.paintRadius = RNG::Float(0.2f, 0.9f);
+			command.maskWidth = this->paintMaskWidth;
+			command.maskHeight = this->paintMaskHeight;
+
 			command.paintMaskRTV = rtv;
 			command.paintMaskSRV = srv;
 			command.splatterMaskSRV = this->paintMask->GetShaderResourceView();
@@ -100,8 +109,8 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 		desc.MipLevels = 0;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		desc.Width = 128;
-		desc.Height = 128;
+		desc.Width = static_cast<UINT>(this->paintMaskWidth);
+		desc.Height = static_cast<UINT>(this->paintMaskHeight);
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
@@ -144,6 +153,6 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 	}
 
 	// Fill Black
-	float color[4] = { 0.0f, 0.0f, 0.0f, 1 };
+	float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	deviceContext->ClearRenderTargetView(this->maskRTVs[index], color);
 }

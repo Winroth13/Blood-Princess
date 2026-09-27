@@ -13,6 +13,7 @@ struct VertexShaderOutput
     float4 position             : SV_POSITION;
     float3 worldPosition        : TEXCOORD0;
     float2 uv1                  : TEXCOORD1;
+    float3 normal               : NORMAL;
 };
 
 VertexShaderOutput main(VertexShaderInput input)
@@ -25,6 +26,8 @@ VertexShaderOutput main(VertexShaderInput input)
     output.position.z = 0.0f;
     output.position.w = 1.0f;
 
+    output.normal = input.normal;
+    
     // Pass world-space position to Pixel Shader for distance testing
     output.worldPosition = mul(float4(input.position, 1.0f), worldMatrix).xyz;
     output.uv1 = input.uv1;

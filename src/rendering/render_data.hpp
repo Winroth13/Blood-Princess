@@ -137,6 +137,6 @@ AssertCBufferSize(ParticleData);
 struct PaintData
 {
     XMFLOAT3 paintPosition;
-    float pad0;
+    float paintRadius;
 };
 AssertCBufferSize(PaintData);

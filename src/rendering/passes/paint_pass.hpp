@@ -10,6 +10,7 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11Buffer;
 struct ID3D11RasterizerState;
+struct ID3D11BlendState;
 
 class VertexShader;
 class PixelShader;
@@ -28,6 +29,7 @@ class PaintPass
 	ID3D11InputLayout *inputLayout = nullptr;
 	ID3D11Buffer *paintBuffer = nullptr;
 	ID3D11RasterizerState *rasterizerState = nullptr;
+	ID3D11BlendState *blendState = nullptr;
 
 	std::shared_ptr<VertexShader> vertexShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShader = nullptr;
@@ -35,6 +37,7 @@ class PaintPass
 	bool CreateInputLayout(ID3D11Device *device, VertexShader *vertexShader);
 	bool CreatePaintBuffer(ID3D11Device *device);
 	bool CreateRasterizerState(ID3D11Device *device);
+	bool CreateBlendState(ID3D11Device *device);
 
 public:
 	PaintPass() = default;

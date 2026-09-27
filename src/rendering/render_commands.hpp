@@ -115,6 +115,9 @@ struct PaintCommand
     XMFLOAT4X4 worldMatrix;
 
     XMFLOAT3 paintPosition;
+    float paintRadius;
+    uint32_t maskWidth;
+    uint32_t maskHeight;
     ID3D11RenderTargetView *paintMaskRTV;
     ID3D11ShaderResourceView *paintMaskSRV;
     ID3D11ShaderResourceView *splatterMaskSRV;

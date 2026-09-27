@@ -70,6 +70,38 @@ bool PaintPass::CreateRasterizerState(ID3D11Device *device)
 	return true;
 }
 
+bool PaintPass::CreateBlendState(ID3D11Device *device)
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+
+	D3D11_RENDER_TARGET_BLEND_DESC &rtDesc = blendDesc.RenderTarget[0];
+	rtDesc.BlendEnable = TRUE;
+
+	// RGB: Standard alpha blending or additive accumulation
+	rtDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	rtDesc.BlendOp = D3D11_BLEND_OP_ADD;
+
+	// Alpha: Take the HIGHER alpha between old and new (prevents fading out)
+	rtDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	rtDesc.BlendOpAlpha = D3D11_BLEND_OP_MAX;
+
+	rtDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	HRESULT result = device->CreateBlendState(&blendDesc, &this->blendState);
+
+	if (FAILED(result))
+	{
+		LogError("DirectX failed to create Blend State");
+		return false;
+	}
+
+	return true;
+}
+
 void PaintPass::Render(
 	ID3D11Device *device, 
 	ID3D11DeviceContext *deviceContext, 
@@ -86,11 +118,8 @@ void PaintPass::Render(
 	D3D11_VIEWPORT viewport{};
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = static_cast<float>(128); // TODO: Don't hardcode!
-	viewport.Height = static_cast<float>(128);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	deviceContext->RSSetViewports(1, &viewport);
 
 	deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
 	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
@@ -103,6 +132,7 @@ void PaintPass::Render(
 	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PAINT, 1, &this->paintBuffer);
 
 	deviceContext->RSSetState(this->rasterizerState);
+	deviceContext->OMSetBlendState(this->blendState, nullptr, 0xffffffff);
 
 	for (const PaintCommand &command : view->queue.GetPaintCommands())
 	{
@@ -114,6 +144,7 @@ void PaintPass::Render(
 
 		PaintData paintData{};
 		paintData.paintPosition = command.paintPosition;
+		paintData.paintRadius = command.paintRadius;
 		RenderUtils::UploadConstantBuffer(deviceContext, this->paintBuffer, paintData);
 
 		ID3D11RenderTargetView *rtv = command.paintMaskRTV;
@@ -121,6 +152,10 @@ void PaintPass::Render(
 
 		ID3D11ShaderResourceView *splatterMaskSrv = command.splatterMaskSRV;
 		deviceContext->PSSetShaderResources(0, 1, &splatterMaskSrv);
+
+		viewport.Width = static_cast<float>(command.maskWidth);
+		viewport.Height = static_cast<float>(command.maskHeight);
+		deviceContext->RSSetViewports(1, &viewport);
 
 		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;
@@ -137,6 +172,7 @@ void PaintPass::Render(
 	deviceContext->PSSetShader(nullptr, nullptr, 0);
 
 	deviceContext->RSSetState(nullptr);
+	deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
 	EndAnnotation();
 }
@@ -158,6 +194,9 @@ bool PaintPass::Initialize(ID3D11Device *device, AssetManager *assetManager)
 	if (!this->CreateRasterizerState(device))
 		return false;
 
+	if (!this->CreateBlendState(device))
+		return false;
+
 	LogUnindent();
 
     return true;
@@ -165,6 +204,7 @@ bool PaintPass::Initialize(ID3D11Device *device, AssetManager *assetManager)
 
 void PaintPass::Shutdown()
 {
+	SafeRelease(this->blendState);
 	SafeRelease(this->rasterizerState);
 	SafeRelease(this->paintBuffer);
     SafeRelease(this->inputLayout);
