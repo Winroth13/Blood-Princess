@@ -12,6 +12,7 @@ enum class AnimationPath {
     SCALE
 };
 
+// Cubic spline is not supported right now
 enum class AnimationInterpolation {
     STEP,
     LINEAR
@@ -21,8 +22,8 @@ enum class AnimationInterpolation {
 struct AnimationChannel {
     std::string jointName;
 
-    AnimationPath pathMode;
-    AnimationInterpolation interpolationMode;
+    AnimationPath path;
+    AnimationInterpolation interpolation;
 
     std::vector<float> times;
     std::vector<DirectX::XMFLOAT4> values;

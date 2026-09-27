@@ -5,6 +5,7 @@
 #include "assets/types/texture_2d.hpp"
 #include "stb_image/stb_image.h"
 #include "assets/types/sub_types/skeleton.hpp"
+#include "assets/types/animation_library.hpp"
 
 #include <d3d11.h>
 #include <sstream>
@@ -1065,12 +1066,134 @@ void GLTFLoader::ReadSkeleton()
 
     this->skeleton = skeleton;
 
-    LogInfo("Created skeleton with '%zu' joints", joints.size());
+    LogInfo("Created skeleton with %zu joints", joints.size());
 }
 
 void GLTFLoader::ReadAnimations() 
 {
+    if (this->model.animations_count == 0)
+        return;
 
+    std::vector<AnimationClip> clips;
+
+    for (uint32_t animationIndex = 0; animationIndex < this->model.animations_count; ++animationIndex) 
+    {
+        const tg3_animation &tAnimation = this->model.animations[animationIndex];
+
+        AnimationClip clip{};
+        clip.name = TG3ToString(tAnimation.name);
+        if (clip.name.empty())
+            clip.name = "animation_" + std::to_string(animationIndex);
+
+        uint32_t skippedChannelCount = 0;
+        bool hasCubicSpline = false;
+
+        for (uint32_t channelIndex = 0; channelIndex < tAnimation.channels_count; ++channelIndex) 
+        {
+            const tg3_animation_channel &tChannel = tAnimation.channels[channelIndex];
+            const tg3_animation_channel_target &tTarget = tChannel.target;
+
+            if (tTarget.node < 0 || static_cast<uint32_t>(tTarget.node) >= this->model.nodes_count ||
+                tChannel.sampler < 0 || static_cast<uint32_t>(tChannel.sampler) >= tAnimation.samplers_count
+            ) {
+                ++skippedChannelCount;
+                continue;
+            }
+
+            AnimationChannel channel{};
+            channel.jointName = TG3ToString(this->model.nodes[tTarget.node].name);
+
+            uint32_t componentCount;
+            if (tg3_str_equals_cstr(tTarget.path, "translation")) 
+            {
+                channel.path = AnimationPath::TRANSLATION;
+                componentCount = 3;
+            }
+            else if (tg3_str_equals_cstr(tTarget.path, "rotation")) 
+            {
+                channel.path = AnimationPath::ROTATION;
+                componentCount = 4;
+            }
+            else if (tg3_str_equals_cstr(tTarget.path, "scale")) 
+            {
+                channel.path = AnimationPath::SCALE;
+                componentCount = 3;
+            }
+            else {
+                ++skippedChannelCount;
+                continue;
+            }
+
+            const tg3_animation_sampler &sampler = tAnimation.samplers[tChannel.sampler];
+
+            const bool isCubicSpline = tg3_str_equals_cstr(sampler.interpolation, "CUBICSPLINE") != 0;
+            if (isCubicSpline)
+                hasCubicSpline = true;
+
+            channel.interpolation = tg3_str_equals_cstr(sampler.interpolation, "STEP") ? 
+                AnimationInterpolation::STEP : AnimationInterpolation::LINEAR;
+
+            std::vector<float> values;
+            if (!ReadAccessorFloats(this->model, sampler.input, 1, channel.times) ||
+                !ReadAccessorFloats(this->model, sampler.output, componentCount, values)
+            ) {
+                LogWarn("Failed to read keyframes of channel %u in '%s' (skipped)", channelIndex, clip.name.c_str());
+                continue;
+            }
+
+            const size_t keyCount = channel.times.size();
+            const size_t valuesPerKey = isCubicSpline ? 3 : 1;
+            if (keyCount == 0 || values.size() != keyCount * valuesPerKey * componentCount) 
+            {
+                LogWarn("Channel %u in '%s' has %zu times but %zu values (skipped)", 
+                    channelIndex, clip.name.c_str(), keyCount, values.size() / componentCount
+                );
+            }
+
+            channel.values.resize(keyCount);
+            for (size_t key = 0; key < keyCount; ++key) 
+            {
+                const float *value = &values[(key * valuesPerKey + (isCubicSpline ? 1 : 0)) * componentCount];
+
+                switch (channel.path) 
+                {
+                    case AnimationPath::TRANSLATION: {
+                        const XMFLOAT3 translation = ConvertTranslation({value[0], value[1], value[2]});
+                        channel.values[key] = {translation.x, translation.y, translation.z, 0.0f};
+                    } break;
+                    case AnimationPath::ROTATION: {
+                        XMFLOAT4 rotation = ConvertRotation({value[0], value[1], value[2], value[3]});
+                        XMStoreFloat4(&channel.values[key], XMQuaternionNormalize(XMLoadFloat4(&rotation)));
+                    } break;
+                    case AnimationPath::SCALE: {
+                        channel.values[key] = {value[0], value[1], value[2], 0.0f};
+                    } break;
+                }
+            }
+
+            clip.duration = std::max(clip.duration, channel.times.back());
+            clip.channels.push_back(std::move(channel));
+        }
+
+        if (skippedChannelCount > 0)
+            LogWarn("Skipped %u unsupported channels in '%s'", skippedChannelCount, clip.name.c_str());
+
+        if (hasCubicSpline)
+            LogWarn("'%s' uses cubic spline interpolation, which was loaded as linear", clip.name.c_str());
+
+        LogInfo("Animation '%s': %.2f s, %zu channels", clip.name.c_str(), clip.duration, clip.channels.size());
+
+        clips.push_back(std::move(clip));
+    }
+
+    std::shared_ptr<AnimationLibrary> animations = std::make_shared<AnimationLibrary>();
+    if (!animations->Create(std::move(clips))) 
+    {
+        LogWarn("Failed to create animations");
+        return;
+    }
+
+    this->animations = animations;
 }
 
 void GLTFLoader::ComputeBoundingBox()
