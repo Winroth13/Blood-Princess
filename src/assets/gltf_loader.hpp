@@ -37,6 +37,8 @@ class GLTFLoader
 	std::vector<Mesh *> meshes = {};
 	std::vector<Material> materials = {};
 	std::vector<std::shared_ptr<Texture2D>> textures = {};
+    std::shared_ptr<Skeleton> skeleton = nullptr;
+    std::shared_ptr<AnimationLibrary> animations = nullptr;
 	BoundingBox boundingBox;
 
     std::array<int32_t, +DefaultTexture::COUNT> defaultTextureIndices = {};
@@ -61,6 +63,8 @@ class GLTFLoader
 	void ReadScenes();
 	void ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix);
 	void ReadMesh(int32_t meshIndex, XMMATRIX matrix);
+    void ReadSkeleton();
+    void ReadAnimations();
 
 	void ComputeBoundingBox();
 	
@@ -73,5 +77,7 @@ public:
 	std::vector<Mesh*> &GetMeshes() { return this->meshes; }
 	std::vector<Material> &GetMaterials() { return this->materials; }
 	std::vector<std::shared_ptr<Texture2D>> &GetTextures() { return this->textures; }
+    std::shared_ptr<Skeleton> GetSkeleton() const { return this->skeleton; }
+    std::shared_ptr<AnimationLibrary> GetAnimations() const { return this->animations; }
 	BoundingBox GetBoundingBox() const { return this->boundingBox; }
 };

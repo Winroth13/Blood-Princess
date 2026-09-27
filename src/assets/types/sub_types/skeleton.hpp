@@ -21,7 +21,7 @@ struct Joint {
 
 class Skeleton {
     std::vector<Joint> joints;
-    std::unordered_map<std::string, int32_t> jointIndeces;
+    std::unordered_map<std::string, int32_t> jointIndices;
 
     std::vector<int32_t> skinJointToJoint;
     std::vector<int32_t> jointToSkinJoint;

@@ -4,6 +4,7 @@
 #include "assets/asset_manager.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "stb_image/stb_image.h"
+#include "assets/types/sub_types/skeleton.hpp"
 
 #include <d3d11.h>
 #include <sstream>
@@ -283,6 +284,8 @@ bool GLTFLoader::Load(
         this->AssignDefaultTextures(material);
 
 	this->ReadScenes();
+    this->ReadSkeleton();
+    this->ReadAnimations();
 
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
@@ -551,6 +554,65 @@ bool GLTFLoader::ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t v
     return true;
 }
 
+static inline XMFLOAT3 ConvertTranslation(const XMFLOAT3 &translation) 
+{
+    return {-translation.x, translation.y, translation.z};
+}
+
+static inline XMFLOAT4 ConvertRotation(const XMFLOAT4 &rotation) 
+{
+    return {rotation.x, -rotation.y, -rotation.z, rotation.w};
+}
+
+static XMFLOAT4X4 ConvertMatrix(XMFLOAT4X4 matrix) 
+{
+    for (int i = 0; i < 4; ++i) 
+    {
+        matrix.m[0][i] = -matrix.m[0][i];
+        matrix.m[i][0] = -matrix.m[i][0];
+    }
+    return matrix;
+}
+
+static void GetNodeTransform(const tg3_node &node, XMFLOAT3 &outTranslation, XMFLOAT4 &outRotation, XMFLOAT3 &outScale) 
+{
+    if (node.has_matrix) 
+    {
+        XMFLOAT4X4 matrix;
+        for (int i = 0; i < 16; ++i)
+            matrix.m[i / 4][i % 4] = static_cast<float>(node.matrix[i]);
+
+        XMVECTOR translation, rotation, scale;
+        if (!XMMatrixDecompose(&scale, &rotation, &translation, XMLoadFloat4x4(&matrix)))
+            LogWarn("Node '%s' has a matrix that can't be decomposed", TG3ToString(node.name).c_str());
+
+        XMStoreFloat3(&outTranslation, translation);
+        XMStoreFloat4(&outRotation, rotation);
+        XMStoreFloat3(&outScale, scale);
+
+        return;
+    }
+
+    outTranslation = {
+        static_cast<float>(node.translation[0]),
+        static_cast<float>(node.translation[1]),
+        static_cast<float>(node.translation[2])
+    };
+
+    outRotation = {
+        static_cast<float>(node.rotation[0]),
+        static_cast<float>(node.rotation[1]),
+        static_cast<float>(node.rotation[2]),
+        static_cast<float>(node.rotation[3])
+    };
+
+    outScale = {
+        static_cast<float>(node.scale[0]),
+        static_cast<float>(node.scale[1]),
+        static_cast<float>(node.scale[2])
+    };
+}
+
 void GLTFLoader::ReadScenes()
 {
 	for (size_t sceneIndex = 0; sceneIndex < this->model.scenes_count; ++sceneIndex)
@@ -584,40 +646,15 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 	LogInfo("Node '%s'", TG3ToString(node.name).c_str());
 	LogIndent();
 
-    XMMATRIX localMatrix;
+    XMFLOAT3 translation, scale;
+    XMFLOAT4 rotation;
+    GetNodeTransform(node, translation, rotation, scale);
 
-    if (node.has_matrix)
-    {
-        XMFLOAT4X4 matrix;
-        for (int i = 0; i < 16; ++i)
-            matrix.m[i / 4][i % 4] = static_cast<float>(node.matrix[i]);
+    XMMATRIX localMatrix = XMMatrixScalingFromVector(XMLoadFloat3(&scale));
+    localMatrix *= XMMatrixRotationQuaternion(XMLoadFloat4(&rotation));
+    localMatrix *= XMMatrixTranslationFromVector(XMLoadFloat3(&translation));
 
-        localMatrix = XMLoadFloat4x4(&matrix);
-    }
-    else 
-    {
-        localMatrix = XMMatrixScaling(
-            static_cast<float>(node.scale[0]), 
-            static_cast<float>(node.scale[1]),
-            static_cast<float>(node.scale[2])
-        );
-
-        XMVECTOR quaternion = XMVectorSet(
-            static_cast<float>(node.rotation[0]), 
-            static_cast<float>(node.rotation[1]), 
-            static_cast<float>(node.rotation[2]), 
-            static_cast<float>(node.rotation[3])
-        );
-        localMatrix *= XMMatrixRotationQuaternion(quaternion);
-
-        localMatrix *= XMMatrixTranslation(
-            static_cast<float>(node.translation[0]),
-            static_cast<float>(node.translation[1]),
-            static_cast<float>(node.translation[2])
-    	);
-    }
-
-	const XMMATRIX matrix = XMMatrixMultiply(localMatrix, parentMatrix);
+	const XMMATRIX matrix = localMatrix * parentMatrix;
 
 	const int32_t meshIndex = node.mesh;
 	if (meshIndex != -1)
@@ -814,13 +851,13 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		{
 			XMVECTOR position = XMVector3Transform(XMLoadFloat3(&positions[i]), matrix);
 			XMStoreFloat3(&positions[i], position);
-			positions[i].x *= -1; // GLTF uses right-handed coordinate system.
+            positions[i] = ConvertTranslation(positions[i]); // GLTF uses right-handed coordinate system
 
 			XMVECTOR normal = XMLoadFloat3(&normals[i]);
 			normal = XMVector3TransformNormal(normal, inverseTransposeMatrix);
 			normal = XMVector3Normalize(normal);
 			XMStoreFloat3(&normals[i], normal);
-			normals[i].x *= -1; // GLTF uses right-handed coordinate system.
+            normals[i] = ConvertTranslation(normals[i]); // GLTF uses right-handed coordinate system
 		}
 
         const uint32_t baseVertex = static_cast<uint32_t>(meshVertices.size());
@@ -904,6 +941,136 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	meshes.push_back(mesh);
 
 	LogUnindent();
+}
+
+void GLTFLoader::ReadSkeleton() 
+{
+    if (this->model.skins_count == 0)
+        return;
+
+    if (this->model.skins_count > 1)
+        LogWarn("Model has %u skins; only the first one will be used", this->model.skins_count);
+
+    const tg3_skin &skin = this->model.skins[0];
+    const uint32_t nodeCount = this->model.nodes_count;
+
+    if (skin.joints_count == 0) 
+    {
+        LogWarn("Skin '%s' has no joints", TG3ToString(skin.name).c_str());
+        return;
+    }
+
+    std::vector<int32_t> nodeParents(nodeCount, -1);
+    for (uint32_t i = 0; i < nodeCount; ++i) 
+    {
+        const tg3_node &node = this->model.nodes[i];
+        for (uint32_t c = 0; c < node.children_count; ++c) 
+        {
+            const int32_t child = node.children[c];
+            if (child >= 0 && static_cast<uint32_t>(child) < nodeCount)
+                nodeParents[child] = static_cast<int32_t>(i);
+        }
+    }
+
+    std::vector<bool> isInSkeleton(nodeCount, false);
+    for (uint32_t i = 0; i < skin.joints_count; ++i) 
+    {
+        const int32_t jointNode = skin.joints[i];
+        if (jointNode < 0 || static_cast<uint32_t>(jointNode) >= nodeCount) 
+        {
+            LogWarn("Skin joint '%u' refers to invalid node '%d'", i, jointNode);
+            return;
+        }
+
+        for (int32_t node = jointNode; node != -1 && !isInSkeleton[node]; node = nodeParents[node])
+            isInSkeleton[node] = true;
+    }
+
+    std::vector<int32_t> nodeOrder;
+    std::vector<int32_t> nodeStack;
+    for (int32_t root = static_cast<int32_t>(nodeCount) - 1; root >= 0; --root)
+        if (isInSkeleton[root] && nodeParents[root] == -1)
+            nodeStack.push_back(root);
+
+    while (!nodeStack.empty()) 
+    {
+        const int32_t node = nodeStack.back();
+        nodeStack.pop_back();
+        nodeOrder.push_back(node);
+
+        const tg3_node &tNode = this->model.nodes[node];
+        for (int32_t c = static_cast<int32_t>(tNode.children_count) - 1; c >= 0; --c) 
+        {
+            const int32_t child = tNode.children[c];
+            if (child >= 0 && static_cast<uint32_t>(child) < nodeCount && isInSkeleton[child])
+                nodeStack.push_back(child);
+        }
+    }
+
+    std::vector<int32_t> nodeToJoint(nodeCount, -1);
+    std::vector<Joint> joints;
+    joints.reserve(nodeOrder.size());
+
+    for (int32_t node : nodeOrder) 
+    {
+        const tg3_node &tNode = this->model.nodes[node];
+
+        Joint joint{};
+        joint.name = TG3ToString(tNode.name);
+        joint.parentIndex = nodeParents[node] != -1 ? nodeToJoint[nodeParents[node]] : -1;
+
+        XMFLOAT3 translation, scale;
+        XMFLOAT4 rotation;
+        GetNodeTransform(tNode, translation, rotation, scale);
+
+        joint.bindTransform.translation = ConvertTranslation(translation);
+        joint.bindTransform.rotation = ConvertRotation(rotation);
+        joint.bindTransform.scale = scale;
+
+        nodeToJoint[node] = static_cast<int32_t>(joints.size());
+        joints.push_back(joint);
+    }
+
+    std::vector<int32_t> skinJoints(skin.joints_count);
+    for (uint32_t i = 0; i < skin.joints_count; ++i)
+        skinJoints[i] = nodeToJoint[skin.joints[i]];
+
+    std::vector<XMFLOAT4X4> inverseBindMatrices(skin.joints_count);
+    XMStoreFloat4x4(&inverseBindMatrices[0], XMMatrixIdentity());
+    std::fill(inverseBindMatrices.begin(), inverseBindMatrices.end(), inverseBindMatrices[0]);
+
+    if (skin.inverse_bind_matrices != -1) 
+    {
+        std::vector<float> data;
+        if (!ReadAccessorFloats(this->model, skin.inverse_bind_matrices, 16, data) || data.size() != skin.joints_count * 16) 
+        {
+            LogWarn("Failed to read inverse bind matrices of skin '%s'", TG3ToString(skin.name).c_str());
+            return;
+        }
+
+        for (uint32_t i = 0; i < skin.joints_count; ++i) 
+        {
+            XMFLOAT4X4 matrix;
+            memcpy(&matrix, &data[i * 16], sizeof(matrix));
+            inverseBindMatrices[i] = ConvertMatrix(matrix);
+        }
+    }
+
+    std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>();
+    if (!skeleton->Create(joints, skinJoints, inverseBindMatrices)) 
+    {
+        LogWarn("Failed to create skeleton of skin '%s'", TG3ToString(skin.name).c_str());
+        return;
+    }
+
+    this->skeleton = skeleton;
+
+    LogInfo("Created skeleton with '%zu' joints", joints.size());
+}
+
+void GLTFLoader::ReadAnimations() 
+{
+
 }
 
 void GLTFLoader::ComputeBoundingBox()

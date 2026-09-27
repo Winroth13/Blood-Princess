@@ -33,10 +33,10 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
     //modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
-    Entity *musicEntity = outScene.AddEntity("music_entity");
-    musicEntity->AddComponent<TransformComponent>();
-    MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-    musicComponent->SetVolume(0.2f);
+    //Entity *musicEntity = outScene.AddEntity("music_entity");
+    //musicEntity->AddComponent<TransformComponent>();
+    //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+    //musicComponent->SetVolume(0.2f);
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
@@ -75,7 +75,7 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //}
 
     {
-        Entity *entity = outScene.AddEntity("princess_entity");
+        Entity *entity = outScene.AddEntity("princess");
         TransformComponent *transform = entity->AddComponent<TransformComponent>();
         transform->SetWorldPosition(-3.0f, -2.5f, 5.0f);
         transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
@@ -93,10 +93,14 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
     //}
 
-    //Entity *animatedEntity = outScene.AddEntity("animated_entity");
-    //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
-    //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
-    //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+    {
+        Entity *entity = outScene.AddEntity("animated_entity");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(-1.0f, -2.5f, 5.0f);
+        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+    }
 
     outScene.PrintEntityHierarchy();
 }
@@ -238,9 +242,9 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-        audioComponent->SetMinDistance(3);
-        audioComponent->SetMaxDistance(10);
-        audioComponent->SetVolume(25.0f);
+        audioComponent->SetMinDistance(3.0f);
+        audioComponent->SetMaxDistance(15.0f);
+        audioComponent->SetVolume(0.8f);
         audioComponent->SetPlayOnStart(true);
     }
 
