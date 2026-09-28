@@ -19,6 +19,7 @@
 #include "components/particle_system_component.hpp"
 #include "components/sphere_collision_component.hpp"
 #include "components/light_flicker_component.hpp"
+#include "components/animator_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -99,7 +100,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         transform->SetWorldPosition(-1.0f, -2.5f, 5.0f);
         transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb");
+        modelComponent->SetModel(model);
+        AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        animator->AddAnimation("demo", model->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->Play("demo", true);
     }
 
     outScene.PrintEntityHierarchy();

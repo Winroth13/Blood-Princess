@@ -17,6 +17,7 @@
 #include "components/box_collision_component.hpp"
 #include "components/model_component.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
+#include "components/animator_component.hpp"
 
 #include "rendering/lines/line_utils.hpp"
 
@@ -35,7 +36,7 @@ static XMFLOAT3 GetJointWorldPosition(const XMFLOAT4X4 &jointMatrix, const XMMAT
 void Editor::DrawSkeleton(const AppContext &appContext)
 {
     constexpr size_t MAX_POINTS_PER_COMMAND = 32;
-    const XMFLOAT3 boneColor = { 1.0f, 0.0f, 1.0f };
+    const XMFLOAT3 colour = { 1.0f, 0.0f, 1.0f };
 
     Scene *scene = appContext.sceneManager->GetCurrentScene();
 
@@ -43,7 +44,6 @@ void Editor::DrawSkeleton(const AppContext &appContext)
     if (!primaryView)
         return;
 
-    std::vector<XMFLOAT4X4> jointMatrices;
     std::vector<LineVertex> vertices;
 
     for (Entity *entity : scene->GetEntities()) 
@@ -51,41 +51,20 @@ void Editor::DrawSkeleton(const AppContext &appContext)
         if (!entity->IsActive())
             continue;
 
+        AnimatorComponent *animator = entity->GetComponent<AnimatorComponent>();
+        if (!animator || !animator->IsActive() || !animator->IsSkeletonVisible())
+            continue;
+
         TransformComponent *transform = entity->GetComponent<TransformComponent>();
         if (!transform)
             continue;
 
-        ModelComponent *modelComponent = entity->GetComponent<ModelComponent>();
-        if (!modelComponent)
-            continue;
-
-        std::shared_ptr<Model> model = modelComponent->GetModel();
-        if (!model)
-            continue;
-
-        std::shared_ptr<Skeleton> skeleton = model->GetSkeleton();
+        std::shared_ptr<Skeleton> skeleton = animator->GetSkeleton();
         if (!skeleton)
             continue;
 
+        const std::vector<XMFLOAT4X4> &jointMatrices = animator->GetJointModelMatrices();
         const std::vector<Joint> &joints = skeleton->GetJoints();
-
-        jointMatrices.resize(joints.size());
-        for (size_t i = 0; i < joints.size(); ++i)
-        {
-            const BindTransform &bind = joints[i].bindTransform;
-
-            XMMATRIX matrix =
-                XMMatrixScalingFromVector(XMLoadFloat3(&bind.scale)) *
-                XMMatrixRotationQuaternion(XMLoadFloat4(&bind.rotation)) *
-                XMMatrixTranslationFromVector(XMLoadFloat3(&bind.translation)
-            );
-
-            if (joints[i].parentIndex != -1)
-                matrix *= XMLoadFloat4x4(&jointMatrices[joints[i].parentIndex]);
-
-            XMStoreFloat4x4(&jointMatrices[i], matrix);
-        }
-
         const XMMATRIX renderMatrix = transform->GetRenderMatrix();
 
         vertices.clear();
@@ -97,8 +76,8 @@ void Editor::DrawSkeleton(const AppContext &appContext)
             if (parentIndex == -1 || !skeleton->IsSkinJoint(jointIndex) || !skeleton->IsSkinJoint(parentIndex))
                 continue;
 
-            vertices.push_back({ GetJointWorldPosition(jointMatrices[parentIndex], renderMatrix), boneColor });
-            vertices.push_back({ GetJointWorldPosition(jointMatrices[i], renderMatrix), boneColor });
+            vertices.push_back({ GetJointWorldPosition(jointMatrices[parentIndex], renderMatrix), colour });
+            vertices.push_back({ GetJointWorldPosition(jointMatrices[i], renderMatrix), colour });
         }
 
         for (size_t start = 0; start < vertices.size(); start += MAX_POINTS_PER_COMMAND)

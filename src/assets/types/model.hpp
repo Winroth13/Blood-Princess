@@ -157,7 +157,7 @@ public:
     const std::vector<std::shared_ptr<Texture2D>> &GetTextures() const { return this->textures; }
 
     bool IsSkinned() const { return this->skeleton != nullptr; }
-    std::shared_ptr<AnimationLibrary> GetAnimation() const { return this->animations; }
+    std::shared_ptr<AnimationLibrary> GetAnimations() const { return this->animations; }
     std::shared_ptr<Skeleton> GetSkeleton() const { return this->skeleton; }
 
 	Texture2D *GetTexture(int32_t index);
