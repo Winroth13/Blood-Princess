@@ -10,6 +10,14 @@
 
 class SceneManager;
 struct AppContext;
+class Entity;
+
+struct InitialEntityTransform
+{
+	Entity *entity{ nullptr };
+	DirectX::XMFLOAT4X4 initialWorldMatrix{};
+	DirectX::XMFLOAT3 initialLocalScale{ 1.0f, 1.0f, 1.0f };
+};
 
 class Editor
 {
@@ -19,7 +27,12 @@ class Editor
 
 	ImGuizmo::OPERATION currentOperation{ ImGuizmo::OPERATION::TRANSLATE };
 
+	std::vector<InitialEntityTransform> initialTransforms;
+	DirectX::XMFLOAT4X4 initialGizmoMatrix{};
+	bool wasUsingGizmo{ false };
+
     void DrawSkeleton(const AppContext &appContext);
+
 
 public:
 	Editor() = default;

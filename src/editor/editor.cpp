@@ -210,26 +210,47 @@ void Editor::RenderTransformGizmo(const XMFLOAT4X4 &view, const XMFLOAT4X4 &proj
 	}
 
 	if (transforms.empty())
-		return;
-
-	// Find Origin
-	XMVECTOR pivotV = XMVectorSet(0, 0, 0, 0);
-	for (TransformComponent *transform : transforms)
 	{
-		XMFLOAT3 position = transform->GetWorldPosition();
-		pivotV = XMVectorAdd(pivotV, XMLoadFloat3(&position));
+		this->initialTransforms.clear();
+		this->wasUsingGizmo = false;
+		return;
 	}
-	pivotV = XMVectorScale(pivotV, 1.0f / transforms.size());
 
-	XMFLOAT3 pivot;
-	XMStoreFloat3(&pivot, pivotV);
+	if (!ImGuizmo::IsUsing())
+	{
+		this->wasUsingGizmo = false;
 
-	XMMATRIX worldMatrix = XMMatrixTranslation(pivot.x, pivot.y, pivot.z);
+		// Find Origin
+		XMVECTOR pivotV = XMVectorSet(0, 0, 0, 0);
+		for (TransformComponent *transform : transforms)
+		{
+			XMFLOAT3 position = transform->GetWorldPosition();
+			pivotV = XMVectorAdd(pivotV, XMLoadFloat3(&position));
+		}
+		pivotV = XMVectorScale(pivotV, 1.0f / static_cast<float>(transforms.size()));
 
-	XMFLOAT4X4 gizmoMatrix;
-	XMStoreFloat4x4(&gizmoMatrix, worldMatrix);
+		XMFLOAT3 pivot;
+		XMStoreFloat3(&pivot, pivotV);
 
-	XMFLOAT4X4 oldGizmoMatrix = gizmoMatrix;
+		XMMATRIX worldMatrix = XMMatrixTranslation(pivot.x, pivot.y, pivot.z);
+		XMStoreFloat4x4(&this->initialGizmoMatrix, worldMatrix);
+
+		this->initialTransforms.clear();
+		for (const auto entity : this->sceneHierarchyPanel.GetSelectedEntities())
+		{
+			TransformComponent *transform = entity->GetComponent<TransformComponent>();
+			if (transform)
+			{
+				InitialEntityTransform init{};
+				init.entity = entity;
+				XMStoreFloat4x4(&init.initialWorldMatrix, transform->GetWorldMatrix());
+				init.initialLocalScale = transform->GetLocalScale();
+				this->initialTransforms.push_back(init);
+			}
+		}
+	}
+
+	XMFLOAT4X4 gizmoMatrix = this->initialGizmoMatrix;
 
 	bool manipulating = ImGuizmo::Manipulate(
 		*view.m,
@@ -239,19 +260,52 @@ void Editor::RenderTransformGizmo(const XMFLOAT4X4 &view, const XMFLOAT4X4 &proj
 		*gizmoMatrix.m
 	);
 
-	if (manipulating && ImGuizmo::IsUsing())
+	if (ImGuizmo::IsUsing())
 	{
-		XMMATRIX oldMatrix = XMLoadFloat4x4(&oldGizmoMatrix);
+		this->wasUsingGizmo = true;
+
+		XMMATRIX oldMatrix = XMLoadFloat4x4(&this->initialGizmoMatrix);
 		XMMATRIX newMatrix = XMLoadFloat4x4(&gizmoMatrix);
 
 		XMVECTOR det;
 		XMMATRIX deltaMatrix = XMMatrixMultiply(XMMatrixInverse(&det, oldMatrix), newMatrix);
-		for (TransformComponent *transform : transforms)
+
+		bool isScale = (this->currentOperation & ImGuizmo::SCALE) != 0 || (this->currentOperation & ImGuizmo::SCALEU) != 0;
+
+		XMVECTOR deltaScaleV, deltaRotV, deltaTransV;
+		XMMatrixDecompose(&deltaScaleV, &deltaRotV, &deltaTransV, deltaMatrix);
+		XMFLOAT3 deltaScale;
+		XMStoreFloat3(&deltaScale, deltaScaleV);
+
+		for (const auto &init : this->initialTransforms)
 		{
-			XMMATRIX transformWorldMatrix = transform->GetWorldMatrix();
-			XMMATRIX newTransformWorldMatrix = XMMatrixMultiply(transformWorldMatrix, deltaMatrix);
-			transform->SetWorldMatrix(newTransformWorldMatrix);
+			if (!init.entity)
+				continue;
+
+			TransformComponent *transform = init.entity->GetComponent<TransformComponent>();
+			if (!transform)
+				continue;
+
+			if (isScale)
+			{
+				XMFLOAT3 newScale = {
+					init.initialLocalScale.x * deltaScale.x,
+					init.initialLocalScale.y * deltaScale.y,
+					init.initialLocalScale.z * deltaScale.z
+				};
+				transform->SetLocalScale(newScale);
+			}
+			else
+			{
+				XMMATRIX initialWorldMatrix = XMLoadFloat4x4(&init.initialWorldMatrix);
+				XMMATRIX newTransformWorldMatrix = XMMatrixMultiply(initialWorldMatrix, deltaMatrix);
+				transform->SetWorldMatrix(newTransformWorldMatrix);
+			}
 		}
+	}
+	else if (this->wasUsingGizmo)
+	{
+		this->wasUsingGizmo = false;
 	}
 }
 
