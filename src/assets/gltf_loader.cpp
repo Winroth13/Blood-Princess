@@ -475,7 +475,9 @@ bool GLTFLoader::ReadPrimitiveAttributes(
 	std::vector<DirectX::XMFLOAT3> &positions, 
 	std::vector<DirectX::XMFLOAT3> &normals, 
 	std::vector<DirectX::XMFLOAT2> &uv0,
-    std::vector<DirectX::XMFLOAT2> &uv1
+    std::vector<DirectX::XMFLOAT2> &uv1,
+    std::vector<uint32_t> &joints,
+    std::vector<float> &weights
 )
 {
     std::vector<float> data;
@@ -509,13 +511,23 @@ bool GLTFLoader::ReadPrimitiveAttributes(
             uv0.resize(data.size() / 2);
             memcpy(uv0.data(), data.data(), uv0.size() * sizeof(XMFLOAT2));
 		}
-        else if (attrName == "TEXCOORD_1")
+        else if (attrName == "TEXCOORD_1") 
         {
             if (!ReadAccessorFloats(this->model, attr.value, 2, data))
                 continue;
 
             uv1.resize(data.size() / 2);
             memcpy(uv1.data(), data.data(), uv1.size() * sizeof(XMFLOAT2));
+        }
+        else if (attrName == "JOINTS_0")
+        {
+            if (!ReadAccessorUnsignedInts(this->model, attr.value, 4, joints))
+                joints.clear();
+        }
+        else if (attrName == "WEIGHTS_0")
+        {
+            if (!ReadAccessorFloats(this->model, attr.value, 4, weights))
+                weights.clear();
         }
 		else
 		{
@@ -669,7 +681,7 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 	const int32_t meshIndex = node.mesh;
 	if (meshIndex != -1)
 	{
-		ReadMesh(meshIndex, node.skin != -1 ? XMMatrixIdentity() : matrix);
+		ReadMesh(meshIndex, node.skin != -1 ? XMMatrixIdentity() : matrix, node.skin != -1);
 	}
 
 	if (node.camera != -1)
@@ -802,7 +814,59 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 	}
 }
 
-void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
+// Largest Remainder Method or smth, I don't know how this works lol
+// Needed to ensure that the sum of all weights is 1.0f (255)
+static bool QuantizeSkinWeights(const uint32_t joints[4], const float weights[4], uint32_t skinJointCount, SkinVertex &outSkinVertex)
+{
+    float validWeights[4] = {};
+    float sum = 0.0f;
+
+    for (int i = 0; i < 4; ++i) 
+    {
+        if (joints[i] < skinJointCount && weights[i] > 0.0f)
+            validWeights[i] = weights[i];
+
+        sum += validWeights[i];
+    }
+
+    if (sum <= 0.0f)
+        return false;
+
+    float remainders[4] = {};
+    uint32_t total = 0;
+
+    for (int i = 0; i < 4; ++i) 
+    {
+        const float scaled = validWeights[i] / sum * 255.0f;
+        const uint32_t quantized = static_cast<uint32_t>(scaled);
+
+        outSkinVertex.weights[i] = static_cast<uint8_t>(quantized);
+        outSkinVertex.joints[i] = validWeights[i] > 0.0f ? static_cast<uint8_t>(joints[i]) : 0;
+        remainders[i] = validWeights[i] > 0.0f ? scaled - quantized : -1.0f;
+        total += quantized;
+    }
+
+    while (total < 255) 
+    {
+        int largest = 0;
+        for (int i = 1; i < 4; ++i)
+            if (outSkinVertex.weights[i] > outSkinVertex.weights[largest])
+                largest = i;
+
+        if (remainders[largest] < 0.0f) 
+            for (int i = 1; i < 4; ++i)
+                if (outSkinVertex.weights[i] > outSkinVertex.weights[largest])
+                    largest = i;
+
+        ++outSkinVertex.weights[largest];
+        remainders[largest] = -1.0f;
+        ++total;
+    }
+
+    return true;
+}
+
+void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix, bool isSkinned)
 {
     if (meshIndex < 0 || static_cast<uint32_t>(meshIndex) >= this->model.meshes_count) 
     {
@@ -822,6 +886,14 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	std::vector<Vertex> meshVertices = {};
 	std::vector<uint32_t> meshIndicies = {};
 	std::vector<SubMesh> subMeshes = {};
+    std::vector<SkinVertex> meshSkinVertices = {};
+
+    const uint32_t skinJointCount = this->model.skins_count > 0 ? this->model.skins[0].joints_count : 0;
+    if (isSkinned && skinJointCount > MAX_SKIN_JOINT_COUNT) 
+    {
+        LogWarn("Mesh '%s' has too many skin joints (%u > %u)", meshName.c_str(), skinJointCount, MAX_SKIN_JOINT_COUNT);
+        isSkinned = false;
+    }
 
 	for (size_t primIndex = 0; primIndex < tMesh.primitives_count; ++primIndex)
 	{
@@ -838,8 +910,10 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		std::vector<DirectX::XMFLOAT2> uv0 = {};
         std::vector<DirectX::XMFLOAT2> uv1 = {};
 		std::vector<uint32_t> indicies = {};
+        std::vector<uint32_t> joints = {};
+        std::vector<float> weights = {};
 
-        if (!ReadPrimitiveAttributes(primitive, positions, normals, uv0, uv1) ||
+        if (!ReadPrimitiveAttributes(primitive, positions, normals, uv0, uv1, joints, weights) ||
             !ReadPrimitiveIndices(primitive, static_cast<uint32_t>(positions.size()), indicies)
         ) {
             LogWarn("Primitive could not be read (skipped)");
@@ -902,6 +976,27 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
             this->vertexCount++;
         }
 
+        if (isSkinned) 
+        {
+            const size_t expectedCount = positions.size() * 4;
+            const bool hasSkinData = joints.size() == expectedCount && weights.size() == expectedCount;
+            if (!hasSkinData)
+                LogWarn("No usable JOINTS_0/WEIGHTS_0 on primitive");
+
+            for (size_t i = 0; i < positions.size(); ++i) 
+            {
+                SkinVertex skinVertex{};
+
+                if (!hasSkinData && !QuantizeSkinWeights(&joints[i * 4], &weights[i * 4], skinJointCount, skinVertex)) 
+                {
+                    skinVertex = {};
+                    skinVertex.weights[0] = 255;
+                }
+
+                meshSkinVertices.push_back(skinVertex);
+            }
+        }
+
 		SubMesh subMesh{};
 		subMesh.startIndex = static_cast<uint32_t>(meshIndicies.size());
 		subMesh.numIndicies = static_cast<uint32_t>(indicies.size());
@@ -942,6 +1037,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	bool result = mesh->Create(
 		meshName,
 		meshVertices,
+        {},
 		meshIndicies,
 		subMeshes,
 		device

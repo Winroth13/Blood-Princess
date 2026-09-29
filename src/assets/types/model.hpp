@@ -72,8 +72,19 @@ namespace std {
 }
 
 #pragma endregion
+#pragma region SkinVertex
 
+constexpr uint32_t MAX_SKIN_JOINT_COUNT = 256;
+
+struct SkinVertex
+{
+    uint8_t joints[4] = {0, 0, 0, 0};
+    uint8_t weights[4] = {0, 0, 0, 0}; // 8-bit unorm floats
+};
+
+#pragma endregion
 #pragma region Submesh
+
 struct SubMesh
 {
 	uint32_t startIndex;
@@ -92,6 +103,7 @@ class Mesh
 	size_t numIndicies = 0;
 
 	ID3D11Buffer *vertexBuffer = nullptr;
+    ID3D11Buffer *skinVertexBuffer = nullptr;
 	ID3D11Buffer *indexBuffer = nullptr;
 
 public:
@@ -101,6 +113,7 @@ public:
 	bool Create(
 		const std::string &name,
 		const std::vector<Vertex> &vertices,
+        const std::vector<SkinVertex> &skinVertices,
 		const std::vector<uint32_t> &indicies,
 		const std::vector<SubMesh> &subMeshes,
 		ID3D11Device *device
@@ -109,8 +122,11 @@ public:
 	size_t GetNumVertices() const { return this->numVertices; }
 	size_t GetNumIndicies() const { return this->numIndicies; }
 
-	ID3D11Buffer *GetVertexBuffer() { return this->vertexBuffer; }
-	ID3D11Buffer *GetIndexBuffer() { return this->indexBuffer; }
+    bool IsSkinned() const { return this->skinVertexBuffer != nullptr; }
+
+	ID3D11Buffer *GetVertexBuffer() const { return this->vertexBuffer; }
+    ID3D11Buffer *GetSkinVertexBuffer() const { return this->skinVertexBuffer; }
+	ID3D11Buffer *GetIndexBuffer() const { return this->indexBuffer; }
 
     const std::vector<SubMesh> &GetSubMeshes() const { return this->subMeshes; }
 };
