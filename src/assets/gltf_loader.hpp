@@ -56,7 +56,8 @@ class GLTFLoader
 		const tg3_primitive &primitive,
 		std::vector<DirectX::XMFLOAT3> &positions,
 		std::vector<DirectX::XMFLOAT3> &normals,
-		std::vector<DirectX::XMFLOAT2> &uvs
+		std::vector<DirectX::XMFLOAT2> &uv0,
+		std::vector<DirectX::XMFLOAT2> &uv1
 	);
 	bool ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t vertexCount, std::vector<uint32_t> &indicies);
 

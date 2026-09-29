@@ -214,6 +214,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\directional_light_component.cpp" />
     <ClCompile Include="src\components\health_component.cpp" />
     <ClCompile Include="src\components\light_flicker_component.cpp" />
+    <ClCompile Include="src\components\paintable_component.cpp" />
     <ClCompile Include="src\components\particle_system_component.cpp" />
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\components\point_light_component.cpp" />
@@ -250,6 +251,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\rendering\lines\line_utils.cpp" />
     <ClCompile Include="src\rendering\passes\deferred_pass.cpp" />
     <ClCompile Include="src\rendering\passes\line_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\paint_pass.cpp" />
     <ClCompile Include="src\rendering\passes\particle_pass.cpp" />
     <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
@@ -304,6 +306,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\hit_box_component.hpp" />
     <ClInclude Include="src\components\hurt_box_component.hpp" />
     <ClInclude Include="src\components\light_flicker_component.hpp" />
+    <ClInclude Include="src\components\paintable_component.hpp" />
     <ClInclude Include="src\components\particle_system_component.hpp" />
     <ClInclude Include="src\components\player_controller_component.hpp" />
     <ClInclude Include="src\components\point_light_component.hpp" />
@@ -350,6 +353,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\lines\line_utils.hpp" />
     <ClInclude Include="src\rendering\passes\deferred_pass.hpp" />
     <ClInclude Include="src\rendering\passes\line_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\paint_pass.hpp" />
     <ClInclude Include="src\rendering\passes\particle_pass.hpp" />
     <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
@@ -408,6 +412,18 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="src\shaders\line\vs_line.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\paint\ps_paint.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\paint\vs_paint.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

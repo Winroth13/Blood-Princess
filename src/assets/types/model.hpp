@@ -19,14 +19,16 @@ struct Vertex
 {
 	DirectX::XMFLOAT3 position = { 0, 0, 0 };
 	DirectX::XMFLOAT3 normal = { 0, 0, 0 };
-	DirectX::XMFLOAT2 uv = { 0, 0 };
+	DirectX::XMFLOAT2 uv0 = { 0, 0 };
+	DirectX::XMFLOAT2 uv1 = { 0, 0 };
 	DirectX::XMFLOAT4 tangent = { 0, 0, 0, 0 };
 
 	Vertex(
 		const DirectX::XMFLOAT3 position,
 		const DirectX::XMFLOAT3 normal,
-		const DirectX::XMFLOAT2 uv
-	) : position(position), normal(normal), uv(uv)
+		const DirectX::XMFLOAT2 uv0,
+		const DirectX::XMFLOAT2 uv1
+	) : position(position), normal(normal), uv0(uv0), uv1(uv1)
 	{
 	}
 };
@@ -58,8 +60,11 @@ namespace std {
 			combine(v.normal.y);
 			combine(v.normal.z);
 
-			combine(v.uv.x);
-			combine(v.uv.y);
+			combine(v.uv0.x);
+			combine(v.uv0.y);
+
+			combine(v.uv1.x);
+			combine(v.uv1.y);
 
 			return seed;
 		}

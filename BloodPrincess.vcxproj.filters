@@ -81,6 +81,8 @@
     <ClCompile Include="src\rendering\lines\line_utils.cpp" />
     <ClCompile Include="src\rendering\passes\line_pass.cpp" />
     <ClCompile Include="src\components\animator_component.cpp" />
+    <ClCompile Include="src\components\paintable_component.cpp" />
+    <ClCompile Include="src\rendering\passes\paint_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -188,6 +190,8 @@
     <ClInclude Include="src\components\hit_box_component.hpp" />
     <ClInclude Include="src\components\hurt_box_component.hpp" />
     <ClInclude Include="src\events\event_bus.hpp" />
+    <ClInclude Include="src\components\paintable_component.hpp" />
+    <ClInclude Include="src\rendering\passes\paint_pass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
@@ -203,6 +207,8 @@
     <FxCompile Include="src\shaders\particles\ps_particle_system.hlsl" />
     <FxCompile Include="src\shaders\line\ps_line.hlsl" />
     <FxCompile Include="src\shaders\line\vs_line.hlsl" />
+    <FxCompile Include="src\shaders\paint\vs_paint.hlsl" />
+    <FxCompile Include="src\shaders\paint\ps_paint.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />

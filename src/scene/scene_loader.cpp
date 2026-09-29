@@ -20,6 +20,7 @@
 #include "components/sphere_collision_component.hpp"
 #include "components/light_flicker_component.hpp"
 #include "components/animator_component.hpp"
+#include "components/paintable_component.hpp"
 
 static void TestScene(Scene &outScene, const AppContext &appContext) {
     Entity *playerEntity = outScene.AddEntity("player");
@@ -56,13 +57,14 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     Entity *spotLightEntity = outScene.AddEntity("spot light");
     SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
-    spotLight->SetIntensity(220.0f);
+    spotLight->SetIntensity(50.0f);
     spotLight->SetRange(30.0f);
     spotLight->SetColor({231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f});
     spotLight->SetInnerAngle(XMConvertToRadians(60.0f));
     spotLight->SetOuterAngle(XMConvertToRadians(80.0f));
     TransformComponent *spotTransform = spotLightEntity->AddComponent<TransformComponent>();
-    spotTransform->SetWorldPosition(-3.0f, -0.7f, 3.2f);
+    spotTransform->SetWorldPosition(-8.25, -0.7f, 5.07f);
+    spotTransform->SetWorldRotation(0, 116, 0);
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
@@ -107,6 +109,32 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         animator->SetSkeletonVisible(true);
         animator->Play("demo", true);
     }
+
+    auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
+    Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
+    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26, 0.0f, 0.0f });
+    paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
+    paintableWallEntity->AddComponent<PaintableComponent>();
+
+    PaintableComponent *paintableComponent = paintableWallEntity->GetComponent<PaintableComponent>();
+    paintableComponent->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    paintableComponent->SetPaintMaskWidth(128);
+    paintableComponent->SetPaintMaskHeight(128);
+
+    paintableWallEntity->AddComponent<ParticleSystemComponent>();
+    ParticleSystemComponent *psComponent = paintableWallEntity->GetComponent<ParticleSystemComponent>();
+    psComponent->SetCount(16);
+    psComponent->SetSpawnRadius(0.1f);
+    psComponent->SetLifeTime(1.0f);
+
+    psComponent->SetStartScale(1.2f);
+    psComponent->SetEndScale(0.25f);
+
+    psComponent->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    psComponent->SetIsAnimate(false);
+
+    psComponent->SetVelocity({ 0.0f, 3.0f, 0.0f });
+    psComponent->SetAcceleration({ 0.0, -9.82f, 0.0f });
 
     outScene.PrintEntityHierarchy();
 }

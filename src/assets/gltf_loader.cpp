@@ -474,7 +474,8 @@ bool GLTFLoader::ReadPrimitiveAttributes(
 	const tg3_primitive &primitive, 
 	std::vector<DirectX::XMFLOAT3> &positions, 
 	std::vector<DirectX::XMFLOAT3> &normals, 
-	std::vector<DirectX::XMFLOAT2> &uvs
+	std::vector<DirectX::XMFLOAT2> &uv0,
+    std::vector<DirectX::XMFLOAT2> &uv1
 )
 {
     std::vector<float> data;
@@ -505,9 +506,17 @@ bool GLTFLoader::ReadPrimitiveAttributes(
             if (!ReadAccessorFloats(this->model, attr.value, 2, data))
                 continue;
 
-            uvs.resize(data.size() / 2);
-            memcpy(uvs.data(), data.data(), uvs.size() * sizeof(XMFLOAT2));
+            uv0.resize(data.size() / 2);
+            memcpy(uv0.data(), data.data(), uv0.size() * sizeof(XMFLOAT2));
 		}
+        else if (attrName == "TEXCOORD_1")
+        {
+            if (!ReadAccessorFloats(this->model, attr.value, 2, data))
+                continue;
+
+            uv1.resize(data.size() / 2);
+            memcpy(uv1.data(), data.data(), uv1.size() * sizeof(XMFLOAT2));
+        }
 		else
 		{
 			LogWarn("Unsupported attribute: %s", attrName.c_str());
@@ -707,10 +716,10 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 		XMVECTOR e1 = p1 - p0;
 		XMVECTOR e2 = p2 - p0;
 
-		float du1 = v1.uv.x - v0.uv.x;
-		float dv1 = v1.uv.y - v0.uv.y;
-		float du2 = v2.uv.x - v0.uv.x;
-		float dv2 = v2.uv.y - v0.uv.y;
+		float du1 = v1.uv0.x - v0.uv0.x;
+		float dv1 = v1.uv0.y - v0.uv0.y;
+		float du2 = v2.uv0.x - v0.uv0.x;
+		float dv2 = v2.uv0.y - v0.uv0.y;
 
 		// https://en.wikipedia.org/wiki/Cramer%27s_rule
 		float det = du1 * dv2 - du2 * dv1;
@@ -826,10 +835,11 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		
 		std::vector<DirectX::XMFLOAT3> positions = {};
 		std::vector<DirectX::XMFLOAT3> normals = {};
-		std::vector<DirectX::XMFLOAT2> uvs = {};
+		std::vector<DirectX::XMFLOAT2> uv0 = {};
+        std::vector<DirectX::XMFLOAT2> uv1 = {};
 		std::vector<uint32_t> indicies = {};
 
-        if (!ReadPrimitiveAttributes(primitive, positions, normals, uvs) ||
+        if (!ReadPrimitiveAttributes(primitive, positions, normals, uv0, uv1) ||
             !ReadPrimitiveIndices(primitive, static_cast<uint32_t>(positions.size()), indicies)
         ) {
             LogWarn("Primitive could not be read (skipped)");
@@ -842,10 +852,16 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
             normals.assign(positions.size(), {0.0f, 0.0f, 1.0f});
         }
 
-        if (uvs.size() != positions.size()) 
+        if (uv0.size() != positions.size()) 
         {
-            LogWarn("Primitve has '%zu' positions but only '%zu' UVs", positions.size(), uvs.size());
-            uvs.assign(positions.size(), {0.0f, 0.0f});
+            LogWarn("Primitve has '%zu' positions but only '%zu' UVs", positions.size(), uv0.size());
+            uv0.assign(positions.size(), {0.0f, 0.0f});
+        }
+
+        if (uv1.size() != uv0.size())
+        {
+            LogWarn("Primitive only has '%zu' UV1 but '%zu' UV0s", uv1.size(), uv0.size());
+            uv1 = uv0;
         }
 
 		for (size_t i = 0; i < positions.size(); ++i)
@@ -881,7 +897,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
                 this->boundingMax.z = std::max(this->boundingMax.z, positions[i].z);
             }
 
-            meshVertices.emplace_back(positions[i], normals[i], uvs[i]);
+            meshVertices.emplace_back(positions[i], normals[i], uv0[i], uv1[i]);
 
             this->vertexCount++;
         }

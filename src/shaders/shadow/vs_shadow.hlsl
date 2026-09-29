@@ -4,14 +4,14 @@
 struct VertexShaderInput
 {
     float3 position : POSITION;
-    float2 uv : UV;
+    float2 uv : TEXCOORD0;
 };
 
 // Output
 struct VertexShaderOutput
 {
     float4 clipPosition : SV_POSITION;
-    float2 uv : UV;
+    float2 uv : TEXCOORD0;
 };
 
 VertexShaderOutput main(VertexShaderInput input)

@@ -9,6 +9,7 @@
 #include "core/app_context.hpp"
 #include "rendering/passes/output_pass.hpp"
 #include "rendering/passes/line_pass.hpp"
+#include "rendering/passes/paint_pass.hpp"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -33,6 +34,7 @@ class Renderer
 	ShadowPass shadowPass;
     OutputPass outputPass;
 	LinePass linePass;
+	PaintPass paintPass;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;

@@ -150,6 +150,12 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->paintPass.Initialize(this->device, appContext.assetManager))
+    {
+        LogError("Failed to create Paint Pass");
+        return false;
+    }
+
     LogUnindent();
 
 	return true;
@@ -169,6 +175,7 @@ void Renderer::Shutdown()
     this->outputPass.Shutdown();
     this->shadowPass.Shutdown();
     this->linePass.Shutdown();
+    this->paintPass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -202,6 +209,13 @@ void Renderer::Render(Scene *scene, float deltaTime)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
+
+    this->paintPass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->views
+    );
 
     this->shadowPass.Render(
         this->device,

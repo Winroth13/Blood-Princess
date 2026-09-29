@@ -152,6 +152,10 @@ void Editor::ImGuiRender(const AppContext &appContext)
 
 void Editor::GizmoRender(const AppContext &appContext)
 {
+	uint32_t width = appContext.renderer->GetWidth();
+	uint32_t height = appContext.renderer->GetHeight();
+	ImGuizmo::SetRect(0, 0, static_cast<float>(width), static_cast<float>(height));
+
 	if (this->sceneHierarchyPanel.GetSelectCount() == 0)
 		return;
 
@@ -170,10 +174,6 @@ void Editor::GizmoRender(const AppContext &appContext)
 	// Setup
 	ImGuizmo::SetOrthographic(false);
 	ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
-
-	uint32_t width = appContext.renderer->GetWidth();
-	uint32_t height = appContext.renderer->GetHeight();
-	ImGuizmo::SetRect(0, 0, static_cast<float>(width), static_cast<float>(height));
 
 	// Make sure we have a primary view
 	std::vector<RenderView> &renderViews = appContext.renderer->GetViews();
