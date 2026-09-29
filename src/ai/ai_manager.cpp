@@ -33,6 +33,11 @@ void AIManager::RegisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
+void AIManager::QueueUnregister(EnemyControllerComponent* enemy) 
+{
+    pendingRemovals.push_back(enemy);
+}
+
 void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
 {
     if (enemy == nullptr)
@@ -47,7 +52,7 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
-void AIManager::Update(float deltaTime, const DirectX::XMFLOAT3& playerPosition)
+void AIManager::Update(float deltaTime)
 {
     size_t enemyCount = this->enemies.size();
     if (enemyCount == 0)
@@ -63,6 +68,9 @@ void AIManager::Update(float deltaTime, const DirectX::XMFLOAT3& playerPosition)
 
     for (size_t i = 0; i < enemyCount; ++i)
     {
-        this->enemies[i]->UpdateAI(deltaTime, playerPosition, i, this->spatialGrid);
+        this->enemies[i]->UpdateAI(deltaTime, i, this->spatialGrid);
     }
+
+    for (auto* e : pendingRemovals) UnregisterEnemy(e);
+    pendingRemovals.clear();
 }

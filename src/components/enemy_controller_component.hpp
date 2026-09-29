@@ -1,7 +1,7 @@
 #pragma once
 
 #include "scene/component.hpp"
-
+#include "ai/ai_manager.hpp"
 #include <DirectXMath.h>
 
 class TransformComponent;
@@ -13,15 +13,14 @@ class EnemyControllerComponent : public Component
 
 	ExportProperty(float, moveSpeed, 3.5f);
 	ExportProperty(float, avoidanceRadius, 1.5f);
+	ExportProperty(float, aggroRadius, 20.0f);
+	ExportProperty(float, stopDistance, 2.0f);
 
 private:
 	TransformComponent *transform = nullptr;
+	AIManager* aiManager = nullptr;
 
-public:
-	EnemyControllerComponent(Entity *owner, bool isActive);
-	~EnemyControllerComponent() = default;
 
-private:
 	void OnStart(const AppContext &context) override;
 	void Update(const AppContext &context, float deltaTime) override {}
 	void LateUpdate(const AppContext &context, float deltaTime) override {}
@@ -29,8 +28,11 @@ private:
 	void OnDestroy(const AppContext &context) override;
 
 public:
+	EnemyControllerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {NoLateUpdate();NoRender();};
+	~EnemyControllerComponent() = default;
+
 	DirectX::XMFLOAT3 GetPosition() const;
-	void UpdateAI(float deltaTime, const DirectX::XMFLOAT3 &playerPosition, size_t myGridIndex, const SpatialGrid &grid);
+	void UpdateAI(float deltaTime, size_t myGridIndex, const SpatialGrid &grid);
 
 	float GetMoveSpeed() const { return this->moveSpeed; }
 	void SetMoveSpeed(float speed) { this->moveSpeed = speed; }

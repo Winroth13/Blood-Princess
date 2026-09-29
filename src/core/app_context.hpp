@@ -9,7 +9,7 @@ class AudioManager;
 class ImGuiLayer;
 class Editor;
 class CollisionManager;
-
+class AIManager;
 struct AppContext
 {
     Application *application;
@@ -21,4 +21,5 @@ struct AppContext
     ImGuiLayer *imGuiLayer;
     Editor *editor;
 	CollisionManager* collisionManager;
+    AIManager* aiManager;
 };
