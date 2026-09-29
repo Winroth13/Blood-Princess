@@ -97,17 +97,31 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
     //}
 
     {
-        Entity *entity = outScene.AddEntity("animated_entity");
+        Entity *entity = outScene.AddEntity("animated_entity_twerk");
         TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-1.0f, -2.5f, 5.0f);
+        transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
         transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb");
+        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_twerk.glb");
         modelComponent->SetModel(model);
         AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
-        animator->AddAnimation("demo", model->GetAnimations());
+        animator->AddAnimation("twerk", model->GetAnimations());
         animator->SetSkeletonVisible(true);
-        animator->Play("demo", true);
+        animator->Play("twerk", true);
+    }
+
+    {
+        Entity *entity = outScene.AddEntity("animated_entity_gangnam_style");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(1.0f, -2.5f, 8.0f);
+        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_gangnam_style.glb");
+        modelComponent->SetModel(model);
+        AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        animator->AddAnimation("gangnam_style", model->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->Play("gangnam_style", true);
     }
 
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
