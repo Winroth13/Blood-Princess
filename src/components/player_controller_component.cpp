@@ -174,16 +174,26 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 void PlayerControllerComponent::PerformLightAttack()
 {
 	LogInfo("Attack with light attack.");
-	auto hitbox = this->GetOwner()->GetComponent<HitboxComponent>();
-	if (hitbox) {
-		hitbox->Activate(2.0f);
+	for (Entity* child : this->GetOwner()->GetChildren()) {
+		if (auto* hb = child->GetComponent<HitboxComponent>()) {
+			hb->SetDamage(10.0f);
+			hb->Activate(0.3);
+			break;
+		}
 	}
 }
 
 void PlayerControllerComponent::PerformHeavyAttack()
 {
-
 	LogInfo("Attack with Heavy attack.");
+
+	for (Entity* child : this->GetOwner()->GetChildren()) {
+		if (auto* hb = child->GetComponent<HitboxComponent>()) {
+			hb->SetDamage(50.0f);
+			hb->Activate(0.3);
+			break;
+		}
+	}
 }
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)

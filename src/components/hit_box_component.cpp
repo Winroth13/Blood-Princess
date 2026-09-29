@@ -28,6 +28,9 @@ bool HitboxComponent::CanHit(Entity* target) const
 {
 	if (!this->IsActive() || !target || target == this->GetOwner())
 		return false;
+	Entity* owner = this->GetOwner();
+	if (target == owner || (owner && target == owner->GetParent()))
+		return false;
 	return this->hitEntities.find(target) == this->hitEntities.end();
 }
 
