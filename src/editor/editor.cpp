@@ -92,6 +92,38 @@ void Editor::DrawSkeleton(const AppContext &appContext)
     }
 }
 
+void Editor::Update(const AppContext &appContext)
+{
+	/* Toggle Editor */
+	if (Input::IsKeyPressed(Key::F1))
+	{
+		ToggleEditor(appContext);
+	}
+
+	/* Toggle Freecam */
+	if (Input::IsKeyPressed(Key::F2))
+	{
+
+	}
+
+	if (this->GetShowEditor())
+	{
+		RenderView *primaryView = RenderUtils::GetView(appContext.renderer->GetViews(), ViewType::PRIMARY);
+
+		if (!primaryView)
+			return;
+
+		primaryView->cameraPosition = this->freeCam.GetPosition();
+		XMStoreFloat4x4(&primaryView->viewMatrix, this->freeCam.GetViewMatrix());
+	}
+}
+
+void Editor::Render(const AppContext &appContext)
+{
+	if (this->GetShowEditor())
+		this->RenderEditor(appContext);
+}
+
 bool Editor::Initialize(SceneManager &sceneManager)
 {
 	LogInfo("Creating Editor...");
@@ -118,7 +150,7 @@ void Editor::Shutdown()
 {
 }
 
-void Editor::ImGuiRender(const AppContext &appContext)
+void Editor::RenderEditor(const AppContext &appContext)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -145,7 +177,7 @@ void Editor::ImGuiRender(const AppContext &appContext)
 	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
 
-    this->DrawSkeleton(appContext);
+	this->DrawSkeleton(appContext);
 
 	this->GizmoRender(appContext);
 	this->RenderSelectionBoundingBoxes(appContext);
@@ -292,4 +324,66 @@ void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
 		command.points = vertices;
 		primaryView->queue.Submit(command);
 	}
+}
+
+bool Editor::IsUsingEditor()
+{
+	return GetShowEditor();
+}
+
+void Editor::ToggleEditor(const AppContext &appContext)
+{
+	this->SetShowEditor(
+		!this->GetShowEditor()
+	);
+
+	if (this->GetShowEditor())
+	{
+		RenderView *primaryView = RenderUtils::GetView(
+			appContext.renderer->GetViews(), ViewType::PRIMARY
+		);
+
+		if (primaryView)
+		{
+			this->freeCam.SetPosition(primaryView->cameraPosition);
+
+			XMMATRIX viewMatrix = XMLoadFloat4x4(&primaryView->viewMatrix);
+			XMMATRIX viewInvMatrix = XMMatrixInverse(nullptr, viewMatrix);
+
+			XMFLOAT4 quat = TransformComponent::ExtractRotation(viewInvMatrix);
+			
+			XMFLOAT3 eulerAngles = TransformComponent::QuaternionToEulerAngles(quat);
+
+			XMFLOAT3 eulerRadians = {
+				XMConvertToRadians(eulerAngles.x),
+				XMConvertToRadians(eulerAngles.y),
+				XMConvertToRadians(eulerAngles.z)
+			};
+
+			this->freeCam.SetRotation(eulerRadians);
+		}
+	}
+}
+
+void Editor::SetShowEditor(bool value)
+{
+	if (value)
+	{
+		this->flags |= EDITOR_FLAGS_SHOW_EDITOR;
+		this->lastMouseMode = Input::GetMouseMode();
+		Input::SetMouseMode(MouseMode::VISIBLE);
+	}
+	else
+	{
+		this->flags &= ~EDITOR_FLAGS_SHOW_EDITOR;
+		Input::SetMouseMode(this->lastMouseMode);
+	}
+}
+
+void Editor::SetFreeCam(bool value)
+{
+	if (value)
+		this->flags |= EDITOR_FLAGS_FREE_CAM;
+	else
+		this->flags &= ~EDITOR_FLAGS_FREE_CAM;
 }

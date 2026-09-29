@@ -83,6 +83,7 @@
     <ClCompile Include="src\components\animator_component.cpp" />
     <ClCompile Include="src\components\paintable_component.cpp" />
     <ClCompile Include="src\rendering\passes\paint_pass.cpp" />
+    <ClCompile Include="src\editor\free_cam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="src\events\event_bus.hpp" />
     <ClInclude Include="src\components\paintable_component.hpp" />
     <ClInclude Include="src\rendering\passes\paint_pass.hpp" />
+    <ClInclude Include="src\editor\free_cam.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

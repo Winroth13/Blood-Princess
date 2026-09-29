@@ -8,10 +8,12 @@
 #include "collision/collision_manager.hpp"
 #include "components/audio_component.hpp"
 #include "core/rng.hpp"
+
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
-	
+
+	Input::SetMouseMode(MouseMode::CAPTURED);
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)

@@ -13,20 +13,40 @@
 
 void Application::Update(float deltaTime) 
 {
+    if (this->editor.IsUsingEditor())
+    {
+        Input::SaveState();
+        Input::ClearState();
+        Action::Update();
+    }
+
     this->sceneManager.Update(deltaTime);
 	this->audioManager.Update(deltaTime);
 	this->collisionManager.Update(deltaTime);
+
+    if (this->editor.IsUsingEditor())
+    {
+        Input::LoadState();
+        Action::Update();
+    }
+
+    this->editor.Update(this->appContext);
 }
 
 void Application::Render(float deltaTime) 
 {
+    this->imGuiLayer.NewFrame();
+
 #if ENABLE_IMGUI_EDITOR
-    this->editor.ImGuiRender(this->appContext);
+    this->editor.Render(this->appContext);
 #endif
+
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
+
 #if ENABLE_IMGUI_EDITOR
     this->imGuiLayer.Present();
 #endif
+
     this->renderer.Present();
 }
 
@@ -99,7 +119,7 @@ bool Application::Initialize()
     }
 #endif
 
-    Input::Initialize();
+    Input::Initialize(this->window.GetSdlWindow());
     this->isRunning = true;
 
     Action::Initialize();
@@ -122,8 +142,6 @@ bool Application::Initialize()
     }
 
     LogInfo("Bindings path: %s", configPath.c_str());
-
-    Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 
     LogUnindent();
     return true;
@@ -152,29 +170,14 @@ void Application::Run()
             isFullscreen = !isFullscreen;
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
-        if (Input::IsKeyPressed(Key::F1))
-        {
-            if (Input::GetMouseMode() == MouseMode::VISIBLE)
-            {
-                Input::SetMouseMode(MouseMode::CAPTURED, this->window.GetSdlWindow());
-            }
-            else
-            {
-                Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
-            }
-        }
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
         this->renderer.NewFrame();
-#if ENABLE_IMGUI_EDITOR
-        this->imGuiLayer.NewFrame();
-#endif
-
         this->Update(deltaTime);
-
         this->Render(deltaTime);
     }
 }

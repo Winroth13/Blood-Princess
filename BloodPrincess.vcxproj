@@ -240,6 +240,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
     <ClCompile Include="src\editor\editor.cpp" />
+    <ClCompile Include="src\editor\free_cam.cpp" />
     <ClCompile Include="src\editor\inspector_panel.cpp" />
     <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
     <ClCompile Include="src\input\action.cpp" />
@@ -335,6 +336,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
     <ClInclude Include="src\editor\editor.hpp" />
+    <ClInclude Include="src\editor\free_cam.hpp" />
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
