@@ -86,6 +86,7 @@ void Editor::DrawSkeleton(const AppContext &appContext)
 
             LineCommand command{};
             command.points.assign(vertices.begin() + start, vertices.begin() + end);
+			command.enableDepth = false;
             primaryView->queue.Submit(command);
         }
     }
