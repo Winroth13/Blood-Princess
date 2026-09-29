@@ -2,6 +2,7 @@
 #include "scene/component.hpp"
 #include "collision/collision_layer.hpp"
 #include "collision/Rect_2d.hpp"
+#include "events/event_bus.hpp"
 
 enum class CollisionShape {
     BOX,

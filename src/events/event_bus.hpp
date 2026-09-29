@@ -1,5 +1,6 @@
 #pragma once
 #include "events/signal.hpp"
+#include "game_events.hpp"
 #include <functional>
 
 class EventBus

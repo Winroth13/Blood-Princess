@@ -21,11 +21,12 @@
 #include "components/light_flicker_component.hpp"
 #include "components/animator_component.hpp"
 #include "components/paintable_component.hpp"
+#include "components/hurt_box_component.hpp"
+#include "components/hit_box_component.hpp"
 
-static void TestScene(Scene &outScene, const AppContext &appContext) {
-    Entity *playerEntity = outScene.AddEntity("player");
+static void TestScene(Scene& outScene, const AppContext& appContext) {
+    Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
-    playerEntity->AddComponent<CameraComponent>();
     playerEntity->AddComponent<ListenerComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
@@ -42,9 +43,32 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
+    playerEntity->AddComponent<CameraComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
     playerCol->SetStatic(false);
     playerCol->SetRadius(0.5f);
+
+
+    Entity* swordEntity = outScene.AddEntity("Sword");
+    swordEntity->AddComponent<TransformComponent>();
+    swordEntity->GetComponent<TransformComponent>()->SetLocalPosition({ 0,0,0 });
+    ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
+    swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+
+    auto* collider = swordEntity->AddComponent<BoxCollisionComponent>();
+    collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
+    collider->SetTrigger(true);
+    collider->SetExtents({1.0f, 0.5f, 1.5f});
+    collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
+
+    auto* swordHitBox = swordEntity->AddComponent<HitboxComponent>();
+    swordHitBox->SetActive(true);
+    swordHitBox->SetDamage(25);
+    swordHitBox->SetKnockbackForce(2);
+
+    swordEntity->SetParent(playerEntity);
+
+
 
     Entity *lightEntity = outScene.AddEntity("light");
     AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
@@ -85,6 +109,12 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         transform->SetWorldScale(0.5f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
         modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/princess.glb"));
+        auto* entityCollision = entity->AddComponent<BoxCollisionComponent>();
+        entityCollision->SetExtents({ 1,1,1 });
+        entityCollision->SetLayer(CollisionLayer::ENEMY);
+        auto* entityHurtbox = entity->AddComponent<HurtboxComponent>();
+
+        entity->AddComponent<Health>();
     }
 
     //{

@@ -8,6 +8,7 @@
 #include "collision/collision_manager.hpp"
 #include "components/audio_component.hpp"
 #include "core/rng.hpp"
+#include "components/hit_box_component.hpp"
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
@@ -173,6 +174,10 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 void PlayerControllerComponent::PerformLightAttack()
 {
 	LogInfo("Attack with light attack.");
+	auto hitbox = this->GetOwner()->GetComponent<HitboxComponent>();
+	if (hitbox) {
+		hitbox->Activate(2.0f);
+	}
 }
 
 void PlayerControllerComponent::PerformHeavyAttack()
