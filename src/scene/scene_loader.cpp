@@ -50,8 +50,10 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
 
     Entity* swordEntity = outScene.AddEntity("Sword");
-    swordEntity->AddComponent<TransformComponent>();
-    swordEntity->GetComponent<TransformComponent>()->SetLocalPosition({ 0,0,0 });
+    auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
+    swordTransform->SetLocalPosition({ 0.8,-0.2,1.2 });
+    swordTransform->SetLocalScale({0.5,0.5,0.5});
+    swordTransform->SetLocalRotation({61.0f, 0,0});
     ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
     swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
 
@@ -62,8 +64,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
 
     auto* swordHitBox = swordEntity->AddComponent<HitboxComponent>();
-    swordHitBox->SetActive(true);
-    swordHitBox->SetDamage(25);
+    swordHitBox->SetActive(false);
     swordHitBox->SetKnockbackForce(2);
 
     swordEntity->SetParent(playerEntity);
