@@ -49,6 +49,7 @@ bool SphereCollisionComponent::Intersects(CollisionComponent* other)
 
 void SphereCollisionComponent::OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal)
 {
+	EventBus::Publish(CollisionEvent{ this, other, normal });
 }
 
 bool SphereCollisionComponent::GetWorldBounds(BoundingBox& outerBox)

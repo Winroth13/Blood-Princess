@@ -9,6 +9,7 @@
 #include "components/audio_component.hpp"
 #include "core/rng.hpp"
 
+#include "components/hit_box_component.hpp"
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
@@ -175,12 +176,26 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 void PlayerControllerComponent::PerformLightAttack()
 {
 	LogInfo("Attack with light attack.");
+	for (Entity* child : this->GetOwner()->GetChildren()) {
+		if (auto* hb = child->GetComponent<HitboxComponent>()) {
+			hb->SetDamage(10.0f);
+			hb->Activate(0.3);
+			break;
+		}
+	}
 }
 
 void PlayerControllerComponent::PerformHeavyAttack()
 {
-
 	LogInfo("Attack with Heavy attack.");
+
+	for (Entity* child : this->GetOwner()->GetChildren()) {
+		if (auto* hb = child->GetComponent<HitboxComponent>()) {
+			hb->SetDamage(50.0f);
+			hb->Activate(0.3);
+			break;
+		}
+	}
 }
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)

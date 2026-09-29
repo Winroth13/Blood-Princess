@@ -213,6 +213,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\box_collision_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
     <ClCompile Include="src\components\health_component.cpp" />
+    <ClCompile Include="src\components\hit_box_component.cpp" />
+    <ClCompile Include="src\components\hurt_box_component.cpp" />
     <ClCompile Include="src\components\light_flicker_component.cpp" />
     <ClCompile Include="src\components\paintable_component.cpp" />
     <ClCompile Include="src\components\particle_system_component.cpp" />
