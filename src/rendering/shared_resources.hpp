@@ -8,13 +8,16 @@
 
 enum class ConstantBufferSlot
 {
-	PER_FRAME,
-	PER_VIEW,
-	PER_OBJECT,
-	PER_MATERIAL,
-	LIGHT,
-	PARTICLE,
-	DEBUG
+	PER_FRAME = 0,
+	PER_VIEW = 1,
+	PER_OBJECT = 2,
+	PER_MATERIAL = 3,
+
+	LIGHT = 4,
+	PARTICLE = 5,
+	DEBUG = 6,
+
+	PAINT = 7
 };
 
 constexpr int operator+(ConstantBufferSlot slot) noexcept {

@@ -4,6 +4,7 @@
 #include "assets/types/model.hpp"
 #include "rendering/render_commands.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "components/paintable_component.hpp"
 
 void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (!this->model)
@@ -13,11 +14,19 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (!transform)
         return;
 
+    PaintableComponent *paintable = this->GetOwner()->GetComponent<PaintableComponent>();
+
     const XMMATRIX worldMatrix = transform->GetRenderMatrix();
 
+    uint32_t meshIndex = 0;
     const auto &meshes = this->model->GetMeshes();
     for (const auto &mesh : meshes) 
     {
+        ID3D11ShaderResourceView *paintMaskSRV = nullptr;
+
+        if (paintable)
+            paintMaskSRV = paintable->GetMaskSRV(meshIndex);
+
         const auto &subMeshes = mesh->GetSubMeshes();
         for (const auto &subMesh : subMeshes)
         {
@@ -44,10 +53,14 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
             if (material.metallicRoughnessTextureIndex != -1)
                 command.metallicRoughnessSRV = this->model->GetTexture(material.metallicRoughnessTextureIndex)->GetShaderResourceView();
 
+            command.paintMaskSRV = paintMaskSRV;
+
             XMStoreFloat4x4(&command.worldMatrix, worldMatrix);
 
             queue.Submit(command);
         }
+
+        meshIndex++;
     }
 }
 
