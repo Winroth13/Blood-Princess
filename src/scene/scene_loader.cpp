@@ -124,6 +124,16 @@ static void TestScene(Scene &outScene, const AppContext &appContext) {
         animator->Play("gangnam_style", true);
     }
 
+    {
+        Entity *entity = outScene.AddEntity("animation_light");
+        TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
+        PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
+        pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+        pointLight->SetRadius(8.0f);
+        pointLight->SetIntensity(50.0f);
+    }
+
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
     paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26, 0.0f, 0.0f });
