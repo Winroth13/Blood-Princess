@@ -74,8 +74,14 @@ void DirectionalLightComponent::LateUpdate(const AppContext &context, float delt
 
 void DirectionalLightComponent::Render(const RenderView& view, RenderQueue& queue)
 {
+    if (view.type != ViewType::PRIMARY)
+        return;
+
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
     if (!transform)
+        return;
+
+    if (!this->castShadows)
         return;
 
 	DirectionalLightCommand command{};

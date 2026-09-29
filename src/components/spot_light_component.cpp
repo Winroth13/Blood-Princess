@@ -6,9 +6,9 @@
 #include "rendering/render_utils.hpp"
 
 constexpr float NEAR_PLANE = 0.1f;
-constexpr float FAR_PLANE = 512.0f;
+constexpr float FAR_PLANE = 64.0f;
 
-void SpotLightComponent::Update(const AppContext &context, float deltaTime)
+void SpotLightComponent::LateUpdate(const AppContext &context, float deltaTime)
 {
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
     if (!transform)
@@ -48,11 +48,18 @@ void SpotLightComponent::Update(const AppContext &context, float deltaTime)
 
 void SpotLightComponent::Render(const RenderView& view, RenderQueue& queue)
 {
+    if (view.type != ViewType::PRIMARY)
+        return;
+
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
     if (!transform)
         return;
 
+    if (!this->castShadows)
+        return;
+
     SpotLightCommand command{};
+
     command.innerAngle = this->innerAngle;
     command.outerAngle = this->outerAngle;
     command.colour = this->colour;

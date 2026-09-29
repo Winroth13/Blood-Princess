@@ -11,13 +11,16 @@ class PointLightComponent : public Component
 	ExportPropertyRanged(float, radius, "m", 0.0f, 10.0f, 0.01f, 4.0f);
 	ExportProperty(bool, castShadows, false);
 
+    std::array<DirectX::XMFLOAT4X4, 6> viewProjectionMatrices{};
+    int currentShadowIndex = 0;
+
 public:
-    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(); }
+    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
 
 private:
 	void OnStart(const AppContext& context) override {};
-    void Update(const AppContext &context, float deltaTime) override;
-    void LateUpdate(const AppContext &context, float deltaTime) override {}
+    void Update(const AppContext &context, float deltaTime) override {}
+    void LateUpdate(const AppContext &context, float deltaTime) override;
 	void Render(const RenderView& view, RenderQueue& queue) override;
 	void OnDestroy(const AppContext& context) override {};
 

@@ -8,6 +8,90 @@
 #define SHADOW_OFFSET_STRENGTH 0.003f
 #define DIRECTIONAL_SHADOW_OFFSET_STRENGTH 0.001f
 
+#define FAR_PLANE 64.0f
+#define LINEAR_SHADOW_MAP_BIAS 0.05
+#define OMNI_SHADOW_SAMPLES 1
+#define OMNI_SHADOW_DISK_RADIUS 0.01f
+#define OMNI_SHADOW_OFFSET_STRENGTH 0.02f
+
+float CalcOmniShadowFactor(
+    float3 fragmentWorldPosition,
+    float3 lightPosition,
+    int index,
+    const TextureCubeArray<float> texArr
+)
+{
+    float3 lightVector = fragmentWorldPosition;
+    float currentDepth = length(lightVector);
+
+    float factor = 0.0f;
+ 
+    const float3 sampleOffsetDirections[20] =
+    {
+        float3(1, 1, 1), float3(1, -1, 1), float3(-1, -1, 1), float3(-1, 1, 1),
+        float3(1, 1, -1), float3(1, -1, -1), float3(-1, -1, -1), float3(-1, 1, -1),
+        float3(1, 1, 0), float3(1, -1, 0), float3(-1, -1, 0), float3(-1, 1, 0),
+        float3(1, 0, 1), float3(-1, 0, 1), float3(1, 0, -1), float3(-1, 0, -1),
+        float3(0, 1, 1), float3(0, -1, 1), float3(0, -1, -1), float3(0, 1, -1)
+    };
+    
+    const static float3 sampleOffsets[15] =
+    {
+        float3(-0.9598, 0.2808, 0.6322), float3(-0.2244, -0.9745, 0.357), float3(-0.9229, 0.3851, -0.9767),
+        float3(0.8927, 0.4506, 0.972), float3(0.3507, -0.9365, 0.994), float3(-0.2071, 0.9783, -0.978),
+        float3(0.6478, 0.7618, -0.1473), float3(-0.61, 0.7924, 0.4793), float3(-0.3656, -0.9308, 0.376),
+        float3(-0.1956, 0.9807, -0.8986), float3(0.8503, -0.5263, 0.7894), float3(-0.8202, -0.5721, -0.1578),
+        float3(-0.301, 0.9536, 0.8495), float3(0.912, -0.4101, 0.1386), float3(0.6909, 0.723, 0.3322)
+    };
+    
+    //return texArr.SampleLevel(
+    //        samplerShadow,
+    //        float4(normalize(lightVector), index),
+    //        0
+    //    ) / FAR_PLANE;
+    
+    //float closestDepth = texArr.SampleLevel(
+    //        samplerShadow,
+    //        float4(normalize(lightVector), index),
+    //        0
+    //    );
+        
+    //if (currentDepth > closestDepth)
+    //{
+    //    factor += 0.0f;
+    //}
+    //else
+    //{
+    //    factor += 1.0f;
+    //}
+    
+    //return factor;
+    
+    for (uint i = 0; i < OMNI_SHADOW_SAMPLES; ++i)
+    {
+        float3 offsetLightVector = lightVector + sampleOffsetDirections[i % 20] * OMNI_SHADOW_DISK_RADIUS + sampleOffsets[i % 15] * OMNI_SHADOW_OFFSET_STRENGTH;
+
+        float closestDepth = texArr.SampleLevel(
+            samplerShadow,
+            float4(normalize(offsetLightVector), index),
+            0
+        );
+        
+        //closestDepth *= FAR_PLANE;
+        
+        if (currentDepth > (closestDepth + LINEAR_SHADOW_MAP_BIAS))
+        {
+            factor += 0.0f;
+        }
+        else
+        {
+            factor += 1.0f;
+        }
+    }
+    
+    return (factor / OMNI_SHADOW_SAMPLES);
+}
+
 float CalcShadowFactor(
     float3 worldPosition,
     float4x4 lightViewProjMatrix,
