@@ -303,6 +303,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
     <ClInclude Include="src\components\health_component.hpp" />
+    <ClInclude Include="src\components\hit_box_component.hpp" />
+    <ClInclude Include="src\components\hurt_box_component.hpp" />
     <ClInclude Include="src\components\light_flicker_component.hpp" />
     <ClInclude Include="src\components\paintable_component.hpp" />
     <ClInclude Include="src\components\particle_system_component.hpp" />
@@ -336,7 +338,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
-    <ClInclude Include="src\events\event.hpp" />
+    <ClInclude Include="src\events\game_events.hpp" />
+    <ClInclude Include="src\events\event_bus.hpp" />
     <ClInclude Include="src\events\signal.hpp" />
     <ClInclude Include="src\input\action.hpp" />
     <ClInclude Include="src\input\input.hpp" />
