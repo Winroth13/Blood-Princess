@@ -48,6 +48,7 @@ Mesh::~Mesh()
 bool Mesh::Create(
 	const std::string &name,
 	const std::vector<Vertex> &vertices,
+    const std::vector<SkinVertex> &skinVertices,
 	const std::vector<uint32_t> &indicies,
 	const std::vector<SubMesh> &subMeshes,
 	ID3D11Device *device
@@ -87,6 +88,32 @@ bool Mesh::Create(
 		}
 		//LogInfo("Created Vertex Buffer");
 	}
+
+    /* Create Skin Vertex Buffer */
+    if (!skinVertices.empty())
+    {
+        D3D11_BUFFER_DESC desc{};
+        desc.ByteWidth = static_cast<UINT>(sizeof(SkinVertex) * skinVertices.size());
+        desc.Usage = D3D11_USAGE_IMMUTABLE;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        D3D11_SUBRESOURCE_DATA data{};
+        data.pSysMem = skinVertices.data();
+        data.SysMemPitch = 0;
+        data.SysMemSlicePitch = 0;
+
+        hr = device->CreateBuffer(&desc, &data, &this->skinVertexBuffer);
+
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Skin Vertex Buffer");
+            return false;
+        }
+        //LogInfo("Created Vertex Buffer");
+    }
 
 	/* Create Index Buffer */
 	{

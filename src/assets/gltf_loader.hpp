@@ -57,13 +57,15 @@ class GLTFLoader
 		std::vector<DirectX::XMFLOAT3> &positions,
 		std::vector<DirectX::XMFLOAT3> &normals,
 		std::vector<DirectX::XMFLOAT2> &uv0,
-		std::vector<DirectX::XMFLOAT2> &uv1
+		std::vector<DirectX::XMFLOAT2> &uv1,
+        std::vector<uint32_t> &joints,
+        std::vector<float> &weights
 	);
 	bool ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t vertexCount, std::vector<uint32_t> &indicies);
 
 	void ReadScenes();
 	void ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix);
-	void ReadMesh(int32_t meshIndex, XMMATRIX matrix);
+	void ReadMesh(int32_t meshIndex, XMMATRIX matrix, bool isSkinned);
     void ReadSkeleton();
     void ReadAnimations();
 

@@ -10,6 +10,9 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11Buffer;
 
+struct ID3D11RasterizerState;
+struct ID3D11DepthStencilState;
+
 class VertexShader;
 class PixelShader;
 class AssetManager;
@@ -21,11 +24,15 @@ class LinePass
 	ID3D11InputLayout *inputLayout = nullptr;
 	ID3D11Buffer *vertexBuffer = nullptr;
 
+	ID3D11RasterizerState *disableDepthRasterizerState;
+	ID3D11DepthStencilState *disableDepthStencilState;
+
 	std::shared_ptr<VertexShader> vertexShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShader = nullptr;
 
 	bool CreateInputLayout(ID3D11Device *device, VertexShader* vertexShader);
 	bool CreateVertexBuffer(ID3D11Device *device);
+	bool CreateDisableDepthResources(ID3D11Device *device);
 
 public:
 	LinePass() = default;

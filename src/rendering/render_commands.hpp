@@ -34,6 +34,7 @@ struct GeometryCommand
 struct LineCommand
 {
     std::vector<LineVertex> points;
+    bool enableDepth;
 };
 
 struct AmbientLightCommand 

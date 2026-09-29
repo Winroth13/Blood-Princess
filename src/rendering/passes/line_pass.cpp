@@ -5,7 +5,7 @@
 #include "rendering/resources/backbuffer.hpp"
 #include "rendering/shared_resources.hpp"
 
-constexpr size_t MAX_POINTS = 32;
+constexpr size_t MAX_POINTS = 2048;
 
 bool LinePass::CreateInputLayout(ID3D11Device *device, VertexShader *vertexShader)
 {
@@ -52,6 +52,41 @@ bool LinePass::CreateVertexBuffer(ID3D11Device *device)
 	{
 		LogError("DirectX failed to create Vertex Buffer");
 		return false;
+	}
+
+	return true;
+}
+
+bool LinePass::CreateDisableDepthResources(ID3D11Device *device)
+{
+	HRESULT result;
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = false;
+
+		result = device->CreateDepthStencilState(&desc, &this->disableDepthStencilState);
+
+		if (FAILED(result))
+		{
+			LogError("DirectX failed to create Depth Stencil");
+			return false;
+		}
+	}
+
+	{
+		D3D11_RASTERIZER_DESC desc = {};
+		desc.CullMode = D3D11_CULL_FRONT;
+		desc.FillMode = D3D11_FILL_SOLID;
+		desc.DepthClipEnable = false;
+		
+		result = device->CreateRasterizerState(&desc, &this->disableDepthRasterizerState);
+
+		if (FAILED(result))
+		{
+			LogError("DirectX failed to create Rasterizer State");
+			return false;
+		}
 	}
 
 	return true;
@@ -109,6 +144,17 @@ void LinePass::Render(
 			continue;
 		}
 
+		if (!command.enableDepth)
+		{
+			deviceContext->RSSetState(this->disableDepthRasterizerState);
+			deviceContext->OMSetDepthStencilState(this->disableDepthStencilState, 0);
+		}
+		else
+		{
+			deviceContext->RSSetState(nullptr);
+			deviceContext->OMSetDepthStencilState(nullptr, 0);
+		}
+
 		D3D11_MAPPED_SUBRESOURCE mapped;
 		deviceContext->Map(this->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 
@@ -118,6 +164,9 @@ void LinePass::Render(
 		deviceContext->Unmap(this->vertexBuffer, 0);
 		deviceContext->Draw(static_cast<UINT>(command.points.size()), 0);
 	}
+
+	deviceContext->RSSetState(nullptr);
+	deviceContext->OMSetDepthStencilState(nullptr, 0);
 
 	deviceContext->IASetInputLayout(nullptr);
 
@@ -141,6 +190,9 @@ bool LinePass::Initialize(ID3D11Device *device, AssetManager *assetManager)
 	if (!this->CreateVertexBuffer(device))
 		return false;
 
+	if (!this->CreateDisableDepthResources(device))
+		return false;
+
 	LogUnindent();
 
 	return true;
@@ -148,6 +200,8 @@ bool LinePass::Initialize(ID3D11Device *device, AssetManager *assetManager)
 
 void LinePass::Shutdown()
 {
+	SafeRelease(this->disableDepthRasterizerState);
+	SafeRelease(this->disableDepthStencilState);
 	SafeRelease(this->vertexBuffer);
 	SafeRelease(this->inputLayout);
 }
