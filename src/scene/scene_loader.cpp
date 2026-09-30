@@ -84,17 +84,17 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
     spotLight->SetIntensity(50.0f);
     spotLight->SetRange(30.0f);
-    spotLight->SetColor({231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f});
+    spotLight->SetColor({ 231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f });
     spotLight->SetInnerAngle(XMConvertToRadians(60.0f));
     spotLight->SetOuterAngle(XMConvertToRadians(80.0f));
     TransformComponent *spotTransform = spotLightEntity->AddComponent<TransformComponent>();
-    spotTransform->SetWorldPosition(-8.25, -0.7f, 5.07f);
+    spotTransform->SetWorldPosition(-8.25f, -0.7f, 5.07f);
     spotTransform->SetWorldRotation(0, 116, 0);
 
     Entity *pointLightEntity = outScene.AddEntity("point light");
     PointLightComponent *pointLight = pointLightEntity->AddComponent<PointLightComponent>();
     pointLight->SetIntensity(220.0f);
-    pointLight->SetCastShadows(true);
+    pointLight->SetCastShadows(false);
     TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
     pointTransform->SetWorldPosition(-0.6f, -1.0f, 4.34f);
 
