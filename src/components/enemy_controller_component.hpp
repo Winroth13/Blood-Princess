@@ -13,7 +13,6 @@ class EnemyControllerComponent : public Component
 	ExportProperty(std::string, groupName, "Enemy");
 	ExportProperty(float, moveSpeed, 3.5f);
 	ExportProperty(float, avoidanceRadius, 1.5f);
-	ExportProperty(float, aggroRadius, 20.0f);
 	ExportProperty(float, stopDistance, 2.0f);
 
 private:
@@ -22,7 +21,7 @@ private:
 
 
 	void OnStart(const AppContext &context) override;
-	void Update(const AppContext &context, float deltaTime) override {}
+	void Update(const AppContext& context, float deltaTime) override {};
 	void LateUpdate(const AppContext &context, float deltaTime) override {}
 	void Render(const RenderView &view, RenderQueue &queue) override {}
 	void OnDestroy(const AppContext &context) override;

@@ -175,7 +175,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
-    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26f, 0.0f, 0.0f });
+    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 5.26f, 0.0f, 0.0f });
     paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
     paintableWallEntity->AddComponent<PaintableComponent>();
 
@@ -377,11 +377,6 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
                 TransformComponent *floorTransform = floorTile->AddComponent<TransformComponent>();
                 floorTransform->SetLocalPosition(x, 0.0f, z);
-
-                BoxCollisionComponent *floorCol = floorTile->AddComponent<BoxCollisionComponent>();
-                floorCol->SetLayer(CollisionLayer::ENVIRONMENT);
-                floorCol->SetStatic(true);
-                floorCol->SetExtents({ halfTile, 0.5f, halfTile });
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);

@@ -50,6 +50,7 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);
+
     XMFLOAT3 playerPosition = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>()->GetWorldPosition();
     XMVECTOR player = XMLoadFloat3(&playerPosition);
 
@@ -57,38 +58,48 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
     toPlayer = XMVectorSetY(toPlayer, 0.0f);
 
     float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-    float aggroSq = this->aggroRadius * this->aggroRadius;
-
     XMVECTOR seek = XMVectorZero();
-    if (distSq < aggroSq && distSq > 0.0001f) {
+
+    if (distSq > 0.0001f) {
+        XMFLOAT3 direction;
+        XMStoreFloat3(&direction, toPlayer);
+
+        float angleRadians = atan2f(direction.x, direction.z);
+        float angleDegrees = angleRadians * (180.0f / XM_PI);
+
+        this->transform->SetWorldRotation(0.0f, angleDegrees, 0.0f);
+
         float stopSq = this->stopDistance * this->stopDistance;
+
         if (distSq > stopSq) {
             seek = XMVector3Normalize(toPlayer);
         }
     }
 
     XMVECTOR avoid = grid.ComputeAvoidance(myGridIndex, this->avoidanceRadius);
+    avoid = XMVectorSetY(avoid, 0.0f);
+
     float avoidLen = XMVectorGetX(XMVector3Length(avoid));
     if (avoidLen > 0.0001f) {
-        avoid = XMVectorScale(XMVector3Normalize(avoid), 1.0f);
+        avoid = XMVector3Normalize(avoid);
     }
 
     XMVECTOR steer = XMVectorAdd(seek, avoid);
     steer = XMVectorSetY(steer, 0.0f);
 
     float steerLen = XMVectorGetX(XMVector3Length(steer));
-    if (steerLen > 1.0f) {
-        steer = XMVectorScale(XMVector3Normalize(steer), 1.0f);
+
+    XMVECTOR movement = XMVectorZero();
+    if (steerLen > 0.0001f) {
+        steer = XMVector3Normalize(steer);
+        movement = XMVectorScale(steer, this->moveSpeed * deltaTime);
     }
 
-    XMVECTOR newPos = XMVectorMultiplyAdd(
-        steer,
-        XMVectorReplicate(this->moveSpeed * deltaTime),
-        myPos
-    );
-    newPos = XMVectorSetY(newPos, XMVectorGetY(myPos));
+    XMVECTOR newPosition = XMVectorAdd(myPos, movement);
+    newPosition = XMVectorSetY(newPosition, XMVectorGetY(myPos));
 
     XMFLOAT3 outPos;
-    XMStoreFloat3(&outPos, newPos);
+    XMStoreFloat3(&outPos, newPosition);
+
     this->transform->SetWorldPosition(outPos);
 }
