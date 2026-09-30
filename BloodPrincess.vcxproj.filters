@@ -221,10 +221,14 @@
     <FxCompile Include="src\shaders\line\vs_line.hlsl" />
     <FxCompile Include="src\shaders\paint\vs_paint.hlsl" />
     <FxCompile Include="src\shaders\paint\ps_paint.hlsl" />
+    <FxCompile Include="src\shaders\deferred\vs_deferred_skinned.hlsl" />
+    <FxCompile Include="src\shaders\shadow\vs_shadow_skinned.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />
     <None Include="src\shaders\deferred\pbr.hlsli" />
     <None Include="src\shaders\shadow\shadows.hlsli" />
+    <None Include="src\shaders\skinning.hlsli" />
+    <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
   </ItemGroup>
 </Project>

@@ -23,12 +23,10 @@ class PaintableComponent : public Component
     std::vector<ID3D11RenderTargetView *> maskRTVs{};
 
 public:
-    PaintableComponent(Entity *owner, bool isActive) : Component(owner, isActive) {};
+    PaintableComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate();  };
 
 private:
     void OnStart(const AppContext &context) override;
-    void Update(const AppContext &context, float deltaTime) override {};
-    void LateUpdate(const AppContext &context, float deltaTime) override {}
     void Render(const RenderView &view, RenderQueue &queue) override;
     void OnDestroy(const AppContext &context) override;
 

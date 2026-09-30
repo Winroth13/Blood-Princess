@@ -31,23 +31,17 @@ void Application::Update(float deltaTime)
         Action::Update();
     }
 
-    this->editor.Update(this->appContext);
+    this->editor.Update(this->appContext, deltaTime);
 }
 
 void Application::Render(float deltaTime) 
 {
     this->imGuiLayer.NewFrame();
 
-#if ENABLE_IMGUI_EDITOR
-    this->editor.Render(this->appContext);
-#endif
-
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
+    this->editor.Render(this->appContext);
 
-#if ENABLE_IMGUI_EDITOR
     this->imGuiLayer.Present();
-#endif
-
     this->renderer.Present();
 }
 

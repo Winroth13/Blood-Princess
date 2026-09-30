@@ -430,6 +430,9 @@ bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize, uint
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(PerMaterialData), &this->perMaterialCB, "Per Material"))
         return false;
 
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(SkinningData), &this->skinningCB, "Skinning"))
+        return false;
+
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(LightData), &this->lightBufferCB, "Light Buffer"))
         return false;
 
@@ -492,6 +495,7 @@ void SharedResources::Shutdown()
 	SafeRelease(this->perViewCB);
 	SafeRelease(this->perObjectCB);
 	SafeRelease(this->perMaterialCB);
+    SafeRelease(this->skinningCB);
 
     SafeRelease(this->directionalLightShaderResourceView);
     SafeRelease(this->spotLightShaderResourceView);
@@ -572,4 +576,23 @@ void SharedResources::UploadPerFrameData(ID3D11DeviceContext *deviceContext, flo
     data.ticks = static_cast<uint32_t>(SDL_GetTicks());
 
     RenderUtils::UploadConstantBuffer(deviceContext, this->perFrameCB, data);
+}
+
+void SharedResources::UploadSkinMatrices(ID3D11DeviceContext *deviceContext, const XMFLOAT4X4 *skinMatrices, uint32_t skinMatricesCount) {
+    if (skinMatricesCount > MAX_SKIN_JOINT_COUNT) {
+        LogWarn("Tried to upload %u matrices; only %u will be used", skinMatricesCount, MAX_SKIN_JOINT_COUNT);
+        skinMatricesCount = MAX_SKIN_JOINT_COUNT;
+    }
+
+    D3D11_MAPPED_SUBRESOURCE mapped;
+    if (FAILED(deviceContext->Map(this->skinningCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+        LogWarn("Failed to map skinning buffer");
+        return;
+    }
+
+    XMFLOAT4X4 *destination = static_cast<SkinningData *>(mapped.pData)->skinMatrices;
+    for (uint32_t i = 0; i < skinMatricesCount; ++i)
+        XMStoreFloat4x4(&destination[i], XMMatrixTranspose(XMLoadFloat4x4(&skinMatrices[i])));
+
+    deviceContext->Unmap(this->skinningCB, 0);
 }

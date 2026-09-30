@@ -41,7 +41,6 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	}
 
 	HandleCameraLook(deltaTime);
-
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)

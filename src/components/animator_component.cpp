@@ -52,6 +52,7 @@ void AnimatorComponent::LateUpdate(const AppContext &context, float deltaTime) {
         this->SampleClip(*this->currentClip, this->time);
 
     this->UpdateJointModelMatrices();
+    this->UpdateSkinMatrices();
 }
 
 void AnimatorComponent::RefreshSkeleton() {
@@ -68,6 +69,7 @@ void AnimatorComponent::RefreshSkeleton() {
         const size_t jointCount = skeleton ? skeleton->GetJointCount() : 0;
         this->localPose.resize(jointCount);
         this->jointModelMatrices.resize(jointCount);
+        this->skinMatrices.resize(skeleton ? skeleton->GetSkinJointCount() : 0);
     }
 
     if (!this->skeleton && !this->hasWarnedMissingSkeleton) {
@@ -145,6 +147,16 @@ void AnimatorComponent::UpdateJointModelMatrices() {
             matrix = matrix * XMLoadFloat4x4(&this->jointModelMatrices[parentIndex]);
 
         XMStoreFloat4x4(&this->jointModelMatrices[i], matrix);
+    }
+}
+
+void AnimatorComponent::UpdateSkinMatrices() {
+    const std::vector<int32_t> &skinJoints = this->skeleton->GetSkinJoints();
+    const std::vector<XMFLOAT4X4> &inverseBindMatrices = this->skeleton->GetInverseBindMatrices();
+
+    for (size_t i = 0; i < skinJoints.size(); ++i) {
+        const XMMATRIX matrix = XMLoadFloat4x4(&inverseBindMatrices[i]) * XMLoadFloat4x4(&this->jointModelMatrices[skinJoints[i]]);
+        XMStoreFloat4x4(&this->skinMatrices[i], matrix);
     }
 }
 

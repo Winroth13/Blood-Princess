@@ -92,18 +92,11 @@ void Editor::DrawSkeleton(const AppContext &appContext)
     }
 }
 
-void Editor::Update(const AppContext &appContext)
+void Editor::Update(const AppContext &appContext, float deltaTime)
 {
-	/* Toggle Editor */
 	if (Input::IsKeyPressed(Key::F1))
 	{
 		ToggleEditor(appContext);
-	}
-
-	/* Toggle Freecam */
-	if (Input::IsKeyPressed(Key::F2))
-	{
-
 	}
 
 	if (this->GetShowEditor())
@@ -112,6 +105,8 @@ void Editor::Update(const AppContext &appContext)
 
 		if (!primaryView)
 			return;
+
+		this->freeCam.Update(deltaTime);
 
 		primaryView->cameraPosition = this->freeCam.GetPosition();
 		XMStoreFloat4x4(&primaryView->viewMatrix, this->freeCam.GetViewMatrix());
@@ -192,13 +187,13 @@ void Editor::GizmoRender(const AppContext &appContext)
 	if (this->sceneHierarchyPanel.GetSelectCount() == 0)
 		return;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_T))
+	if (ImGui::IsKeyPressed(ImGuiKey_W))
 		this->currentOperation = ImGuizmo::TRANSLATE;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_R))
+	if (ImGui::IsKeyPressed(ImGuiKey_E))
 		this->currentOperation = ImGuizmo::ROTATE;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_E))
+	if (ImGui::IsKeyPressed(ImGuiKey_T))
 		this->currentOperation = ImGuizmo::SCALE;
 
 	if (ImGui::IsKeyPressed(ImGuiKey_B))
@@ -242,47 +237,49 @@ void Editor::RenderTransformGizmo(const XMFLOAT4X4 &view, const XMFLOAT4X4 &proj
 	}
 
 	if (transforms.empty())
+		return;
+
+	if (transforms.size() == 1)
 	{
-		this->initialTransforms.clear();
-		this->wasUsingGizmo = false;
+		TransformComponent *transform = transforms[0];
+		XMFLOAT4X4 gizmoMatrix;
+		XMStoreFloat4x4(&gizmoMatrix, transform->GetWorldMatrix());
+
+		ImGuizmo::MODE mode = (this->currentOperation == ImGuizmo::SCALE) ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+
+		bool manipulating = ImGuizmo::Manipulate(
+			*view.m,
+			*proj.m,
+			this->currentOperation,
+			mode,
+			*gizmoMatrix.m
+		);
+
+		if (manipulating && ImGuizmo::IsUsing())
+		{
+			transform->SetWorldMatrix(XMLoadFloat4x4(&gizmoMatrix));
+		}
 		return;
 	}
 
-	if (!ImGuizmo::IsUsing())
+	// Multi-target: Find Origin
+	XMVECTOR pivotV = XMVectorSet(0, 0, 0, 0);
+	for (TransformComponent *transform : transforms)
 	{
-		this->wasUsingGizmo = false;
-
-		// Find Origin
-		XMVECTOR pivotV = XMVectorSet(0, 0, 0, 0);
-		for (TransformComponent *transform : transforms)
-		{
-			XMFLOAT3 position = transform->GetWorldPosition();
-			pivotV = XMVectorAdd(pivotV, XMLoadFloat3(&position));
-		}
-		pivotV = XMVectorScale(pivotV, 1.0f / static_cast<float>(transforms.size()));
-
-		XMFLOAT3 pivot;
-		XMStoreFloat3(&pivot, pivotV);
-
-		XMMATRIX worldMatrix = XMMatrixTranslation(pivot.x, pivot.y, pivot.z);
-		XMStoreFloat4x4(&this->initialGizmoMatrix, worldMatrix);
-
-		this->initialTransforms.clear();
-		for (const auto entity : this->sceneHierarchyPanel.GetSelectedEntities())
-		{
-			TransformComponent *transform = entity->GetComponent<TransformComponent>();
-			if (transform)
-			{
-				InitialEntityTransform init{};
-				init.entity = entity;
-				XMStoreFloat4x4(&init.initialWorldMatrix, transform->GetWorldMatrix());
-				init.initialLocalScale = transform->GetLocalScale();
-				this->initialTransforms.push_back(init);
-			}
-		}
+		XMFLOAT3 position = transform->GetWorldPosition();
+		pivotV = XMVectorAdd(pivotV, XMLoadFloat3(&position));
 	}
+	pivotV = XMVectorScale(pivotV, 1.0f / static_cast<float>(transforms.size()));
 
-	XMFLOAT4X4 gizmoMatrix = this->initialGizmoMatrix;
+	XMFLOAT3 pivot;
+	XMStoreFloat3(&pivot, pivotV);
+
+	XMMATRIX worldMatrix = XMMatrixTranslation(pivot.x, pivot.y, pivot.z);
+
+	XMFLOAT4X4 gizmoMatrix;
+	XMStoreFloat4x4(&gizmoMatrix, worldMatrix);
+
+	XMFLOAT4X4 oldGizmoMatrix = gizmoMatrix;
 
 	bool manipulating = ImGuizmo::Manipulate(
 		*view.m,
@@ -292,52 +289,19 @@ void Editor::RenderTransformGizmo(const XMFLOAT4X4 &view, const XMFLOAT4X4 &proj
 		*gizmoMatrix.m
 	);
 
-	if (ImGuizmo::IsUsing())
+	if (manipulating && ImGuizmo::IsUsing())
 	{
-		this->wasUsingGizmo = true;
-
-		XMMATRIX oldMatrix = XMLoadFloat4x4(&this->initialGizmoMatrix);
+		XMMATRIX oldMatrix = XMLoadFloat4x4(&oldGizmoMatrix);
 		XMMATRIX newMatrix = XMLoadFloat4x4(&gizmoMatrix);
 
 		XMVECTOR det;
 		XMMATRIX deltaMatrix = XMMatrixMultiply(XMMatrixInverse(&det, oldMatrix), newMatrix);
-
-		bool isScale = (this->currentOperation & ImGuizmo::SCALE) != 0 || (this->currentOperation & ImGuizmo::SCALEU) != 0;
-
-		XMVECTOR deltaScaleV, deltaRotV, deltaTransV;
-		XMMatrixDecompose(&deltaScaleV, &deltaRotV, &deltaTransV, deltaMatrix);
-		XMFLOAT3 deltaScale;
-		XMStoreFloat3(&deltaScale, deltaScaleV);
-
-		for (const auto &init : this->initialTransforms)
+		for (TransformComponent *transform : transforms)
 		{
-			if (!init.entity)
-				continue;
-
-			TransformComponent *transform = init.entity->GetComponent<TransformComponent>();
-			if (!transform)
-				continue;
-
-			if (isScale)
-			{
-				XMFLOAT3 newScale = {
-					init.initialLocalScale.x * deltaScale.x,
-					init.initialLocalScale.y * deltaScale.y,
-					init.initialLocalScale.z * deltaScale.z
-				};
-				transform->SetLocalScale(newScale);
-			}
-			else
-			{
-				XMMATRIX initialWorldMatrix = XMLoadFloat4x4(&init.initialWorldMatrix);
-				XMMATRIX newTransformWorldMatrix = XMMatrixMultiply(initialWorldMatrix, deltaMatrix);
-				transform->SetWorldMatrix(newTransformWorldMatrix);
-			}
+			XMMATRIX transformWorldMatrix = transform->GetWorldMatrix();
+			XMMATRIX newTransformWorldMatrix = XMMatrixMultiply(transformWorldMatrix, deltaMatrix);
+			transform->SetWorldMatrix(newTransformWorldMatrix);
 		}
-	}
-	else if (this->wasUsingGizmo)
-	{
-		this->wasUsingGizmo = false;
 	}
 }
 
@@ -432,12 +396,4 @@ void Editor::SetShowEditor(bool value)
 		this->flags &= ~EDITOR_FLAGS_SHOW_EDITOR;
 		Input::SetMouseMode(this->lastMouseMode);
 	}
-}
-
-void Editor::SetFreeCam(bool value)
-{
-	if (value)
-		this->flags |= EDITOR_FLAGS_FREE_CAM;
-	else
-		this->flags &= ~EDITOR_FLAGS_FREE_CAM;
 }

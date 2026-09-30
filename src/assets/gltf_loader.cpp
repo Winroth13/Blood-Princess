@@ -987,7 +987,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix, bool isSkinned)
             {
                 SkinVertex skinVertex{};
 
-                if (!hasSkinData && !QuantizeSkinWeights(&joints[i * 4], &weights[i * 4], skinJointCount, skinVertex)) 
+                if (!hasSkinData || !QuantizeSkinWeights(&joints[i * 4], &weights[i * 4], skinJointCount, skinVertex)) 
                 {
                     skinVertex = {};
                     skinVertex.weights[0] = 255;
@@ -1037,7 +1037,7 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix, bool isSkinned)
 	bool result = mesh->Create(
 		meshName,
 		meshVertices,
-        {},
+        meshSkinVertices,
 		meshIndicies,
 		subMeshes,
 		device

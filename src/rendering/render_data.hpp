@@ -66,6 +66,13 @@ struct LightData
 };
 AssertCBufferSize(LightData);
 
+constexpr uint32_t SKINNING_MAX_JOINT_COUNT = 256;
+
+struct SkinningData {
+    XMFLOAT4X4 skinMatrices[SKINNING_MAX_JOINT_COUNT];
+};
+AssertCBufferSize(SkinningData);
+
 struct DirectionalLightData 
 {
     XMFLOAT3   direction;

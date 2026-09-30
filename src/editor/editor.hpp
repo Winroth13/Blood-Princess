@@ -15,17 +15,9 @@ class SceneManager;
 struct AppContext;
 class Entity;
 
-struct InitialEntityTransform
-{
-	Entity *entity{ nullptr };
-	DirectX::XMFLOAT4X4 initialWorldMatrix{};
-	DirectX::XMFLOAT3 initialLocalScale{ 1.0f, 1.0f, 1.0f };
-};
-
 enum EditorFlags
 {
-	EDITOR_FLAGS_FREE_CAM,
-	EDITOR_FLAGS_SHOW_EDITOR
+	EDITOR_FLAGS_SHOW_EDITOR = 1
 };
 
 class Editor
@@ -41,10 +33,6 @@ class Editor
 
 	ImGuizmo::OPERATION currentOperation{ ImGuizmo::OPERATION::TRANSLATE };
 
-	std::vector<InitialEntityTransform> initialTransforms;
-	DirectX::XMFLOAT4X4 initialGizmoMatrix{};
-	bool wasUsingGizmo{ false };
-
     void DrawSkeleton(const AppContext &appContext);
 
 
@@ -55,7 +43,7 @@ public:
 	Editor(const Editor &other) = delete;
 	Editor &operator=(const Editor &other) = delete;
 
-	void Update(const AppContext &appContext);
+	void Update(const AppContext &appContext, float deltaTime);
 	void Render(const AppContext &appContext);
 
 	bool Initialize(SceneManager &sceneManager);
@@ -74,7 +62,4 @@ public:
 
 	void SetShowEditor(bool value);
 	bool GetShowEditor() const { return (this->flags & EDITOR_FLAGS_SHOW_EDITOR) == EDITOR_FLAGS_SHOW_EDITOR; }
-	
-	void SetFreeCam(bool value);
-	bool IsUsingFreeCam() const { return (this->flags & EDITOR_FLAGS_FREE_CAM) == EDITOR_FLAGS_FREE_CAM; }
 };

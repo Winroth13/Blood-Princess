@@ -27,7 +27,7 @@ private:
 	void OnDestroy(const AppContext &context) override;
 
 public:
-	EnemyControllerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {NoLateUpdate();NoRender();};
+	EnemyControllerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); };
 	~EnemyControllerComponent() = default;
 
 	DirectX::XMFLOAT3 GetPosition() const;

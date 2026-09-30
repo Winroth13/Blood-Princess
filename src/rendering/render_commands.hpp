@@ -29,6 +29,10 @@ struct GeometryCommand
     ID3D11ShaderResourceView *metallicRoughnessSRV;
 
     ID3D11ShaderResourceView *paintMaskSRV;
+
+    ID3D11Buffer *skinVertexBuffer;
+    const DirectX::XMFLOAT4X4 *skinMatrices;
+    uint32_t skinMatrixCount;
 };
 
 struct LineCommand

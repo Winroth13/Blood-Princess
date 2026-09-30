@@ -4,6 +4,7 @@
 #include "imgui/imgui.h"
 #include "assets/types/animation_library.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
+#include "rendering/render_utils.hpp"
 
 #include <DirectXCollision.h>
 
@@ -34,15 +35,9 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 #pragma region Mesh
 Mesh::~Mesh()
 {
-	if (this->vertexBuffer)
-	{
-		this->vertexBuffer->Release();
-	}
-
-	if (this->indexBuffer)
-	{
-		this->indexBuffer->Release();
-	}
+    SafeRelease(this->vertexBuffer);
+    SafeRelease(this->skinVertexBuffer);
+    SafeRelease(this->indexBuffer);
 }
 
 bool Mesh::Create(
@@ -87,6 +82,8 @@ bool Mesh::Create(
 			return false;
 		}
 		//LogInfo("Created Vertex Buffer");
+
+		RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::COMPONENT, "", name, "Vertex Buffer");
 	}
 
     /* Create Skin Vertex Buffer */
@@ -112,7 +109,8 @@ bool Mesh::Create(
             LogError("Failed to create Skin Vertex Buffer");
             return false;
         }
-        //LogInfo("Created Vertex Buffer");
+        
+		RenderUtils::SetDebugName(this->skinVertexBuffer, DebugCategory::COMPONENT, "", name, "Skin Vertex Buffer");
     }
 
 	/* Create Index Buffer */
@@ -136,7 +134,8 @@ bool Mesh::Create(
 			LogError("Failed to create Index Buffer");
 			return false;
 		}
-		//LogInfo("Created Index Buffer");
+		
+		RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::COMPONENT, "", name, "Index Buffer");
 	}
 
 	this->numVertices = vertices.size();

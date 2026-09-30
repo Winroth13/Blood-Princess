@@ -27,10 +27,7 @@ namespace RenderUtils
         desc.ByteWidth = bufferSize;
         desc.StructureByteStride = 0;
 
-        D3D11_SUBRESOURCE_DATA data{};
-        data.pSysMem = &desc;
-
-        HRESULT result = device->CreateBuffer(&desc, &data, outBuffer);
+        HRESULT result = device->CreateBuffer(&desc, nullptr, outBuffer);
         if (FAILED(result))
         {
             LogWarn("Failed to create Constant Buffer '%s'", debugName.data());
