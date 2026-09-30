@@ -11,6 +11,7 @@ class AIManager
 {
 private:
 	std::vector<EnemyControllerComponent *> enemies;
+	std::vector<EnemyControllerComponent*> pendingRemovals;
 	SpatialGrid spatialGrid;
 
 public:
@@ -24,9 +25,10 @@ public:
 	void Shutdown();
 
 	void RegisterEnemy(EnemyControllerComponent *enemy);
+	void QueueUnregister(EnemyControllerComponent* enemy);
 	void UnregisterEnemy(EnemyControllerComponent *enemy);
 
-	void Update(float deltaTime, const DirectX::XMFLOAT3 &playerPosition);
+	void Update(float deltaTime);
 
 	const SpatialGrid &GetGrid() const { return this->spatialGrid; }
 	SpatialGrid &GetGrid() { return this->spatialGrid; }

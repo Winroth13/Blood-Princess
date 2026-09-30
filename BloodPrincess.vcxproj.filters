@@ -84,6 +84,11 @@
     <ClCompile Include="src\components\paintable_component.cpp" />
     <ClCompile Include="src\rendering\passes\paint_pass.cpp" />
     <ClCompile Include="src\editor\free_cam.cpp" />
+    <ClCompile Include="src\components\hit_box_component.cpp" />
+    <ClCompile Include="src\components\hurt_box_component.cpp" />
+    <ClCompile Include="src\components\enemy_controller_component.cpp" />
+    <ClCompile Include="src\ai\ai_manager.cpp" />
+    <ClCompile Include="src\ai\spatial_grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -194,6 +199,11 @@
     <ClInclude Include="src\components\paintable_component.hpp" />
     <ClInclude Include="src\rendering\passes\paint_pass.hpp" />
     <ClInclude Include="src\editor\free_cam.hpp" />
+    <ClInclude Include="src\components\enemy_controller_component.hpp" />
+    <ClInclude Include="src\ai\ai_manager.hpp" />
+    <ClInclude Include="src\ai\spatial_grid.hpp" />
+    <ClInclude Include="src\components\target_component.hpp" />
+    <ClInclude Include="src\ai\spawner.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

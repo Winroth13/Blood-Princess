@@ -23,7 +23,7 @@
 #include "components/paintable_component.hpp"
 #include "components/hurt_box_component.hpp"
 #include "components/hit_box_component.hpp"
-
+#include "components/enemy_controller_component.hpp"
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -51,9 +51,9 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     Entity* swordEntity = outScene.AddEntity("Sword");
     auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
-    swordTransform->SetLocalPosition({ 0.8,-0.2,1.2 });
-    swordTransform->SetLocalScale({0.5,0.5,0.5});
-    swordTransform->SetLocalRotation({61.0f, 0,0});
+    swordTransform->SetLocalPosition( { 0.8f, -0.2f, 1.2f } );
+    swordTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
+    swordTransform->SetLocalRotation( { 61.0f, 0.0f, 0.0f } );
     ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
     swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
 
@@ -84,12 +84,19 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
     spotLight->SetIntensity(50.0f);
     spotLight->SetRange(30.0f);
-    spotLight->SetColor({231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f});
+    spotLight->SetColor({ 231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f });
     spotLight->SetInnerAngle(XMConvertToRadians(60.0f));
     spotLight->SetOuterAngle(XMConvertToRadians(80.0f));
     TransformComponent *spotTransform = spotLightEntity->AddComponent<TransformComponent>();
-    spotTransform->SetWorldPosition(-8.25, -0.7f, 5.07f);
+    spotTransform->SetWorldPosition(-8.25f, -0.7f, 5.07f);
     spotTransform->SetWorldRotation(0, 116, 0);
+
+    Entity *pointLightEntity = outScene.AddEntity("point light");
+    PointLightComponent *pointLight = pointLightEntity->AddComponent<PointLightComponent>();
+    pointLight->SetIntensity(220.0f);
+    pointLight->SetCastShadows(false);
+    TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
+    pointTransform->SetWorldPosition(-0.6f, -1.0f, 4.34f);
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
@@ -116,6 +123,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         auto* entityHurtbox = entity->AddComponent<HurtboxComponent>();
 
         entity->AddComponent<Health>();
+        entity->AddComponent<EnemyControllerComponent>();
     }
 
     //{
@@ -167,7 +175,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
-    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26, 0.0f, 0.0f });
+    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26f, 0.0f, 0.0f });
     paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
     paintableWallEntity->AddComponent<PaintableComponent>();
 

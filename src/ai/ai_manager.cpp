@@ -1,6 +1,6 @@
 #include "ai/ai_manager.hpp"
 #include "components/enemy_controller_component.hpp"
-
+#include "core/logging.hpp"
 #include <algorithm>
 
 AIManager::AIManager()
@@ -33,6 +33,11 @@ void AIManager::RegisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
+void AIManager::QueueUnregister(EnemyControllerComponent* enemy) 
+{
+    pendingRemovals.push_back(enemy);
+}
+
 void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
 {
     if (enemy == nullptr)
@@ -47,9 +52,10 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
-void AIManager::Update(float deltaTime, const DirectX::XMFLOAT3& playerPosition)
+void AIManager::Update(float deltaTime)
 {
     size_t enemyCount = this->enemies.size();
+    LogInfo("Enenmy count: %f", (float)enemyCount);
     if (enemyCount == 0)
     {
         return;
@@ -59,10 +65,14 @@ void AIManager::Update(float deltaTime, const DirectX::XMFLOAT3& playerPosition)
     for (size_t i = 0; i < enemyCount; ++i)
     {
         this->spatialGrid.Insert(i, this->enemies[i]->GetPosition());
+        LogInfo("Enemy position: (%f ,%f ,%f)", this->enemies[i]->GetPosition().x, this->enemies[i]->GetPosition().y, this->enemies[i]->GetPosition().z);
     }
 
     for (size_t i = 0; i < enemyCount; ++i)
     {
-        this->enemies[i]->UpdateAI(deltaTime, playerPosition, i, this->spatialGrid);
+        this->enemies[i]->UpdateAI(deltaTime, i, this->spatialGrid);
     }
+
+    for (auto* e : pendingRemovals) UnregisterEnemy(e);
+    pendingRemovals.clear();
 }

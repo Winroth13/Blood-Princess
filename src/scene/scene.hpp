@@ -8,11 +8,13 @@
 #include <vector>
 #include <memory>
 #include <string>
-
+#include <unordered_map>
 class Entity;
 class Component;
 
 class Scene {
+
+    std::unordered_map<std::string, std::vector<Entity*>> entityGroup;
     std::vector<std::unique_ptr<Entity>> entities;
 
     std::vector<Entity *> rootEntities;
@@ -73,4 +75,10 @@ public:
     void SetAppContext(const AppContext &context);
 
     void PrintEntityHierarchy();
+    // Groups functions
+    void AddEntityToGroup(const std::string& groupName, Entity* entity);
+    void RemoveEntityFromGroup(const std::string& groupName, Entity* entity);
+    void RemoveEntityFromAllGroups(Entity* entity);
+    Entity* GetFirstEntityInGroup(const std::string& groupName) const;
+    void ClearGroup(const std::string& groupName);
 };

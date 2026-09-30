@@ -8,7 +8,7 @@
 #include "editor/imgui_layer.hpp"
 #include "editor/editor.hpp"
 #include "collision/collision_manager.hpp"
-
+#include "ai/ai_manager.hpp"
 #include <chrono>
 
 #define ENABLE_IMGUI_EDITOR 1
@@ -25,6 +25,7 @@ class Application
     ImGuiLayer imGuiLayer;
     Editor editor;
     CollisionManager collisionManager;
+    AIManager aiManager;
 
 	bool isRunning = false;
 
@@ -37,7 +38,8 @@ class Application
         &this->audioManager,
         &this->imGuiLayer,
         &this->editor,
-        &this->collisionManager
+        &this->collisionManager,
+        &this->aiManager
     };
 
     void Update(float deltaTime);
