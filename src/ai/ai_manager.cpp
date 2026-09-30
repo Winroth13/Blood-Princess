@@ -55,7 +55,6 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
 void AIManager::Update(float deltaTime)
 {
     size_t enemyCount = this->enemies.size();
-    LogInfo("Enenmy count: %f", (float)enemyCount);
     if (enemyCount == 0)
     {
         return;
@@ -65,7 +64,6 @@ void AIManager::Update(float deltaTime)
     for (size_t i = 0; i < enemyCount; ++i)
     {
         this->spatialGrid.Insert(i, this->enemies[i]->GetPosition());
-        LogInfo("Enemy position: (%f ,%f ,%f)", this->enemies[i]->GetPosition().x, this->enemies[i]->GetPosition().y, this->enemies[i]->GetPosition().z);
     }
 
     for (size_t i = 0; i < enemyCount; ++i)

@@ -26,4 +26,6 @@ public:
 
     DirectX::XMFLOAT3 GetTint() const { return this->tint; }
     void SetTint(DirectX::XMFLOAT3 tint) { this->tint = tint; }
+
+    bool GetWorldBounds(DirectX::BoundingBox &outBounds) override;
 };

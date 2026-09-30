@@ -68,3 +68,19 @@ void ModelComponent::SetModel(std::shared_ptr<Model> model)
 {
     this->model = model;
 }
+
+bool ModelComponent::GetWorldBounds(DirectX::BoundingBox &outBounds)
+{
+    TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
+    if (!transform)
+        return false;
+
+    if (!this->model)
+        return false;
+    
+    DirectX::BoundingBox boundingBox = this->model->GetBoundingBox();
+    
+    boundingBox.Transform(outBounds, transform->GetRenderMatrix());
+
+    return true;
+}
