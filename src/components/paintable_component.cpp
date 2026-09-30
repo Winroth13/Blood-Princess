@@ -124,6 +124,8 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 			LogError("Failed to create Mask Texture");
 			return;
 		}
+
+		RenderUtils::SetDebugName(this->maskTextures[index], DebugCategory::TEXTURE, "Paint Mask Texture #" + std::to_string(index));
 	}
 
 	// RTV
@@ -139,6 +141,8 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 		return;
 	}
 
+	RenderUtils::SetDebugName(this->maskRTVs[index], DebugCategory::TEXTURE, "Paint Mask Texture", "RTV #" + std::to_string(index));
+
 	// SRV
 	result = device->CreateShaderResourceView(
 		this->maskTextures[index],
@@ -151,6 +155,8 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 		LogError("Failed to create Mask SRV");
 		return;
 	}
+
+	RenderUtils::SetDebugName(this->maskSRVs[index], DebugCategory::TEXTURE, "Paint Mask Texture", "SRV #" + std::to_string(index));
 
 	// Fill Black
 	float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };

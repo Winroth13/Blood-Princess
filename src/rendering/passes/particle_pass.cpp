@@ -244,6 +244,8 @@ bool ParticlePass::CreateAdditiveStates(ID3D11Device *device)
 		return false;
 	}
 
+	RenderUtils::SetDebugName(this->additiveBlendState, DebugCategory::RENDER_PASS, "", "Additive", "Blend State");
+
 	/* Depth Stencil State */
 	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
 	dsDesc.DepthEnable = true;
@@ -258,6 +260,8 @@ bool ParticlePass::CreateAdditiveStates(ID3D11Device *device)
 		LogError("DirectX failed to create Depth Stencil State");
 		return false;
 	}
+
+	RenderUtils::SetDebugName(this->additiveDepthStencilState, DebugCategory::RENDER_PASS, "", "Additive", "Depth Stencil State");
 
 	return true;
 }
