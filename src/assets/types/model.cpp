@@ -83,7 +83,7 @@ bool Mesh::Create(
 		}
 		//LogInfo("Created Vertex Buffer");
 
-		RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::COMPONENT, "", name, "Vertex Buffer");
+		RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::BUFFER, "VB", name);
 	}
 
     /* Create Skin Vertex Buffer */
@@ -110,7 +110,7 @@ bool Mesh::Create(
             return false;
         }
         
-		RenderUtils::SetDebugName(this->skinVertexBuffer, DebugCategory::COMPONENT, "", name, "Skin Vertex Buffer");
+		RenderUtils::SetDebugName(this->skinVertexBuffer, DebugCategory::BUFFER, "VB", name, "Skin");
     }
 
 	/* Create Index Buffer */
@@ -135,7 +135,7 @@ bool Mesh::Create(
 			return false;
 		}
 		
-		RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::COMPONENT, "", name, "Index Buffer");
+		RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::BUFFER, "IB", name);
 	}
 
 	this->numVertices = vertices.size();
