@@ -17,9 +17,9 @@ bool AssetManager::CreateDefaultTextures()
 
     const DefaultTextureDesc descs[+DefaultTexture::COUNT] =
     {
-        { DefaultTexture::ALBEDO,             { 255, 255, 255, 255 }, true, "Default Albedo"             },
-        { DefaultTexture::NORMAL,             { 128, 128, 255, 255 }, true, "Default Normal"             },
-        { DefaultTexture::METALLIC_ROUGHNESS, { 0  , 255, 0  , 255 }, true, "Default Metallic Roughness" }
+        { DefaultTexture::ALBEDO,             { 255, 255, 255, 255 }, true,  "Default Albedo"             },
+        { DefaultTexture::NORMAL,             { 128, 128, 255, 255 }, false, "Default Normal"             },
+        { DefaultTexture::METALLIC_ROUGHNESS, { 0  , 255, 0  , 255 }, false, "Default Metallic Roughness" }
     };
 
     for (const DefaultTextureDesc &desc : descs)

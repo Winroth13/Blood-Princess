@@ -32,16 +32,4 @@ VertexShaderOutput main(VertexShaderInput input)
     output.uv = input.uv;
     
     return output;
-    
-    //VertexShaderOutput output;
-    
-    //float4 worldPos = mul(float4(input.position.xyz, 1.0f), worldMatrix);
-    //float4 clipPos = mul(worldPos, viewProjectionMatrix);
-
-    //output.clipPosition = clipPos;
-    //output.worldPosition = worldPos.xyz;
-
-    //output.uv = input.uv;
-    
-    //return output;
 }
