@@ -15,7 +15,7 @@ enum class DebugCategory {
 	GBUFFER,
 	SHADER,
 	TEXTURE,
-	COMPONENT,
+	EMPTY,
 	COUNT
 };
 

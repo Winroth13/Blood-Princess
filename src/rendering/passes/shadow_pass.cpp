@@ -85,8 +85,8 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 
 	D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
 	{
-		{ "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT,       0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	HRESULT result = device->CreateInputLayout(
@@ -103,6 +103,29 @@ bool ShadowPass::CreateInputLayout(ID3D11Device *device)
 	}
 
 	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Shadow");
+
+    D3D11_INPUT_ELEMENT_DESC skinnedLayoutDesc[] =
+    {
+        { "POSITION",   0, DXGI_FORMAT_R32G32B32_FLOAT,0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT,   0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "JOINTS", 	0, DXGI_FORMAT_R8G8B8A8_UINT,  1, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "WEIGHTS",	0, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 4,  D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    result = device->CreateInputLayout(
+        skinnedLayoutDesc, 4,
+        this->skinnedVertexShader->GetByteCode().data(),
+        this->skinnedVertexShader->GetByteCode().length(),
+        &this->skinnedInputLayout
+    );
+
+    if (FAILED(result))
+    {
+        LogError("Failed to create Skinned Input Layout");
+        return false;
+    }
+
+    RenderUtils::SetDebugName(this->skinnedInputLayout, DebugCategory::RENDER_PASS, "Skinned Input Layout", "Shadow");
 
 	LogUnindent();
 
@@ -122,6 +145,7 @@ bool ShadowPass::Initialize(
 #pragma region Load Shaders
 
 	this->vertexShader = assetManager->Get<VertexShader>("assets/shaders/vs_shadow.cso");
+    this->skinnedVertexShader = assetManager->Get<VertexShader>("assets/shaders/vs_shadow_skinned.cso");
 	this->pixelShader = assetManager->Get<PixelShader>("assets/shaders/ps_shadow.cso");
 	this->pixelShaderLinear = assetManager->Get<PixelShader>("assets/shaders/ps_linear_shadow.cso");
 
@@ -152,6 +176,8 @@ void ShadowPass::Shutdown()
 	SafeRelease(this->depthStencilView);
 	SafeRelease(this->depthStencilSRV);
 	SafeRelease(this->inputLayout);
+
+    SafeRelease(this->skinnedInputLayout);
 }
 
 void ShadowPass::RenderShadows(
@@ -162,7 +188,32 @@ void ShadowPass::RenderShadows(
 {
 	sharedResources.UploadPerViewData(deviceContext, *view);
 
+    deviceContext->IASetInputLayout(this->inputLayout);
+    deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
+
+    bool isSkinnedBound = false;
+    const XMFLOAT4X4 *uploadedSkinnedMatrices = nullptr;
+
 	for (GeometryCommand &command : view->queue.geometryCommands) {
+        const bool isSkinned = command.skinMatrices && command.skinVertexBuffer;
+        if (isSkinned != isSkinnedBound) {
+            if (isSkinned) {
+                deviceContext->IASetInputLayout(this->skinnedInputLayout);
+                deviceContext->VSSetShader(this->skinnedVertexShader->GetShader(), nullptr, 0);
+            }
+            else {
+                deviceContext->IASetInputLayout(this->inputLayout);
+                deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
+            }
+
+            isSkinnedBound = isSkinned;
+        }
+
+        if (isSkinned && command.skinMatrices != uploadedSkinnedMatrices) {
+            sharedResources.UploadSkinMatrices(deviceContext, command.skinMatrices, command.skinMatrixCount);
+            uploadedSkinnedMatrices = command.skinMatrices;
+        }
+
 		PerObjectData perObjectData{};
 		XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
 		XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
@@ -171,10 +222,11 @@ void ShadowPass::RenderShadows(
 
 		deviceContext->PSSetShaderResources(0, 1, &command.albedoSRV);
 
-		const UINT stride = sizeof(Vertex);
-		const UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, &command.vertexBuffer, &stride, &offset);
-		deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+        ID3D11Buffer *vertexBuffer[2] = {command.vertexBuffer, command.skinVertexBuffer};
+        const UINT strides[2] = {sizeof(Vertex), sizeof(SkinVertex)};
+        const UINT offsets[2] = {0, 0};
+        deviceContext->IASetVertexBuffers(0, isSkinned ? 2 : 1, vertexBuffer, strides, offsets);
+        deviceContext->IASetIndexBuffer(command.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 		deviceContext->DrawIndexed(command.indexCount, command.startIndex, 0);
 	}

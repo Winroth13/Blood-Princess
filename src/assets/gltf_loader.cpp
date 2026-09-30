@@ -739,7 +739,7 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 			continue;
 
 		XMVECTOR t = (e1 * dv2 - e2 * dv1) / det;
-		XMVECTOR b = (e2 * du1 - e1 * du2) / det;
+		XMVECTOR b = (e1 * du2 - e2 * du1) / det;
 
 		XMFLOAT3 tf;
 		XMStoreFloat3(&tf, t);
@@ -850,7 +850,7 @@ static bool QuantizeSkinWeights(const uint32_t joints[4], const float weights[4]
     {
         int largest = 0;
         for (int i = 1; i < 4; ++i)
-            if (outSkinVertex.weights[i] > outSkinVertex.weights[largest])
+            if (remainders[i] > remainders[largest])
                 largest = i;
 
         if (remainders[largest] < 0.0f) 
