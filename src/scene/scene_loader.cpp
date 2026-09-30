@@ -116,7 +116,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         auto* entityHurtbox = entity->AddComponent<HurtboxComponent>();
 
         entity->AddComponent<Health>();
-        entity->AddComponent<EnemyControllerComponent>();
+        // entity->AddComponent<EnemyControllerComponent>();
     }
 
     //{
@@ -133,8 +133,9 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         TransformComponent *transform = entity->AddComponent<TransformComponent>();
         transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
         transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        transform->SetWorldScale(0.5f, 0.5f, 0.5f);
         ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_twerk.glb");
+        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
         modelComponent->SetModel(model);
         AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
         animator->AddAnimation("twerk", model->GetAnimations());
