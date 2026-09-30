@@ -11,6 +11,7 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
     float4 clipPosition : SV_POSITION;
+    float3 worldPosition : WORLD_POSITION;
     float2 uv : TEXCOORD0;
 };
 
@@ -22,6 +23,7 @@ VertexShaderOutput main(VertexShaderInput input)
     float4 clipPos = mul(worldPos, viewProjectionMatrix);
 
     output.clipPosition = clipPos;
+    output.worldPosition = worldPos.xyz;
 
     output.uv = input.uv;
     

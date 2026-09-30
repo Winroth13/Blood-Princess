@@ -3,12 +3,19 @@
 struct PixelShaderInput
 {
     float4 position : SV_POSITION;
+    float3 worldPosition : WORLD_POSITION;
     float2 uv : UV;
 };
 
 Texture2D albedoTexture : register(t0);
 
-float4 main() : SV_TARGET
+float main(PixelShaderInput input) : SV_TARGET
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float4 albedoSample = albedoTexture.Sample(samplerLinearWrap, input.uv);
+    if (albedoSample.a < 0.5f)
+        discard;
+
+    float lightDistance = length(input.worldPosition - cameraPosition);
+    
+    return lightDistance;
 }

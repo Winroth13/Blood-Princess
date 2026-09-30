@@ -66,17 +66,17 @@ class SharedResources
 	static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
 	static constexpr int MAX_POINT_LIGHT_COUNT = 64;
 
-	ID3D11Texture2D * directionalShadowsDepthTextureArray = nullptr; // DSDTA
-	ID3D11Texture2D * spotShadowsDepthTextureArray = nullptr;
-	ID3D11Texture2D * pointShadowsTextureCubeArray = nullptr;
+	ID3D11Texture2D *directionalShadowsDepthTextureArray = nullptr; // DSDTA
+	ID3D11Texture2D *spotShadowsDepthTextureArray = nullptr;
+	ID3D11Texture2D *pointShadowsTextureCubeArray = nullptr;
 
 	std::array<ID3D11DepthStencilView *, MAX_DIRECTIONAL_LIGHT_COUNT> directionalShadowsDepthStencilViews{ nullptr };
 	std::array<ID3D11DepthStencilView *, MAX_SPOT_LIGHT_COUNT> spotShadowsDepthStencilViews{ nullptr };
-	std::array<ID3D11RenderTargetView *, MAX_POINT_LIGHT_COUNT> pointShadowsRenderTargetViews{ nullptr };
+	std::array<ID3D11RenderTargetView *, MAX_POINT_LIGHT_COUNT * 6> pointShadowsRenderTargetViews{ nullptr };
 
-	ID3D11ShaderResourceView * directionalShadowsShaderResourceView = nullptr;
-	ID3D11ShaderResourceView * spotShadowsShaderResourceView = nullptr;
-	ID3D11ShaderResourceView * pointShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *directionalShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *spotShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *pointShadowsShaderResourceView = nullptr;
 
 	ID3D11SamplerState *samplers[+SamplerSlot::COUNT] = {};
 
