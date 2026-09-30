@@ -51,9 +51,9 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     Entity* swordEntity = outScene.AddEntity("Sword");
     auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
-    swordTransform->SetLocalPosition({ 0.8,-0.2,1.2 });
-    swordTransform->SetLocalScale({0.5,0.5,0.5});
-    swordTransform->SetLocalRotation({61.0f, 0,0});
+    swordTransform->SetLocalPosition( { 0.8f, -0.2f, 1.2f } );
+    swordTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
+    swordTransform->SetLocalRotation( { 61.0f, 0.0f, 0.0f } );
     ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
     swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
 
@@ -174,7 +174,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
     Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
-    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26, 0.0f, 0.0f });
+    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.26f, 0.0f, 0.0f });
     paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
     paintableWallEntity->AddComponent<PaintableComponent>();
 
