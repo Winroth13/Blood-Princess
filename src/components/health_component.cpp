@@ -3,7 +3,7 @@
 Health::Health(Entity* owner, bool isActive)
 	: Component(owner, isActive)
 { 
-
+	NoUpdate(), NoLateUpdate(), NoRender();
 }
 void Health::TakeDamage(float damage)
 {

@@ -38,12 +38,10 @@ class ParticleSystemComponent : public Component
     bool shouldReset = true;
 
 public:
-    ParticleSystemComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
+    ParticleSystemComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(); }
 
 private:
     void OnStart(const AppContext &context) override;
-    void Update(const AppContext &context, float deltaTime) override {}
-    void LateUpdate(const AppContext &context, float deltaTime) override {}
     void Render(const RenderView &view, RenderQueue &queue) override;
     void OnDestroy(const AppContext &context) override;
 

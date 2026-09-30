@@ -38,11 +38,11 @@ protected:
 
 private:
     // These should only ever be called through the main frame loop
-    virtual void OnStart(const AppContext &context) = 0;
-    virtual void Update(const AppContext &context, float deltaTime) = 0;
-    virtual void LateUpdate(const AppContext &context, float deltaTime) = 0;
-    virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
-    virtual void OnDestroy(const AppContext &context) = 0;
+    virtual void OnStart(const AppContext &context) {}
+    virtual void Update(const AppContext &context, float deltaTime) {}
+    virtual void LateUpdate(const AppContext &context, float deltaTime) {}
+    virtual void Render(const RenderView &view, RenderQueue &queue) {}
+    virtual void OnDestroy(const AppContext &context) {}
 
 public:
     virtual ~Component() = default;

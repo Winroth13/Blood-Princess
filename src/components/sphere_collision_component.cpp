@@ -7,6 +7,7 @@
 SphereCollisionComponent::SphereCollisionComponent(Entity* owner, bool isActive)
 	: CollisionComponent(owner, isActive)
 {
+	NoLateUpdate(), NoRender();
 	this->shape = CollisionShape::SPHERE;
 }
 
