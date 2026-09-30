@@ -9,8 +9,6 @@ struct PixelShaderInput
 
 Texture2D albedoTexture : register(t0);
 
-#define FAR_PLANE 64.0f
-
 float main(PixelShaderInput input) : SV_TARGET
 {
     float4 albedoSample = albedoTexture.Sample(samplerLinearWrap, input.uv);
@@ -18,8 +16,6 @@ float main(PixelShaderInput input) : SV_TARGET
         discard;
 
     float lightDistance = length(input.worldPosition - cameraPosition);
-
-    //lightDistance = lightDistance / FAR_PLANE;
     
     return lightDistance;
 }

@@ -221,6 +221,8 @@ void ShadowPass::Render(
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
 
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+
 	// Directional lights
 	D3D11_VIEWPORT viewport{};
 	viewport.TopLeftX = 0.0f;
@@ -285,7 +287,7 @@ void ShadowPass::Render(
 
 		ID3D11RenderTargetView *rtv = sharedResources.GetPointShadowRTV(shadowIndex);
 		deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		constexpr float DEPTH_CLEAR_COLOR[4] = { 1, 1, 1, 1 };
+		float DEPTH_CLEAR_COLOR[4] = { view.farPlane, view.farPlane, view.farPlane, view.farPlane };
 		deviceContext->ClearRenderTargetView(rtv, DEPTH_CLEAR_COLOR);
 		deviceContext->OMSetRenderTargets(1, &rtv, this->depthStencilView);
 

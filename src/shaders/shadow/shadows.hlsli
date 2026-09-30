@@ -8,9 +8,8 @@
 #define SHADOW_OFFSET_STRENGTH 0.003f
 #define DIRECTIONAL_SHADOW_OFFSET_STRENGTH 0.001f
 
-#define FAR_PLANE 64.0f
-#define LINEAR_SHADOW_MAP_BIAS 0.05
-#define OMNI_SHADOW_SAMPLES 1
+#define LINEAR_SHADOW_MAP_BIAS 0.00
+#define OMNI_SHADOW_SAMPLES 12
 #define OMNI_SHADOW_DISK_RADIUS 0.01f
 #define OMNI_SHADOW_OFFSET_STRENGTH 0.02f
 
@@ -44,22 +43,27 @@ float CalcOmniShadowFactor(
         float3(-0.301, 0.9536, 0.8495), float3(0.912, -0.4101, 0.1386), float3(0.6909, 0.723, 0.3322)
     };
     
-    float closestDepth = texArr.SampleLevel(
+    for (uint i = 0; i < OMNI_SHADOW_SAMPLES; ++i)
+    {
+        float3 offsetLightVector = lightVector + sampleOffsetDirections[i % 20] * OMNI_SHADOW_DISK_RADIUS + sampleOffsets[i % 15] * OMNI_SHADOW_OFFSET_STRENGTH;
+
+        float closestDepth = texArr.SampleLevel(
             samplerShadow,
-            float4(normalize(lightVector), index),
+            float4(normalize(offsetLightVector), index),
             0
         );
         
-    if (currentDepth > closestDepth)
-    {
-        factor += 0.0f;
-    }
-    else
-    {
-        factor += 1.0f;
+        if (currentDepth > (closestDepth + LINEAR_SHADOW_MAP_BIAS))
+        {
+            factor += 0.0f;
+        }
+        else
+        {
+            factor += 1.0f;
+        }
     }
     
-    return factor;
+    return (factor / OMNI_SHADOW_SAMPLES);
 }
 
 float CalcShadowFactor(
