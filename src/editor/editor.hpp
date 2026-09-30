@@ -24,8 +24,7 @@ struct InitialEntityTransform
 
 enum EditorFlags
 {
-	EDITOR_FLAGS_FREE_CAM,
-	EDITOR_FLAGS_SHOW_EDITOR
+	EDITOR_FLAGS_SHOW_EDITOR = 1
 };
 
 class Editor
@@ -55,7 +54,7 @@ public:
 	Editor(const Editor &other) = delete;
 	Editor &operator=(const Editor &other) = delete;
 
-	void Update(const AppContext &appContext);
+	void Update(const AppContext &appContext, float deltaTime);
 	void Render(const AppContext &appContext);
 
 	bool Initialize(SceneManager &sceneManager);
@@ -74,7 +73,4 @@ public:
 
 	void SetShowEditor(bool value);
 	bool GetShowEditor() const { return (this->flags & EDITOR_FLAGS_SHOW_EDITOR) == EDITOR_FLAGS_SHOW_EDITOR; }
-	
-	void SetFreeCam(bool value);
-	bool IsUsingFreeCam() const { return (this->flags & EDITOR_FLAGS_FREE_CAM) == EDITOR_FLAGS_FREE_CAM; }
 };

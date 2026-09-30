@@ -92,18 +92,11 @@ void Editor::DrawSkeleton(const AppContext &appContext)
     }
 }
 
-void Editor::Update(const AppContext &appContext)
+void Editor::Update(const AppContext &appContext, float deltaTime)
 {
-	/* Toggle Editor */
 	if (Input::IsKeyPressed(Key::F1))
 	{
 		ToggleEditor(appContext);
-	}
-
-	/* Toggle Freecam */
-	if (Input::IsKeyPressed(Key::F2))
-	{
-
 	}
 
 	if (this->GetShowEditor())
@@ -112,6 +105,8 @@ void Editor::Update(const AppContext &appContext)
 
 		if (!primaryView)
 			return;
+
+		this->freeCam.Update(deltaTime);
 
 		primaryView->cameraPosition = this->freeCam.GetPosition();
 		XMStoreFloat4x4(&primaryView->viewMatrix, this->freeCam.GetViewMatrix());
@@ -432,12 +427,4 @@ void Editor::SetShowEditor(bool value)
 		this->flags &= ~EDITOR_FLAGS_SHOW_EDITOR;
 		Input::SetMouseMode(this->lastMouseMode);
 	}
-}
-
-void Editor::SetFreeCam(bool value)
-{
-	if (value)
-		this->flags |= EDITOR_FLAGS_FREE_CAM;
-	else
-		this->flags &= ~EDITOR_FLAGS_FREE_CAM;
 }

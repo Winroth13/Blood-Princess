@@ -179,7 +179,7 @@ void PlayerControllerComponent::PerformLightAttack()
 	for (Entity* child : this->GetOwner()->GetChildren()) {
 		if (auto* hb = child->GetComponent<HitboxComponent>()) {
 			hb->SetDamage(10.0f);
-			hb->Activate(0.3);
+			hb->Activate(0.3f);
 			break;
 		}
 	}
@@ -192,7 +192,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 	for (Entity* child : this->GetOwner()->GetChildren()) {
 		if (auto* hb = child->GetComponent<HitboxComponent>()) {
 			hb->SetDamage(50.0f);
-			hb->Activate(0.3);
+			hb->Activate(0.3f);
 			break;
 		}
 	}
