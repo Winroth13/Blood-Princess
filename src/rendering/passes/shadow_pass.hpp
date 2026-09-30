@@ -12,10 +12,12 @@ class ShadowPass
 	ID3D11ShaderResourceView *depthStencilSRV = nullptr;
 
 	ID3D11InputLayout *inputLayout = nullptr;
+    ID3D11InputLayout *skinnedInputLayout = nullptr;
 
 	// TODO: Change to unique ptr and expose the load 
 	// functions in asset loader without having to use the Asset Manager.
 	std::shared_ptr<VertexShader> vertexShader = nullptr;
+    std::shared_ptr<VertexShader> skinnedVertexShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShader = nullptr;
 	std::shared_ptr<PixelShader> pixelShaderLinear = nullptr;
 

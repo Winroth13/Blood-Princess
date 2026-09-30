@@ -87,9 +87,10 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity *pointLightEntity = outScene.AddEntity("point light");
     PointLightComponent *pointLight = pointLightEntity->AddComponent<PointLightComponent>();
     pointLight->SetIntensity(220.0f);
-    pointLight->SetCastShadows(false);
+    pointLight->SetRadius(10.0f);
+    pointLight->SetCastShadows(true);
     TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
-    pointTransform->SetWorldPosition(-0.6f, -1.0f, 4.34f);
+    pointTransform->SetWorldPosition(-0.6f, -1.0f, 6.8f);
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
