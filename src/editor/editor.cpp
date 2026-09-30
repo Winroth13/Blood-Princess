@@ -187,13 +187,13 @@ void Editor::GizmoRender(const AppContext &appContext)
 	if (this->sceneHierarchyPanel.GetSelectCount() == 0)
 		return;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_T))
+	if (ImGui::IsKeyPressed(ImGuiKey_W))
 		this->currentOperation = ImGuizmo::TRANSLATE;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_R))
+	if (ImGui::IsKeyPressed(ImGuiKey_E))
 		this->currentOperation = ImGuizmo::ROTATE;
 
-	if (ImGui::IsKeyPressed(ImGuiKey_E))
+	if (ImGui::IsKeyPressed(ImGuiKey_T))
 		this->currentOperation = ImGuizmo::SCALE;
 
 	if (ImGui::IsKeyPressed(ImGuiKey_B))
