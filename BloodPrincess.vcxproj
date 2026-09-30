@@ -295,6 +295,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
     <ClInclude Include="src\ai\ai_manager.hpp" />
+    <ClInclude Include="src\ai\spawner.hpp" />
     <ClInclude Include="src\ai\spatial_grid.hpp" />
     <ClInclude Include="src\assets\asset_utils.hpp" />
     <ClInclude Include="src\assets\types\animation_library.hpp" />

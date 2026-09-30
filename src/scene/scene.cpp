@@ -263,6 +263,53 @@ void Scene::PrintEntityHierarchyRecursive(Entity *entity) {
     LogUnindent();
 }
 
+void Scene::AddEntityToGroup(const std::string& groupName, Entity* entity)
+{
+    if (!entity || groupName.empty())
+        return;
+    auto& group = this->entityGroup[groupName];
+    if (std::find(group.begin(), group.end(), entity) == group.end())
+        group.push_back(entity);
+}
+void Scene::RemoveEntityFromGroup(const std::string& groupName, Entity* entity)
+{
+    if (!entity || groupName.empty())
+        return;
+    auto iter = this->entityGroup.find(groupName);
+    if (iter != this->entityGroup.end())
+    {
+        auto& group = iter->second;
+        group.erase(std::remove(group.begin(), group.end(), entity), group.end());
+        if (group.empty())
+            this->entityGroup.erase(iter);
+    }
+}
+void Scene::RemoveEntityFromAllGroups(Entity* entity)
+{
+    if (!entity)
+        return;
+    for (auto iter = this->entityGroup.begin(); iter != this->entityGroup.end(); )
+    {
+        auto& group = iter->second;
+        group.erase(std::remove(group.begin(), group.end(), entity), group.end());
+        if (group.empty())
+            iter = this->entityGroup.erase(iter);
+        else
+            ++iter;
+    }
+}
+Entity* Scene::GetFirstEntityInGroup(const std::string& groupName) const
+{
+    auto iter = this->entityGroup.find(groupName);
+    if (iter != this->entityGroup.end() && !iter->second.empty())
+        return iter->second.front();
+    return nullptr;
+}
+void Scene::ClearGroup(const std::string& groupName)
+{
+    this->entityGroup.erase(groupName);
+}
+
 void Scene::PrintEntityHierarchy() {
     LogInfo("Entities:");
 

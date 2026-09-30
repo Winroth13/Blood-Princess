@@ -4,6 +4,7 @@
 #include "core/logging.hpp"
 #include <DirectXMath.h>
 #include "components/target_component.hpp"
+#include "scene/scene.hpp"
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
@@ -21,14 +22,17 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         LogWarn("EnemyControllerComponent on '%s' could not find AIManager",
             this->GetOwner()->GetName().c_str());
     }
+
+    this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 }
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
     if (this->aiManager) {
-        this->aiManager->UnregisterEnemy(this);
+        this->aiManager->QueueUnregister(this);
         this->aiManager = nullptr;
     }
+    this->GetOwner()->GetScene()->RemoveEntityFromGroup(this->groupName, this->GetOwner());
 }
 
 DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
@@ -46,7 +50,7 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);
-    XMFLOAT3 playerPosition = this->GetOwner()->GetComponent<TargetComponent>()->GetTargetPosition();
+    XMFLOAT3 playerPosition = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>()->GetWorldPosition();
     XMVECTOR player = XMLoadFloat3(&playerPosition);
 
     XMVECTOR toPlayer = XMVectorSubtract(player, myPos);
@@ -64,7 +68,6 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
     }
 
     XMVECTOR avoid = grid.ComputeAvoidance(myGridIndex, this->avoidanceRadius);
-
     float avoidLen = XMVectorGetX(XMVector3Length(avoid));
     if (avoidLen > 0.0001f) {
         avoid = XMVectorScale(XMVector3Normalize(avoid), 1.0f);

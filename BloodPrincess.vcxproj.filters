@@ -203,6 +203,7 @@
     <ClInclude Include="src\ai\ai_manager.hpp" />
     <ClInclude Include="src\ai\spatial_grid.hpp" />
     <ClInclude Include="src\components\target_component.hpp" />
+    <ClInclude Include="src\ai\spawner.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

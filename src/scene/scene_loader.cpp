@@ -23,7 +23,7 @@
 #include "components/paintable_component.hpp"
 #include "components/hurt_box_component.hpp"
 #include "components/hit_box_component.hpp"
-
+#include "components/enemy_controller_component.hpp"
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
@@ -116,6 +116,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         auto* entityHurtbox = entity->AddComponent<HurtboxComponent>();
 
         entity->AddComponent<Health>();
+        entity->AddComponent<EnemyControllerComponent>();
     }
 
     //{
