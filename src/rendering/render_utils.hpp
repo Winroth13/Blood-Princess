@@ -151,8 +151,8 @@ namespace RenderUtils
 #else // _DEBUG
 
 #define InitializeAnnotator(deviceContext) (void)0
-#define ShhutdownAnnotator() (void)0
+#define ShutdownAnnotator() (void)0
 #define BeginAnnotation(name) (void)0
-#define EndAnnoration() (void)0
+#define EndAnnotation() (void)0
 
 #endif // _DEBUG

@@ -3,6 +3,9 @@
 
 #include <algorithm>
 
+#undef min
+#undef max
+
 // Allocation and definition of static member variables
 MouseState Input::lastMouseState;
 MouseMode Input::mouseMode = MouseMode::VISIBLE;

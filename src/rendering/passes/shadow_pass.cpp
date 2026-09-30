@@ -209,8 +209,6 @@ void ShadowPass::Render(
 		}
 	}
 
-	//deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 	sharedResources.BindSamplers(deviceContext);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -222,6 +220,8 @@ void ShadowPass::Render(
 	ID3D11Buffer *perObject = sharedResources.GetPerObject();
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
+
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 
 	// Directional lights
 	D3D11_VIEWPORT viewport{};
@@ -237,18 +237,18 @@ void ShadowPass::Render(
 	deviceContext->PSSetShader(this->pixelShader->GetShader(), nullptr, 0);
 
 	BeginAnnotation("Directional Lights");
-	int i = 0;
+	int shadowIndex = 0;
 	for (int index : directionalViewIndices)
 	{
 		RenderView &view = views[index];
 
-		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(i);
+		ID3D11DepthStencilView *dsv = sharedResources.GetDirectionalShadowDSV(shadowIndex);
 		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
 
 		this->RenderShadows(deviceContext, sharedResources, &view);
 
-		i++;
+		shadowIndex++;
 	}
 	EndAnnotation();
 
@@ -258,19 +258,42 @@ void ShadowPass::Render(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
+	//Spot lights
 	BeginAnnotation("Spot Lights");
-	i = 0;
+	shadowIndex = 0;
 	for (int index : spotViewIndices)
 	{
 		RenderView &view = views[index];
 
-		ID3D11DepthStencilView *dsv = sharedResources.GetSpotShadowDSV(i);
+		ID3D11DepthStencilView *dsv = sharedResources.GetSpotShadowDSV(shadowIndex);
 		deviceContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		deviceContext->OMSetRenderTargets(0, nullptr, dsv);
 
 		this->RenderShadows(deviceContext, sharedResources, &view);
 
-		i++;
+		shadowIndex++;
+	}
+	EndAnnotation();
+
+	// Point lights
+	BeginAnnotation("Point Lights");
+
+	deviceContext->PSSetShader(this->pixelShaderLinear->GetShader(), nullptr, 0);
+
+	shadowIndex = 0;
+	for (int index : pointViewIndices)
+	{
+		RenderView &view = views[index];
+
+		ID3D11RenderTargetView *rtv = sharedResources.GetPointShadowRTV(shadowIndex);
+		deviceContext->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		float DEPTH_CLEAR_COLOR[4] = { view.farPlane, view.farPlane, view.farPlane, view.farPlane };
+		deviceContext->ClearRenderTargetView(rtv, DEPTH_CLEAR_COLOR);
+		deviceContext->OMSetRenderTargets(1, &rtv, this->depthStencilView);
+
+		this->RenderShadows(deviceContext, sharedResources, &view);
+
+		shadowIndex++;
 	}
 	EndAnnotation();
 
