@@ -215,6 +215,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\box_collision_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
     <ClCompile Include="src\components\enemy_controller_component.cpp" />
+    <ClCompile Include="src\components\enemy_spawner_component.cpp" />
     <ClCompile Include="src\components\health_component.cpp" />
     <ClCompile Include="src\components\hit_box_component.cpp" />
     <ClCompile Include="src\components\hurt_box_component.cpp" />
@@ -312,6 +313,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\capsule_collision_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
     <ClInclude Include="src\components\enemy_controller_component.hpp" />
+    <ClInclude Include="src\components\enemy_spawner_component.hpp" />
     <ClInclude Include="src\components\health_component.hpp" />
     <ClInclude Include="src\components\hit_box_component.hpp" />
     <ClInclude Include="src\components\hurt_box_component.hpp" />

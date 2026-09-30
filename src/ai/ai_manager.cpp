@@ -63,7 +63,9 @@ void AIManager::Update(float deltaTime)
     this->spatialGrid.BeginFrame(enemyCount);
     for (size_t i = 0; i < enemyCount; ++i)
     {
-        this->spatialGrid.Insert(i, this->enemies[i]->GetPosition());
+        if (this->enemies[i]) {
+            this->spatialGrid.Insert(i, this->enemies[i]->GetPosition());
+        }
     }
 
     for (size_t i = 0; i < enemyCount; ++i)

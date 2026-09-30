@@ -192,6 +192,7 @@ void Application::Shutdown()
     this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
+    this->aiManager.Shutdown();
 
     LogUnindent();
 }
