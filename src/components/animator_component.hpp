@@ -32,6 +32,7 @@ class AnimatorComponent : public Component {
 
     std::vector<JointTransform> localPose;
     std::vector<DirectX::XMFLOAT4X4> jointModelMatrices;
+    std::vector<DirectX::XMFLOAT4X4> skinMatrices;
 
 public:
     AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
@@ -45,6 +46,7 @@ private:
     void ResetToBindPose();
     void SampleClip(const ClipBinding &binding, float time);
     void UpdateJointModelMatrices();
+    void UpdateSkinMatrices();
 
 public:
     bool AddAnimation(const std::string &name, std::shared_ptr<AnimationLibrary> animations, uint32_t clipIndex = 0);
@@ -76,4 +78,5 @@ public:
 
     const std::vector<DirectX::XMFLOAT4X4> &GetJointModelMatrices() const { return this->jointModelMatrices; }
     DirectX::XMMATRIX GetJointModelMatrix(int32_t jointIndex) const;
+    const std::vector<DirectX::XMFLOAT4X4> &GetSkinMatrices() const { return this->skinMatrices; }
 };

@@ -31,23 +31,18 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
-    //Entity *modelEntity = outScene.AddEntity("model");
-    //modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
-    //ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    //modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
-
     //Entity *musicEntity = outScene.AddEntity("music_entity");
     //musicEntity->AddComponent<TransformComponent>();
     //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
     //musicComponent->SetVolume(0.2f);
 
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    playerEntity->AddComponent<CameraComponent>();
     auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
     playerEntity->AddComponent<CameraComponent>();
     playerCol->SetLayer(CollisionLayer::PLAYER);
     playerCol->SetStatic(false);
     playerCol->SetRadius(0.5f);
-
 
     Entity* swordEntity = outScene.AddEntity("Sword");
     auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
@@ -68,8 +63,6 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     swordHitBox->SetKnockbackForce(2);
 
     swordEntity->SetParent(playerEntity);
-
-
 
     Entity *lightEntity = outScene.AddEntity("light");
     AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
@@ -406,6 +399,32 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
             }
         }
     }
+}
+
+static void TestScene2(Scene &outScene, const AppContext &appContext) {
+    Entity *playerEntity = outScene.AddEntity("player");
+    playerEntity->AddComponent<TransformComponent>();
+    playerEntity->AddComponent<ListenerComponent>();
+    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
+    playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    playerEntity->AddComponent<CameraComponent>();
+    auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
+    playerCol->SetLayer(CollisionLayer::PLAYER);
+    playerCol->SetStatic(false);
+    playerCol->SetRadius(0.5f);
+
+    Entity *modelEntity = outScene.AddEntity("model");
+    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 2.0f });
+    ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
+    modelEntity->SetParent(playerEntity);
+
+    Entity *lightEntity = outScene.AddEntity("light");
+    AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
+    ambientLight->SetColour({0.86f, 0.59f, 0.47f});
+    ambientLight->SetIntensity(1.0f);
 }
 
 bool SceneLoader::Initialize(const AppContext &appContext)

@@ -5,6 +5,8 @@
 #include "rendering/render_commands.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "components/paintable_component.hpp"
+#include "core/logging.hpp"
+#include "components/animator_component.hpp"
 
 void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (!this->model)
@@ -17,6 +19,16 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     PaintableComponent *paintable = this->GetOwner()->GetComponent<PaintableComponent>();
 
     const XMMATRIX worldMatrix = transform->GetRenderMatrix();
+
+    const std::vector<XMFLOAT4X4> *skinMatrices = nullptr;
+    if (this->model->IsSkinned()) {
+        AnimatorComponent *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+        if (animator && animator->GetSkeleton() == this->model->GetSkeleton() &&
+            animator->GetSkinMatrices().size() == this->model->GetSkeleton()->GetSkinJointCount()
+        ) {
+            skinMatrices = &animator->GetSkinMatrices();
+        }
+    }
 
     uint32_t meshIndex = 0;
     const auto &meshes = this->model->GetMeshes();
@@ -56,6 +68,12 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
             command.paintMaskSRV = paintMaskSRV;
 
             XMStoreFloat4x4(&command.worldMatrix, worldMatrix);
+
+            if (skinMatrices && mesh->IsSkinned()) {
+                command.skinVertexBuffer = mesh->GetSkinVertexBuffer();
+                command.skinMatrices = skinMatrices->data();
+                command.skinMatrixCount = static_cast<uint32_t>(skinMatrices->size());
+            }
 
             queue.Submit(command);
         }

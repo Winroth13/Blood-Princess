@@ -4,6 +4,7 @@
 #include "imgui/imgui.h"
 #include "assets/types/animation_library.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
+#include "rendering/render_utils.hpp"
 
 #include <DirectXCollision.h>
 
@@ -34,15 +35,9 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 #pragma region Mesh
 Mesh::~Mesh()
 {
-	if (this->vertexBuffer)
-	{
-		this->vertexBuffer->Release();
-	}
-
-	if (this->indexBuffer)
-	{
-		this->indexBuffer->Release();
-	}
+    SafeRelease(this->vertexBuffer);
+    SafeRelease(this->skinVertexBuffer);
+    SafeRelease(this->indexBuffer);
 }
 
 bool Mesh::Create(

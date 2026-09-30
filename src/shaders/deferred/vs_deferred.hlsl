@@ -1,4 +1,5 @@
 #include "../shared_resources.hlsli"
+#include "deferred_vertex.hlsli"
 
 // Input
 struct VertexShaderInput
@@ -10,35 +11,7 @@ struct VertexShaderInput
     float4 tangent  : TANGENT;
 };
 
-// Output
-struct VertexShaderOutput
-{
-    float4 clipPosition     : SV_POSITION;
-    float3 worldNormal      : WORLD_NORMAL;
-    float2 uv0              : TEXCOORD0;
-    float2 uv1              : TEXCOORD1;
-    float3 tangent          : TANGENT;
-    float3 bitangent        : BITANGENT;
-};
-
 VertexShaderOutput main(VertexShaderInput input)
 {
-    VertexShaderOutput output;
-    
-    float4 worldPos = mul(float4(input.position.xyz, 1.0f), worldMatrix);
-    float4 clipPos = mul(worldPos, viewProjectionMatrix);
-
-    output.clipPosition = clipPos;
-
-    float3 normal = normalize(input.normal);
-    
-    output.worldNormal = normalize(mul(normal, (float3x3)worldInvTransposeMatrix));
-    
-    output.uv0 = input.uv0;
-    output.uv1 = input.uv1;
-    
-    output.tangent = normalize(input.tangent.xyz - dot(input.tangent.xyz, normal) * normal);
-    output.bitangent = cross(normal, output.tangent) * input.tangent.w;
-    
-    return output;
+    return TransformVertex(input.position, input.normal, input.uv0, input.uv1, input.tangent);
 }
