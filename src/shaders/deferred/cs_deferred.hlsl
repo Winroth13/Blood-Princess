@@ -156,9 +156,6 @@ void main(uint3 id : SV_DispatchThreadID)
                 pointLightShadowMaps
             );
             
-            //outRadiance = float3(shadowFactor, shadowFactor, shadowFactor);
-            //continue;
-            
             if (shadowFactor <= 1e-5f)
                 continue;
         }

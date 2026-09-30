@@ -21,7 +21,7 @@ float CalcOmniShadowFactor(
     const TextureCubeArray<float> texArr
 )
 {
-    float3 lightVector = fragmentWorldPosition;
+    float3 lightVector = fragmentWorldPosition - lightPosition;
     float currentDepth = length(lightVector);
 
     float factor = 0.0f;
@@ -44,52 +44,22 @@ float CalcOmniShadowFactor(
         float3(-0.301, 0.9536, 0.8495), float3(0.912, -0.4101, 0.1386), float3(0.6909, 0.723, 0.3322)
     };
     
-    //return texArr.SampleLevel(
-    //        samplerShadow,
-    //        float4(normalize(lightVector), index),
-    //        0
-    //    ) / FAR_PLANE;
-    
-    //float closestDepth = texArr.SampleLevel(
-    //        samplerShadow,
-    //        float4(normalize(lightVector), index),
-    //        0
-    //    );
-        
-    //if (currentDepth > closestDepth)
-    //{
-    //    factor += 0.0f;
-    //}
-    //else
-    //{
-    //    factor += 1.0f;
-    //}
-    
-    //return factor;
-    
-    for (uint i = 0; i < OMNI_SHADOW_SAMPLES; ++i)
-    {
-        float3 offsetLightVector = lightVector + sampleOffsetDirections[i % 20] * OMNI_SHADOW_DISK_RADIUS + sampleOffsets[i % 15] * OMNI_SHADOW_OFFSET_STRENGTH;
-
-        float closestDepth = texArr.SampleLevel(
+    float closestDepth = texArr.SampleLevel(
             samplerShadow,
-            float4(normalize(offsetLightVector), index),
+            float4(normalize(lightVector), index),
             0
         );
         
-        //closestDepth *= FAR_PLANE;
-        
-        if (currentDepth > (closestDepth + LINEAR_SHADOW_MAP_BIAS))
-        {
-            factor += 0.0f;
-        }
-        else
-        {
-            factor += 1.0f;
-        }
+    if (currentDepth > closestDepth)
+    {
+        factor += 0.0f;
+    }
+    else
+    {
+        factor += 1.0f;
     }
     
-    return (factor / OMNI_SHADOW_SAMPLES);
+    return factor;
 }
 
 float CalcShadowFactor(
