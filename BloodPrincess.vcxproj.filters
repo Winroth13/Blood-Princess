@@ -89,6 +89,9 @@
     <ClCompile Include="src\components\enemy_controller_component.cpp" />
     <ClCompile Include="src\ai\ai_manager.cpp" />
     <ClCompile Include="src\ai\spatial_grid.cpp" />
+    <ClCompile Include="src\components\enemy_spawner_component.cpp" />
+    <ClCompile Include="src\components\socket_component.cpp" />
+    <ClCompile Include="external\imgui\imgui_stdlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -204,6 +207,9 @@
     <ClInclude Include="src\ai\spatial_grid.hpp" />
     <ClInclude Include="src\components\target_component.hpp" />
     <ClInclude Include="src\ai\spawner.hpp" />
+    <ClInclude Include="src\components\enemy_spawner_component.hpp" />
+    <ClInclude Include="src\components\socket_component.hpp" />
+    <ClInclude Include="external\imgui\imgui_stdlib.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

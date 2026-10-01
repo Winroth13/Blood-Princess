@@ -10,7 +10,7 @@ private:
 	int gridWidth = 100;
 	int gridHeight = 100;
 	DirectX::XMFLOAT2 origin = { -100.0f, -100.0f };
-
+	float arenaRadius = 22.0f;
 	std::vector<int> cellHead;
 	std::vector<int> nextEnemy;
 	std::vector<DirectX::XMFLOAT3> positions;

@@ -17,7 +17,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 {
 	TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
 	Scene* mainScene = this->GetOwner()->GetScene();
-	DirectX::XMFLOAT3 orgin = 
+	DirectX::XMFLOAT3 origin = 
 		player ? 
 		DirectX::XMFLOAT3{ player->GetWorldPosition().x , player->GetWorldPosition().y - 1.5f  ,player->GetWorldPosition().z } :
 		DirectX::XMFLOAT3{ 0.0f,-2.0f,0.0f };
@@ -25,14 +25,20 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 	for (size_t i = 0; i < numberOfEnemies; i++)
 	{
 		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(i));
-		float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-		float dist = ((float)rand() / RAND_MAX) * this->spawnRadius;
+		DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+		do
+		{
+			float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
+			float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
 
-		DirectX::XMFLOAT3 position = {
-			orgin.x + cosf(angle) * dist,
-			orgin.y,
-			orgin.z + sinf(angle) * dist
-		};
+			position = {
+				origin.x + cosf(angle) * dist,
+				origin.y,
+				origin.z + sinf(angle) * dist
+			};
+
+		} while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
+
 		TransformComponent* enemyTransform = enemy->AddComponent< TransformComponent>();;
 		enemyTransform->SetWorldPosition(position);
 		enemyTransform->SetWorldScale(0.5f);

@@ -289,6 +289,12 @@ void InspectorPanel::DrawComponentMemberNode(
             changed = DrawCheckbox(name, value);
         } break;
 
+        case GetTypeHash<std::string>():
+        {
+            std::string &text = GetMemberByOffset<std::string>(component, member.Offset);
+            changed = DrawText(name, text);
+        } break;
+
         default:
             LogInfo("%" PRIu64, member.VariableId.GetHash());
             ImGui::TextColored({ 1, 1, 0, 1 }, "Unsupported data type: %s", member.VariableId.GetTypeId().GetTypeName().data());

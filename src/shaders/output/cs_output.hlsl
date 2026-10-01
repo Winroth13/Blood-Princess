@@ -139,13 +139,12 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
     float fogStart = 0.0f;
-    float fogEnd = 80.0f;
-    float fogFactor = saturate((depth - fogStart) / (fogEnd - fogStart));
-    fogFactor = clamp(fogFactor, 0.0f, 0.8f);
+    float fogEnd = 15.0f;
+    // S-curve (smoothstep): slow in first 3m, linear between 3m-10m, and smoothly eases into 100% at 15m
+    float fogFactor = smoothstep(fogStart, fogEnd, depth);
 
-    const float3 fogColor = float3(0.02f, 0.02f, 0.02f);
-    // float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
-    float3 afterFogColour = lerp(ldr, fogColor, fogFactor) * lerp(float3(1.0f, 1.0f, 1.0f), fogColor, fogFactor);
+    const float3 fogColor = float3(0.4f, 0.4f, 0.4f);
+    float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
     
     
     float ditherSize = 2.0f;
