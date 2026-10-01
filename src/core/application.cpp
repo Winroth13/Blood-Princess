@@ -3,6 +3,8 @@
 #include "input/input.hpp"
 #include "core/app_context.hpp"
 #include "input/action.hpp"
+#include "core/debug.hpp"
+#include "rendering/render_utils.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -171,8 +173,16 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
+        Debug::NewFrame();
+        Debug::SetStatistic("FPS", 1.0f / deltaTime);
+        Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
+
         this->renderer.NewFrame();
         this->Update(deltaTime);
+
+        if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
+            Debug::SetStatistic("Position", primary->cameraPosition);
+
         this->Render(deltaTime);
     }
 }

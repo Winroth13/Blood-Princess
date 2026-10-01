@@ -136,6 +136,12 @@ bool Editor::Initialize(SceneManager &sceneManager)
 		return false;
 	}
 
+    if (!this->statisticsPanel.Initialize())
+    {
+        LogError("The statistics panel doesn't even need an Initialize(), just followed the pattern lol");
+        return false;
+    }
+
 	LogUnindent();
 
 	return true;
@@ -171,6 +177,7 @@ void Editor::RenderEditor(const AppContext &appContext)
 
 	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
+    this->statisticsPanel.ImGuiRender();
 
 	this->DrawSkeleton(appContext);
 

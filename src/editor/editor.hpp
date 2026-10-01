@@ -3,6 +3,7 @@
 #include "editor/inspector_panel.hpp"
 #include "editor/asset_viewer_panel.hpp"
 #include "editor/free_cam.hpp"
+#include "editor/statistics_panel.hpp"
 
 #include "imgui/imgui.h"
 #include "imguizmo/ImGuizmo.h"
@@ -28,13 +29,13 @@ class Editor
 	SceneHierarchyPanel sceneHierarchyPanel;
 	InspectorPanel inspectorPanel;
 	AssetViewerPanel assetViewerPanel;
+    StatisticsPanel statisticsPanel;
 
 	uint32_t flags;
 
 	ImGuizmo::OPERATION currentOperation{ ImGuizmo::OPERATION::TRANSLATE };
 
     void DrawSkeleton(const AppContext &appContext);
-
 
 public:
 	Editor() = default;
