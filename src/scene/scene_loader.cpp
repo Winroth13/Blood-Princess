@@ -68,7 +68,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
-    spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,5 });
+    spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
     spawnerEntity->AddComponent<EnemySpawnerComponent>();
 
 

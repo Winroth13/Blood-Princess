@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
+
 using namespace DirectX;
 
 SpatialGrid::SpatialGrid(float cellSize, int width, int height, DirectX::XMFLOAT2 origin)
@@ -116,46 +117,52 @@ DirectX::XMVECTOR SpatialGrid::ComputeAvoidance(size_t selfIndex, float avoidanc
 
 bool SpatialGrid::IsAreaClear(const DirectX::XMFLOAT3& pos, float checkRadius) const
 {
-	XMVECTOR testPosVec = XMLoadFloat3(&pos);
-	float radiusSq = checkRadius * checkRadius;
 
-	int centerGx = static_cast<int>((pos.x - this->origin.x) / this->cellSize);
-	int centerGz = static_cast<int>((pos.z - this->origin.y) / this->cellSize);
+    float distFromCenterSq = pos.x * pos.x + pos.z * pos.z;
+    if (distFromCenterSq > (this->arenaRadius * this->arenaRadius))
+    {
+        return false;
+    }
 
-	for (int dz = -1; dz <= 1; ++dz)
-	{
-		int gz = centerGz + dz;
-		if (gz < 0 || gz >= this->gridHeight)
-		{
-			continue;
-		}
+    float radiusSq = checkRadius * checkRadius;
 
-		for (int dx = -1; dx <= 1; ++dx)
-		{
-			int gx = centerGx + dx;
-			if (gx < 0 || gx >= this->gridWidth)
-			{
-				continue;
-			}
 
-			int cellIndex = gz * this->gridWidth + gx;
-			int enemyIndex = this->cellHead[cellIndex];
+    int centerGx = static_cast<int>((pos.x - this->origin.x) / this->cellSize);
+    int centerGz = static_cast<int>((pos.z - this->origin.y) / this->cellSize);
+    int cellRange = static_cast<int>(ceilf(checkRadius / this->cellSize));
 
-			while (enemyIndex != -1)
-			{
-				XMVECTOR otherPosVec = XMLoadFloat3(&this->positions[enemyIndex]);
-				XMVECTOR diff = XMVectorSubtract(testPosVec, otherPosVec);
-				diff = XMVectorSetY(diff, 0.0f);
+    XMVECTOR testPosVec = DirectX::XMLoadFloat3(&pos);
 
-				if (XMVectorGetX(XMVector3LengthSq(diff)) < radiusSq)
-				{
-					return false; 
-				}
+    for (int dz = -cellRange; dz <= cellRange; ++dz)
+    {
+        int gz = centerGz + dz;
+        if (gz < 0 || gz >= this->gridHeight)
+            continue;
 
-				enemyIndex = this->nextEnemy[enemyIndex];
-			}
-		}
-	}
+        for (int dx = -cellRange; dx <= cellRange; ++dx)
+        {
+            int gx = centerGx + dx;
+            if (gx < 0 || gx >= this->gridWidth)
+                continue;
 
-	return true;
+            int cellIndex = gz * this->gridWidth + gx;
+            int enemyIndex = this->cellHead[cellIndex];
+
+            while (enemyIndex != -1)
+            {
+                DirectX::XMVECTOR otherPosVec = DirectX::XMLoadFloat3(&this->positions[enemyIndex]);
+                DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(testPosVec, otherPosVec);
+                diff = DirectX::XMVectorSetY(diff, 0.0f);
+
+                if (DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(diff)) < radiusSq)
+                {
+                    return false;
+                }
+
+                enemyIndex = this->nextEnemy[enemyIndex];
+            }
+        }
+    }
+
+    return true;
 }
