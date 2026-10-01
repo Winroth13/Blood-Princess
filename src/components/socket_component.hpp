@@ -11,7 +11,7 @@ class SocketComponent : public Component {
     RegisterComponent(SocketComponent);
 
     //ExportProperty(std::string, jointName, "");
-    std::string jointName = "";
+    std::string jointName; // TODO
     // ExportPropertyChanged()
 
     ExportProperty(bool, shouldInheritScale, false);
@@ -29,4 +29,22 @@ public:
 
 private:
     void LateUpdate(const AppContext &context, float deltaTime) override;
+
+public:
+    const std::string &GetJointName() const { return this->jointName; }
+    void SetJointName(const std::string &jointName) { this->jointName = jointName; }
+
+    bool GetShouldInheritScale() const { return this->shouldInheritScale; }
+    void SetShouldInheritScale(bool shouldInheritScale) { this->shouldInheritScale = shouldInheritScale; }
+
+    DirectX::XMFLOAT3 GetOffsetPosition() const { return this->offsetPosition; }
+    void SetOffsetPosition(const DirectX::XMFLOAT3 &offsetPosition) { this->offsetPosition = offsetPosition; }
+
+    DirectX::XMFLOAT3 GetOffsetRotation() const { return this->offsetRotation; }
+    void SetOffsetRotation(const DirectX::XMFLOAT3 &offsetRotation) { this->offsetRotation = offsetRotation; }
+
+    DirectX::XMFLOAT3 GetOffsetScale() const { return this->offsetScale; }
+    void SetOffsetScale(const DirectX::XMFLOAT3 &offsetScale) { this->offsetScale = offsetScale; }
+
+    int32_t GetJointIndex() const { return this->jointIndex; }
 };

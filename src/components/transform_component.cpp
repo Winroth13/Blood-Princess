@@ -296,6 +296,21 @@ XMFLOAT3 TransformComponent::GetRenderPosition() const {
     return this->ExtractTranslation(this->GetRenderMatrix());
 }
 
+void TransformComponent::SetLocalMatrix(const XMMATRIX &localMatrix) {
+    XMVECTOR scale, rotation, translation;
+    if (!XMMatrixDecompose(&scale, &rotation, &translation, localMatrix))
+        return;
+
+    XMStoreFloat3(&this->localScale, scale);
+
+    XMStoreFloat4(&this->localRotation, rotation);
+    this->localEuler = TransformComponent::QuaternionToEulerAngles(this->localRotation);
+
+    XMStoreFloat3(&this->localPosition, translation);
+
+    this->MarkLocalDirty();
+}
+
 XMMATRIX TransformComponent::GetLocalMatrix() const {
     if (this->isLocalDirty) {
         XMMATRIX scale = XMMatrixScalingFromVector(XMLoadFloat3(&this->localScale));

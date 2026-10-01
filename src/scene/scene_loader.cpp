@@ -25,6 +25,7 @@
 #include "components/hit_box_component.hpp"
 #include "components/enemy_controller_component.hpp"
 #include "components/enemy_spawner_component.hpp"
+#include "components/socket_component.hpp"
 
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
@@ -75,9 +76,6 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
     spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
     spawnerEntity->AddComponent<EnemySpawnerComponent>();
-
-
-
 
     Entity *lightEntity = outScene.AddEntity("light");
     AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
@@ -170,6 +168,17 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         animator->AddAnimation("gangnam_style", model->GetAnimations());
         animator->SetSkeletonVisible(true);
         animator->Play("gangnam_style", true);
+
+        Entity* swordEntity = outScene.AddEntity("sword");
+        auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
+        ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
+        swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+        SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
+        socket->SetJointName("mixamorig:RightHand");
+        socket->SetOffsetPosition({-0.5f, 0.1f, -0.15f});
+        socket->SetOffsetRotation({0.0f, -16.2f, 83.7f});
+        socket->SetOffsetScale({0.3f, 0.3f, 0.2f});
+        swordEntity->SetParent(entity);
     }
 
     {

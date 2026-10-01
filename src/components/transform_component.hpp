@@ -89,6 +89,7 @@ public:
 
     XMFLOAT3 GetRenderPosition() const;
 
+    void SetLocalMatrix(const XMMATRIX &localMatrix);
     XMMATRIX GetLocalMatrix() const;
 
     void SetWorldMatrix(const XMMATRIX &worldMatrix);
