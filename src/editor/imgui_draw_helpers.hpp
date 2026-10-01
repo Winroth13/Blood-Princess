@@ -1,6 +1,7 @@
 #pragma once
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/imgui_stdlib.h"
 #include "assets/asset.hpp"
 
 #include <DirectXMath.h>
@@ -37,6 +38,19 @@ static void DrawFramedText(const std::string &text)
     static char textBuffer[128] = "";
     snprintf(textBuffer, sizeof(textBuffer), "%s", text.c_str());
     ImGui::InputText("##framedText", textBuffer, IM_ARRAYSIZE(textBuffer), ImGuiInputTextFlags_ReadOnly);
+}
+
+static bool DrawText(const std::string &name, std::string &text)
+{
+    BeginMemberDraw(name);
+
+    bool changed = false;
+
+    changed = ImGui::InputText("##text", &text);
+
+    EndMemberDraw();
+
+    return changed;
 }
 
 static bool DrawFloat(const std::string &name, float &value, const std::string& unit = "", float min = 0.0f, float max = 0.0f, float speed = 0.1f, bool angle = false)
