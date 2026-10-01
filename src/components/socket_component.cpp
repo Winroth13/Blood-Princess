@@ -4,6 +4,11 @@
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
 
+void SocketComponent::OnJointNameChanged() {
+    this->resolvedSkeleton = nullptr;
+    this->jointIndex = -1;
+}
+
 void SocketComponent::LateUpdate(const AppContext &context, float deltaTime) {
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
     if (!transform)

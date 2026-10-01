@@ -10,9 +10,8 @@ class Skeleton;
 class SocketComponent : public Component {
     RegisterComponent(SocketComponent);
 
-    //ExportProperty(std::string, jointName, "");
-    std::string jointName; // TODO
-    // ExportPropertyChanged()
+    ExportProperty(std::string, jointName, "");
+    ExportPropertyChanged(jointName, OnJointNameChanged);
 
     ExportProperty(bool, shouldInheritScale, false);
 
@@ -23,6 +22,8 @@ class SocketComponent : public Component {
 
     std::shared_ptr<Skeleton> resolvedSkeleton = nullptr;
     int32_t jointIndex = -1;
+
+    void OnJointNameChanged();
 
 public:
     SocketComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
