@@ -43,65 +43,75 @@ void SpatialGrid::Insert(size_t index, const DirectX::XMFLOAT3& pos)
 
 DirectX::XMVECTOR SpatialGrid::ComputeAvoidance(size_t selfIndex, float avoidanceRadius) const
 {
-	XMVECTOR separation = XMVectorZero();
+    XMVECTOR separation = XMVectorZero();
 
-	if (selfIndex >= this->positions.size())
-	{
-		return separation;
-	}
+    if (selfIndex >= this->positions.size() || avoidanceRadius <= 0.0f)
+        return separation;
 
-	const XMFLOAT3& myPos = this->positions[selfIndex];
-	XMVECTOR myPosVec = XMLoadFloat3(&myPos);
-	float radiusSq = avoidanceRadius * avoidanceRadius;
+    const XMFLOAT3& myPos = this->positions[selfIndex];
+    XMVECTOR myPosVec = XMLoadFloat3(&myPos);
+    const float radiusSq = avoidanceRadius * avoidanceRadius;
 
-	int centerGx = static_cast<int>((myPos.x - this->origin.x) / this->cellSize);
-	int centerGz = static_cast<int>((myPos.z - this->origin.y) / this->cellSize);
+    const float personalSpace = 0.5f;
+    const float personalSpaceSq = personalSpace * personalSpace;
 
-	for (int dz = -1; dz <= 1; ++dz)
-	{
-		int gz = centerGz + dz;
-		if (gz < 0 || gz >= this->gridHeight)
-		{
-			continue;
-		}
+    const int centerGx = static_cast<int>((myPos.x - this->origin.x) / this->cellSize);
+    const int centerGz = static_cast<int>((myPos.z - this->origin.y) / this->cellSize);
 
-		for (int dx = -1; dx <= 1; ++dx)
-		{
-			int gx = centerGx + dx;
-			if (gx < 0 || gx >= this->gridWidth)
-			{
-				continue;
-			}
 
-			int cellIndex = gz * this->gridWidth + gx;
-			int otherIndex = this->cellHead[cellIndex];
+    const int cellRange = static_cast<int>(std::ceil(avoidanceRadius / this->cellSize));
 
-			while (otherIndex != -1)
-			{
-				if (static_cast<size_t>(otherIndex) != selfIndex)
-				{
-					XMVECTOR otherPosVec = XMLoadFloat3(&this->positions[otherIndex]);
-					XMVECTOR diff = XMVectorSubtract(myPosVec, otherPosVec);
+    for (int dz = -cellRange; dz <= cellRange; ++dz)
+    {
+        const int gz = centerGz + dz;
+        if (gz < 0 || gz >= this->gridHeight) continue;
 
-					diff = XMVectorSetY(diff, 0.0f);
+        for (int dx = -cellRange; dx <= cellRange; ++dx)
+        {
+            const int gx = centerGx + dx;
+            if (gx < 0 || gx >= this->gridWidth) continue;
 
-					float distSq = XMVectorGetX(XMVector3LengthSq(diff));
-					if (distSq > 0.0001f && distSq < radiusSq)
-					{
-						float dist = sqrtf(distSq);
+            const int cellIndex = gz * this->gridWidth + gx;
+            int otherIndex = this->cellHead[cellIndex];
 
-						float strength = (avoidanceRadius - dist) / avoidanceRadius;
-						XMVECTOR push = XMVectorScale(XMVector3Normalize(diff), strength);
-						separation = XMVectorAdd(separation, push);
-					}
-				}
+            while (otherIndex != -1)
+            {
+                if (static_cast<size_t>(otherIndex) != selfIndex)
+                {
+                    XMVECTOR otherPosVec = XMLoadFloat3(&this->positions[otherIndex]);
+                    XMVECTOR diff = XMVectorSubtract(myPosVec, otherPosVec);
+                    diff = XMVectorSetY(diff, 0.0f);
 
-				otherIndex = this->nextEnemy[otherIndex];
-			}
-		}
-	}
+                    const float distSq = XMVectorGetX(XMVector3LengthSq(diff));
+                    if (distSq > 1e-6f && distSq < radiusSq)
+                    {
+                        const float dist = sqrtf(distSq);
+                        const XMVECTOR dir = XMVectorScale(diff, 1.0f / dist);
 
-	return separation;
+                        float strength;
+                        if (distSq < personalSpaceSq)
+                        {
+                            strength = 1.0f;
+                        }
+                        else
+                        {
+                            float t = (dist - personalSpace) /
+                                (avoidanceRadius - personalSpace);
+                            t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+                            const float smooth = t * t * (3.0f - 2.0f * t);
+                            strength = 1.0f - smooth;
+                        }
+
+                        separation = XMVectorAdd(separation,
+                            XMVectorScale(dir, strength));
+                    }
+                }
+                otherIndex = this->nextEnemy[otherIndex];
+            }
+        }
+    }
+
+    return separation;
 }
 
 bool SpatialGrid::IsAreaClear(const DirectX::XMFLOAT3& pos, float checkRadius) const

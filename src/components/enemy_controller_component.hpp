@@ -12,7 +12,7 @@ class EnemyControllerComponent : public Component
 	RegisterComponent(EnemyControllerComponent);
 	ExportProperty(std::string, groupName, "Enemy");
 	ExportProperty(float, moveSpeed, 3.5f);
-	ExportProperty(float, avoidanceRadius, 6.5f);
+	ExportProperty(float, avoidanceRadius, 1.5f);
 	ExportProperty(float, stopDistance, 2.0f);
 
 private:

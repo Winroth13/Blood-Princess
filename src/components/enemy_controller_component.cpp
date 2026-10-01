@@ -43,63 +43,63 @@ DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
     return this->transform->GetWorldPosition();
 }
 
-void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, const SpatialGrid& grid)
+void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
+    const SpatialGrid& grid)
 {
-    if (!this->transform)
-        return;
+    if (!this->transform) return;
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);
 
-    XMFLOAT3 playerPosition = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>()->GetWorldPosition();
-    XMVECTOR player = XMLoadFloat3(&playerPosition);
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    if (!playerEnt) return;
+    TransformComponent* playerT = playerEnt->GetComponent<TransformComponent>();
+    if (!playerT) return;
 
-    XMVECTOR toPlayer = XMVectorSubtract(player, myPos);
-    toPlayer = XMVectorSetY(toPlayer, 0.0f);
+    XMFLOAT3 playerPosF = playerT->GetWorldPosition();
+    XMVECTOR player = XMLoadFloat3(&playerPosF);
 
-    float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
+    XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
+    const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
+
     XMVECTOR seek = XMVectorZero();
 
-    if (distSq > 0.0001f) {
-        XMFLOAT3 direction;
-        XMStoreFloat3(&direction, toPlayer);
+    if (distSq > 1e-4f)
+    {
+        XMFLOAT3 dir;
+        XMStoreFloat3(&dir, toPlayer);
+        const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
+        this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
 
-        float angleRadians = atan2f(direction.x, direction.z);
-        float angleDegrees = angleRadians * (180.0f / XM_PI);
-
-        this->transform->SetWorldRotation(0.0f, angleDegrees, 0.0f);
-
-        float stopSq = this->stopDistance * this->stopDistance;
-
-        if (distSq > stopSq) {
+        if (distSq > this->stopDistance * this->stopDistance)
             seek = XMVector3Normalize(toPlayer);
-        }
     }
 
-    XMVECTOR avoid = grid.ComputeAvoidance(myGridIndex, this->avoidanceRadius);
-    avoid = XMVectorSetY(avoid, 0.0f);
 
-    float avoidLen = XMVectorGetX(XMVector3Length(avoid));
-    if (avoidLen > 0.0001f) {
-        avoid = XMVector3Normalize(avoid);
+    XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
+        this->avoidanceRadius),
+        0.0f);
+
+
+    //const float AVOID_WEIGHT = 1.0f;
+    //avoid = XMVectorScale(avoid, AVOID_WEIGHT);
+
+    XMVECTOR steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
+
+    const float steerLen = XMVectorGetX(XMVector3Length(steer));
+    if (steerLen > 1e-4f)
+    {
+        if (steerLen > 1.0f)
+            steer = XMVectorScale(steer, 1.0f / steerLen);
+
+        XMVECTOR newPos = XMVectorAdd(myPos,
+            XMVectorScale(steer,
+                this->moveSpeed * deltaTime));
+        newPos = XMVectorSetY(newPos, XMVectorGetY(myPos));
+
+        XMFLOAT3 outPos;
+        XMStoreFloat3(&outPos, newPos);
+        this->transform->SetWorldPosition(outPos);
     }
-
-    XMVECTOR steer = XMVectorAdd(seek, avoid);
-    steer = XMVectorSetY(steer, 0.0f);
-
-    float steerLen = XMVectorGetX(XMVector3Length(steer));
-
-    XMVECTOR movement = XMVectorZero();
-    if (steerLen > 0.0001f) {
-        steer = XMVector3Normalize(steer);
-        movement = XMVectorScale(steer, this->moveSpeed * deltaTime);
-    }
-
-    XMVECTOR newPosition = XMVectorAdd(myPos, movement);
-    newPosition = XMVectorSetY(newPosition, XMVectorGetY(myPos));
-
-    XMFLOAT3 outPos;
-    XMStoreFloat3(&outPos, newPosition);
-
-    this->transform->SetWorldPosition(outPos);
 }

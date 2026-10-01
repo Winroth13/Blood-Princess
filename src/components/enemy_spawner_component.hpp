@@ -10,7 +10,8 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	ExportProperty(float, spawnerInterval, 3.0f);
-	ExportProperty(int, maxEnemiesAlive, 10);
+	ExportProperty(int, maxEnemiesAlive, 4);
+	ExportProperty(int, currentEnemies, 4);
 	ExportProperty(float, spawnRadius, 5.0f);
 	ExportProperty(float, enemyMoveSpeed, 3.0f);
 	ExportProperty(float, enemyHealth, 100.0f);
@@ -19,7 +20,7 @@ private:
 	float timer = 0.0f;
 	std::vector<Entity*> spawnedEnemies;
 
-	void SpawnEnemy(const AppContext& context);
+	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
 	void CleanupDeadEnemies();
 
 	void OnStart(const AppContext& context) override;

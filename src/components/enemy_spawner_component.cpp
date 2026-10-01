@@ -10,8 +10,10 @@
 #include "assets/asset_manager.hpp"
 #include "components/model_component.hpp"
 #include "components/animator_component.hpp"
+#include "core/logging.hpp"
 
-void EnemySpawnerComponent::SpawnEnemy(const AppContext& context)
+
+void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEnemies)
 {
 	TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
 	Scene* mainScene = this->GetOwner()->GetScene();
@@ -20,9 +22,9 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context)
 		DirectX::XMFLOAT3{ player->GetWorldPosition().x , player->GetWorldPosition().y - 1.5f  ,player->GetWorldPosition().z } :
 		DirectX::XMFLOAT3{ 0.0f,-2.0f,0.0f };
 
-	for (size_t i = 0; i < this->maxEnemiesAlive; i++)
+	for (size_t i = 0; i < numberOfEnemies; i++)
 	{
-		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(rand()));
+		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(i));
 		float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
 		float dist = ((float)rand() / RAND_MAX) * this->spawnRadius;
 
@@ -45,7 +47,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context)
 		animator->AddAnimation("twerk", model->GetAnimations());
 		animator->SetSkeletonVisible(true);
 		animator->Play("twerk", true);
-
+		animator->SetTime(rand() % 100);
 
 		Health* enemyHealth = enemy->AddComponent<Health>();
 		enemyHealth->SetMaxHealth(this->enemyHealth);
@@ -58,7 +60,6 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context)
 		HurtboxComponent* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
 		
 		EnemyControllerComponent* enemyController = enemy->AddComponent<EnemyControllerComponent>();
-		//enemyController->SetAvoidanceRadius()
 		enemyController->SetMoveSpeed(this->enemyMoveSpeed);
 		
 
@@ -81,6 +82,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies()
 			}),
 		this->spawnedEnemies.end()
 	);
+	this->currentEnemies = this->spawnedEnemies.size();
 }
 
 void EnemySpawnerComponent::OnStart(const AppContext& context)
@@ -99,6 +101,6 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 
 	if (this->timer <= 0.0f) {
 		this->timer = this->spawnerInterval;
-		SpawnEnemy(context);
+		SpawnEnemy(context, this->maxEnemiesAlive - this->currentEnemies );
 	}
 }

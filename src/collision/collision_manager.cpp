@@ -477,6 +477,7 @@ void CollisionManager::SetDefaultLayerMatrix()
 
     // Environment collisions
     this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::PLAYER, true);
+ 
     this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::ENEMY, true);
     this->SetLayerCollision(CollisionLayer::ENVIRONMENT, CollisionLayer::PROJECTILE, true);
 
@@ -486,7 +487,7 @@ void CollisionManager::SetDefaultLayerMatrix()
     this->SetLayerCollision(CollisionLayer::PLAYER, CollisionLayer::TRIGGER_HAZARD, true);
 
     // Enemy collisions
-    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::ENEMY, true);
+    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::ENEMY, false);
     this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::PLAYER_ATTACK, true);
     this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::TRIGGER_HAZARD, true);
 

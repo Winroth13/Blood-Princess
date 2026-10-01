@@ -98,7 +98,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     PointLightComponent *pointLight = pointLightEntity->AddComponent<PointLightComponent>();
     pointLight->SetIntensity(220.0f);
     pointLight->SetRadius(10.0f);
-    pointLight->SetCastShadows(true);
+    pointLight->SetCastShadows(false);
     TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
     pointTransform->SetWorldPosition(-0.6f, -1.0f, 6.8f);
 

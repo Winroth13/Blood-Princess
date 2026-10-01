@@ -54,6 +54,14 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
 
 void AIManager::Update(float deltaTime)
 {
+
+    if (!this->pendingRemovals.empty()) {
+        for(auto* each : pendingRemovals)
+        {
+            UnregisterEnemy(each);
+        }
+		pendingRemovals.clear();
+    }
     size_t enemyCount = this->enemies.size();
     if (enemyCount == 0)
     {
