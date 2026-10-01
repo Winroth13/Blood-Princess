@@ -48,11 +48,16 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 
     Entity* swordEntity = outScene.AddEntity("Sword");
     auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
-    swordTransform->SetLocalPosition( { 0.8f, -0.2f, 1.2f } );
+    swordTransform->SetLocalPosition( { 0.0, -.75f, -0.8f } );
     swordTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
-    swordTransform->SetLocalRotation( { 61.0f, 0.0f, 0.0f } );
+    swordTransform->SetLocalRotation( { 0.0f, 180.0f, 0.0f } );
     ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
-    swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+    swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
+
+    AnimatorComponent *animator = swordEntity->AddComponent<AnimatorComponent>();
+    animator->AddAnimation("idle", swordModel->GetModel()->GetAnimations());
+    animator->SetSkeletonVisible(true);
+    animator->Play("idle", true);
 
     auto* collider = swordEntity->AddComponent<BoxCollisionComponent>();
     collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
