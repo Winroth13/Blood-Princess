@@ -11,6 +11,7 @@
 #include "scene/scene.hpp"
 #include "components/hit_box_component.hpp"
 #include "components/character_audio_component .hpp"
+
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;

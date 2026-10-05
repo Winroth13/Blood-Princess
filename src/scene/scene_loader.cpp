@@ -485,6 +485,7 @@ bool SceneLoader::Initialize(const AppContext &appContext)
 }
 
 bool SceneLoader::Load(const std::string &name, Scene &outScene) {
+    outScene.Clear();
     TestScene(outScene, *this->appContext);
 
     LogInfo("Loaded scene '%s'", name.c_str());
