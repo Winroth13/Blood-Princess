@@ -26,6 +26,7 @@ struct SoundEntry
 
 struct SoundLayer
 {
+
     std::vector<SoundEntry> sounds;
 
     void AddSound(std::shared_ptr<AudioClip> clip,
@@ -58,25 +59,22 @@ public:
 
 
     void AddLightAttackLayer(const SoundLayer& layer) { this->lightAttackLayers.push_back(layer); }
+    void AddLightAttackSwingLayer(const SoundLayer& layer) { this->lightAttackSwingLayers.push_back(layer); }
     void AddHeavyAttackLayer(const SoundLayer& layer) { this->heavyAttackLayers.push_back(layer); }
+    void AddHeavyAttackSwingLayer(const SoundLayer& layer) { this->heavyAttackSwingLayers.push_back(layer); }
+
 
     void PlayLightAttack() { PlayLayers(this->lightAttackLayers); }
+	void PlayLightAttackSwing() { PlayLayers(this->lightAttackSwingLayers); }
     void PlayHeavyAttack() { PlayLayers(this->heavyAttackLayers); }
+	void PlayHeavyAttackSwing() { PlayLayers(this->heavyAttackSwingLayers); }
 
 
     void AddFootstepLayer(const SoundLayer& layer) { this->footstepLayers.push_back(layer); }
     void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
     void PlayFootstep() { PlayLayers(this->footstepLayers); }
 
-    void AddMovementDistance(float distance)
-    {
-        this->movementDistanceAccumulator += distance;
-        if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
-        {
-            this->movementDistanceAccumulator = 0.0f;
-            PlayFootstep();
-        }
-    }
+    void AddMovementDistance(float distance);
 
 private:
     void OnStart(const AppContext& context) override;
@@ -87,11 +85,16 @@ private:
     float minDistance = 1.0f;
     float maxDistance = 15.0f;
 
+
     std::vector<SoundLayer> lightAttackLayers;
+    std::vector<SoundLayer> lightAttackSwingLayers;
+
     std::vector<SoundLayer> heavyAttackLayers;
+    std::vector<SoundLayer> heavyAttackSwingLayers;
+
     std::vector<SoundLayer> footstepLayers;
 
-    float footstepIntervalMeters = 1.4f;
+    float footstepIntervalMeters = 3.0f;
     float movementDistanceAccumulator = 0.0f;
 
     AudioManager* audioManager = nullptr;

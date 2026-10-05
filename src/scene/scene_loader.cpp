@@ -44,6 +44,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
 		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
 		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		characterAudio->AddLightAttackSwingLayer(swingLayer);
 
 		SoundLayer squishLayer;
 		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
@@ -61,7 +62,6 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 		SoundLayer thudLayer;
 		thudLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"), 0.70f, 0.85f, 0.92f, 1.04f);
 
-		characterAudio->AddLightAttackLayer(swingLayer);
 		characterAudio->AddLightAttackLayer(squishLayer);
 		characterAudio->AddLightAttackLayer(boneLayer);
 		characterAudio->AddLightAttackLayer(thudLayer);
@@ -88,6 +88,17 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
 		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
 		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
+
+        SoundLayer footstepsLayer;
+		footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_1.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_2.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_3.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_4.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_5.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_6.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+		characterAudio->AddFootstepLayer(footstepsLayer);
+
+
     }
     //Entity *musicEntity = outScene.AddEntity("music_entity");
     //musicEntity->AddComponent<TransformComponent>();
