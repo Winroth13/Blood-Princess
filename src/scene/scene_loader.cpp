@@ -27,104 +27,142 @@
 #include "components/enemy_spawner_component.hpp"
 #include "components/socket_component.hpp"
 #include "components/character_audio_component .hpp"
-static void TestScene(Scene& outScene, const AppContext& appContext) {
-    Entity* playerEntity = outScene.AddEntity("player");
+
+void CreatePlayer(Scene &outScene, const AppContext &appContext)
+{
+    Entity *playerEntity = outScene.AddEntity("player");
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+
     playerEntity->AddComponent<TransformComponent>();
-    playerEntity->AddComponent<ListenerComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
-    playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
-	{
-		auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
+    playerEntity->AddComponent<ListenerComponent>();
+
+    /* Audio */
+    {
+        playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+        auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
         characterAudio->SetIsPlayer(true);
 
-		SoundLayer swingLayer;
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_1.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+        SoundLayer swingLayer;
+        swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_1.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+        swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+        swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+        swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
 
-		SoundLayer squishLayer;
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/500912__bertsz__squish-impact.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/536765__egomassive__squish.ogg"), 0.70f, 0.90f, 0.93f, 1.07f);
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/686363__faircashew__squished.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/524952__magnuswaker__squelch-2.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
-		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/540076__magnuswaker__meat-slap-2.ogg"), 0.60f, 0.80f, 0.94f, 1.04f);
+        SoundLayer squishLayer;
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/500912__bertsz__squish-impact.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/536765__egomassive__squish.ogg"), 0.70f, 0.90f, 0.93f, 1.07f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/686363__faircashew__squished.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/524952__magnuswaker__squelch-2.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/540076__magnuswaker__meat-slap-2.ogg"), 0.60f, 0.80f, 0.94f, 1.04f);
 
-		SoundLayer boneLayer;
-		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/192146__brassknucklesfilms__bone-crunch-fast.ogg"), 0.45f, 0.60f, 0.94f, 1.06f);
-		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.45f, 0.60f, 0.93f, 1.05f);
-		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/869107__robo9418__bone-crack.ogg"), 0.45f, 0.60f, 0.95f, 1.05f);
+        SoundLayer boneLayer;
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/192146__brassknucklesfilms__bone-crunch-fast.ogg"), 0.45f, 0.60f, 0.94f, 1.06f);
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.45f, 0.60f, 0.93f, 1.05f);
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/869107__robo9418__bone-crack.ogg"), 0.45f, 0.60f, 0.95f, 1.05f);
 
-		SoundLayer thudLayer;
-		thudLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"), 0.70f, 0.85f, 0.92f, 1.04f);
+        SoundLayer thudLayer;
+        thudLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"), 0.70f, 0.85f, 0.92f, 1.04f);
 
-		characterAudio->AddLightAttackLayer(swingLayer);
-		characterAudio->AddLightAttackLayer(squishLayer);
-		characterAudio->AddLightAttackLayer(boneLayer);
-		characterAudio->AddLightAttackLayer(thudLayer);
+        characterAudio->AddLightAttackLayer(swingLayer);
+        characterAudio->AddLightAttackLayer(squishLayer);
+        characterAudio->AddLightAttackLayer(boneLayer);
+        characterAudio->AddLightAttackLayer(thudLayer);
 
-		SoundLayer heavySwingLayer;
-		heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/523230__magnuswaker__hard-swing-1.ogg"), 1.2f, 1.3f, 0.92f, 1.04f);
+        SoundLayer heavySwingLayer;
+        heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/523230__magnuswaker__hard-swing-1.ogg"), 1.2f, 1.3f, 0.92f, 1.04f);
 
-		SoundLayer heavyGoreLayer;
-		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
-		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/581092__magnuswaker__burst-flesh.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
-		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563315__magnuswaker__gushing-flesh.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
-		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
+        SoundLayer heavyGoreLayer;
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/581092__magnuswaker__burst-flesh.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563315__magnuswaker__gushing-flesh.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
 
-		SoundLayer heavyBoneLayer;
-		heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522171__magnuswaker__bone-breaker-1.ogg"), 0.65f, 0.80f, 0.92f, 1.03f);
-		heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.60f, 0.75f, 0.90f, 1.02f);
+        SoundLayer heavyBoneLayer;
+        heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522171__magnuswaker__bone-breaker-1.ogg"), 0.65f, 0.80f, 0.92f, 1.03f);
+        heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.60f, 0.75f, 0.90f, 1.02f);
 
-		SoundLayer heavyImpactLayer;
-		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522091__magnuswaker__pound-of-flesh-1.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
-		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
-		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+        SoundLayer heavyImpactLayer;
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522091__magnuswaker__pound-of-flesh-1.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
 
-		characterAudio->AddHeavyAttackLayer(heavySwingLayer);
-		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
-		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
-		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
+        characterAudio->AddHeavyAttackLayer(heavySwingLayer);
+        characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
+        characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
+        characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
     }
+
+    /* Collisions */
+    {
+        auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
+        playerEntity->AddComponent<CameraComponent>();
+        playerCol->SetLayer(CollisionLayer::PLAYER);
+        playerCol->SetStatic(false);
+        playerCol->SetRadius(0.5f);
+    }
+
+    /* Viewmodel */
+    {
+        Entity *viewEntity = outScene.AddEntity("viewmodel");
+        auto *viewTransform = viewEntity->AddComponent<TransformComponent>();
+        viewTransform->SetLocalPosition({ 0.0, -.75f, -0.8f });
+        viewTransform->SetLocalScale({ 0.5f, 0.5f ,0.5f });
+        viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
+        ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
+        viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
+
+        AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
+        animator->AddAnimations(viewmodelModel->GetModel()->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->Play("light_attack_01", true);
+
+        auto *collider = viewEntity->AddComponent<BoxCollisionComponent>();
+        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
+        collider->SetTrigger(true);
+        collider->SetExtents({ 1.0f, 0.5f, 1.5f });
+        collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
+
+        auto *swordHitBox = viewEntity->AddComponent<HitboxComponent>();
+        swordHitBox->SetActive(false);
+        swordHitBox->SetKnockbackForce(2);
+
+        viewEntity->SetParent(playerEntity);
+
+        viewEntity->AddComponent<CameraComponent>();
+        auto camera = viewEntity->GetComponent<CameraComponent>();
+        
+        Entity *cameraEntity = outScene.AddEntity("Camera");
+        cameraEntity->AddComponent<CameraComponent>();
+        cameraEntity->AddComponent<TransformComponent>();
+        /*SocketComponent *socket = cameraEntity->AddComponent<SocketComponent>();
+        socket->SetJointName("socket.r");
+        socket->SetOffsetPosition({ -13, 0.0f, 0.0f });
+        socket->SetOffsetRotation({ -90.0f, -90.0f, 0.0f });
+        socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });*/
+
+        Entity *swordEntity = outScene.AddEntity("sword");
+        auto *swordTransform = swordEntity->AddComponent<TransformComponent>();
+        ModelComponent *swordModel = swordEntity->AddComponent<ModelComponent>();
+        swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+        SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
+        socket->SetJointName("socket.r");
+        socket->SetOffsetPosition({ -13, 0.0f, 0.0f });
+        socket->SetOffsetRotation({ -90.0f, -90.0f, 0.0f });
+        socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
+        swordEntity->SetParent(viewEntity);
+    }
+}
+
+static void TestScene(Scene& outScene, const AppContext& appContext) {
     //Entity *musicEntity = outScene.AddEntity("music_entity");
     //musicEntity->AddComponent<TransformComponent>();
     //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
     //musicComponent->SetVolume(0.2f);
 
-    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
-    playerEntity->AddComponent<CameraComponent>();
-    auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
-    playerEntity->AddComponent<CameraComponent>();
-    playerCol->SetLayer(CollisionLayer::PLAYER);
-    playerCol->SetStatic(false);
-    playerCol->SetRadius(0.5f);
-
-    Entity* viewEntity = outScene.AddEntity("viewmodel");
-    auto* viewTransform = viewEntity->AddComponent<TransformComponent>();
-    viewTransform->SetLocalPosition( { 0.0, -.75f, -0.8f } );
-    viewTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
-    viewTransform->SetLocalRotation( { 0.0f, 180.0f, 0.0f } );
-    ModelComponent* swordModel = viewEntity->AddComponent<ModelComponent>();
-    swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
-
-    AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
-    animator->AddAnimation("idle", swordModel->GetModel()->GetAnimations());
-    animator->SetSkeletonVisible(true);
-    animator->Play("idle", true);
-
-    auto* collider = viewEntity->AddComponent<BoxCollisionComponent>();
-    collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
-    collider->SetTrigger(true);
-    collider->SetExtents({1.0f, 0.5f, 1.5f});
-    collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
-
-    auto* swordHitBox = viewEntity->AddComponent<HitboxComponent>();
-    swordHitBox->SetActive(false);
-    swordHitBox->SetKnockbackForce(2);
-
-    viewEntity->SetParent(playerEntity);
-
+    CreatePlayer(outScene, appContext);
+    
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
     spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
@@ -221,17 +259,6 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         animator->AddAnimation("gangnam_style", model->GetAnimations());
         animator->SetSkeletonVisible(true);
         animator->Play("gangnam_style", true);
-
-        Entity* swordEntity = outScene.AddEntity("sword");
-        auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
-        ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
-        swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
-        SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
-        socket->SetJointName("mixamorig:RightHand");
-        socket->SetOffsetPosition({-0.5f, 0.1f, -0.15f});
-        socket->SetOffsetRotation({0.0f, -16.2f, 83.7f});
-        socket->SetOffsetScale({0.3f, 0.3f, 0.2f});
-        swordEntity->SetParent(entity);
     }
 
     {
@@ -270,7 +297,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     psComponent->SetVelocity({ 0.0f, 3.0f, 0.0f });
     psComponent->SetAcceleration({ 0.0, -9.82f, 0.0f });
 
-    outScene.PrintEntityHierarchy();
+    //outScene.PrintEntityHierarchy();
 }
 
 void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appContext, const DirectX::XMFLOAT3 &center, int numSegments)
