@@ -26,14 +26,39 @@
 #include "components/enemy_controller_component.hpp"
 #include "components/enemy_spawner_component.hpp"
 #include "components/socket_component.hpp"
-
+#include "components/character_audio_component .hpp"
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->AddComponent<ListenerComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+    // Player Sound Effect
+	{
+		auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
+        characterAudio->SetIsPlayer(true);
+		SoundEntry lAttack1(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/192146__brassknucklesfilms__bone-crunch-fast.ogg"));
+        SoundEntry lAttack2(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"));
+        SoundEntry lAttack3(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"));
+        SoundEntry lAttack4(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"));
+        SoundEntry lAttack5(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/500912__bertsz__squish-impact.ogg"));
+        SoundEntry lAttack6(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/536765__egomassive__squish.ogg"));
+        SoundEntry lAttack7(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/686363__faircashew__squished.ogg"));
+        SoundEntry lAttack8(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/869107__robo9418__bone-crack.ogg"));
 
+		SoundLayer lightAttackLayer;
+        lightAttackLayer.AddSound(lAttack1);
+		lightAttackLayer.AddSound(lAttack2);
+		lightAttackLayer.AddSound(lAttack3);
+		lightAttackLayer.AddSound(lAttack4);
+		lightAttackLayer.AddSound(lAttack5);
+		lightAttackLayer.AddSound(lAttack6);
+		lightAttackLayer.AddSound(lAttack7);
+		lightAttackLayer.AddSound(lAttack8);
+
+        characterAudio->AddLightAttackLayer(lightAttackLayer);
+
+    }
     //Entity *musicEntity = outScene.AddEntity("music_entity");
     //musicEntity->AddComponent<TransformComponent>();
     //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));

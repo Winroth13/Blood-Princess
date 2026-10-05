@@ -10,6 +10,7 @@
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
 #include "components/hit_box_component.hpp"
+#include "components/character_audio_component .hpp"
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
@@ -119,6 +120,9 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * this->moveSpeed);
 		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
 
+		float distMoved = XMVectorGetX(XMVector3Length(newVel));
+		this->GetOwner()->GetComponent<CharacterAudioComponent>()->AddMovementDistance(distMoved);
+
 		XMFLOAT3 newPos;
 		XMStoreFloat3(&newPos, newPosV);
 
@@ -182,6 +186,11 @@ void PlayerControllerComponent::PerformLightAttack()
 			hb->Activate(0.3f);
 			break;
 		}
+	}
+
+	if(auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	{
+		characterAudio->PlayLightAttack();
 	}
 }
 
