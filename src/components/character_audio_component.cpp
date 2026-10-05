@@ -11,6 +11,16 @@ CharacterAudioComponent::CharacterAudioComponent(Entity* owner, bool isActive)
     NoRender();
 }
 
+void CharacterAudioComponent::AddMovementDistance(float distance)
+{
+    this->movementDistanceAccumulator += distance;
+    if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+    {
+        this->movementDistanceAccumulator = 0.0f;
+        PlayFootstep();
+    }
+}
+
 void CharacterAudioComponent::OnStart(const AppContext& context)
 {
     this->audioManager = context.audioManager;
