@@ -1,4 +1,4 @@
-#include "character_audio_component .hpp"
+#include "character_audio_component.hpp"
 #include "components/transform_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "core/rng.hpp"

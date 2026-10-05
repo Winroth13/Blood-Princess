@@ -75,6 +75,8 @@ void HurtboxComponent::OnCollision(const CollisionEvent& e)
         e.normal
         });
 
+
+
     LogInfo("The HurtBox is lossing Hp, Max: %f, Current: %f", this->cachedHealth->GetMaxHealth(), this->cachedHealth->GetCurrentHealth());
 }
 

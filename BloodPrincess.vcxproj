@@ -214,7 +214,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\ambient_light_component.cpp" />
     <ClCompile Include="src\components\animator_component.cpp" />
     <ClCompile Include="src\components\box_collision_component.cpp" />
-    <ClCompile Include="src\components\character_audio_component .cpp" />
+    <ClCompile Include="src\components\character_audio_component.cpp" />
     <ClCompile Include="src\components\directional_light_component.cpp" />
     <ClCompile Include="src\components\enemy_controller_component.cpp" />
     <ClCompile Include="src\components\enemy_spawner_component.cpp" />
@@ -317,7 +317,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\collision\quad_tree.hpp" />
     <ClInclude Include="src\collision\Rect_2d.hpp" />
     <ClInclude Include="src\components\capsule_collision_component.hpp" />
-    <ClInclude Include="src\components\character_audio_component .hpp" />
+    <ClInclude Include="src\components\character_audio_component.hpp" />
     <ClInclude Include="src\components\directional_light_component.hpp" />
     <ClInclude Include="src\components\enemy_controller_component.hpp" />
     <ClInclude Include="src\components\enemy_spawner_component.hpp" />

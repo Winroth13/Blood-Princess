@@ -10,7 +10,7 @@
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
 #include "components/hit_box_component.hpp"
-#include "components/character_audio_component .hpp"
+#include "components/character_audio_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -187,11 +187,6 @@ void PlayerControllerComponent::PerformLightAttack()
 			hb->Activate(0.3f);
 			break;
 		}
-	}
-
-	if(auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
-	{
-		characterAudio->PlayLightAttack();
 	}
 }
 

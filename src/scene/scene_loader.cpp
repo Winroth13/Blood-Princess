@@ -32,7 +32,10 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
     Entity *playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+}
 
+static void TestScene(Scene& outScene, const AppContext& appContext) {
+    Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<ListenerComponent>();
