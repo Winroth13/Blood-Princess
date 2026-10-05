@@ -2,7 +2,7 @@
 #include "scene/component.hpp"
 #include <DirectXMath.h>
 #include <vector>
-
+#include "assets/types/audio_clip.hpp"
 class Entity;
 
 class EnemySpawnerComponent : public Component
