@@ -26,7 +26,9 @@
 #include "components/enemy_controller_component.hpp"
 #include "components/enemy_spawner_component.hpp"
 #include "components/socket_component.hpp"
-#include "components/character_audio_component .hpp"
+#include "components/character_audio_component.hpp"
+
+
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<TransformComponent>();

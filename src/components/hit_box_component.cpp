@@ -1,5 +1,9 @@
 #include "hit_box_component.hpp"
 #include "events/event_bus.hpp"
+#include "components/player_controller_component.hpp"
+#include "components/character_audio_component.hpp"
+
+
 void HitboxComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (this->activeDuration > 0.0f && this->IsActive()) {
@@ -46,4 +50,22 @@ void HitboxComponent::OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& h
 		this->knockbackForce,
 		hitPoint
 		});
+
+	if(this->GetOwner()->GetParent()->HasComponent<PlayerControllerComponent>())
+	{
+		LogInfo("Play audio  %f", this->damage);
+		auto* playerAudio = this->GetOwner()->GetParent()->GetComponent<CharacterAudioComponent>();
+		if (playerAudio) {
+			if(this->damage == 10.0f)
+			{
+				playerAudio->PlayLightAttack();
+			}
+			else if(this->damage == 50.0f)
+			{
+				playerAudio->PlayHeavyAttack();
+			}
+		}
+
+
+	}
 }
