@@ -30,6 +30,8 @@ enum class SamplerSlot
 {
 	LINEAR_WRAP,
 	SHADOW,
+    LINEAR_CLAMP,
+
 	COUNT
 };
 

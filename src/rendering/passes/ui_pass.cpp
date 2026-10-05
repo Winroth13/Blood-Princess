@@ -169,7 +169,7 @@ void UIPass::Render(
     sharedResources.UploadPerViewData(deviceContext, this->view);
 
     ID3D11RenderTargetView *rtv = backBuffer.GetRenderTargetView();
-    deviceContext->OMSetRenderTargets(1, &rtv, backBuffer.GetDepthStencilView());
+    deviceContext->OMSetRenderTargets(1, &rtv, nullptr);
 
     deviceContext->RSSetState(this->disableDepthRasterizerState);
     deviceContext->OMSetDepthStencilState(this->disableDepthStencilState, 0);
@@ -189,6 +189,8 @@ void UIPass::Render(
     ID3D11Buffer *perView = sharedResources.GetPerView();
     deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 
+    sharedResources.BindSamplers(deviceContext);
+
     D3D11_VIEWPORT viewport{};
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
@@ -203,14 +205,14 @@ void UIPass::Render(
     // Map vertices
     deviceContext->Map(this->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
     UIVertex *verticesData = static_cast<UIVertex *>(mapped.pData);
-    const std::vector<UIVertex> newVertices = drawList.GetVertices();
+    const std::vector<UIVertex> &newVertices = drawList.GetVertices();
     memcpy(verticesData, newVertices.data(), sizeof(UIVertex) * newVertices.size());
     deviceContext->Unmap(this->vertexBuffer, 0);
 
     // Map indices
     deviceContext->Map(this->indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
     uint32_t *indicesData = static_cast<uint32_t *>(mapped.pData);
-    const std::vector<uint32_t> newindices = drawList.GetIndices();
+    const std::vector<uint32_t> &newindices = drawList.GetIndices();
     memcpy(indicesData, newindices.data(), sizeof(uint32_t) * newindices.size());
     deviceContext->Unmap(this->indexBuffer, 0);
 

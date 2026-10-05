@@ -64,6 +64,20 @@ bool SharedResources::CreateSamplers(ID3D11Device *device)
 
     RenderUtils::SetDebugName(this->samplers[+SamplerSlot::SHADOW], DebugCategory::CORE, "Sampler", "Shadow");
 #pragma endregion
+#pragma region Linear-Clamp
+    D3D11_SAMPLER_DESC linearClampDesc = linearWrapDesc;
+    linearWrapDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    linearWrapDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    linearWrapDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    result = device->CreateSamplerState(&linearClampDesc, &this->samplers[+SamplerSlot::LINEAR_CLAMP]);
+    if (FAILED(result)) {
+        LogError("Failed to create Linear Clamp Sampler");
+        return false;
+    }
+
+    RenderUtils::SetDebugName(this->samplers[+SamplerSlot::LINEAR_WRAP], DebugCategory::CORE, "Sampler", "Linear-Wrap");
+#pragma endregion
 
 	return true;
 }

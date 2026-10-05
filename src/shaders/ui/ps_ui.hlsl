@@ -11,7 +11,7 @@ struct PixelShaderInput
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    float4 textureSample = uiTexture.Sample(samplerLinearWrap, input.uv);
+    float4 textureSample = uiTexture.Sample(samplerLinearClamp, input.uv);
     
     float4 finalColour = textureSample * input.colour;
 

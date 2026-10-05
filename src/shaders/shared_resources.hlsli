@@ -3,6 +3,7 @@
 
 SamplerState samplerLinearWrap : register(s0);
 SamplerState samplerShadow : register(s1);
+SamplerState samplerLinearClamp : register(s2);
 
 cbuffer PerFrame : register(b0)
 {
