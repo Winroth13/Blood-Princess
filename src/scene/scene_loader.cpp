@@ -65,7 +65,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
 		characterAudio->AddLightAttackLayer(thudLayer);
 
 		SoundLayer heavySwingLayer;
-		heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/523230__magnuswaker__hard-swing-1.ogg"), 0.95f, 1.15f, 0.92f, 1.04f);
+		heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/523230__magnuswaker__hard-swing-1.ogg"), 1.2f, 1.3f, 0.92f, 1.04f);
 
 		SoundLayer heavyGoreLayer;
 		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
