@@ -188,6 +188,10 @@ void PlayerControllerComponent::PerformLightAttack()
 			break;
 		}
 	}
+	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	{
+		characterAudio->PlayLightAttackSwing();
+	}
 }
 
 void PlayerControllerComponent::PerformHeavyAttack()
@@ -204,8 +208,9 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
-		characterAudio->PlayHeavyAttack();
+		characterAudio->PlayHeavyAttackSwing();
 	}
+
 }
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
