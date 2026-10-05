@@ -2,6 +2,7 @@
 
 #include "core/app_context.hpp"
 #include "scene/component.hpp"
+#include "ui/ui_draw_list.hpp"
 
 #include <vector>
 #include <memory>
@@ -44,6 +45,7 @@ private:
     void OnStart(const AppContext &context);
     void Update(const AppContext &context, float deltaTime);
     void LateUpdate(const AppContext &context, float deltaTime);
+    void UIRender(UIDrawList &drawList);
     void OnDestroy(const AppContext &context);
 
 public:

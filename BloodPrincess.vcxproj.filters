@@ -92,6 +92,19 @@
     <ClCompile Include="src\components\enemy_spawner_component.cpp" />
     <ClCompile Include="src\components\socket_component.cpp" />
     <ClCompile Include="external\imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="src\core\debug.cpp" />
+    <ClCompile Include="src\editor\statistics_panel.cpp" />
+    <ClCompile Include="src\rendering\passes\ui_pass.cpp" />
+    <ClCompile Include="src\components\ui\ui_canvas_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_rect_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_image_component.cpp" />
+    <ClCompile Include="src\ui\ui_draw_list.cpp" />
+    <ClCompile Include="src\components\ui\ui_text_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_bar_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_slider_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_checkbox_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_button_component.cpp" />
+    <ClCompile Include="src\ui\ui_context.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -210,6 +223,20 @@
     <ClInclude Include="src\components\enemy_spawner_component.hpp" />
     <ClInclude Include="src\components\socket_component.hpp" />
     <ClInclude Include="external\imgui\imgui_stdlib.h" />
+    <ClInclude Include="src\core\debug.hpp" />
+    <ClInclude Include="src\editor\statistics_panel.hpp" />
+    <ClInclude Include="src\rendering\passes\ui_pass.hpp" />
+    <ClInclude Include="src\components\ui\ui_canvas_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_rect_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_image_component.hpp" />
+    <ClInclude Include="src\ui\ui_draw_list.hpp" />
+    <ClInclude Include="src\ui\ui_types.hpp" />
+    <ClInclude Include="src\components\ui\ui_text_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_bar_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_slider_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_checkbox_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_button_component.hpp" />
+    <ClInclude Include="src\ui\ui_context.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
@@ -229,6 +256,8 @@
     <FxCompile Include="src\shaders\paint\ps_paint.hlsl" />
     <FxCompile Include="src\shaders\deferred\vs_deferred_skinned.hlsl" />
     <FxCompile Include="src\shaders\shadow\vs_shadow_skinned.hlsl" />
+    <FxCompile Include="src\shaders\ui\ps_ui.hlsl" />
+    <FxCompile Include="src\shaders\ui\vs_ui.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\shared_resources.hlsli" />

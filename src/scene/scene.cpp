@@ -194,12 +194,26 @@ void Scene::GatherRenderCommands(std::vector<RenderView> &outViews) {
     this->culler.GatherRenderCommands(outViews);
 }
 
+void Scene::GatherUICommands(uint32_t width, uint32_t height) {
+    this->ui.BeginFrame(width, height);
+
+    if (this->isHierarchyDirty)
+        this->RebuildEntityUpdateOrder();
+
+    UIDrawList &drawList = this->ui.GetDrawList();
+
+    for (Entity *entity : this->entityUpdateOrder)
+        if (entity->HasStarted() && entity->IsActive())
+            entity->UIRender(this->ui.GetDrawList());
+}
+
 void Scene::Clear() {
     for (auto &entity : this->entities)
         if (entity->HasStarted())
             entity->OnDestroy(*this->context);
 
     this->culler.Clear();
+    this->ui.Clear();
 
     this->entitiesPendingStart.clear();
     this->entitiesPendingRemove.clear();

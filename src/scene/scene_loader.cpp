@@ -26,6 +26,22 @@
 #include "components/enemy_controller_component.hpp"
 #include "components/enemy_spawner_component.hpp"
 #include "components/socket_component.hpp"
+#include "components/ui/ui_canvas_component.hpp"
+#include "components/ui/ui_rect_component.hpp"
+#include "components/ui/ui_image_component.hpp"
+
+static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UIAnchor::TOP_RIGHT, {-20.0f, 20.0f}, {320.0f, 320.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+}
 
 static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
@@ -71,6 +87,8 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     swordHitBox->SetKnockbackForce(2);
 
     viewEntity->SetParent(playerEntity);
+
+    CreateTestUI(outScene, appContext);
 
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
