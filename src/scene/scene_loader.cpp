@@ -47,30 +47,30 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     playerCol->SetStatic(false);
     playerCol->SetRadius(0.5f);
 
-    Entity* swordEntity = outScene.AddEntity("Sword");
-    auto* swordTransform = swordEntity->AddComponent<TransformComponent>();
-    swordTransform->SetLocalPosition( { 0.0, -.75f, -0.8f } );
-    swordTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
-    swordTransform->SetLocalRotation( { 0.0f, 180.0f, 0.0f } );
-    ModelComponent* swordModel = swordEntity->AddComponent<ModelComponent>();
+    Entity* viewEntity = outScene.AddEntity("viewmodel");
+    auto* viewTransform = viewEntity->AddComponent<TransformComponent>();
+    viewTransform->SetLocalPosition( { 0.0, -.75f, -0.8f } );
+    viewTransform->SetLocalScale( { 0.5f, 0.5f ,0.5f } );
+    viewTransform->SetLocalRotation( { 0.0f, 180.0f, 0.0f } );
+    ModelComponent* swordModel = viewEntity->AddComponent<ModelComponent>();
     swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
 
-    AnimatorComponent *animator = swordEntity->AddComponent<AnimatorComponent>();
+    AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
     animator->AddAnimation("idle", swordModel->GetModel()->GetAnimations());
     animator->SetSkeletonVisible(true);
     animator->Play("idle", true);
 
-    auto* collider = swordEntity->AddComponent<BoxCollisionComponent>();
+    auto* collider = viewEntity->AddComponent<BoxCollisionComponent>();
     collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
     collider->SetTrigger(true);
     collider->SetExtents({1.0f, 0.5f, 1.5f});
     collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
 
-    auto* swordHitBox = swordEntity->AddComponent<HitboxComponent>();
+    auto* swordHitBox = viewEntity->AddComponent<HitboxComponent>();
     swordHitBox->SetActive(false);
     swordHitBox->SetKnockbackForce(2);
 
-    swordEntity->SetParent(playerEntity);
+    viewEntity->SetParent(playerEntity);
 
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
