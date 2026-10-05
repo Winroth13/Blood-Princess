@@ -15,7 +15,15 @@ void CameraComponent::Update(const AppContext &context, float deltaTime) {
     view.nearPlane = this->nearPlane;
     view.farPlane = this->farPlane;
 
-    XMMATRIX viewMatrix = XMMatrixInverse(nullptr, transform->GetRenderMatrix());
+    XMFLOAT3 rotation = transform->GetWorldRotation();
+    XMMATRIX viewMatrix = XMMatrixRotationRollPitchYaw(
+        XMConvertToRadians(rotation.x), 
+        XMConvertToRadians(rotation.y), 
+        XMConvertToRadians(rotation.z)
+    );
+    viewMatrix *= XMMatrixTranslation(view.cameraPosition.x, view.cameraPosition.y, view.cameraPosition.z);
+    
+    viewMatrix = XMMatrixInverse(nullptr, viewMatrix);
     XMStoreFloat4x4(&view.viewMatrix, viewMatrix);
 
     XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(

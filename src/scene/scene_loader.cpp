@@ -26,16 +26,12 @@
 #include "components/enemy_controller_component.hpp"
 #include "components/enemy_spawner_component.hpp"
 #include "components/socket_component.hpp"
-#include "components/character_audio_component .hpp"
+#include "components/character_audio_component.hpp"
 
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
-    Entity *playerEntity = outScene.AddEntity("player");
-    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
-}
-
-static void TestScene(Scene& outScene, const AppContext& appContext) {
     Entity* playerEntity = outScene.AddEntity("player");
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     playerEntity->AddComponent<TransformComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<ListenerComponent>();
@@ -111,7 +107,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         Entity *viewEntity = outScene.AddEntity("viewmodel");
         auto *viewTransform = viewEntity->AddComponent<TransformComponent>();
         viewTransform->SetLocalPosition({ 0.0, -.75f, -0.8f });
-        viewTransform->SetLocalScale({ 0.5f, 0.5f ,0.5f });
+        viewTransform->SetLocalScale({ 0.2f, 0.2f ,0.2f });
         viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
         ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
         viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
@@ -139,11 +135,13 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         Entity *cameraEntity = outScene.AddEntity("Camera");
         cameraEntity->AddComponent<CameraComponent>();
         cameraEntity->AddComponent<TransformComponent>();
-        /*SocketComponent *socket = cameraEntity->AddComponent<SocketComponent>();
-        socket->SetJointName("socket.r");
-        socket->SetOffsetPosition({ -13, 0.0f, 0.0f });
-        socket->SetOffsetRotation({ -90.0f, -90.0f, 0.0f });
-        socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });*/
+        cameraEntity->SetParent(viewEntity);
+
+        SocketComponent *cameraSocket = cameraEntity->AddComponent<SocketComponent>();
+        cameraSocket->SetJointName("head");
+        cameraSocket->SetOffsetPosition({ 0.0, 0.0f, 0.0f });
+        cameraSocket->SetOffsetRotation({ -90.0, 90.0f, 0.0f });
+        cameraSocket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
 
         Entity *swordEntity = outScene.AddEntity("sword");
         auto *swordTransform = swordEntity->AddComponent<TransformComponent>();
@@ -151,8 +149,8 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
         swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
         SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
         socket->SetJointName("socket.r");
-        socket->SetOffsetPosition({ -13, 0.0f, 0.0f });
-        socket->SetOffsetRotation({ -90.0f, -90.0f, 0.0f });
+        socket->SetOffsetPosition({ -1.2, 0.0f, 0.5f });
+        socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         swordEntity->SetParent(viewEntity);
     }
