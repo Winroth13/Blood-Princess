@@ -35,31 +35,59 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     playerEntity->AddComponent<ListenerComponent>();
     playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
     playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
-    // Player Sound Effect
 	{
 		auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
         characterAudio->SetIsPlayer(true);
-		SoundEntry lAttack1(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/192146__brassknucklesfilms__bone-crunch-fast.ogg"));
-        SoundEntry lAttack2(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"));
-        SoundEntry lAttack3(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"));
-        SoundEntry lAttack4(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"));
-        SoundEntry lAttack5(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/500912__bertsz__squish-impact.ogg"));
-        SoundEntry lAttack6(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/536765__egomassive__squish.ogg"));
-        SoundEntry lAttack7(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/686363__faircashew__squished.ogg"));
-        SoundEntry lAttack8(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/869107__robo9418__bone-crack.ogg"));
 
-		SoundLayer lightAttackLayer;
-        lightAttackLayer.AddSound(lAttack1);
-		lightAttackLayer.AddSound(lAttack2);
-		lightAttackLayer.AddSound(lAttack3);
-		lightAttackLayer.AddSound(lAttack4);
-		lightAttackLayer.AddSound(lAttack5);
-		lightAttackLayer.AddSound(lAttack6);
-		lightAttackLayer.AddSound(lAttack7);
-		lightAttackLayer.AddSound(lAttack8);
+		SoundLayer swingLayer;
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_1.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
 
-        characterAudio->AddLightAttackLayer(lightAttackLayer);
+		SoundLayer squishLayer;
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/500912__bertsz__squish-impact.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/536765__egomassive__squish.ogg"), 0.70f, 0.90f, 0.93f, 1.07f);
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/686363__faircashew__squished.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/524952__magnuswaker__squelch-2.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+		squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/540076__magnuswaker__meat-slap-2.ogg"), 0.60f, 0.80f, 0.94f, 1.04f);
 
+		SoundLayer boneLayer;
+		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/192146__brassknucklesfilms__bone-crunch-fast.ogg"), 0.45f, 0.60f, 0.94f, 1.06f);
+		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.45f, 0.60f, 0.93f, 1.05f);
+		boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/869107__robo9418__bone-crack.ogg"), 0.45f, 0.60f, 0.95f, 1.05f);
+
+		SoundLayer thudLayer;
+		thudLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/339832__insanity54__thud.ogg"), 0.70f, 0.85f, 0.92f, 1.04f);
+
+		characterAudio->AddLightAttackLayer(swingLayer);
+		characterAudio->AddLightAttackLayer(squishLayer);
+		characterAudio->AddLightAttackLayer(boneLayer);
+		characterAudio->AddLightAttackLayer(thudLayer);
+
+		SoundLayer heavySwingLayer;
+		heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/523230__magnuswaker__hard-swing-1.ogg"), 1.2f, 1.3f, 0.92f, 1.04f);
+
+		SoundLayer heavyGoreLayer;
+		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/581092__magnuswaker__burst-flesh.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/563315__magnuswaker__gushing-flesh.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+		heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
+
+		SoundLayer heavyBoneLayer;
+		heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522171__magnuswaker__bone-breaker-1.ogg"), 0.65f, 0.80f, 0.92f, 1.03f);
+		heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.60f, 0.75f, 0.90f, 1.02f);
+
+		SoundLayer heavyImpactLayer;
+		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/522091__magnuswaker__pound-of-flesh-1.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+		heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+
+		characterAudio->AddHeavyAttackLayer(heavySwingLayer);
+		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
+		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
+		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
     }
     //Entity *musicEntity = outScene.AddEntity("music_entity");
     //musicEntity->AddComponent<TransformComponent>();

@@ -201,6 +201,11 @@ void PlayerControllerComponent::PerformHeavyAttack()
 			break;
 		}
 	}
+
+	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	{
+		characterAudio->PlayHeavyAttack();
+	}
 }
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
