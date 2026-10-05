@@ -10,6 +10,7 @@
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
 #include "components/hit_box_component.hpp"
+
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
