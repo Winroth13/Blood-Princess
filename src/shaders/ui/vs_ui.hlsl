@@ -19,11 +19,8 @@ struct VertexShaderOutput
 VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    
-    float4 clipPos = mul(float4(input.position, 1.0f, 1.0f), viewProjectionMatrix);
 
-    output.clipPosition = clipPos;
-
+    output.clipPosition = mul(float4(input.position, 1.0f, 1.0f), viewProjectionMatrix);;
     output.colour = input.colour;
     output.uv = input.uv;
     

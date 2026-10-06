@@ -105,6 +105,7 @@
     <ClCompile Include="src\components\ui\ui_checkbox_component.cpp" />
     <ClCompile Include="src\components\ui\ui_button_component.cpp" />
     <ClCompile Include="src\ui\ui_context.cpp" />
+    <ClCompile Include="src\assets\types\font.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -237,6 +238,7 @@
     <ClInclude Include="src\components\ui\ui_checkbox_component.hpp" />
     <ClInclude Include="src\components\ui\ui_button_component.hpp" />
     <ClInclude Include="src\ui\ui_context.hpp" />
+    <ClInclude Include="src\assets\types\font.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

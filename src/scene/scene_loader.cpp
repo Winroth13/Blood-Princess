@@ -29,6 +29,7 @@
 #include "components/ui/ui_canvas_component.hpp"
 #include "components/ui/ui_rect_component.hpp"
 #include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_text_component.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     Entity *hud = outScene.AddEntity("HUD");
@@ -41,6 +42,13 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
     imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
     imageComp->SetShouldPreserveAspectRatio(true);
+
+    Entity *txt = outScene.AddEntity("txt");
+    txt->SetParent(img);
+    txt->AddComponent<UIRectComponent>()->Place(UIAnchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    textComp->SetText("Blood!");
 }
 
 static void TestScene(Scene& outScene, const AppContext& appContext) {

@@ -206,6 +206,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\animation_library.cpp" />
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
+    <ClCompile Include="src\assets\types\font.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
     <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
@@ -318,6 +319,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\animation_library.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
+    <ClInclude Include="src\assets\types\font.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\components\ambient_light_component.hpp" />

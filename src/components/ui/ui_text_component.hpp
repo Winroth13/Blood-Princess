@@ -2,11 +2,16 @@
 
 #include "scene/component.hpp"
 
+#include <string>
+
 class UITextComponent : public Component {
     RegisterComponent(UITextComponent);
 
-    // ExportProperty(DirectX::XMFLOAT2, anchorTopLeft, {0.0f, 0.0f});
+    ExportProperty(std::string, text, "");
 
 public:
-    UITextComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    UITextComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(), UsesUIRender(); }
+
+    const std::string &GetText() const { return this->text; }
+    void SetText(const std::string &text) { this->text = text; }
 };
