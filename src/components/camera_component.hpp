@@ -11,7 +11,7 @@ class CameraComponent : public Component
     ExportPropertyRanged(float, farPlane, "m", 1.0f, 5000.0f, 1, 15.0f);
 
 public:
-    CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(), NoRender(); }
+    CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 
 private:
     void Update(const AppContext &context, float deltaTime) override;

@@ -43,7 +43,7 @@ public:
     static XMFLOAT3 QuaternionToEulerAngles(const XMFLOAT4 &quaternion);
     static XMFLOAT4 EulerAnglesToQuaternion(const XMFLOAT3 &euler);
 
-    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    TransformComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
 
 private:
 

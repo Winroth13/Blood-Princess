@@ -35,7 +35,7 @@ class AnimatorComponent : public Component {
     std::vector<DirectX::XMFLOAT4X4> skinMatrices;
 
 public:
-    AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
+    AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(); }
 
 private:
     void LateUpdate(const AppContext &context, float deltaTime) override;
