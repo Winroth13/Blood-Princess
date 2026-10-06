@@ -1,16 +1,16 @@
 #include "player_controller_component.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "input/input.hpp"
 #include "input/action.hpp"
 #include <algorithm>
 #include "collision/collision_manager.hpp"
-#include "components/audio_component.hpp"
+#include "components/audio/audio_component.hpp"
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
-#include "components/hit_box_component.hpp"
-#include "components/character_audio_component.hpp"
+#include "components/collisions/hit_box_component.hpp"
+#include "components/audio/character_audio_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {

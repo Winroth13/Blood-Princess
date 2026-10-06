@@ -1,10 +1,10 @@
 #include "box_collision_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "collision/collision_manager.hpp"
 #include "core/logging.hpp"
-#include "components/model_component.hpp"
+#include "components/core/model_component.hpp"
 #include "DirectXMath.h"
-#include "components/sphere_collision_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
 BoxCollisionComponent::BoxCollisionComponent(Entity* owner, bool isActive) 
     : CollisionComponent(owner, isActive)
 {

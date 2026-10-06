@@ -1,19 +1,20 @@
-#include "projectile_component.h"
-#include "components/transform_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "components/core/transform_component.hpp"
 void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (isGrounded)return;
+	if (isGrounded || projectileAliveTime <= 0.0f)return;
 
+	this->projectileAliveTime -= deltaTime;
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
 	if (!transform)return;
 
 
-	this->velocity.y += deltaTime * gravity;
+	this->velocity.y -= deltaTime * gravity;
 
 	DirectX::XMFLOAT3 pos = transform->GetWorldPosition();
 	pos.x += velocity.x * deltaTime;
-	pos.y += velocity.x * deltaTime;
-	pos.z += velocity.x * deltaTime;
+	pos.y += velocity.y * deltaTime;
+	pos.z += velocity.z * deltaTime;
 
 	if (pos.y <= groundY) {
 		pos.y = groundY;

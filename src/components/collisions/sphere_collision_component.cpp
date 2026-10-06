@@ -1,7 +1,7 @@
 #include "sphere_collision_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "collision/collision_manager.hpp"
-#include "components/box_collision_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
 #include "core/logging.hpp"
 
 SphereCollisionComponent::SphereCollisionComponent(Entity* owner, bool isActive)

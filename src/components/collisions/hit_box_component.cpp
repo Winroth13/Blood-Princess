@@ -1,7 +1,7 @@
 #include "hit_box_component.hpp"
 #include "events/event_bus.hpp"
-#include "components/player_controller_component.hpp"
-#include "components/character_audio_component.hpp"
+#include "components/gameplay/player_controller_component.hpp"
+#include "components/audio/character_audio_component.hpp"
 
 
 void HitboxComponent::Update(const AppContext& context, float deltaTime)

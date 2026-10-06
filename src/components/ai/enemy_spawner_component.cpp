@@ -1,17 +1,20 @@
 #include "enemy_spawner_component.hpp"
 #include "scene/entity.hpp"
-#include "components/transform_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/health_component.hpp"
-#include "components/hurt_box_component.hpp"
-#include "components/hit_box_component.hpp"
-#include "components/enemy_controller_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/gameplay/health_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
+#include "components/collisions/hit_box_component.hpp"
+#include "components/ai/enemy_controller_component.hpp"
 #include "scene/scene.hpp"
 #include "assets/asset_manager.hpp"
-#include "components/model_component.hpp"
-#include "components/animator_component.hpp"
+#include "components/core/model_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 #include "core/logging.hpp"
-
+#include "components/gameplay/projectile_component.hpp"
+#include "components/core/particle_system_component.hpp"
+#include "core/rng.hpp"
+#include "scene/scene_manager.hpp"
 
 void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEnemies)
 {
@@ -73,14 +76,18 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 	}
 }
 
-void EnemySpawnerComponent::CleanupDeadEnemies()
+void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 {
 	this->spawnedEnemies.erase(
 		std::remove_if(this->spawnedEnemies.begin(), this->spawnedEnemies.end(),
-			[](Entity* e) {
+			[&context, this](Entity* e) {
 				if (!e) return true;
+
 				auto* hp = e->GetComponent<Health>();
 				if (hp && hp->IsDead()) {
+					if (auto* transform = e->GetComponent<TransformComponent>()) {
+						SpawnGib(context, transform->GetWorldPosition(), e->GetScene());
+					}
 					e->GetScene()->DestroyEntity(e);
 					return true;
 				}
@@ -88,8 +95,10 @@ void EnemySpawnerComponent::CleanupDeadEnemies()
 			}),
 		this->spawnedEnemies.end()
 	);
+
 	this->currentEnemies = static_cast<int>(this->spawnedEnemies.size());
 }
+
 
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
@@ -98,7 +107,8 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
-	this->CleanupDeadEnemies();
+	this->CleanupDeadEnemies(context);
+	this->CleanGibs(context.sceneManager->GetCurrentScene());
 
 	if (static_cast<int>(this->spawnedEnemies.size()) >= this->maxEnemiesAlive)
 		return;
@@ -110,3 +120,63 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 		SpawnEnemy(context, this->maxEnemiesAlive - this->currentEnemies );
 	}
 }
+
+
+void EnemySpawnerComponent::SpawnGib(const AppContext& context,DirectX::XMFLOAT3 pos, Scene* scene) {
+
+	float numberOfGibs = RNG::Int(3, 10);
+	for (size_t i = 0; i < numberOfGibs; i++)
+	{
+		Entity* gib = scene->AddEntity("Gib_" + std::to_string(i));
+
+		TransformComponent* gibTransform = gib->AddComponent< TransformComponent>();;
+		gibTransform->SetWorldPosition(pos);
+		gibTransform->SetWorldScale(0.05f);
+
+
+		ModelComponent* modelComponent = gib->AddComponent<ModelComponent>();
+		std::shared_ptr<Model> model = context.assetManager->Get<Model>("assets/models/sphere.glb");
+		modelComponent->SetModel(model);
+
+		ProjectileComponent* projectileGib = gib->AddComponent<ProjectileComponent>();
+		//projectileGib->SetAliveTime(RNG::Float(3, 10));
+		projectileGib->SetAliveTime(5);
+
+		DirectX::XMFLOAT3 velocity = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
+		DirectX::XMFLOAT3 angularVelocity = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
+		projectileGib->Launch(velocity, angularVelocity);
+
+		DirectX::XMFLOAT3 particleAcceleration = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
+		ParticleSystemComponent* gibParticle = gib->AddComponent<ParticleSystemComponent>();
+		float Scale = RNG::Float(0.8, 1.2);
+		gibParticle->SetLifeTime(RNG::Float(0.1, 1));
+		gibParticle->SetSpawnRadius(RNG::Float(0.001, 0.3));
+		gibParticle->SetCount(RNG::Int(5,10));
+		gibParticle->SetIsAnimate(false);
+		gibParticle->SetVelocity(velocity);
+		gibParticle->SetAcceleration(particleAcceleration);
+		gibParticle->SetStartScale(Scale);
+		gibParticle->SetEndScale(Scale);
+		gibParticle->SetIsAdditive(false);
+		gibParticle->SetStartTint({ 0.533f, 0.031f, 0.031f });
+		gibParticle->SetEndTint({ 0.533f, 0.031f, 0.031f });
+		gibParticle->SetAtlasTexture(context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+
+		gibsSpawned.push_back(gib);
+	}
+}
+void EnemySpawnerComponent::CleanGibs(Scene* scene) {
+	this->gibsSpawned.erase(
+		std::remove_if(this->gibsSpawned.begin(), this->gibsSpawned.end(),
+			[](Entity* e) {
+				if (!e) return true;
+				auto* gibs = e->GetComponent<ProjectileComponent>();
+				if (gibs && gibs->GetAliveTime() <= 0.0f) {
+					e->GetScene()->DestroyEntity(e);
+					return true;
+				}
+				return false;
+			}),
+		this->gibsSpawned.end()
+	);
+};

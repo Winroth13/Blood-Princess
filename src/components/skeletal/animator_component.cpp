@@ -1,7 +1,7 @@
 #include "animator_component.hpp"
 #include "assets/types/model.hpp"
 #include "assets/types/animation_library.hpp"
-#include "components/model_component.hpp"
+#include "components/core/model_component.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
 

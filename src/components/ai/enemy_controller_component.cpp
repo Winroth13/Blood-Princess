@@ -1,10 +1,11 @@
 #include "enemy_controller_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
 #include <DirectXMath.h>
-#include "components/target_component.hpp"
+#include "components/ai/target_component.hpp"
 #include "scene/scene.hpp"
+
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();

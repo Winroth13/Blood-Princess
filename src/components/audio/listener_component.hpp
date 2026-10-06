@@ -1,6 +1,6 @@
 #pragma once
 #include "scene/component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "scene/entity.hpp"
 

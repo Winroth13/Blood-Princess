@@ -1,5 +1,5 @@
 #include "light_flicker_component.hpp"
-#include "components/point_light_component.hpp"
+#include "components/lights/point_light_component.hpp"
 #include "core/rng.hpp"
 
 #include <cmath>

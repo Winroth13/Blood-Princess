@@ -1,7 +1,7 @@
 #pragma once
 #include "scene/component.hpp"
-#include "components/hit_box_component.hpp"
-#include "components/health_component.hpp"
+#include "components/collisions/hit_box_component.hpp"
+#include "components/gameplay/health_component.hpp"
 #include "events/event_bus.hpp"
 #include <DirectXMath.h>
 #include "scene/entity.hpp"
