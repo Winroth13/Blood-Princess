@@ -157,7 +157,8 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 
 void PlayerControllerComponent::HandleCombat(float deltaTime)
 {
-	if (Action::IsActionPressed("LightAttack")) {
+	if (Action::IsActionPressed("LightAttack")) 
+	{
 		PerformLightAttack();
 	}
 
@@ -191,6 +192,9 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 void PlayerControllerComponent::PerformLightAttack()
 {
 	LogInfo("Attack with light attack.");
+
+
+
 	for (Entity* child : this->GetOwner()->GetChildren()) {
 		if (auto* hb = child->GetComponent<HitboxComponent>()) {
 			hb->SetDamage(10.0f);

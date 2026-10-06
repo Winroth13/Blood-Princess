@@ -4,6 +4,18 @@
 #include "input/input.hpp"
 
 class TransformComponent;
+class AnimatorComponent;
+
+struct AttackData
+{
+	std::string animationName; // The name of the animation to play
+
+	float beginDamage; // How many seconds into the animation should it begin dealing damage
+	float stopDamage; // How many seconds into the animation should it stop dealing damage
+
+	float beginCombo; // How many seconds into the animation should it allow combo
+	float endCombo; // How many seconds into the animation should it no longer allow combo
+};
 
 class PlayerControllerComponent : public Component 
 {
@@ -22,10 +34,34 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
 
-	XMVECTOR dashDirection;
-	CollisionManager* collisionRef{ nullptr };
+	XMVECTOR dashDirection = {};
+	CollisionManager* collisionRef = nullptr;
 
 	TransformComponent *rootTransform = nullptr;
+
+	std::array<AttackData, 2> lightAttacks =
+	{
+		AttackData(
+			"light_attack_01",
+			0.5, 1.0,
+			0.7, 0.7
+		),
+
+		AttackData(
+			"light_attack_02",
+			0.5, 1.0,
+			0.7, 0.7
+		)
+	};
+
+	AttackData heavyAttack =
+	{
+		"heavy_attack_01",
+		0.5, 1.0,
+		-1, -1
+	};
+
+	uint32_t lightAttackCombo = 0;
 
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
@@ -35,7 +71,10 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
+
 public:
+	AnimatorComponent *viewmodelAnimator = nullptr;
+
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
 
 	void HandleMovement(float deltaTime);
