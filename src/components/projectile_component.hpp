@@ -11,7 +11,7 @@ public:
     DirectX::XMFLOAT3 angularVelocity = { 0,0,0 };
     float groundY = 0.0f;
     float gravity = 9.82f;
-
+    float projectileAliveTime = 8.0f;
 
     bool isGrounded = false;
 
@@ -22,5 +22,10 @@ public:
 
     void Launch(const DirectX::XMFLOAT3& vel, const DirectX::XMFLOAT3 & angVel = { 0.0f, 0.0f, 0.0f });
     bool IsGrounded()const { return isGrounded; };
+
+    float GetAliveTime() const { return projectileAliveTime; }
+    void SetAliveTime(float amount) { this->projectileAliveTime = amount; }
+
+    void SetGravity(float strength) { this->gravity = strength; }
 };
 

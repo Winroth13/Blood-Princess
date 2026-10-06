@@ -21,10 +21,13 @@ private:
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
 	std::vector<Entity*> spawnedEnemies;
-	std::vector<Entity*> GibsSpawned;
+	std::vector<Entity*> gibsSpawned;
 
 	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
-	void CleanupDeadEnemies();
+	void SpawnGib(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene);
+	void CleanGibs(Scene* scene);
+
+	void CleanupDeadEnemies(const AppContext& context);
 
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
@@ -36,4 +39,6 @@ public:
 
 	EnemySpawnerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(), UsesLateUpdate(), UsesRender(); };
 	~EnemySpawnerComponent() = default;
+
+
 };

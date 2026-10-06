@@ -60,7 +60,6 @@
     <ClCompile Include="src\components\player_controller_component.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
     <ClCompile Include="src\collision\quad_tree.cpp" />
-    <ClCompile Include="src\collision\collision_component.cpp" />
     <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\rendering\shared_resources.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
@@ -95,7 +94,7 @@
     <ClCompile Include="src\components\character_audio_component.cpp" />
     <ClCompile Include="src\core\debug.cpp" />
     <ClCompile Include="src\editor\statistics_panel.cpp" />
-    <ClCompile Include="projectile_component.cpp" />
+    <ClCompile Include="src\components\projectile_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -216,7 +215,7 @@
     <ClInclude Include="src\components\character_audio_component.hpp" />
     <ClInclude Include="src\core\debug.hpp" />
     <ClInclude Include="src\editor\statistics_panel.hpp" />
-    <ClInclude Include="projectile_component.h" />
+    <ClInclude Include="src\components\projectile_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
