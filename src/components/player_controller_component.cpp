@@ -99,16 +99,20 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 	DirectX::XMVECTOR moveDir = XMVectorZero();
 
 
-	if (Action::IsActionDown("MoveForward")) {
+	if (Action::IsActionDown("MoveForward")) 
+	{
 		moveDir = XMVectorAdd(moveDir, forward);
 	}
-	if (Action::IsActionDown("MoveBackward")) {
+	if (Action::IsActionDown("MoveBackward")) 
+	{
 		moveDir = XMVectorSubtract(moveDir, forward);
 	}
-	if (Action::IsActionDown("MoveRight")) {
+	if (Action::IsActionDown("MoveRight")) 
+	{
 		moveDir = XMVectorAdd(moveDir, right);
 	}
-	if (Action::IsActionDown("MoveLeft")) {
+	if (Action::IsActionDown("MoveLeft")) 
+	{
 		moveDir = XMVectorSubtract(moveDir, right);
 	}
 
@@ -141,9 +145,12 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 	float deltaY = Input::GetMouseDeltaY();
 
 	this->yaw += deltaX * this->mouseSensitivity.x;
-	this->pitch += deltaY * this->mouseSensitivity.y;
 
-	this->pitch = std::clamp(this->pitch, -89.9f, 89.9f);
+	XMFLOAT3 rootRotation = this->rootTransform->GetLocalRotation();
+	rootRotation.x += -deltaY * this->mouseSensitivity.y;
+	rootRotation.x = std::clamp(rootRotation.x, -89.9f, 89.9f);
+	this->rootTransform->SetLocalRotation(rootRotation);
+	
 	transform->SetLocalRotation(this->pitch, this->yaw, 0.0f);
 	
 }
@@ -153,11 +160,14 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 	if (Action::IsActionPressed("LightAttack")) {
 		PerformLightAttack();
 	}
+
 	if (Action::IsActionPressed("HeavyAttack"))
 	{
 		PerformHeavyAttack();
 	}
-	if (Action::IsActionPressed("Dash") && this->canUseDash) {
+
+	if (Action::IsActionPressed("Dash") && this->canUseDash) 
+	{
 		this->dashDirection = DirectX::XMVectorZero();
 		GetDashDirection(this->dashDirection);
 

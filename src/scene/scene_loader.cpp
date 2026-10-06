@@ -117,11 +117,13 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
     {
         Entity *viewEntity = outScene.AddEntity("viewmodel");
         auto *viewTransform = viewEntity->AddComponent<TransformComponent>();
-        viewTransform->SetLocalPosition({ 0.0, -.75f, -0.8f });
+        viewTransform->SetLocalPosition({ 0.0f, 0.0f, 0.0f });
         viewTransform->SetLocalScale({ 0.2f, 0.2f ,0.2f });
         viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
         ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
         viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
+
+        playerEntity->GetComponent<PlayerControllerComponent>()->SetRootTransform(viewTransform);
 
         AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
         animator->AddAnimations(viewmodelModel->GetModel()->GetAnimations());
