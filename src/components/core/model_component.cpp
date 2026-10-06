@@ -1,12 +1,12 @@
 #include "model_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "scene/entity.hpp"
 #include "assets/types/model.hpp"
 #include "rendering/render_commands.hpp"
 #include "assets/types/texture_2d.hpp"
-#include "components/paintable_component.hpp"
+#include "components/gameplay/paintable_component.hpp"
 #include "core/logging.hpp"
-#include "components/animator_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 
 void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (!this->model)

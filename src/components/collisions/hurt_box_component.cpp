@@ -1,6 +1,6 @@
 #include "hurt_box_component.hpp"
 #include "collision/collision_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 
 
 void HurtboxComponent::OnStart(const AppContext& context)

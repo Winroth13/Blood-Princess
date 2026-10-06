@@ -1,5 +1,5 @@
 #include "directional_light_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 #include "rendering/renderer.hpp"

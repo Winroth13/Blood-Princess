@@ -1,5 +1,5 @@
 #include "projectile_component.h"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (isGrounded)return;

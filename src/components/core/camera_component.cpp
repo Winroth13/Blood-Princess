@@ -1,5 +1,5 @@
 #include "camera_component.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "scene/entity.hpp"
 #include "rendering/renderer.hpp"
 

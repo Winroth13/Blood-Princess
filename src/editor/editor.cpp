@@ -13,11 +13,11 @@
 #include "core/app_context.hpp"
 #include "rendering/renderer.hpp"
 #include "rendering/render_utils.hpp"
-#include "components/transform_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/model_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/core/model_component.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
-#include "components/animator_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 
 #include "rendering/lines/line_utils.hpp"
 

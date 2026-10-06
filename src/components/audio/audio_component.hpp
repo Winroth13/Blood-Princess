@@ -1,7 +1,7 @@
 #pragma once
 #include "scene/component.hpp"
 #include "audio/audio_manager.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include <DirectXMath.h>
 #include <algorithm>
 class AudioComponent : public Component
