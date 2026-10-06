@@ -11,8 +11,8 @@
 #include "components/core/model_component.hpp"
 #include "components/skeletal/animator_component.hpp"
 #include "core/logging.hpp"
-#include "components/projectile_component.hpp"
-#include "components/particle_system_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "components/core/particle_system_component.hpp"
 #include "core/rng.hpp"
 #include "scene/scene_manager.hpp"
 
