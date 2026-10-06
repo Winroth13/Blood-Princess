@@ -78,6 +78,7 @@ void AnimatorComponent::RefreshSkeleton() {
 
         const size_t jointCount = skeleton ? skeleton->GetJointCount() : 0;
         this->localPose.resize(jointCount);
+        this->blendPose.resize(jointCount);
         this->jointModelMatrices.resize(jointCount);
         this->skinMatrices.resize(skeleton ? skeleton->GetSkinJointCount() : 0);
     }

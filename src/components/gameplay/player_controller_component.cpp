@@ -222,7 +222,7 @@ void PlayerControllerComponent::PerformLightAttack()
 
 void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 {
-	this->viewmodelAnimator->Play(attackData.animationName, false);
+	this->viewmodelAnimator->CrossFade(attackData.animationName, 0.1f, false);
 }
 
 bool PlayerControllerComponent::CanAttack()
@@ -265,6 +265,8 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		{
 			this->currentAttack = -1;
 			this->combo = 0;
+
+            this->viewmodelAnimator->CrossFade("idle", 0.2f);
 		}
 	}
 }
