@@ -4,8 +4,7 @@
 MusicComponent::MusicComponent(Entity* owner, bool isActive, std::shared_ptr<AudioClip> audioClip)
 	: Component(owner, isActive)
 {
-	NoLateUpdate();
-	NoRender();
+	UsesUpdate();
 
 	this->audioClip = audioClip;
 	if (audioClip == nullptr) {

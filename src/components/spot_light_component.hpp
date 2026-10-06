@@ -16,7 +16,7 @@ class SpotLightComponent : public Component
     DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 
 public:
-	SpotLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
+	SpotLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(), UsesRender(); }
 
 private:
 	void LateUpdate(const AppContext &context, float deltaTime) override;

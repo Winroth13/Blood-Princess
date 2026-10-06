@@ -26,7 +26,7 @@ class SocketComponent : public Component {
     void OnJointNameChanged();
 
 public:
-    SocketComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoRender(); }
+    SocketComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(); }
 
 private:
     void LateUpdate(const AppContext &context, float deltaTime) override;

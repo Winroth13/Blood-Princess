@@ -15,7 +15,7 @@ class ModelComponent : public Component
     ExportPropertyColor(DirectX::XMFLOAT3, tint, { 1.0f, 1.0f, 1.0f });
 
 public:
-    ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(); }
+    ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 
 private:
     void Render(const RenderView &view, RenderQueue &queue) override;

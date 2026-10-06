@@ -15,7 +15,7 @@ class LightFlickerComponent : public Component
     float timer = 0.0f;
 
 public:
-    LightFlickerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoRender(); NoLateUpdate(); }
+    LightFlickerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 
 private:
     void OnStart(const AppContext& context) override;

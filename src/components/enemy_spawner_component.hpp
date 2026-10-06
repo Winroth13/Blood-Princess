@@ -34,6 +34,6 @@ private:
 
 public:
 
-	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
+	EnemySpawnerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(), UsesLateUpdate(), UsesRender(); };
 	~EnemySpawnerComponent() = default;
 };
