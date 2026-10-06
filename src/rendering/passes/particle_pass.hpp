@@ -28,7 +28,7 @@ class ParticlePass
 	std::shared_ptr<GeometryShader> geometryShader = nullptr;
 	std::shared_ptr<ComputeShader> computeShader = nullptr;
 
-	void RenderParticlePass(
+	void UpdateParticlePass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
 		SharedResources &sharedResources,

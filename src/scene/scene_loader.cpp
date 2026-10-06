@@ -43,11 +43,17 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         characterAudio->SetIsPlayer(true);
 
 		SoundLayer swingLayer;
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_1.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_1.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_2.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_3.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_4.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
 		characterAudio->AddLightAttackSwingLayer(swingLayer);
+
+		SoundLayer swordSwingLayer;
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840716__nomagician__sword-swing-1.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840715__nomagician__sword-swing-2.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840717__nomagician__sword-swing-3.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		characterAudio->AddLightAttackSwingLayer(swordSwingLayer);
 
         SoundLayer squishLayer;
         squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);

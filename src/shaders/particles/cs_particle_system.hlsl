@@ -24,7 +24,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     
     float3 realVelocity = velocity + acceleration * particle.lifeTime;
     particle.position += realVelocity * deltaTime;
-   
+    
     float lifeRatio = particle.lifeTime / lifeTime;
     
     bool shouldReset = (flags & PARTICLE_FLAG_RESET) == PARTICLE_FLAG_RESET;
@@ -51,6 +51,11 @@ void main( uint3 DTid : SV_DispatchThreadID )
         particle.position.x = x + realVelocity.x * particle.lifeTime;
         particle.position.y = realVelocity.y * particle.lifeTime;
         particle.position.z = z + realVelocity.z * particle.lifeTime;
+        
+        if ((flags & PARTICLE_FLAG_GLOBAL) == PARTICLE_FLAG_GLOBAL)
+        {
+            particle.position += worldMatrix[3].xyz;
+        }
     }
     
     particle.scale = lerp(startScale, endScale, lifeRatio);
