@@ -54,7 +54,6 @@ bool BoxCollisionComponent::Intersects(CollisionComponent* other)
 void BoxCollisionComponent::OnCollision(CollisionComponent* other, DirectX::XMFLOAT3 normal)
 {
     EventBus::Publish(CollisionEvent{ this, other, normal });
-    //LogInfo("sword Hit");
 
 }
 

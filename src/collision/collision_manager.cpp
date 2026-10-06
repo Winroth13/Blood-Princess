@@ -4,6 +4,10 @@
 #include "components/collisions/box_collision_component.hpp"
 #include "components/core/transform_component.hpp"
 #include "components/collisions/sphere_collision_component.hpp"
+#include "components/gameplay/paintable_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "events/event_bus.hpp"
+
 
 bool CollisionManager::CheckBoxBoxOverlap(BoxCollisionComponent* a, BoxCollisionComponent* b, CollisionHit& outHit)
 {

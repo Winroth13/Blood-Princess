@@ -9,7 +9,7 @@ public:
     RegisterComponent(ProjectileComponent);
     DirectX::XMFLOAT3 velocity = { 0,0,0 };
     DirectX::XMFLOAT3 angularVelocity = { 0,0,0 };
-    float groundY = 0.0f;
+    float groundY = -2.5f;
     float gravity = 9.82f;
     float projectileAliveTime = 8.0f;
 

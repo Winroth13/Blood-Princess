@@ -2,9 +2,12 @@
 #include "components/core/transform_component.hpp"
 void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (isGrounded || projectileAliveTime <= 0.0f)return;
-
+	if (projectileAliveTime <= 0.0f) return;
 	this->projectileAliveTime -= deltaTime;
+
+	if (isGrounded)return;
+
+
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
 	if (!transform)return;
 
