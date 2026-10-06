@@ -13,8 +13,17 @@ StructuredBuffer<Particle> particles : register(t0);
 VertexShaderOutput main(uint vertexID : SV_VertexID)
 {
     VertexShaderOutput output;
-
-    float4 worldPos = mul(float4(particles[vertexID].position, 1.0f), worldMatrix);
+    
+    float4 worldPos;
+    
+    if ((flags & PARTICLE_FLAG_GLOBAL) == PARTICLE_FLAG_GLOBAL)
+    {
+        worldPos = float4(particles[vertexID].position, 1.0f);
+    }
+    else
+    {
+        worldPos = mul(float4(particles[vertexID].position, 1.0f), worldMatrix);
+    }
 
     output.worldPosition = worldPos.xyz;
     output.scale = particles[vertexID].scale;

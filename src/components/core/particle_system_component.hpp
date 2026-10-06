@@ -11,6 +11,7 @@ class ParticleSystemComponent : public Component
     ExportProperty(int, count, 20);
     ExportPropertyRanged(float, lifeTime, "s", 0.0f, 0.0f, 0.1f, 1.0f);
     ExportPropertyRanged(float, spawnRadius, "m", 0.0f, 0.0f, 0.1f, 1.0f);
+    ExportProperty(bool, isGlobal, false);
 
     ExportPropertyCategory("Animation");
     ExportProperty(bool, isAnimated, false);
@@ -63,4 +64,5 @@ public:
 
     void SetIsAnimate(const bool isAnimated) { this->isAnimated = isAnimated; }
     void SetIsAdditive(const bool isAdditive) { this->isAdditive = isAdditive; }
+    void SetIsGlobal(const bool isGlobal) { this->isGlobal = isGlobal; }
 };
