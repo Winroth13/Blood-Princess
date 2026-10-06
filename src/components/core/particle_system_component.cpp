@@ -1,6 +1,6 @@
 #include "particle_system_component.hpp"
 #include "scene/entity.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "rendering/render_utils.hpp"
 #include "rendering/render_data.hpp"
 #include "rendering/renderer.hpp"

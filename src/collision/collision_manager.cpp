@@ -1,9 +1,9 @@
 #include "collision_manager.hpp"
 #include "core/logging.hpp"
 #include "collision/collision_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/transform_component.hpp"
-#include "components/sphere_collision_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
 
 bool CollisionManager::CheckBoxBoxOverlap(BoxCollisionComponent* a, BoxCollisionComponent* b, CollisionHit& outHit)
 {
@@ -509,7 +509,7 @@ void CollisionManager::Shutdown()
     LogInfo("Collision Manager have been succefully Shutdown!");
 }
 
-void CollisionManager::Update(float deltaTime)
+void CollisionManager::FixedUpdate(float deltaTime)
 {
     this->ResolvePairs();
 }

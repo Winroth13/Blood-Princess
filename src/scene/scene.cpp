@@ -171,12 +171,17 @@ void Scene::OnEntityParentChanged(Entity *entity) {
         this->rootEntities.push_back(entity);
 }
 
-void Scene::Update(float deltaTime) {
+void Scene::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
     // TODO: Should this follow the hierarchy? Currently entities are started in the order that they are added
     this->StartPendingEntities();
 
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
+
+    for (int i = numFixedTicks; i > 0; i--)
+        for (Entity *entity : this->entityUpdateOrder)
+            if (entity->IsActive())
+                entity->FixedUpdate(*this->context, deltaTime);
 
     for (Entity *entity : this->entityUpdateOrder)
         if (entity->IsActive())

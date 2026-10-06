@@ -3,9 +3,12 @@
 #include "input/action.hpp"
 #include "input/input.hpp"
 
+class TransformComponent;
+
 class PlayerControllerComponent : public Component 
 {
 	RegisterComponent(PlayerControllerComponent);
+
 	ExportProperty(std::string, groupName, "players");
 	ExportProperty(float, moveSpeed, 10.0f);
 	ExportProperty(XMFLOAT2, mouseSensitivity, {0.1f,0.1f});
@@ -18,8 +21,11 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, dashTimer, 0.0f);
 	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
+
 	XMVECTOR dashDirection;
 	CollisionManager* collisionRef{ nullptr };
+
+	TransformComponent *rootTransform = nullptr;
 
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
@@ -30,6 +36,8 @@ private:
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
 public:
+	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
+
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
 	void HandleCombat(float deltaTime);

@@ -2,7 +2,7 @@
 #include "scene/component.hpp"
 #include "scene/entity.hpp"
 #include <DirectXMath.h>
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 class TargetComponent : public Component
 {
     RegisterComponent(TargetComponent);

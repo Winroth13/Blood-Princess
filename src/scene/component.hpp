@@ -11,6 +11,7 @@
 
 // Call these in the constructor to indicate that a component never wants Update()/Render()
 // Not strictly necessary, just removes a virtual function call. 
+#define UsesFixedUpdate() this->wantsFixedUpdate = true
 #define UsesUpdate() this->wantsUpdate = true
 #define UsesLateUpdate() this->wantsLateUpdate = true
 #define UsesRender() this->wantsRender = true
@@ -29,6 +30,7 @@ class Component {
     bool isPendingDestroy = false;
 
 protected:
+    bool wantsFixedUpdate = false;
     bool wantsUpdate = false;
     bool wantsLateUpdate = false;
     bool wantsRender = false;
@@ -39,6 +41,7 @@ protected:
 private:
     // These should only ever be called through the main frame loop
     virtual void OnStart(const AppContext &context) {}
+    virtual void FixedUpdate(const AppContext &context, float deltaTime) {}
     virtual void Update(const AppContext &context, float deltaTime) {}
     virtual void LateUpdate(const AppContext &context, float deltaTime) {}
     virtual void Render(const RenderView &view, RenderQueue &queue) {}
@@ -56,6 +59,7 @@ public:
 
     bool IsPendingDestroy() const { return this->isPendingDestroy; }
 
+    bool WantsFixedUpdate() const { return this->wantsFixedUpdate; }
     bool WantsUpdate() const { return this->wantsUpdate; }
     bool WantsLateUpdate() const { return this->wantsLateUpdate; }
     bool WantsRender() const { return this->wantsRender; }

@@ -30,7 +30,7 @@ public:
     void RequestSceneChange(const std::string &name);
     void ReloadCurrentScene();
 
-    void Update(float deltaTime);
+    void Update(float deltaTime, float fixedDeltaTime, int numFixedTicks);
 
     Scene *GetCurrentScene() { return &this->scene; }
     const std::string &GetCurrentSceneName() const { return this->currentSceneName; }

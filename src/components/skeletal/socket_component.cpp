@@ -1,6 +1,6 @@
 #include "socket_component.hpp"
-#include "components/transform_component.hpp"
-#include "components/animator_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
 

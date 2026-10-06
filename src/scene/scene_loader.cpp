@@ -2,31 +2,31 @@
 #include "core/logging.hpp"
 #include <cmath>
 #include "scene/entity.hpp"
-#include "components/transform_component.hpp"
-#include "components/music_component.hpp"
-#include "components/camera_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/audio/music_component.hpp"
+#include "components/core/camera_component.hpp"
 #include "core/app_context.hpp"
 #include "assets/asset_manager.hpp"
-#include "components/model_component.hpp"
-#include "components/audio_component.hpp"
-#include "components/listener_component.hpp"
-#include "components/point_light_component.hpp"
-#include "components/directional_light_component.hpp"
-#include "components/spot_light_component.hpp"
-#include "components/player_controller_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/ambient_light_component.hpp"
-#include "components/particle_system_component.hpp"
-#include "components/sphere_collision_component.hpp"
-#include "components/light_flicker_component.hpp"
-#include "components/animator_component.hpp"
-#include "components/paintable_component.hpp"
-#include "components/hurt_box_component.hpp"
-#include "components/hit_box_component.hpp"
-#include "components/enemy_controller_component.hpp"
-#include "components/enemy_spawner_component.hpp"
-#include "components/socket_component.hpp"
-#include "components/character_audio_component.hpp"
+#include "components/core/model_component.hpp"
+#include "components/audio/audio_component.hpp"
+#include "components/audio/listener_component.hpp"
+#include "components/lights/point_light_component.hpp"
+#include "components/lights/directional_light_component.hpp"
+#include "components/lights/spot_light_component.hpp"
+#include "components/gameplay/player_controller_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/lights/ambient_light_component.hpp"
+#include "components/core/particle_system_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
+#include "components/lights/light_flicker_component.hpp"
+#include "components/skeletal/animator_component.hpp"
+#include "components/gameplay/paintable_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
+#include "components/collisions/hit_box_component.hpp"
+#include "components/ai/enemy_controller_component.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
+#include "components/skeletal/socket_component.hpp"
+#include "components/audio/character_audio_component.hpp"
 
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
@@ -117,11 +117,13 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
     {
         Entity *viewEntity = outScene.AddEntity("viewmodel");
         auto *viewTransform = viewEntity->AddComponent<TransformComponent>();
-        viewTransform->SetLocalPosition({ 0.0, -.75f, -0.8f });
+        viewTransform->SetLocalPosition({ 0.0f, 0.0f, 0.0f });
         viewTransform->SetLocalScale({ 0.2f, 0.2f ,0.2f });
         viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
         ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
         viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
+
+        playerEntity->GetComponent<PlayerControllerComponent>()->SetRootTransform(viewTransform);
 
         AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
         animator->AddAnimations(viewmodelModel->GetModel()->GetAnimations());

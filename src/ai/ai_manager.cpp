@@ -1,5 +1,5 @@
 #include "ai/ai_manager.hpp"
-#include "components/enemy_controller_component.hpp"
+#include "components/ai/enemy_controller_component.hpp"
 #include "core/logging.hpp"
 #include <algorithm>
 
@@ -52,7 +52,7 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
-void AIManager::Update(float deltaTime)
+void AIManager::FixedUpdate(float deltaTime)
 {
 
     if (!this->pendingRemovals.empty()) {
