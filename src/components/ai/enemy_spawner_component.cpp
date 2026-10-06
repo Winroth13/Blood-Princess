@@ -89,7 +89,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 				if (!e) return true;
 
 				auto* hp = e->GetComponent<Health>();
-				if (hp || hp->IsDead()) {
+				if (hp && hp->IsDead()) {
 					if (auto* transform = e->GetComponent<TransformComponent>()) {
 						SpawnGib(context, transform->GetWorldPosition(), e->GetScene());
 					}
