@@ -51,7 +51,7 @@ void LineUtils::GetBoxVertices(
     std::array<XMFLOAT3, BoundingOrientedBox::CORNER_COUNT> cornersf = {};
     obb.GetCorners(cornersf.data());
 
-    std::array<XMVECTOR, DirectX::BoundingBox::CORNER_COUNT> corners{};
+    std::array<XMVECTOR, DirectX::BoundingOrientedBox::CORNER_COUNT> corners{};
     for (size_t i = 0; i < cornersf.size(); ++i)
     {
         corners[i] = XMVector3Transform(XMLoadFloat3(&cornersf[i]), transform);

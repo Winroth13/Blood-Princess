@@ -99,6 +99,7 @@ void BoxCollisionComponent::UpdateWorldOBB()
     {
         return;
     }
+
     TransformComponent* transform = ownerEntity->GetComponent<TransformComponent>();
     if (!transform)
     {
@@ -110,7 +111,7 @@ void BoxCollisionComponent::UpdateWorldOBB()
     localBox.Extents = this->extents;
     localBox.Orientation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    localBox.Transform(this->worldOBB, transform->GetWorldMatrix());
+    localBox.Transform(this->worldOBB, transform->GetRenderMatrix());
 }
 
 void BoxCollisionComponent::SetExtents(const XMFLOAT3& extents)
