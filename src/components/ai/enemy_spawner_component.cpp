@@ -20,6 +20,8 @@
 #include "components/gameplay/splatter_component.hpp"
 
 
+uint32_t s_gibCounter = 0;
+
 void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEnemies)
 {
 	TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
@@ -31,7 +33,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 
 	for (size_t i = 0; i < numberOfEnemies; i++)
 	{
-		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(i));
+		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(RNG::Int(0,2000000)));
 		DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
 		do
 		{
@@ -43,6 +45,8 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 				origin.y,
 				origin.z + sinf(angle) * dist
 			};
+
+			LogInfo("Enemy Y %f : ", origin.y);
 
 		} while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
 
@@ -67,12 +71,13 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		enemyHealth->SetCurrentHealth(this->enemyHealth);
 
 		BoxCollisionComponent* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-		enemyBC->SetExtents({ 1,2,1 });
-		enemyBC->SetCenterOffset({ 0.0f, 1.0f, 0.0f });
+		enemyBC->SetExtents({ 1.2,1.7,0.45 });
+		enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
 		enemyBC->SetLayer(CollisionLayer::ENEMY);
 		
 		HurtboxComponent* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
-		
+
+
 		EnemyControllerComponent* enemyController = enemy->AddComponent<EnemyControllerComponent>();
 		enemyController->SetMoveSpeed(this->enemyMoveSpeed);
 		
@@ -89,6 +94,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 				if (!e) return true;
 
 				auto* hp = e->GetComponent<Health>();
+
 				if (hp && hp->IsDead()) {
 					if (auto* transform = e->GetComponent<TransformComponent>()) {
 						SpawnGib(context, transform->GetWorldPosition(), e->GetScene());
@@ -127,84 +133,111 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 }
 
 
-void EnemySpawnerComponent::SpawnGib(const AppContext& context,DirectX::XMFLOAT3 pos, Scene* scene) {
+void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
+{
+    const int numberOfGibs = RNG::Int(6, 14);
+    pos.y += 2.0f;
 
-	int numberOfGibs = RNG::Int(3, 10);
-	pos.y += 2.0f;
-	bool ribCage = 0;
+    bool ribCageSpawned = false;
 
-	for (size_t i = 0; i < numberOfGibs; i++)
-	{
-		int ribCageNum = RNG::Int(1, 10);
+    for (int i = 0; i < numberOfGibs; ++i)
+    {
+		Entity* gib = scene->AddEntity("Gib_" + std::to_string(s_gibCounter++));
 
-		Entity* gib = scene->AddEntity("Gib_" + std::to_string(i));
+        TransformComponent* gibTransform = gib->AddComponent<TransformComponent>();
+        gibTransform->SetWorldPosition(pos);
 
-		TransformComponent* gibTransform = gib->AddComponent< TransformComponent>();;
-		gibTransform->SetWorldPosition(pos);
+        ModelComponent* modelComponent = gib->AddComponent<ModelComponent>();
+        std::shared_ptr<Model> model;
+
+        ParticleSystemComponent* gibParticle = gib->AddComponent<ParticleSystemComponent>();
+        gibParticle->SetLifeTime(RNG::Float(0.3f, 0.8f));
+        gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
+        gibParticle->SetCount(RNG::Int(8, 16));
+        gibParticle->SetIsAnimate(false);
+
+        const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+        const float pSpeed = RNG::Float(2.0f, 6.0f);
+        gibParticle->SetVelocity({
+            cosf(pAngle) * pSpeed,
+            RNG::Float(2.0f, 5.0f),
+            sinf(pAngle) * pSpeed
+            });
+        gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+        const float pScale = RNG::Float(0.6f, 1.4f);
+        gibParticle->SetStartScale(pScale);
+        gibParticle->SetEndScale(pScale);
+        gibParticle->SetIsAdditive(false);
+        gibParticle->SetStartTint({ 0.55f, 0.03f, 0.03f });
+        gibParticle->SetEndTint({ 0.35f, 0.02f, 0.02f });
+        gibParticle->SetAtlasTexture(
+            context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
 
 
-		ModelComponent* modelComponent = gib->AddComponent<ModelComponent>();
-		std::shared_ptr<Model> model;
+        const int ribCageNum = RNG::Int(1, 10);
+        if (ribCageNum < 5)
+        {
+            model = context.assetManager->Get<Model>("assets/models/gib1.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.7f, 1.2f));
+        }
+        else if (ribCageNum < 9)
+        {
+            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
+        }
+        else if (!ribCageSpawned)
+        {
+            model = context.assetManager->Get<Model>("assets/models/gib3.glb");
+            gibTransform->SetWorldScale(RNG::Float(1.4f, 1.8f));
+            gibParticle->SetLifeTime(0.0f);
+            ribCageSpawned = true;
+        }
+        else
+        {
+            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
+        }
+        modelComponent->SetModel(model);
 
-		DirectX::XMFLOAT3 particleAcceleration = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
-		ParticleSystemComponent* gibParticle = gib->AddComponent<ParticleSystemComponent>();
-		float Scale = RNG::Float(0.8, 1.2);
-		gibParticle->SetLifeTime(RNG::Float(0.1, 1));
-		gibParticle->SetSpawnRadius(RNG::Float(0.001, 0.3));
-		gibParticle->SetCount(RNG::Int(5, 10));
-		gibParticle->SetIsAnimate(false);
-		gibParticle->SetVelocity({ RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) });
-		gibParticle->SetAcceleration(particleAcceleration);
-		gibParticle->SetStartScale(Scale);
-		gibParticle->SetEndScale(Scale);
-		gibParticle->SetIsAdditive(false);
-		gibParticle->SetStartTint({ 0.533f, 0.031f, 0.031f });
-		gibParticle->SetEndTint({ 0.533f, 0.031f, 0.031f });
-		gibParticle->SetAtlasTexture(context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
 
-		if (ribCageNum < 4)
-		{
-			model = context.assetManager->Get<Model>("assets/models/gib1.glb");
-			gibTransform->SetWorldScale(1.0f);
+        ProjectileComponent* projectileGib = gib->AddComponent<ProjectileComponent>();
+        projectileGib->SetAliveTime(RNG::Float(4.0f, 8.0f));
+        projectileGib->SetRestitution(RNG::Float(0.1f, 0.3f));   // meat, not rubber
+        projectileGib->SetGravity(9.82f);
 
-		}
-		else if (ribCageNum <= 8 && ribCageNum >= 4)
-		{
-			model = context.assetManager->Get<Model>("assets/models/gib2.glb");
-			gibTransform->SetWorldScale(0.4f);
+        const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+        const float gSpeed = RNG::Float(4.0f, 12.0f);
+        const float upBias = RNG::Float(0.4f, 1.2f);
 
-		}
-		else
-		{
-			if (!ribCage)
-			{
-				model = context.assetManager->Get<Model>("assets/models/gib3.glb");
-				gibTransform->SetWorldScale(1.6f);
-				gibParticle->SetLifeTime(0);
-				ribCage = true;
-			}
-		}
+        DirectX::XMFLOAT3 velocity = {
+            cosf(gAngle) * gSpeed,
+            gSpeed * upBias,
+            sinf(gAngle) * gSpeed
+        };
 
-		modelComponent->SetModel(model);
+        DirectX::XMFLOAT3 angularVelocity = {
+            RNG::Float(-360.0f, 360.0f),
+            RNG::Float(-360.0f, 360.0f),
+            RNG::Float(-360.0f, 360.0f)
+        };
+        projectileGib->Launch(velocity, angularVelocity);
 
-		ProjectileComponent* projectileGib = gib->AddComponent<ProjectileComponent>();
-		//projectileGib->SetAliveTime(RNG::Float(3, 10));
-		projectileGib->SetAliveTime(5);
 
-		DirectX::XMFLOAT3 velocity = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
-		DirectX::XMFLOAT3 angularVelocity = { RNG::Float(0,10), RNG::Float(0,10) , RNG::Float(0,10) };
-		projectileGib->Launch(velocity, angularVelocity);
+        SphereCollisionComponent* sphereCollisionGib =
+            gib->AddComponent<SphereCollisionComponent>();
+        sphereCollisionGib->SetRadius(RNG::Float(0.3f, 0.6f));
+        sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
+        sphereCollisionGib->SetActive(true);
+        sphereCollisionGib->SetStatic(false);
+        sphereCollisionGib->SetTrigger(true);
 
-		SphereCollisionComponent* sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
-		sphereCollisionGib->SetRadius(0.5);
-		sphereCollisionGib->SetLayer(CollisionLayer::PROJECTILE);
-		sphereCollisionGib->SetActive(true);
-		sphereCollisionGib->SetStatic(false);
 
-		//SplatterComponent* splatterGib = gib->AddComponent<SplatterComponent>();
-		gibsSpawned.push_back(gib);
-	}
+        SplatterComponent* splatterGib = gib->AddComponent<SplatterComponent>();
+        splatterGib->SetPaintSpacing(RNG::Float(0.4f, 1.0f));
 
+        this->gibsSpawned.push_back(gib);
+    }
 }
 void EnemySpawnerComponent::CleanGibs(Scene* scene) {
 	this->gibsSpawned.erase(

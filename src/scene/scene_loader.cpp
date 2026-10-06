@@ -497,7 +497,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
                 floorTile->SetParent(floorRoot);
 
                 TransformComponent *floorTransform = floorTile->AddComponent<TransformComponent>();
-                floorTransform->SetLocalPosition(x, -0.6f, z);
+                floorTransform->SetLocalPosition(x, 0.0f, z);
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
