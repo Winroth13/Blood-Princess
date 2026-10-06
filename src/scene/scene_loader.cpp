@@ -50,9 +50,9 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
 		characterAudio->AddLightAttackSwingLayer(swingLayer);
 
 		SoundLayer swordSwingLayer;
-		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840716__nomagician__sword-swing-1.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
-		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840715__nomagician__sword-swing-2.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
-		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840717__nomagician__sword-swing-3.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840716__nomagician__sword-swing-1.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840715__nomagician__sword-swing-2.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840717__nomagician__sword-swing-3.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
 		characterAudio->AddLightAttackSwingLayer(swordSwingLayer);
 
         SoundLayer squishLayer;
