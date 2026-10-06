@@ -18,9 +18,9 @@ public:
 private:
     void Update(const AppContext& context, float deltaTime) override;
 public:
-    ProjectileComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UseUpdate(); }
+    ProjectileComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 
     void Launch(const DirectX::XMFLOAT3& vel, const DirectX::XMFLOAT3 & angVel = { 0.0f, 0.0f, 0.0f });
-    bool IsGrounded()const { return IsGrounded; };
+    bool IsGrounded()const { return isGrounded; };
 };
 
