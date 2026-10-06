@@ -53,8 +53,8 @@ void Application::Render(float deltaTime)
 {
     this->imGuiLayer.NewFrame();
 
-    this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
     this->editor.Render(this->appContext);
+    this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
 
     this->imGuiLayer.Present();
     this->renderer.Present();

@@ -12,6 +12,7 @@
 #include "components/collisions/hit_box_component.hpp"
 #include "components/audio/character_audio_component.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -211,13 +212,9 @@ void PlayerControllerComponent::PerformLightAttack()
 		this->combo = 0;
 	}
 
-	for (Entity* child : this->GetOwner()->GetChildren()) {
-		if (auto* hb = child->GetComponent<HitboxComponent>()) {
-			hb->SetDamage(10.0f);
-			hb->Activate(0.3f);
-			break;
-		}
-	}
+	this->hitbox->SetDamage(10.0f);
+	this->hitbox->Activate(0.3f);
+
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
 		characterAudio->PlayLightAttackSwing();
@@ -252,7 +249,6 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (this->currentAttack != -1)
 	{
 		this->attackTimer += deltaTime;
-		LogInfo("%f", attackTimer);
 
 		if (this->viewmodelAnimator->IsFinished())
 		{

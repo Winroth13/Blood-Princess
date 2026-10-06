@@ -10,4 +10,6 @@ using namespace DirectX;
 namespace LineUtils
 {
 	void GetBoxVertices(std::vector<LineVertex> &vertices, const BoundingBox &boundingBox, XMMATRIX transform, XMFLOAT3 color);
+
+	void GetBoxVertices(std::vector<LineVertex> &vertices, const BoundingOrientedBox &obb, XMMATRIX transform, XMFLOAT3 color);
 }

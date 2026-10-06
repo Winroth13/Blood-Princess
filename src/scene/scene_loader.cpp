@@ -131,16 +131,6 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         animator->Play("idle", true);
         playerEntity->GetComponent<PlayerControllerComponent>()->viewmodelAnimator = animator;
 
-        auto *collider = viewEntity->AddComponent<BoxCollisionComponent>();
-        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
-        collider->SetTrigger(true);
-        collider->SetExtents({ 1.0f, 0.5f, 1.5f });
-        collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
-
-        auto *swordHitBox = viewEntity->AddComponent<HitboxComponent>();
-        swordHitBox->SetActive(false);
-        swordHitBox->SetKnockbackForce(2);
-
         viewEntity->SetParent(playerEntity);
 
         viewEntity->AddComponent<CameraComponent>();
@@ -167,6 +157,18 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         swordEntity->SetParent(viewEntity);
+
+        auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
+        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
+        collider->SetTrigger(true);
+        collider->SetExtents({ 1.0f, 0.5f, 1.5f });
+        collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
+
+        auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
+        swordHitBox->SetActive(false);
+        swordHitBox->SetKnockbackForce(2);
+        playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
+        
     }
 }
 

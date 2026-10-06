@@ -5,6 +5,7 @@
 
 class TransformComponent;
 class AnimatorComponent;
+class HitboxComponent;
 
 struct AttackData
 {
@@ -54,7 +55,7 @@ class PlayerControllerComponent : public Component
 		/* Light Attacks */
 		AttackData(
 			"light_attack_01",
-			0.1f, 0.28f,
+			0.32f, 0.75f,
 			0.32f, 0.75f
 		),
 			AttackData(
@@ -83,6 +84,7 @@ private:
 
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
+	HitboxComponent *hitbox = nullptr;
 
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
 
@@ -98,7 +100,6 @@ public:
 
 	void PerformHeavyAttack();
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
-
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
