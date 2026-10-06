@@ -57,7 +57,7 @@ public:
 	bool Initialize(AssetManager* assetManager);
 	void Shutdown();
 
-	void Update(float deltaTime);
+	void FixedUpdate(float deltaTime);
 
 	void SetListener(const DirectX::XMFLOAT3& listenerPosition, const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& top);
 

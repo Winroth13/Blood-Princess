@@ -19,7 +19,7 @@ private:
     void Update(const AppContext& context, float deltaTime) override;
 
 public:
-    HitboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(), NoRender(); }
+    HitboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
     void Activate(float duration = 0.0f);
     void Deactivate();
 

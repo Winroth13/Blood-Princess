@@ -17,6 +17,9 @@ struct AppContext;
 
 class Application 
 {
+    float fixedDeltaTime = 1.0f / 60.0f;
+    float deltaTimeElapsed = 0.0f;
+
 	Window window;
 	Renderer renderer;
 	AssetManager assetManager;

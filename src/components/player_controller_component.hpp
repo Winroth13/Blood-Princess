@@ -28,7 +28,7 @@ class PlayerControllerComponent : public Component
 	TransformComponent *rootTransform = nullptr;
 
 public:
-	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { NoLateUpdate(), NoRender(); }
+	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
 
 private:
 	void OnStart(const AppContext& context) override;

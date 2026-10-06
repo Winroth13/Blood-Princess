@@ -53,7 +53,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		animator->AddAnimation("twerk", model->GetAnimations());
 		animator->SetSkeletonVisible(true);
 		animator->Play("twerk", true);
-		animator->SetTime(rand() % 100);
+		animator->SetTime(static_cast<float>(rand() % 100));
 
 		Health* enemyHealth = enemy->AddComponent<Health>();
 		enemyHealth->SetMaxHealth(this->enemyHealth);
@@ -88,7 +88,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies()
 			}),
 		this->spawnedEnemies.end()
 	);
-	this->currentEnemies = this->spawnedEnemies.size();
+	this->currentEnemies = static_cast<int>(this->spawnedEnemies.size());
 }
 
 void EnemySpawnerComponent::OnStart(const AppContext& context)

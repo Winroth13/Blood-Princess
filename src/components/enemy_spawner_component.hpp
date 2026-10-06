@@ -18,8 +18,10 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, enemyHealth, 100.0f);
 
 private:
+	float gibTimer = 0.0f;
 	float timer = 0.0f;
 	std::vector<Entity*> spawnedEnemies;
+	std::vector<Entity*> GibsSpawned;
 
 	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
 	void CleanupDeadEnemies();
@@ -32,6 +34,6 @@ private:
 
 public:
 
-	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
+	EnemySpawnerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(), UsesLateUpdate(), UsesRender(); };
 	~EnemySpawnerComponent() = default;
 };

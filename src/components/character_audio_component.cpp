@@ -6,10 +6,7 @@
 
 CharacterAudioComponent::CharacterAudioComponent(Entity* owner, bool isActive)
     : Component(owner, isActive)
-{
-    NoLateUpdate();
-    NoRender();
-}
+{}
 
 void CharacterAudioComponent::AddMovementDistance(float distance)
 {

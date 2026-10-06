@@ -8,8 +8,7 @@
 BoxCollisionComponent::BoxCollisionComponent(Entity* owner, bool isActive) 
     : CollisionComponent(owner, isActive)
 {
-    NoLateUpdate();
-    NoRender();
+    UsesUpdate();
     this->SetShape(CollisionShape::BOX);
 }
 

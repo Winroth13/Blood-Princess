@@ -15,12 +15,7 @@ private:
 
 public:
     TargetComponent(Entity* owner, bool isActive)
-        : Component(owner, isActive)
-    {
-        NoUpdate();
-        NoLateUpdate();
-        NoRender();
-    }
+        : Component(owner, isActive) {}
     void SetTarget(Entity* target) { this->target = target; }
     DirectX::XMFLOAT3 GetTargetPosition() { return this->GetOwner()->GetComponent<TransformComponent>()->GetWorldPosition(); }
 };

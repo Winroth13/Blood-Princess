@@ -57,7 +57,7 @@ public:
     Scene(const Scene &other) = delete;
     Scene &operator=(const Scene &other) = delete;
 
-    void Update(float deltaTime);
+    void Update(float deltaTime, float fixedDeltaTime, int numFixedTicks);
 
     void GatherRenderCommands(std::vector<RenderView> &outViews);
 

@@ -11,7 +11,7 @@ class ListenerComponent : public Component
     AudioManager* audioManagerRef = nullptr;
 
 public:
-    ListenerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(), NoRender(); };
+    ListenerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 
 private:
     void OnStart(const AppContext& context) override;

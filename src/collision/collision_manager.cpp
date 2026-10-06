@@ -509,7 +509,7 @@ void CollisionManager::Shutdown()
     LogInfo("Collision Manager have been succefully Shutdown!");
 }
 
-void CollisionManager::Update(float deltaTime)
+void CollisionManager::FixedUpdate(float deltaTime)
 {
     this->ResolvePairs();
 }

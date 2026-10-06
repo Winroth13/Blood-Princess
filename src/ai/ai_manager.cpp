@@ -52,7 +52,7 @@ void AIManager::UnregisterEnemy(EnemyControllerComponent* enemy)
     }
 }
 
-void AIManager::Update(float deltaTime)
+void AIManager::FixedUpdate(float deltaTime)
 {
 
     if (!this->pendingRemovals.empty()) {
