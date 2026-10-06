@@ -489,10 +489,20 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
                 floorTile->SetParent(floorRoot);
 
                 TransformComponent *floorTransform = floorTile->AddComponent<TransformComponent>();
-                floorTransform->SetLocalPosition(x, 0.0f, z);
+                floorTransform->SetLocalPosition(x, -0.6f, z);
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
+
+                BoxCollisionComponent *floorCollision = floorTile->AddComponent<BoxCollisionComponent>();
+                floorCollision->SetStatic(true);
+                floorCollision->SetLayer(CollisionLayer::ENVIRONMENT);
+                floorCollision->SetExtents({ halfTile, 0.5f, halfTile });
+
+                PaintableComponent* floorPaintable = floorTile->AddComponent<PaintableComponent>();
+                floorPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+                floorPaintable->SetPaintMaskWidth(128);
+                floorPaintable->SetPaintMaskHeight(128);
 
                 // Ceiling tile
                 std::string ceilingTileName = "CeilingTile_" + std::to_string(tileIndex);

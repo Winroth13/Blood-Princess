@@ -7,11 +7,12 @@
 #include "assets/types/texture_2d.hpp"
 #include "input/input.hpp"
 #include "core/rng.hpp"
-
 #include <d3d11.h>
+#include "events/event_bus.hpp"
 
 void PaintableComponent::OnStart(const AppContext &context)
 {
+
 	ModelComponent *modelComponent = this->GetOwner()->GetComponent<ModelComponent>();
 
 	if (!modelComponent)
@@ -39,19 +40,17 @@ void PaintableComponent::OnStart(const AppContext &context)
 
 void PaintableComponent::Render(const RenderView &view, RenderQueue &queue)
 {
-	if (!Input::IsKeyDown(Key::SPACE))
+	if (this->paintThisFrame.empty())
 		return;
 
 	if (view.type != ViewType::PRIMARY)
 		return;
 
-	TransformComponent* transformComponent = this->GetOwner()->GetComponent<TransformComponent>();
-
+	TransformComponent *transformComponent = this->GetOwner()->GetComponent<TransformComponent>();
 	if (!transformComponent)
 		return;
 
 	ModelComponent *modelComponent = this->GetOwner()->GetComponent<ModelComponent>();
-
 	if (!modelComponent)
 		return;
 
@@ -65,28 +64,35 @@ void PaintableComponent::Render(const RenderView &view, RenderQueue &queue)
 		const auto &subMeshes = mesh->GetSubMeshes();
 		for (const auto &subMesh : subMeshes)
 		{
-			PaintCommand command = {};
+			for (const auto &paintStroke : this->paintThisFrame)
+			{
+				PaintCommand command = {};
 
-			command.vertexBuffer = mesh->GetVertexBuffer();
-			command.indexBuffer = mesh->GetIndexBuffer();
+				command.vertexBuffer = mesh->GetVertexBuffer();
+				command.indexBuffer = mesh->GetIndexBuffer();
 
-			command.startIndex = subMesh.startIndex;
-			command.indexCount = subMesh.numIndicies;
+				command.startIndex = subMesh.startIndex;
+				command.indexCount = subMesh.numIndicies;
 
-			XMStoreFloat4x4(&command.worldMatrix, transformComponent->GetRenderMatrix());
+				XMStoreFloat4x4(&command.worldMatrix, transformComponent->GetRenderMatrix());
 
-			command.paintPosition = { 0,0,0 };
-			command.paintRadius = RNG::Float(0.2f, 0.9f);
-			command.maskWidth = this->paintMaskWidth;
-			command.maskHeight = this->paintMaskHeight;
+				command.paintPosition = paintStroke.position;
+				command.paintRadius = paintStroke.radius;
 
-			command.paintMaskRTV = rtv;
-			command.paintMaskSRV = srv;
-			command.splatterMaskSRV = this->paintMask->GetShaderResourceView();
+				command.maskWidth = this->paintMaskWidth;
+				command.maskHeight = this->paintMaskHeight;
 
-			queue.Submit(command);
+				command.paintMaskRTV = rtv;
+				command.paintMaskSRV = srv;
+				command.splatterMaskSRV = this->paintMask->GetShaderResourceView();
+
+				queue.Submit(command);
+			}
 		}
+		meshIndex++;
 	}
+
+	this->paintThisFrame.clear();
 }
 
 void PaintableComponent::OnDestroy(const AppContext &context)
@@ -161,4 +167,12 @@ void PaintableComponent::CreatePaintMask(ID3D11Device *device, ID3D11DeviceConte
 	// Fill Black
 	float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	deviceContext->ClearRenderTargetView(this->maskRTVs[index], color);
+
+
+}
+
+void PaintableComponent::PaintAtPosition(const DirectX::XMFLOAT3& position, float radius)
+{
+	this->paintThisFrame.push_back({ position , radius });
+	this->shouldPaintThisFrame = true;
 }
