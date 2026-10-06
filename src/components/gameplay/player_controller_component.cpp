@@ -213,7 +213,6 @@ void PlayerControllerComponent::PerformLightAttack()
 	}
 
 	this->hitbox->SetDamage(10.0f);
-	this->hitbox->Activate(0.3f);
 
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
@@ -249,6 +248,18 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (this->currentAttack != -1)
 	{
 		this->attackTimer += deltaTime;
+
+		AttackData &attackData = this->attacks[this->currentAttack];
+
+		if (this->attackTimer >= attackData.beginDamage)
+		{
+			if (!this->hitbox->IsActive())
+			{
+				this->hitbox->Activate(
+					attackData.stopDamage - attackData.beginDamage
+				);
+			}
+		}
 
 		if (this->viewmodelAnimator->IsFinished())
 		{

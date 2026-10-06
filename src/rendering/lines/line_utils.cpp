@@ -44,23 +44,22 @@ void LineUtils::GetBoxVertices(
 void LineUtils::GetBoxVertices(
     std::vector<LineVertex> &vertices,
     const BoundingOrientedBox &obb,
-    XMMATRIX transform,
     XMFLOAT3 color
 )
 {
     std::array<XMFLOAT3, BoundingOrientedBox::CORNER_COUNT> cornersf = {};
     obb.GetCorners(cornersf.data());
 
-    std::array<XMVECTOR, DirectX::BoundingOrientedBox::CORNER_COUNT> corners{};
+    /*std::array<XMVECTOR, DirectX::BoundingOrientedBox::CORNER_COUNT> corners{};
     for (size_t i = 0; i < cornersf.size(); ++i)
     {
         corners[i] = XMVector3Transform(XMLoadFloat3(&cornersf[i]), transform);
-    }
+    }*/
 
-    for (size_t i = 0; i < corners.size(); ++i)
+    /*for (size_t i = 0; i < corners.size(); ++i)
     {
         XMStoreFloat3(&cornersf[i], corners[i]);
-    }
+    }*/
 
     vertices.reserve(vertices.size() + 24);
 

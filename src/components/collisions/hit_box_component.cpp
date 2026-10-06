@@ -50,11 +50,11 @@ void HitboxComponent::OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& h
 		this->knockbackForce,
 		hitPoint
 		});
-
-	if(this->GetOwner()->GetParent()->HasComponent<PlayerControllerComponent>())
+	
+	if(this->GetOwner()->GetParent()->GetParent()->HasComponent<PlayerControllerComponent>())
 	{
 		LogInfo("Play audio  %f", this->damage);
-		auto* playerAudio = this->GetOwner()->GetParent()->GetComponent<CharacterAudioComponent>();
+		auto* playerAudio = this->GetOwner()->GetParent()->GetParent()->GetComponent<CharacterAudioComponent>();
 		if (playerAudio) {
 			if(this->damage == 10.0f)
 			{
@@ -65,7 +65,5 @@ void HitboxComponent::OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& h
 				playerAudio->PlayHeavyAttack();
 			}
 		}
-
-
 	}
 }

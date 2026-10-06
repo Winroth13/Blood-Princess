@@ -63,7 +63,8 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		enemyHealth->SetCurrentHealth(this->enemyHealth);
 
 		BoxCollisionComponent* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-		enemyBC->SetExtents({ 1,1,1 });
+		enemyBC->SetExtents({ 1,2,1 });
+		enemyBC->SetCenterOffset({ 0.0f, 1.0f, 0.0f });
 		enemyBC->SetLayer(CollisionLayer::ENEMY);
 		
 		HurtboxComponent* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();

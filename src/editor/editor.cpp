@@ -363,7 +363,6 @@ void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
 				LineUtils::GetBoxVertices(
 					vertices,
 					boxComp->GetWorldOBB(),
-					transformComp->GetRenderMatrix(),
 					{ 0.0, 1.0f, 0.0f }
 				);
 

@@ -164,13 +164,13 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         swordEntity->SetParent(viewEntity);
 
-        auto *collider = viewEntity->AddComponent<BoxCollisionComponent>();
+        auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
         collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
         collider->SetTrigger(true);
-        collider->SetExtents({ 1.0f, 0.5f, 1.5f });
-        collider->SetCenterOffset({ 0.0f, 0.0f, 0.0f });
+        collider->SetExtents({ 0.5f, 5.5f, 0.5f });
+        collider->SetCenterOffset({ 0.0f, 7.5f, 0.0f });
 
-        auto *swordHitBox = viewEntity->AddComponent<HitboxComponent>();
+        auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
         swordHitBox->SetActive(false);
         swordHitBox->SetKnockbackForce(2);
         playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
