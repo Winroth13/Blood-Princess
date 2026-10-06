@@ -20,22 +20,37 @@ class AnimatorComponent : public Component {
         std::vector<int32_t> channelJoints;
     };
 
+    struct ActiveClip {
+        ClipBinding *binding = nullptr;
+        std::string name;
+        float time = 0.0f;
+        bool isLooping = true;
+
+        float weight = 1.0f;
+        float fadeStartWeight = 0.0f;
+    };
+
+    static constexpr size_t MAX_ACTIVE_CLIP_COUNT = 4;
+
     std::shared_ptr<Skeleton> skeleton = nullptr;
     bool hasWarnedMissingSkeleton = false;
 
     std::unordered_map<std::string, ClipBinding> clips;
 
-    ClipBinding *currentClip = nullptr;
-    std::string currentClipName;
-    float time = 0.0f;
-    bool isLooping = true;
+    std::vector<ActiveClip> activeClips;
+    float fadeTime = 0.0f;
+    float fadeDuration = 0.0f;
 
     std::vector<JointTransform> localPose;
+    std::vector<JointTransform> blendPose;
     std::vector<DirectX::XMFLOAT4X4> jointModelMatrices;
     std::vector<DirectX::XMFLOAT4X4> skinMatrices;
 
 public:
-    AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(); }
+    AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { 
+        UsesLateUpdate(); 
+        this->activeClips.reserve(MAX_ACTIVE_CLIP_COUNT + 1);
+    }
 
 private:
     void LateUpdate(const AppContext &context, float deltaTime) override;
@@ -43,8 +58,16 @@ private:
     void RefreshSkeleton();
     void BindClip(ClipBinding &binding);
 
-    void ResetToBindPose();
-    void SampleClip(const ClipBinding &binding, float time);
+    ClipBinding *FindBinding(const std::string &name);
+    float GetClipDuration(const ActiveClip &clip) const;
+    float WrapTime(const ActiveClip &clip, float time) const;
+
+    void BeginFade(ClipBinding *binding, const std::string &name, bool isLooping, float fadeDuration);
+    void UpdateFadeWeights();
+
+    void ResetToBindPose(std::vector<JointTransform> &pose) const;
+    void SampleClip(const ClipBinding &binding, float time, std::vector<JointTransform> &pose);
+    void UpdateLocalPose();
     void UpdateJointModelMatrices();
     void UpdateSkinMatrices();
 
@@ -53,16 +76,24 @@ public:
     void AddAnimations(std::shared_ptr<AnimationLibrary> animations);
     bool HasAnimation(const std::string &name) const { return this->clips.find(name) != this->clips.end(); }
 
+    // Switches animation instantly, ending any current cross fade. 
+    // If it's the current animation, nothing happens if it's looping while one-shots reset.
     bool Play(const std::string &name, bool isLooping = true);
+    // Same as Play() but blends the current animation into the new one over the duration.
+    bool CrossFade(const std::string &name, float fadeDuration, bool isLooping = true);
+    // Back to bind pose
     void Stop();
 
-    bool IsPlaying() const { return this->currentClip != nullptr; }
+    bool IsPlaying() const { return !this->activeClips.empty(); }
+    bool IsPlaying(const std::string &name) const { return this->IsPlaying() && this->activeClips.back().name == name; }
+    bool IsFading() const { return this->activeClips.size() > 1; }
     bool IsFinished() const;
-    const std::string &GetCurrentAnimationName() const { return this->currentClipName; }
+    const std::string &GetCurrentAnimationName() const;
 
-    float GetTime() const { return this->time; }
+    float GetTime() const { return this->IsPlaying() ? this->activeClips.back().time : 0.0f; }
     void SetTime(float time);
     float GetDuration() const;
+    float GetNormalizedTime() const;
 
     float GetSpeed() const { return this->speed; }
     void SetSpeed(float speed) { this->speed = speed; }
