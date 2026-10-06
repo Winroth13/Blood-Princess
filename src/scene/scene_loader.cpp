@@ -129,7 +129,7 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         animator->AddAnimations(viewmodelModel->GetModel()->GetAnimations());
         animator->SetSkeletonVisible(true);
         animator->Play("idle", true);
-        playerEntity->viewmodelAnimator = animator;
+        playerEntity->GetComponent<PlayerControllerComponent>()->viewmodelAnimator = animator;
 
         auto *collider = viewEntity->AddComponent<BoxCollisionComponent>();
         collider->SetLayer(CollisionLayer::PLAYER_ATTACK);

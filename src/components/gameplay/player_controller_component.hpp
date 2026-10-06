@@ -43,14 +43,14 @@ class PlayerControllerComponent : public Component
 	{
 		AttackData(
 			"light_attack_01",
-			0.5, 1.0,
-			0.7, 0.7
+			0.5f, 1.0f,
+			0.7f, 0.7f
 		),
 
 		AttackData(
 			"light_attack_02",
-			0.5, 1.0,
-			0.7, 0.7
+			0.5f, 1.0f,
+			0.7f, 0.7f
 		)
 	};
 

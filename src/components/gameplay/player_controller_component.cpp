@@ -11,6 +11,7 @@
 #include "scene/scene.hpp"
 #include "components/collisions/hit_box_component.hpp"
 #include "components/audio/character_audio_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
