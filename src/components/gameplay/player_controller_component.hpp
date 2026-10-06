@@ -55,12 +55,12 @@ class PlayerControllerComponent : public Component
 		AttackData(
 			"light_attack_01",
 			0.1f, 0.28f,
-			0.5f, 2.0f
+			0.32f, 0.75f
 		),
 			AttackData(
 			"light_attack_02",
 			0.5f, 1.0f,
-			0.5f, 2.0f
+			0.5f, 1.0f
 		),
 
 		/* Heavy Attacks */
