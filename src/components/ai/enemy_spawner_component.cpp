@@ -212,8 +212,6 @@ void EnemySpawnerComponent::CleanGibs(Scene* scene) {
 				if (!e) return true;
 				auto* gibs = e->GetComponent<ProjectileComponent>();
 				if (gibs && gibs->GetAliveTime() <= 0.0f) {
-					DirectX::XMFLOAT3 pos = e->GetComponent<TransformComponent>()->GetWorldPosition();
-					e->GetComponent<PaintableComponent>()->PaintAtPosition(pos);
 					e->GetScene()->DestroyEntity(e);
 					return true;
 				}
