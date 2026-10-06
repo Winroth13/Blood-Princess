@@ -3,7 +3,7 @@
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
 
-void AudioManager::Update(float deltaTime)
+void AudioManager::FixedUpdate(float deltaTime)
 {
 	for (size_t i = 0; i < this->activeVoices.size(); )
 	{

@@ -28,6 +28,14 @@ void Entity::OnStart(const AppContext &context) {
         this->components[i]->OnStart(context);
 }
 
+void Entity::FixedUpdate(const AppContext &context, float deltaTime) {
+    for (size_t i = 0; i < this->components.size(); ++i) {
+        Component *component = this->components[i].get();
+        if (component->IsActive() && !component->IsPendingDestroy() && component->WantsFixedUpdate())
+            component->FixedUpdate(context, deltaTime);
+    }
+}
+
 void Entity::Update(const AppContext &context, float deltaTime) {
     for (size_t i = 0; i < this->components.size(); ++i) {
         Component *component = this->components[i].get();
