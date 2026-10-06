@@ -15,7 +15,7 @@ class PointLightComponent : public Component
     int currentShadowIndex = 0;
 
 public:
-    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
+    PointLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(), UsesRender(); }
 
 private:
     void LateUpdate(const AppContext &context, float deltaTime) override;

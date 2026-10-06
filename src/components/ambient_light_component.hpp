@@ -11,7 +11,7 @@ class AmbientLightComponent : public Component
     ExportProperty(float, intensity, 0.1f);
 
 public:
-    AmbientLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(); }
+    AmbientLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 
 private:
     void Render(const RenderView& view, RenderQueue& queue) override;

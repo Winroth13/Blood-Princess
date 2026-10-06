@@ -160,7 +160,7 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
         SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
         socket->SetJointName("socket.r");
-        socket->SetOffsetPosition({ -1.2, 0.0f, 0.5f });
+        socket->SetOffsetPosition({ -1.2f, 0.0f, 0.5f });
         socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         swordEntity->SetParent(viewEntity);

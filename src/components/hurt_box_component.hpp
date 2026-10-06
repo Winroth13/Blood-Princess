@@ -24,7 +24,7 @@ private:
     void Update(const AppContext& context, float deltaTime) override;
     void OnDestroy(const AppContext& context) override;
 public:
-    HurtboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { NoLateUpdate(), NoRender(); }
+    HurtboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
     void OnCollision(const CollisionEvent& e);
 
     bool ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOAT3& hitPoint, const DirectX::XMFLOAT3& hitNormal);

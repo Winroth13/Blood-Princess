@@ -21,7 +21,7 @@ protected:
     DirectX::XMFLOAT3 centerOffset = { 0.0f, 0.0f, 0.0f };
     
 public:
-    CollisionComponent(Entity* owner, bool isActive) : Component(owner, isActive) { NoUpdate(); NoRender(); };
+    CollisionComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
     virtual ~CollisionComponent() = default;
 
     virtual bool Intersects(CollisionComponent* other) = 0;

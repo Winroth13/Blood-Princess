@@ -14,7 +14,7 @@ class DirectionalLightComponent : public Component
     DirectX::XMFLOAT4X4 viewProjectionMatrix{};
 
 public:
-	DirectionalLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(); }
+	DirectionalLightComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesLateUpdate(), UsesRender(); }
 
 private:
 	void LateUpdate(const AppContext &context, float deltaTime) override;
