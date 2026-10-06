@@ -39,29 +39,38 @@ class PlayerControllerComponent : public Component
 
 	TransformComponent *rootTransform = nullptr;
 
-	std::array<AttackData, 2> lightAttacks =
+	/*
+	*	Attacks
+	*/
+	const uint32_t numLightAttacks = 2;
+	const uint32_t numHeavyAttacks = 1;
+
+	uint32_t currentAttack = -1;
+	uint32_t combo = 0;
+	float attackTimer = 0.0;
+
+	std::array<AttackData, 3> attacks =
 	{
+		/* Light Attacks */
 		AttackData(
 			"light_attack_01",
-			0.5f, 1.0f,
-			0.7f, 0.7f
+			0.1f, 0.28f,
+			0.5f, 2.0f
 		),
-
-		AttackData(
+			AttackData(
 			"light_attack_02",
 			0.5f, 1.0f,
-			0.7f, 0.7f
+			0.5f, 2.0f
+		),
+
+		/* Heavy Attacks */
+		AttackData(
+			"heavy_attack_01",
+			0.5, 1.0,
+			-1, -1
 		)
 	};
 
-	AttackData heavyAttack =
-	{
-		"heavy_attack_01",
-		0.5, 1.0,
-		-1, -1
-	};
-
-	uint32_t lightAttackCombo = 0;
 
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
@@ -82,6 +91,11 @@ public:
 	void HandleCombat(float deltaTime);
 
 	void PerformLightAttack();
+	void PerformAttack(AttackData &attackData);
+
+	bool CanAttack();
+	void HandleAttacks(float deltaTime);
+
 	void PerformHeavyAttack();
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 

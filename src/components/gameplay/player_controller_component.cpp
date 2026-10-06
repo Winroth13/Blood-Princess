@@ -44,6 +44,8 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	}
 
 	HandleCameraLook(deltaTime);
+
+	HandleAttacks(deltaTime);
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
@@ -192,9 +194,22 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 
 void PlayerControllerComponent::PerformLightAttack()
 {
+	if (!this->CanAttack())
+		return;
+
 	LogInfo("Attack with light attack.");
 
+	this->currentAttack = this->combo;
 
+	this->PerformAttack(this->attacks[this->currentAttack]);
+
+	this->combo++;
+	this->attackTimer = 0.0f;
+
+	if (this->combo >= this->numLightAttacks)
+	{
+		this->combo = 0;
+	}
 
 	for (Entity* child : this->GetOwner()->GetChildren()) {
 		if (auto* hb = child->GetComponent<HitboxComponent>()) {
@@ -206,6 +221,44 @@ void PlayerControllerComponent::PerformLightAttack()
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
 		characterAudio->PlayLightAttackSwing();
+	}
+}
+
+void PlayerControllerComponent::PerformAttack(AttackData &attackData)
+{
+	this->viewmodelAnimator->Play(attackData.animationName, false);
+}
+
+bool PlayerControllerComponent::CanAttack()
+{
+	if (this->currentAttack == -1)
+	{
+		return true;
+	}
+	else
+	{
+		AttackData &currentAttackData = this->attacks[this->currentAttack];
+
+		bool inComboWindow =
+			this->attackTimer >= currentAttackData.beginCombo &&
+			this->attackTimer <= currentAttackData.endCombo;
+
+		return inComboWindow;
+	}
+}
+
+void PlayerControllerComponent::HandleAttacks(float deltaTime)
+{
+	if (this->currentAttack != -1)
+	{
+		this->attackTimer += deltaTime;
+		LogInfo("%f", attackTimer);
+
+		if (this->viewmodelAnimator->IsFinished())
+		{
+			this->currentAttack = -1;
+			this->combo = 0;
+		}
 	}
 }
 
