@@ -5,6 +5,8 @@
 
 #include <vector>
 #include <string>
+#include <stack>
+#include <chrono>
 
 #define SafeRelease(obj) do { if (obj) (obj)->Release(); (obj) = nullptr; } while (0)
 
