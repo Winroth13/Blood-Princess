@@ -2,6 +2,7 @@
 
 #include "core/app_context.hpp"
 #include "rendering/render_view.hpp"
+#include "ui/ui_draw_list.hpp"
 
 #include "reflection/TypeInfo.h"
 #include "reflection/MemberVars.h"
@@ -15,6 +16,7 @@
 #define UsesUpdate() this->wantsUpdate = true
 #define UsesLateUpdate() this->wantsLateUpdate = true
 #define UsesRender() this->wantsRender = true
+#define UsesUIRender() this->wantsUIRender = true
 
 class Entity;
 
@@ -34,6 +36,7 @@ protected:
     bool wantsUpdate = false;
     bool wantsLateUpdate = false;
     bool wantsRender = false;
+    bool wantsUIRender = false;
 
     // A component may only be created via Entity::AddComponent()
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
@@ -45,6 +48,7 @@ private:
     virtual void Update(const AppContext &context, float deltaTime) {}
     virtual void LateUpdate(const AppContext &context, float deltaTime) {}
     virtual void Render(const RenderView &view, RenderQueue &queue) {}
+    virtual void UIRender(UIDrawList &drawList) {}
     virtual void OnDestroy(const AppContext &context) {}
 
 public:
@@ -63,6 +67,7 @@ public:
     bool WantsUpdate() const { return this->wantsUpdate; }
     bool WantsLateUpdate() const { return this->wantsLateUpdate; }
     bool WantsRender() const { return this->wantsRender; }
+    bool WantsUIRender() const { return this->wantsUIRender; }
 
     virtual TypeId GetTypeId() const = 0;
 };

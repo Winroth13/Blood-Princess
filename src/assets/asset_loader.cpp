@@ -161,6 +161,11 @@ std::shared_ptr<AudioClip> AssetLoader::Load<AudioClip>(const std::string& path)
 	return audioClip;
 }
 
+template<>
+std::shared_ptr<Font> AssetLoader::Load<Font>(const std::string &path) {
+    return nullptr;
+}
+
 bool AssetLoader::Initialize(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,

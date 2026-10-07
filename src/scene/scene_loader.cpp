@@ -7,6 +7,10 @@
 #include "components/core/camera_component.hpp"
 #include "core/app_context.hpp"
 #include "assets/asset_manager.hpp"
+#include "components/ui/ui_canvas_component.hpp"
+#include "components/ui/ui_rect_component.hpp"
+#include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_text_component.hpp"
 #include "components/core/model_component.hpp"
 #include "components/audio/audio_component.hpp"
 #include "components/audio/listener_component.hpp"
@@ -27,6 +31,26 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/skeletal/socket_component.hpp"
 #include "components/audio/character_audio_component.hpp"
+
+static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UIAnchor::TOP_RIGHT, {-20.0f, 20.0f}, {320.0f, 320.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+
+    Entity *txt = outScene.AddEntity("txt");
+    txt->SetParent(img);
+    txt->AddComponent<UIRectComponent>()->Place(UIAnchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    textComp->SetText("Blood!");
+}
 
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
@@ -174,7 +198,6 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         swordHitBox->SetActive(false);
         swordHitBox->SetKnockbackForce(2);
         playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
-        
     }
 }
 
@@ -185,6 +208,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
+    CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");

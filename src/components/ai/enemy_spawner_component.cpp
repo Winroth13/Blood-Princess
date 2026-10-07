@@ -52,18 +52,16 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 
 		TransformComponent* enemyTransform = enemy->AddComponent< TransformComponent>();;
 		enemyTransform->SetWorldPosition(position);
-		enemyTransform->SetWorldScale(0.5f);
+		enemyTransform->SetWorldScale(0.9f);
 
 
 		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
-		std::shared_ptr<Model> model = enemyModel;
-		modelComponent->SetModel(model);
-
+		modelComponent->SetModel(enemyModel);
 
 		AnimatorComponent* animator = enemy->AddComponent<AnimatorComponent>();
-		animator->AddAnimation("twerk", model->GetAnimations());
+		animator->AddAnimation("run", model->GetAnimations());
 		animator->SetSkeletonVisible(true);
-		animator->Play("twerk", true);
+		animator->Play("run", true);
 		animator->SetTime(static_cast<float>(rand() % 100));
 
 		Health* enemyHealth = enemy->AddComponent<Health>();
@@ -173,9 +171,10 @@ void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOA
         gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
         gibParticle->SetCount(RNG::Int(8, 16));
         gibParticle->SetIsAnimate(false);
+		gibParticle->SetIsGlobal(true);
 
         const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float pSpeed = RNG::Float(0.7f, 2.0f);
+        const float pSpeed = RNG::Float(1.0f, 2.0f);
         gibParticle->SetVelocity({
             cosf(pAngle) * pSpeed,
 			RNG::Float(0.1f, 0.3f),
@@ -195,37 +194,37 @@ void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOA
         const int ribCageNum = RNG::Int(1, 10);
         if (ribCageNum < 5)
         {
-			model = gibModel[0];
-            gibTransform->SetWorldScale(RNG::Float(0.7f, 1.2f));
+            model = context.assetManager->Get<Model>("assets/models/gib1.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.455f, 0.78f));
         }
         else if (ribCageNum < 9)
         {
-            model = gibModel[1];
-            gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
+            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
         else if (!ribCageSpawned)
         {
-            model = gibModel[2];
-            gibTransform->SetWorldScale(RNG::Float(1.4f, 1.8f));
+            model = context.assetManager->Get<Model>("assets/models/gib3.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.91f, 1.17f));
             gibParticle->SetLifeTime(0.0f);
             ribCageSpawned = true;
         }
         else
         {
-            model = gibModel[0];;
-            gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
+            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
         modelComponent->SetModel(model);
 
 
         ProjectileComponent* projectileGib = gib->AddComponent<ProjectileComponent>();
         projectileGib->SetAliveTime(RNG::Float(4.0f, 8.0f));
-        projectileGib->SetRestitution(RNG::Float(0.1f, 0.3f));
+        projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
         projectileGib->SetGravity(9.82f);
 
         const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
         const float horizontalSpeed = RNG::Float(1.5f, 4.5f);
-        const float upwardSpeed = RNG::Float(3.0f, 6.0f);
+        const float upwardSpeed = RNG::Float(4.0f, 6.0f);
 
         DirectX::XMFLOAT3 velocity = {
             cosf(gAngle) * horizontalSpeed,
@@ -243,7 +242,7 @@ void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOA
 
         SphereCollisionComponent* sphereCollisionGib =
             gib->AddComponent<SphereCollisionComponent>();
-        sphereCollisionGib->SetRadius(RNG::Float(0.3f, 0.6f));
+        sphereCollisionGib->SetRadius(RNG::Float(0.195f, 0.39f));
         sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
         sphereCollisionGib->SetActive(true);
         sphereCollisionGib->SetStatic(false);
