@@ -15,6 +15,8 @@
 
 void Application::Update(float deltaTime) 
 {
+    Debug::BeginTimedStatistic("Update");
+
     this->deltaTimeElapsed += deltaTime;
     int numFixedTicks = 0;
 
@@ -47,13 +49,19 @@ void Application::Update(float deltaTime)
     }
 
     this->editor.Update(this->appContext, deltaTime);
+
+    Debug::EndTimedStatistic();
 }
 
-void Application::Render(float deltaTime) 
+void Application::PreRender(float deltaTime)
 {
     this->imGuiLayer.NewFrame();
 
     this->editor.Render(this->appContext);
+}
+
+void Application::Render(float deltaTime) 
+{
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
 
     this->imGuiLayer.Present();
@@ -100,7 +108,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->sceneManager.Initialize(this->appContext, "demo_0")) {
+    if (!this->sceneManager.Initialize(this->appContext, "demo_main_menu")) {
         LogError("Failed to create Scene Manager!");
         return false;
     }
@@ -186,12 +194,13 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
+        this->renderer.NewFrame();
+        this->Update(deltaTime);
+
+        this->PreRender(deltaTime);
         Debug::NewFrame();
         Debug::SetStatistic("FPS", 1.0f / deltaTime);
         Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
-
-        this->renderer.NewFrame();
-        this->Update(deltaTime);
 
         if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
             Debug::SetStatistic("Position", primary->cameraPosition);

@@ -17,6 +17,8 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, enemyMoveSpeed, 3.0f);
 	ExportProperty(float, enemyHealth, 100.0f);
 
+	ExportProperty(int, maxGibsPool, 100);
+
 	std::shared_ptr<Model> gibModel[3];
 	std::shared_ptr<Model> enemyModel;
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -26,9 +28,16 @@ private:
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
 	std::vector<Entity*> spawnedEnemies;
-	std::vector<Entity*> gibsSpawned;
+
+
+	std::vector<Entity*> gibPool;
+	std::vector<Entity*> activeGibs;
 
 	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
+	void InitializeGibPool(const AppContext& context, Scene* scene);
+	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos);
+	void CleanGibs();
+
 	void SpawnGibs(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene);
 	void CleanGibs(Scene* scene);
 

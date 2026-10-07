@@ -17,7 +17,7 @@ class UIRectComponent : public Component {
     ExportProperty(XMFLOAT2, pivot, {0.0f, 0.0f});
     ExportProperty(XMFLOAT2, scale, {1.0f, 1.0f});
 
-    UIRect cachedScreenRect{};
+    UI::Rect cachedScreenRect{};
     XMFLOAT2 cachedPixelScale = {1.0f, 1.0f};
     uint32_t cachedFrameIndex = UINT32_MAX;
 
@@ -26,14 +26,14 @@ class UIRectComponent : public Component {
 public:
     UIRectComponent(Entity *owner, bool isActive) : Component(owner, isActive) { }
 
-    const UIRect &GetScreenRect();
+    const UI::Rect &GetScreenRect();
     XMFLOAT2 GetPixelScale();
 
     bool ContainsPoint(XMFLOAT2 point) { return this->GetScreenRect().Contains(point); }
 
-    void SetAnchorPreset(UIAnchor anchorPreset);
+    void SetAnchorPreset(UI::Anchor anchorPreset);
     // SetAnchorPreset() + SetPosition() + SetSize()
-    void Place(UIAnchor anchorPreset, XMFLOAT2 position, XMFLOAT2 sizeDelta);
+    void Place(UI::Anchor anchorPreset, XMFLOAT2 position, XMFLOAT2 sizeDelta);
 
     XMFLOAT2 GetAnchorTopLeft() const { return this->anchorTopLeft; }
     void SetAnchorTopLeft(XMFLOAT2 anchorTopLeft) { this->anchorTopLeft = anchorTopLeft; }

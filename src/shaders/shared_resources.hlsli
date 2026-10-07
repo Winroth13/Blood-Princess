@@ -53,6 +53,7 @@ cbuffer Light : register(b4)
 #define PARTICLE_FLAG_ADDITIVE 1 << 1
 #define PARTICLE_FLAG_RESET 1 << 2
 #define PARTICLE_FLAG_GLOBAL 1 << 3
+#define PARTICLE_FLAG_BURST 1 << 4
 
 cbuffer ParticleSystem : register(b5)
 {

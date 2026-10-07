@@ -33,6 +33,7 @@
 #include "components/audio/character_audio_component.hpp"
 #include "assets/types/font.hpp"
 #include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/main_menu_component.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
@@ -43,17 +44,17 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
 
     Entity *img = outScene.AddEntity("img");
     img->SetParent(hud);
-    img->AddComponent<UIRectComponent>()->Place(UIAnchor::TOP_RIGHT, {-20.0f, 20.0f}, {320.0f, 320.0f});
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
     UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
-    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
     imageComp->SetShouldPreserveAspectRatio(true);
 
-    Entity *txt = outScene.AddEntity("txt");
-    txt->SetParent(img);
-    txt->AddComponent<UIRectComponent>()->Place(UIAnchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
-    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
-    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
-    textComp->SetText("Blood!");
+    //Entity *txt = outScene.AddEntity("txt");
+    //txt->SetParent(img);
+    //txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    //txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    //UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    //textComp->SetText("Blood!");
 }
 
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
@@ -214,7 +215,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
-    CreateTestUI(outScene, appContext);
+    // CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
@@ -600,6 +601,22 @@ static void TestScene2(Scene &outScene, const AppContext &appContext) {
     ambientLight->SetIntensity(1.0f);
 }
 
+static void TestSceneMainMenu(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+    hud->AddComponent<TransformComponent>();
+    hud->AddComponent<CameraComponent>();
+    hud->AddComponent<MainMenuComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+}
+
 bool SceneLoader::Initialize(const AppContext &appContext)
 {
     LogInfo("Creating Scene Loader...");
@@ -614,7 +631,11 @@ bool SceneLoader::Initialize(const AppContext &appContext)
 
 bool SceneLoader::Load(const std::string &name, Scene &outScene) {
     outScene.Clear();
-    TestScene(outScene, *this->appContext);
+
+    if (name == "demo_main_menu")
+        TestSceneMainMenu(outScene, *this->appContext);
+    else
+        TestScene(outScene, *this->appContext);
 
     LogInfo("Loaded scene '%s'", name.c_str());
 

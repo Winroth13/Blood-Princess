@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-UIRect UIImageComponent::GetPreservedAspectRatioRect(const UIRect &rect) const {
+UI::Rect UIImageComponent::GetPreservedAspectRatioRect(const UI::Rect &rect) const {
     if (!this->shouldPreserveAspectRatio || !this->texture || rect.size.x <= 0.0f || rect.size.y <= 0.0f)
         return rect;
 
@@ -19,7 +19,7 @@ UIRect UIImageComponent::GetPreservedAspectRatioRect(const UIRect &rect) const {
     const float spriteAspectRatio = spriteWidth / spriteHeight;
     const float rectAspectRatio = rect.size.x / rect.size.y;
 
-    UIRect result = rect;
+    UI::Rect result = rect;
     if (spriteAspectRatio > rectAspectRatio)
         result.size.y = rect.size.x / spriteAspectRatio;
     else
@@ -36,12 +36,12 @@ void UIImageComponent::UIRender(UIDrawList &drawList) {
     if (!rectComponent)
         return;
 
-    const UIRect &rect = rectComponent->GetScreenRect();
+    const UI::Rect &rect = rectComponent->GetScreenRect();
 
     if (this->colour.w <= 0.0f)
         return;
 
-    const UIRect drawRect = this->GetPreservedAspectRatioRect(rect);
+    const UI::Rect drawRect = this->GetPreservedAspectRatioRect(rect);
     const XMFLOAT2 bottomRight = drawRect.BottomRight();
 
     drawList.AddQuad(
