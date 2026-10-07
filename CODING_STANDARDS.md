@@ -5,7 +5,6 @@ Files: snake_case, folders are files
 Constants: SCREAMING_SNAKE_CASE
 Functions: PascalCase
 Enums: PascalCase, SCREAMING_SNAKE_CASE for entries
-Enums: SCREAMING_SNAKE_CASE
 Get and Set rather than direct access in classes.
 Structs do not have Get and Set.
 Is- and Has- for bool-functions.
@@ -24,7 +23,7 @@ Forward declare rather than include in .hpp.
 Include for DirectX.
 // for comments.
 Capital letters in names in comments and logger.
-* and & on rihgt side of variable name.
+* and & on right side of variable name.
 
 GitHub Commits
 Try to keep up with our documentation of classes.

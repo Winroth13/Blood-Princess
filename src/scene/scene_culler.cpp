@@ -47,13 +47,11 @@ void SceneCuller::GatherRenderCommands(std::vector<RenderView> &outViews) const
 {
     for (RenderView &view : outViews)
     {
-        std::vector<Component *> visible;
-
         if (view.skipFrustumCulling)
         {
             for (Component *component : this->cullable)
                 if (component->IsActive() && component->GetOwner()->IsActive())
-                    visible.push_back(component);
+                    component->Render(view, view.queue);
         }
         else
         {
@@ -64,15 +62,12 @@ void SceneCuller::GatherRenderCommands(std::vector<RenderView> &outViews) const
 
                 BoundingBox bounds;
                 if (component->GetWorldBounds(bounds) && view.frustum.Contains(bounds) != DISJOINT)
-                    visible.push_back(component);
+                    component->Render(view, view.queue);
             }
         }
 
         for (Component *component : this->alwaysVisible)
             if (component->IsActive() && component->GetOwner()->IsActive())
-                visible.push_back(component);
-
-        for (Component *component : visible)
-            component->Render(view, view.queue);
+                component->Render(view, view.queue);
     }
 }
