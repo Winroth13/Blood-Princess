@@ -28,7 +28,7 @@ public:
 	void QueueUnregister(EnemyControllerComponent* enemy);
 	void UnregisterEnemy(EnemyControllerComponent *enemy);
 
-	void Update(float deltaTime);
+	void FixedUpdate(float deltaTime);
 
 	const SpatialGrid &GetGrid() const { return this->spatialGrid; }
 	SpatialGrid &GetGrid() { return this->spatialGrid; }

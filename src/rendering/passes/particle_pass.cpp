@@ -5,7 +5,7 @@
 #include "rendering/render_data.hpp"
 #include "assets/asset_manager.hpp"
 
-void ParticlePass::RenderParticlePass(
+void ParticlePass::UpdateParticlePass(
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext,
 	SharedResources &sharedResources,
@@ -43,6 +43,15 @@ void ParticlePass::RenderParticlePass(
 
 		ID3D11Buffer *perFrame = sharedResources.GetPerFrame();
 		deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_FRAME, 1, &perFrame);
+
+		PerObjectData perObjectData{};
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&command.worldMatrix);
+		XMStoreFloat4x4(&perObjectData.worldMatrix, XMMatrixTranspose(worldMatrix));
+		XMStoreFloat4x4(&perObjectData.worldInverseTransposeMatrix, XMMatrixInverse(nullptr, worldMatrix));
+
+		ID3D11Buffer *perObject = sharedResources.GetPerObject();
+		RenderUtils::UploadConstantBuffer(deviceContext, perObject, perObjectData);
+		deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
 
 		// Bind Particle SB
 		deviceContext->CSSetUnorderedAccessViews(0, 1, &command.particleUAV, nullptr);
@@ -100,6 +109,7 @@ void ParticlePass::RenderDrawPass(
 	deviceContext->GSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PER_OBJECT, 1, &perObject);
+	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
 
 	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_FRAME, 1, &perFrame);
 	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
@@ -184,7 +194,7 @@ void ParticlePass::Render(
 {
 	BeginAnnotation("Particle Pass");
 
-	this->RenderParticlePass(device, deviceContext, sharedResources, views);
+	this->UpdateParticlePass(device, deviceContext, sharedResources, views);
 	this->RenderDrawPass(device, deviceContext, sharedResources, renderTargetView, depthStencilView, views);
 
 	EndAnnotation();

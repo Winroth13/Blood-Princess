@@ -12,7 +12,8 @@ enum class CollisionLayer : uint32_t
 	PLAYER_ATTACK = 1 << 3,
 	ENEMY_ATTACK = 1 << 4,
 	PROJECTILE = 1 << 5,
-	TRIGGER_HAZARD = 1 << 6
+	TRIGGER_HAZARD = 1 << 6,
+	GIBS = 1 << 7
 };
 
 inline CollisionLayer operator|(CollisionLayer a, CollisionLayer b) 

@@ -24,7 +24,7 @@ class UIRectComponent : public Component {
     void UpdateRectangle();
 
 public:
-    UIRectComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    UIRectComponent(Entity *owner, bool isActive) : Component(owner, isActive) { }
 
     const UIRect &GetScreenRect();
     XMFLOAT2 GetPixelScale();

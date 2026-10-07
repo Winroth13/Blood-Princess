@@ -73,7 +73,7 @@ public:
 	bool Initialize();
 	void Shutdown();
 
-	void Update(float deltaTime);
+	void FixedUpdate(float deltaTime);
 
 	bool Raycast(const RayCast &ray, RayHit &outHit, uint32_t layerMask = 0xFFFFFFFF, bool ignoreTriggers = true);
 	bool Raycast(const DirectX::XMFLOAT3 &origin, const DirectX::XMFLOAT3 &direction, float maxDistance, RayHit &outHit, uint32_t layerMask = 0xFFFFFFFF, bool ignoreTriggers = true);

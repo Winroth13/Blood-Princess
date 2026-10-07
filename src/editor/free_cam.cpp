@@ -1,5 +1,5 @@
 #include "free_cam.hpp"
-#include "components/transform_component.hpp"
+#include "components/core/transform_component.hpp"
 #include "input/input.hpp"
 
 void FreeCam::Update(float deltaTime)

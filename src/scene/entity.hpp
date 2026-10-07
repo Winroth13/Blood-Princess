@@ -43,6 +43,7 @@ public:
 private:
     // These should only ever be called through the main frame loop
     void OnStart(const AppContext &context);
+    void FixedUpdate(const AppContext &context, float deltaTime);
     void Update(const AppContext &context, float deltaTime);
     void LateUpdate(const AppContext &context, float deltaTime);
     void UIRender(UIDrawList &drawList);

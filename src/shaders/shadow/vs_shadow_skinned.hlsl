@@ -23,7 +23,7 @@ VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderOutput output;
     
-    float3 position = mul(float4(input.position, 1.0f), GetSkinMatrix(input.joints, input.weights));
+    float3 position = mul(float4(input.position, 1.0f), GetSkinMatrix(input.joints, input.weights)).xyz;
     float4 worldPosition = mul(float4(position, 1.0f), worldMatrix);
     
     output.clipPosition = mul(worldPosition, viewProjectionMatrix);

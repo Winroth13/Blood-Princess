@@ -9,7 +9,7 @@ class UICanvasComponent : public Component {
     ExportPropertyRanged(float, scale, "x", 0.01f, 10.0f, 0.01f, 1.0f);
 
 public:
-    UICanvasComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    UICanvasComponent(Entity *owner, bool isActive) : Component(owner, isActive) { }
 
 private:
     void OnStart(const AppContext &appContext) override;

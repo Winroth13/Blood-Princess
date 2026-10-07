@@ -24,7 +24,7 @@ class UIImageComponent : public Component {
     UIRect GetPreservedAspectRatioRect(const UIRect &rect) const;
 
 public:
-    UIImageComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(), UsesUIRender(); }
+    UIImageComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUIRender(); }
 
 private:
     void UIRender(UIDrawList &drawList) override;

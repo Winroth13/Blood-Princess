@@ -13,11 +13,11 @@
 #include "core/app_context.hpp"
 #include "rendering/renderer.hpp"
 #include "rendering/render_utils.hpp"
-#include "components/transform_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/model_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/core/model_component.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
-#include "components/animator_component.hpp"
+#include "components/skeletal/animator_component.hpp"
 
 #include "rendering/lines/line_utils.hpp"
 
@@ -331,23 +331,46 @@ void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
 		if (!transformComp)
 			continue;
 
-		ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
+		/* Render Model Bounding Box */
+		{
+			ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
 
-		if (!modelComp)
-			return;
+			if (modelComp)
+			{
+				std::vector<LineVertex> vertices{};
 
-		std::vector<LineVertex> vertices{};
+				LineUtils::GetBoxVertices(
+					vertices,
+					modelComp->GetModel()->GetBoundingBox(),
+					transformComp->GetRenderMatrix(),
+					{ 1.0f, 0.75f, 0.0f }
+				);
 
-		LineUtils::GetBoxVertices(
-			vertices,
-			modelComp->GetModel()->GetBoundingBox(),
-			transformComp->GetRenderMatrix(),
-			{ 1.0f, 0.75f, 0.0f }
-		);
+				LineCommand command = {};
+				command.points = vertices;
+				primaryView->queue.Submit(command);
+			}
+		}
 
-		LineCommand command = {};
-		command.points = vertices;
-		primaryView->queue.Submit(command);
+		/* Render Collision Bounding Box */
+		{
+			BoxCollisionComponent *boxComp = entity->GetComponent<BoxCollisionComponent>();
+
+			if (boxComp)
+			{
+				std::vector<LineVertex> vertices{};
+
+				LineUtils::GetBoxVertices(
+					vertices,
+					boxComp->GetWorldOBB(),
+					{ 0.0, 1.0f, 0.0f }
+				);
+
+				LineCommand command = {};
+				command.points = vertices;
+				primaryView->queue.Submit(command);
+			}
+		}
 	}
 }
 

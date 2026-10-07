@@ -10,7 +10,7 @@ class UITextComponent : public Component {
     ExportProperty(std::string, text, "");
 
 public:
-    UITextComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(), UsesUIRender(); }
+    UITextComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUIRender(); }
 
     const std::string &GetText() const { return this->text; }
     void SetText(const std::string &text) { this->text = text; }
