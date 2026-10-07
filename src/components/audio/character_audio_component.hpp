@@ -64,9 +64,9 @@ public:
     void AddHeavyAttackSwingLayer(const SoundLayer& layer) { this->heavyAttackSwingLayers.push_back(layer); }
 
 
-    void PlayLightAttack() { PlayLayers(this->lightAttackLayers); }
+    void PlayLightAttackHit() { PlayLayers(this->lightAttackLayers); }
 	void PlayLightAttackSwing() { PlayLayers(this->lightAttackSwingLayers); }
-    void PlayHeavyAttack() { PlayLayers(this->heavyAttackLayers); }
+    void PlayHeavyAttackHit() { PlayLayers(this->heavyAttackLayers); }
 	void PlayHeavyAttackSwing() { PlayLayers(this->heavyAttackSwingLayers); }
 
 
