@@ -111,13 +111,13 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
 	this->timer = this->spawnerInterval;
-	gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
-	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
-	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
+	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
+	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
 
 	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
-	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
+	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
 }
 
@@ -187,7 +187,7 @@ void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOA
         gibParticle->SetIsAdditive(false);
         gibParticle->SetStartTint({ 0.3f, 0.03f, 0.03f });
         gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
-        gibParticle->SetAtlasTexture(context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png"));
+        gibParticle->SetAtlasTexture(atlasTexture);
 		gibParticle->SetIsAnimate(true);
 		gibParticle->SetAtlasSize({ 8.0f, 8.0f });
 		gibParticle->SetAnimationSpeed(0.5f);
@@ -195,24 +195,24 @@ void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOA
         const int ribCageNum = RNG::Int(1, 10);
         if (ribCageNum < 5)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib1.glb");
+			model = this->gibModel[0];
             gibTransform->SetWorldScale(RNG::Float(0.455f, 0.78f));
         }
         else if (ribCageNum < 9)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            model = this->gibModel[1];
             gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
         else if (!ribCageSpawned)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib3.glb");
+            model = this->gibModel[2];
             gibTransform->SetWorldScale(RNG::Float(0.91f, 1.17f));
             gibParticle->SetLifeTime(0.0f);
             ribCageSpawned = true;
         }
         else
         {
-            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            this->gibModel[0];
             gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
         modelComponent->SetModel(model);

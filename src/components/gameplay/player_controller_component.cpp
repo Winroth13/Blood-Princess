@@ -271,7 +271,10 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		// LogInfo("Attack Timer: %f", this->attackTimer);
 		AttackData &attackData = this->attacks[this->currentAttack];
 
-		if (this->attackTimer >= attackData.beginDamage)
+		if (
+			this->attackTimer >= attackData.beginDamage && 
+			this->attackTimer <= attackData.beginDamage + deltaTime
+			)
 		{
 			if (!this->hitbox->IsActive())
 			{
