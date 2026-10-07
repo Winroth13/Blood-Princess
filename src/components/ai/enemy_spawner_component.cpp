@@ -54,7 +54,6 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		enemyTransform->SetWorldPosition(position);
 		enemyTransform->SetWorldScale(0.9f);
 
-
 		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
 		modelComponent->SetModel(enemyModel);
 
@@ -116,7 +115,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
 	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
 
-	this->enemyModel = context.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
 	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
 
