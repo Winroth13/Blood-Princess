@@ -1,6 +1,7 @@
 #include "scene.hpp"
 #include "core/logging.hpp"
 #include "scene/component.hpp"
+#include "core/debug.hpp"
 
 #include <memory>
 #include <algorithm>
@@ -196,7 +197,9 @@ void Scene::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
 }
 
 void Scene::GatherRenderCommands(std::vector<RenderView> &outViews) {
+    Debug::BeginTimedStatistic("Gather Render Commands");
     this->culler.GatherRenderCommands(outViews);
+    Debug::EndTimedStatistic();
 }
 
 void Scene::GatherUICommands(uint32_t width, uint32_t height) {

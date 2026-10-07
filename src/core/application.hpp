@@ -46,6 +46,7 @@ class Application
     };
 
     void Update(float deltaTime);
+    void PreRender(float deltaTime);
     void Render(float deltaTime);
 
 public:

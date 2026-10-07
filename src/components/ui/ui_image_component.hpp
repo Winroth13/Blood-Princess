@@ -21,7 +21,7 @@ class UIImageComponent : public Component {
 
     ExportProperty(bool, shouldPreserveAspectRatio, false);
 
-    UIRect GetPreservedAspectRatioRect(const UIRect &rect) const;
+    UI::Rect GetPreservedAspectRatioRect(const UI::Rect &rect) const;
 
 public:
     UIImageComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUIRender(); }

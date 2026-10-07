@@ -57,7 +57,7 @@ namespace {
             if (x + width + GLYPH_SPACING > ATLAS_WIDTH) {
                 x = GLYPH_SPACING;
                 y += rowHeight + GLYPH_SPACING;
-                rowHeight = 0.0f;
+                rowHeight = 0;
             }
 
             bitmap->atlasX = x;

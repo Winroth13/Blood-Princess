@@ -56,6 +56,10 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
         flags |= +ParticleFlags::GLOBAL;
     }
 
+    if (isBurst)
+    {
+        flags |= +ParticleFlags::BURST;
+    }
     command.flags = flags;
 
     command.lifeTime = this->lifeTime;

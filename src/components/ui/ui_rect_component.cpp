@@ -12,7 +12,7 @@ namespace {
         XMFLOAT2 topLeft;
         XMFLOAT2 bottomRight;
         XMFLOAT2 pivot;
-    } ANCHOR_PRESETS[static_cast<size_t>(UIAnchor::COUNT)] = {
+    } ANCHOR_PRESETS[static_cast<size_t>(UI::Anchor::COUNT)] = {
         {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}}, // TOP_LEFT
         {{0.5f, 0.0f}, {0.5f, 0.0f}, {0.5f, 0.0f}}, // TOP
         {{1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}}, // TOP_RIGHT
@@ -38,13 +38,13 @@ void UIRectComponent::UpdateRectangle() {
     float screenHeight = static_cast<float>(ui.GetHeight());
 
     if (UICanvasComponent *canvas = this->GetOwner()->GetComponent<UICanvasComponent>()) {
-        const float canvasScale = canvas->GetScaleFactor(screenHeight);
+        const float canvasScale = canvas->GetScaleFactor(static_cast<uint32_t>(screenHeight));
         this->cachedScreenRect = {{0.0f, 0.0f}, {screenWidth, screenHeight}};
         this->cachedPixelScale = {canvasScale, canvasScale};
         return;
     }
 
-    UIRect parentRect = {{0.0f, 0.0f}, {screenWidth, screenHeight}};
+    UI::Rect parentRect = {{0.0f, 0.0f}, {screenWidth, screenHeight}};
     XMFLOAT2 parentScale = {1.0f, 1.0f};
 
     Entity *parent = this->GetOwner()->GetParent();
@@ -90,7 +90,7 @@ void UIRectComponent::UpdateRectangle() {
     };
 }
 
-const UIRect &UIRectComponent::GetScreenRect() {
+const UI::Rect &UIRectComponent::GetScreenRect() {
     const uint32_t frameIndex = this->GetOwner()->GetScene()->GetUI().GetFrameIndex();
     
     if (this->cachedFrameIndex != frameIndex) {
@@ -107,9 +107,9 @@ XMFLOAT2 UIRectComponent::GetPixelScale() {
     return this->cachedPixelScale;
 }
 
-void UIRectComponent::SetAnchorPreset(UIAnchor anchorPreset) {
+void UIRectComponent::SetAnchorPreset(UI::Anchor anchorPreset) {
     const int index = static_cast<int>(anchorPreset);
-    if (index < 0 || index >= static_cast<int>(UIAnchor::COUNT)) {
+    if (index < 0 || index >= static_cast<int>(UI::Anchor::COUNT)) {
         LogWarn("Invalid anchor preset '%d'", index);
         return;
     }
@@ -120,7 +120,7 @@ void UIRectComponent::SetAnchorPreset(UIAnchor anchorPreset) {
     this->pivot = values.pivot;
 }
 
-void UIRectComponent::Place(UIAnchor anchorPreset, XMFLOAT2 position, XMFLOAT2 sizeDelta) {
+void UIRectComponent::Place(UI::Anchor anchorPreset, XMFLOAT2 position, XMFLOAT2 sizeDelta) {
     this->SetAnchorPreset(anchorPreset);
     this->position = position;
     this->sizeDelta = sizeDelta;

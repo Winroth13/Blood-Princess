@@ -72,12 +72,13 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 
         gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
         gibParticle->SetCount(RNG::Int(8, 16));
-        gibParticle->SetIsAnimate(false);
+        gibParticle->SetIsAnimate(true);
         gibParticle->SetIsGlobal(true);
         gibParticle->SetIsAdditive(false);
-        gibParticle->SetStartTint({ 0.55f, 0.03f, 0.03f });
-        gibParticle->SetEndTint({ 0.35f, 0.02f, 0.02f });
+        gibParticle->SetStartTint({ 0.35f, 0.03f, 0.03f });
+        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
         gibParticle->SetAtlasTexture(this->atlasTexture);
+        gibParticle->SetAtlasSize({ 8.0f, 8.0f });
 
         const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
         const float pSpeed = RNG::Float(1.0f, 2.0f);
@@ -88,7 +89,7 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
             });
         gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
 
-        const float pScale = RNG::Float(0.6f, 1.4f);
+        const float pScale = RNG::Float(0.3f, 0.65f);
         gibParticle->SetStartScale(pScale);
         gibParticle->SetEndScale(pScale);
 
@@ -97,7 +98,7 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
         projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
 
 
-        sphereCollisionGib->SetRadius(RNG::Float(0.195f, 0.39f));
+        sphereCollisionGib->SetRadius(RNG::Float(0.19f, 0.39f));
         sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
         sphereCollisionGib->SetActive(true);
         sphereCollisionGib->SetStatic(false);
@@ -152,7 +153,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
 {
     const int numberOfGibs = RNG::Int(3, 5);
-    pos.y += 2.0f;
+    pos.y += 1.5f;
 
     for (int i = 0; i < numberOfGibs; ++i)
     {
@@ -312,13 +313,13 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
 	this->timer = this->spawnerInterval;
-	gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
-	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
-	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
+	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
+	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
 
 	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
-	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
+	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());

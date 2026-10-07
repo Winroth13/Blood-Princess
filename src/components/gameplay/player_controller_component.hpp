@@ -2,6 +2,7 @@
 #include "scene/component.hpp"
 #include "input/action.hpp"
 #include "input/input.hpp"
+#include "events/event_bus.hpp"
 
 class TransformComponent;
 class AnimatorComponent;
@@ -50,20 +51,24 @@ class PlayerControllerComponent : public Component
 
 	uint32_t currentAttack = -1;
 	uint32_t combo = 0;
-	float attackTimer = 0.0;
+	float attackTimer = 0.0f;
+
+	const float HIT_STOP_TIME = 0.12f;
+	const float HIT_STOP_FACTOR = 0.4f;
+	float hitStopTimer = -1.0f;
 
 	std::array<AttackData, 3> attacks =
 	{
 		/* Light Attacks */
 		AttackData(
 			"light_attack_01",
-			0.1f, 0.3f,
+			0.1f, 0.4f,
 			0.32f, 0.75f,
 			50.0f
 		),
 			AttackData(
 			"light_attack_02",
-			0.1f, 0.3f,
+			0.05f, 0.45f,
 			0.5f, 1.0f,
 			50.0f
 		),
@@ -71,8 +76,8 @@ class PlayerControllerComponent : public Component
 		/* Heavy Attacks */
 		AttackData(
 			"heavy_attack_01",
-			0.5, 1.0,
-			1.64, 3.0,
+			0.7f, 1.2f,
+			1.64f, 3.0f,
 			100.0f
 		)
 	};
@@ -86,6 +91,9 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
+	void OnAttackHit(const struct AttackHitEvent& event);
+
+	ConnectionId attackHitConnection = 0;
 
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;

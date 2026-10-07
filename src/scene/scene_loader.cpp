@@ -33,6 +33,7 @@
 #include "components/audio/character_audio_component.hpp"
 #include "assets/types/font.hpp"
 #include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/main_menu_component.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
@@ -43,17 +44,17 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
 
     Entity *img = outScene.AddEntity("img");
     img->SetParent(hud);
-    img->AddComponent<UIRectComponent>()->Place(UIAnchor::TOP_RIGHT, {-20.0f, 20.0f}, {320.0f, 320.0f});
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
     UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
-    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
     imageComp->SetShouldPreserveAspectRatio(true);
 
-    Entity *txt = outScene.AddEntity("txt");
-    txt->SetParent(img);
-    txt->AddComponent<UIRectComponent>()->Place(UIAnchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
-    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
-    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
-    textComp->SetText("Blood!");
+    //Entity *txt = outScene.AddEntity("txt");
+    //txt->SetParent(img);
+    //txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    //txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    //UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    //textComp->SetText("Blood!");
 }
 
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
@@ -61,8 +62,13 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     playerEntity->AddComponent<TransformComponent>();
-    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
+    TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
+    transform->SetWorldPosition({-17.0f, -1.0f, -8.0f});
     playerEntity->AddComponent<ListenerComponent>();
+    PointLightComponent *pointLight = playerEntity->AddComponent<PointLightComponent>();
+    pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+    pointLight->SetRadius(8.0f);
+    pointLight->SetIntensity(50.0f);
 
     /* Audio */
     {
@@ -121,7 +127,8 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
         heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
 
-		characterAudio->AddHeavyAttackLayer(heavySwingLayer);
+
+		characterAudio->AddHeavyAttackSwingLayer(heavySwingLayer);
 		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
 		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
 		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
@@ -213,7 +220,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
-    CreateTestUI(outScene, appContext);
+    // CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
@@ -224,7 +231,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
     ambientLight->SetColour({0.86f, 0.59f, 0.47f});
     ambientLight->SetIntensity(0.2f);
-    lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
+    /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
     transform->SetWorldRotation(30.0f, 0.0f, 0.0f);
@@ -246,108 +253,48 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     pointLight->SetRadius(10.0f);
     pointLight->SetCastShadows(false);
     TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
-    pointTransform->SetWorldPosition(-0.6f, -1.0f, 6.8f);
+    pointTransform->SetWorldPosition(-0.6f, -1.0f, 6.8f);*/
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
-    //{
-    //    Entity *entity = outScene.AddEntity("animation_entity");
-    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
-    //    transform->SetWorldPosition(0.0f, -1.0f, 5.0f);
-    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
-    //}
-
     {
-        Entity *entity = outScene.AddEntity("princess");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-3.0f, -2.5f, 5.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        transform->SetWorldScale(0.5f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/princess.glb"));
-        auto* entityCollision = entity->AddComponent<BoxCollisionComponent>();
-        entityCollision->SetExtents({ 1,1,1 });
-        entityCollision->SetLayer(CollisionLayer::ENEMY);
-        auto* entityHurtbox = entity->AddComponent<HurtboxComponent>();
-
-        entity->AddComponent<Health>();
-    }
-
-    //{
-    //    Entity *entity = outScene.AddEntity("sword_entity");
-    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
-    //    transform->SetWorldPosition(-6.0f, 1.0f, 5.0f);
-    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
-    //}
-
-    {
-        Entity *entity = outScene.AddEntity("animated_entity_twerk");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        transform->SetWorldScale(0.5f, 0.5f, 0.5f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
-        modelComponent->SetModel(model);
-        AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
-        animator->AddAnimation("twerk", model->GetAnimations());
-        animator->SetSkeletonVisible(true);
-        animator->Play("twerk", true);
+        //Entity *entity = outScene.AddEntity("animated_entity_twerk");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
+        //transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        //transform->SetWorldScale(0.5f, 0.5f, 0.5f);
+        //ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        //std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+        //modelComponent->SetModel(model);
+        //AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        //animator->AddAnimation("twerk", model->GetAnimations());
+        //animator->SetSkeletonVisible(true);
+        //animator->Play("twerk", true);
     }
 
     {
-        Entity *entity = outScene.AddEntity("animated_entity_gangnam_style");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(1.0f, -2.5f, 8.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_gangnam_style.glb");
-        modelComponent->SetModel(model);
-        AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
-        animator->AddAnimation("gangnam_style", model->GetAnimations());
-        animator->SetSkeletonVisible(true);
-        animator->Play("gangnam_style", true);
+        //Entity *entity = outScene.AddEntity("animated_entity_gangnam_style");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(1.0f, -2.5f, 8.0f);
+        //transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        //ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        //std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_gangnam_style.glb");
+        //modelComponent->SetModel(model);
+        //AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        //animator->AddAnimation("gangnam_style", model->GetAnimations());
+        //animator->SetSkeletonVisible(true);
+        //animator->Play("gangnam_style", true);
     }
 
     {
-        Entity *entity = outScene.AddEntity("animation_light");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
-        PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
-        pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
-        pointLight->SetRadius(8.0f);
-        pointLight->SetIntensity(50.0f);
+        //Entity *entity = outScene.AddEntity("animation_light");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
+        //PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
+        //pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+        //pointLight->SetRadius(8.0f);
+        //pointLight->SetIntensity(50.0f);
     }
-
-    auto wallModel = appContext.assetManager->Get<Model>("assets/models/wall.glb");
-    Entity *paintableWallEntity = outScene.AddEntity("paintable_wall");
-    paintableWallEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 5.26f, 0.0f, 0.0f });
-    paintableWallEntity->AddComponent<ModelComponent>()->SetModel(wallModel);
-    paintableWallEntity->AddComponent<PaintableComponent>();
-
-    PaintableComponent *paintableComponent = paintableWallEntity->GetComponent<PaintableComponent>();
-    paintableComponent->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
-    paintableComponent->SetPaintMaskWidth(128);
-    paintableComponent->SetPaintMaskHeight(128);
-
-    paintableWallEntity->AddComponent<ParticleSystemComponent>();
-    ParticleSystemComponent *psComponent = paintableWallEntity->GetComponent<ParticleSystemComponent>();
-    psComponent->SetCount(16);
-    psComponent->SetSpawnRadius(0.1f);
-    psComponent->SetLifeTime(1.0f);
-
-    psComponent->SetStartScale(1.2f);
-    psComponent->SetEndScale(0.25f);
-
-    psComponent->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
-    psComponent->SetIsAnimate(false);
-
-    psComponent->SetVelocity({ 0.0f, 3.0f, 0.0f });
-    psComponent->SetAcceleration({ 0.0, -9.82f, 0.0f });
 
     //outScene.PrintEntityHierarchy();
 }
@@ -599,6 +546,22 @@ static void TestScene2(Scene &outScene, const AppContext &appContext) {
     ambientLight->SetIntensity(1.0f);
 }
 
+static void TestSceneMainMenu(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+    hud->AddComponent<TransformComponent>();
+    hud->AddComponent<CameraComponent>();
+    hud->AddComponent<MainMenuComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+}
+
 bool SceneLoader::Initialize(const AppContext &appContext)
 {
     LogInfo("Creating Scene Loader...");
@@ -613,7 +576,11 @@ bool SceneLoader::Initialize(const AppContext &appContext)
 
 bool SceneLoader::Load(const std::string &name, Scene &outScene) {
     outScene.Clear();
-    TestScene(outScene, *this->appContext);
+
+    if (name == "demo_main_menu")
+        TestSceneMainMenu(outScene, *this->appContext);
+    else
+        TestScene(outScene, *this->appContext);
 
     LogInfo("Loaded scene '%s'", name.c_str());
 
