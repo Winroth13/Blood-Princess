@@ -18,6 +18,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, enemyHealth, 100.0f);
 
 	ExportProperty(int, maxGibsPool, 100);
+	ExportProperty(int, maxEnemyPool, 250);
 
 	std::shared_ptr<Model> gibModel[3];
 	std::shared_ptr<Model> enemyModel;
@@ -27,7 +28,8 @@ class EnemySpawnerComponent : public Component
 private:
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
-	std::vector<Entity*> spawnedEnemies;
+	std::vector<Entity*> enemyPool;
+	std::vector<Entity*> activeEnemy;
 
 
 	std::vector<Entity*> gibPool;
@@ -35,12 +37,12 @@ private:
 
 	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
 	void InitializeGibPool(const AppContext& context, Scene* scene);
+	void InitializeEnemyPool(const AppContext& context, Scene* scene);
+
 	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos);
+	void SpawnEnemyFromPool(const AppContext& context, int numberOfEnemies);
+
 	void CleanGibs();
-
-	void SpawnGibs(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene);
-	void CleanGibs(Scene* scene);
-
 	void CleanupDeadEnemies(const AppContext& context);
 
 	void OnStart(const AppContext& context) override;

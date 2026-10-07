@@ -116,7 +116,9 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
         heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/581092__magnuswaker__burst-flesh.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
         heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/563315__magnuswaker__gushing-flesh.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
-        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
+
+        SoundLayer heavyHeavyGoreLayer;
+        heavyHeavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
 
         SoundLayer heavyBoneLayer;
         heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522171__magnuswaker__bone-breaker-1.ogg"), 0.65f, 0.80f, 0.92f, 1.03f);
@@ -130,8 +132,10 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
 
 		characterAudio->AddHeavyAttackSwingLayer(heavySwingLayer);
 		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
+		characterAudio->AddHeavyAttackLayer(heavyHeavyGoreLayer);
 		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
 		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
+
 
         SoundLayer footstepsLayer;
 		footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_1.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);

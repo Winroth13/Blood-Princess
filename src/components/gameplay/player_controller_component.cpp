@@ -296,7 +296,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 
 		if (this->hitStopTimer >= 0.0)
 		{
-			this->viewmodelAnimator->SetSpeed(0.4f);
+			this->viewmodelAnimator->SetSpeed(HIT_STOP_FACTOR);
 			this->hitStopTimer -= deltaTime;
 		}
 		else
