@@ -59,7 +59,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		modelComponent->SetModel(enemyModel);
 
 		AnimatorComponent* animator = enemy->AddComponent<AnimatorComponent>();
-		animator->AddAnimation("run", model->GetAnimations());
+		animator->AddAnimation("run", enemyModel->GetAnimations());
 		animator->SetSkeletonVisible(true);
 		animator->Play("run", true);
 		animator->SetTime(static_cast<float>(rand() % 100));
@@ -69,7 +69,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		enemyHealth->SetCurrentHealth(this->enemyHealth);
 
 		BoxCollisionComponent* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-		enemyBC->SetExtents({ 1.2,1.7,0.45 });
+		enemyBC->SetExtents({ 1.2f,1.7f,0.45f });
 		enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
 		enemyBC->SetLayer(CollisionLayer::ENEMY);
 		
