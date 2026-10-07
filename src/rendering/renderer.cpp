@@ -7,6 +7,7 @@
 #include "assets/types/model.hpp"
 #include "editor/imgui_layer.hpp"
 #include "input/input.hpp"
+#include "core/debug.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -203,6 +204,8 @@ void Renderer::NewFrame()
 
 void Renderer::Render(Scene *scene, float deltaTime)
 {
+    Debug::BeginTimedStatistic("Rendering");
+
     if (!scene) {
         LogError("Scene was nullptr\n");
         return;
@@ -279,6 +282,8 @@ void Renderer::Render(Scene *scene, float deltaTime)
 
     ID3D11RenderTargetView *view = this->backBuffer.GetRenderTargetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
+
+    Debug::EndTimedStatistic();
 }
 
 void Renderer::Present()

@@ -3,6 +3,8 @@
 #include <format>
 
 std::vector<std::pair<std::string, std::string>> Debug::statistics;
+std::pair<std::string, std::chrono::steady_clock::time_point> Debug::statisticPair;
+std::stack<std::pair<std::string, std::chrono::steady_clock::time_point>> Debug::statisticStack;
 
 void Debug::NewFrame() {
     statistics.clear();
@@ -19,6 +21,15 @@ void Debug::PushStatistic(const std::string &name, const std::string &value) {
     }
 
     statistics.push_back(std::make_pair(name, value));
+}
+
+std::string Debug::GetStackIndentedname(const std::string &name) {
+    std::string indentedName = name;
+    if (statisticStack.size() > 0)
+        indentedName = "  > " + indentedName;
+    for (size_t i = statisticStack.size(); i > 1; i--)
+        indentedName = "\t" + indentedName;
+    return indentedName;
 }
 
 void Debug::SetStatistic(const std::string &name, const std::string &value) {
@@ -51,4 +62,24 @@ void Debug::SetStatistic(const std::string &name, const DirectX::XMFLOAT4 &value
 
 const std::vector<std::pair<std::string, std::string>> &Debug::GetStatistic() {
     return statistics;
+}
+
+void Debug::BeginTimedStatistic(const std::string &name) {
+    statisticPair.first = GetStackIndentedname(name);
+    statisticPair.second = std::chrono::high_resolution_clock::now();
+    statisticStack.push(statisticPair);
+
+    Debug::SetStatistic(statisticPair.first + " (ms)", "-");
+}
+
+void Debug::EndTimedStatistic() {
+    statisticPair = statisticStack.top();
+
+    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> elapsed = currentTime - statisticPair.second;
+    std::chrono::microseconds msTime = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+
+    Debug::SetStatistic(statisticPair.first + " (ms)", static_cast<float>(msTime.count()) / 1000);
+
+    statisticStack.pop();
 }

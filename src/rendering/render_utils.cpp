@@ -3,8 +3,6 @@
 #include "core/debug.hpp"
 
 #include <d3d11_1.h>
-#include <stack>
-#include <chrono>
 
 namespace RenderUtils
 {
@@ -122,8 +120,6 @@ namespace RenderUtils
         };
 
         ID3DUserDefinedAnnotation *annotator;
-        std::pair<std::string, std::chrono::steady_clock::time_point> eventPair;
-        std::stack<std::pair<std::string, std::chrono::steady_clock::time_point>> eventStack;
 
         bool Initialize(ID3D11DeviceContext *deviceContext)
         {
@@ -151,32 +147,12 @@ namespace RenderUtils
 
             annotator->BeginEvent(wideBuffer);
 
-            // Store event in stack
-            eventPair.first = name;
-            eventPair.second = std::chrono::high_resolution_clock::now();
-            eventStack.push(eventPair);
-
-            std::string displayName = eventPair.first;
-            for (size_t i = eventStack.size(); i > 1; i--)
-                displayName = "    " + displayName;
-            Debug::SetStatistic(displayName + " (ms)", "-");
+            Debug::BeginTimedStatistic(name);
         }
 
         void EndEvent()
         {
-            // Load event from stack
-            eventPair = eventStack.top();
-            
-            std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> elapsed = currentTime - eventPair.second;
-            std::chrono::microseconds msTime = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-            
-            std::string displayName = eventPair.first;
-            for (size_t i = eventStack.size(); i > 1; i--)
-                displayName = "    " + displayName;
-            Debug::SetStatistic(displayName + " (ms)", static_cast<float>(msTime.count()) / 1000);
-
-            eventStack.pop();
+            Debug::EndTimedStatistic();
 
             annotator->EndEvent();
         }
