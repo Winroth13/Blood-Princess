@@ -97,7 +97,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
 				if (hp && hp->IsDead()) {
 					if (auto* transform = e->GetComponent<TransformComponent>()) {
-						SpawnGib(context, transform->GetWorldPosition(), e->GetScene());
+						SpawnGibs(context, transform->GetWorldPosition(), e->GetScene());
 					}
 					e->GetScene()->DestroyEntity(e);
 					return true;
