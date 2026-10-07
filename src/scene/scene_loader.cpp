@@ -174,7 +174,6 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         swordHitBox->SetActive(false);
         swordHitBox->SetKnockbackForce(2);
         playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
-        
     }
 }
 
