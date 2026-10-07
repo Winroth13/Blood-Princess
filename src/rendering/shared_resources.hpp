@@ -44,7 +44,8 @@ enum class ParticleFlags : uint32_t
 	ANIMATED = 1 << 0,
 	ADDITIVE = 1 << 1,
 	RESET = 1 << 2,
-	GLOBAL = 1 << 3
+	GLOBAL = 1 << 3,
+	BURST = 1 << 4
 };
 
 constexpr uint32_t operator+(ParticleFlags slot) noexcept {

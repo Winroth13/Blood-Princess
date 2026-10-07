@@ -28,12 +28,20 @@ void main( uint3 DTid : SV_DispatchThreadID )
     float lifeRatio = particle.lifeTime / lifeTime;
     
     bool shouldReset = (flags & PARTICLE_FLAG_RESET) == PARTICLE_FLAG_RESET;
+    bool isBurst = (flags & PARTICLE_FLAG_BURST) == PARTICLE_FLAG_BURST;
+    
+    if(isBurst && !shouldReset && particle.lifeTime > lifeTime)
+    {
+        particle.scale = 0.0f;
+        particles[DTid.x] = particle;
+        return;
+    }
     
     if (particle.lifeTime > lifeTime || shouldReset)
     {
         if (shouldReset)
         {
-            particle.lifeTime = lifeTime * random(float2(DTid.x + ticks + 2, DTid.x + ticks + 2));
+            particle.lifeTime = isBurst ? 0.0f : lifeTime * random(float2(DTid.x + ticks + 2, DTid.x + ticks + 2));
         }
         else
         {

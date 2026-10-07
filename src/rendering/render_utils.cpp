@@ -120,8 +120,6 @@ namespace RenderUtils
         };
 
         ID3DUserDefinedAnnotation *annotator;
-        std::pair<std::string, std::chrono::steady_clock::time_point> eventPair;
-        std::stack<std::pair<std::string, std::chrono::steady_clock::time_point>> eventStack;
 
         bool Initialize(ID3D11DeviceContext *deviceContext)
         {
@@ -149,23 +147,12 @@ namespace RenderUtils
 
             annotator->BeginEvent(wideBuffer);
 
-            // Store event in stack
-            eventPair.first = name;
-            eventPair.second = std::chrono::high_resolution_clock::now();
-            eventStack.push(eventPair);
+            Debug::BeginTimedStatistic(name);
         }
 
         void EndEvent()
         {
-            // Load event from stack
-            eventPair = eventStack.top();
-            eventStack.pop();
-            
-            std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> elapsed = currentTime - eventPair.second;
-            std::chrono::microseconds msTime = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
-            
-            Debug::SetStatistic(eventPair.first + " (ms)", static_cast<float>(msTime.count()) / 1000);
+            Debug::EndTimedStatistic();
 
             annotator->EndEvent();
         }

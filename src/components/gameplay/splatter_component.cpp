@@ -3,6 +3,7 @@
 #include "components/gameplay/paintable_component.hpp"
 #include "components/core/transform_component.hpp"
 #include "components/gameplay/projectile_component.hpp"
+#include "core/rng.hpp"
 #include "core/logging.hpp"
 
 void SplatterComponent::OnStart(const AppContext& context)
@@ -56,7 +57,7 @@ void SplatterComponent::OnCollisionEvent(const CollisionEvent& e)
             return;
     }
 
-    paintable->PaintAtPosition(now, 0.5f);
+    paintable->PaintAtPosition(now, RNG::Float(0.5,2));
 
     this->lastPaintPos = now;
     this->hasPaintedOnce = true;
