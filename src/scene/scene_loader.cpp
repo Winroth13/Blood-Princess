@@ -207,7 +207,7 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
         collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
         collider->SetTrigger(true);
-        collider->SetExtents({ 0.5f, 5.5f, 0.5f });
+        collider->SetExtents({ 0.5f, 12.0f, 0.5f });
         collider->SetCenterOffset({ 0.0f, 7.5f, 0.0f });
 
         auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
@@ -218,10 +218,10 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 static void TestScene(Scene& outScene, const AppContext& appContext) {
-    //Entity *musicEntity = outScene.AddEntity("music_entity");
-    //musicEntity->AddComponent<TransformComponent>();
-    //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-    //musicComponent->SetVolume(0.2f);
+    Entity *musicEntity = outScene.AddEntity("music_entity");
+    musicEntity->AddComponent<TransformComponent>();
+    MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+    musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
     // CreateTestUI(outScene, appContext);
@@ -327,6 +327,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     // Wall center is offset by half the wall thickness (0.5f)
     const float wallRadius = innerRadius + 0.5f;
 
+    Entity *walls = outScene.AddEntity("Walls");
+
     // 1. Build walls (2 walls high) and torches
     for (int i = 0; i < numSegments; ++i)
     {
@@ -341,6 +343,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Lower wall segment entity
         std::string wallName = "Wall_" + std::to_string(i);
         Entity *wallEntity = outScene.AddEntity(wallName);
+        wallEntity->SetParent(walls);
 
         TransformComponent *wallTransform = wallEntity->AddComponent<TransformComponent>();
         wallTransform->SetWorldPosition(posX, posY, posZ);

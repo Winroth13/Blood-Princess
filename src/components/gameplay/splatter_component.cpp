@@ -62,7 +62,7 @@ void SplatterComponent::OnCollisionEvent(const CollisionEvent& e)
             this->firstPositionToPaint.x, 
             this->firstPositionToPaint.y - 0.3f, 
             this->firstPositionToPaint.z 
-            }, RNG::Float(1.4, 6));
+            }, RNG::Float(1.4f, 6.0f));
     }
 
     paintable->PaintAtPosition(now, RNG::Float(0.2f, 0.6f));

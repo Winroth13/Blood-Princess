@@ -10,7 +10,7 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	ExportProperty(float, spawnerInterval, 3.0f);
-	ExportProperty(int, maxEnemiesAlive, 4);
+	ExportProperty(int, maxEnemiesAlive, 12);
 	ExportProperty(int, currentEnemies, 4);
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
@@ -20,7 +20,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(int, maxGibsPool, 100);
 	ExportProperty(int, maxEnemyPool, 250);
 
-	std::shared_ptr<Model> gibModel[3];
+	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Model> enemyModel;
 	std::shared_ptr<Texture2D> atlasTexture;
 
