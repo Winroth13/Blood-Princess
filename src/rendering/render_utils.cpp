@@ -3,6 +3,8 @@
 #include "core/debug.hpp"
 
 #include <d3d11_1.h>
+#include <stack>
+#include <chrono>
 
 namespace RenderUtils
 {
@@ -153,19 +155,28 @@ namespace RenderUtils
             eventPair.first = name;
             eventPair.second = std::chrono::high_resolution_clock::now();
             eventStack.push(eventPair);
+
+            std::string displayName = eventPair.first;
+            for (size_t i = eventStack.size(); i > 1; i--)
+                displayName = "    " + displayName;
+            Debug::SetStatistic(displayName + " (ms)", "-");
         }
 
         void EndEvent()
         {
             // Load event from stack
             eventPair = eventStack.top();
-            eventStack.pop();
             
             std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> elapsed = currentTime - eventPair.second;
             std::chrono::microseconds msTime = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
             
-            Debug::SetStatistic(eventPair.first + " (ms)", static_cast<float>(msTime.count()) / 1000);
+            std::string displayName = eventPair.first;
+            for (size_t i = eventStack.size(); i > 1; i--)
+                displayName = "    " + displayName;
+            Debug::SetStatistic(displayName + " (ms)", static_cast<float>(msTime.count()) / 1000);
+
+            eventStack.pop();
 
             annotator->EndEvent();
         }

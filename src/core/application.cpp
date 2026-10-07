@@ -49,11 +49,15 @@ void Application::Update(float deltaTime)
     this->editor.Update(this->appContext, deltaTime);
 }
 
-void Application::Render(float deltaTime) 
+void Application::PreRender(float deltaTime)
 {
     this->imGuiLayer.NewFrame();
 
     this->editor.Render(this->appContext);
+}
+
+void Application::Render(float deltaTime) 
+{
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
 
     this->imGuiLayer.Present();
@@ -186,12 +190,13 @@ void Application::Run()
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
+        this->renderer.NewFrame();
+        this->Update(deltaTime);
+
+        this->PreRender(deltaTime);
         Debug::NewFrame();
         Debug::SetStatistic("FPS", 1.0f / deltaTime);
         Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
-
-        this->renderer.NewFrame();
-        this->Update(deltaTime);
 
         if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
             Debug::SetStatistic("Position", primary->cameraPosition);

@@ -1,15 +1,17 @@
 #pragma once
 
-#include <unordered_map>
+#include <vector>
 #include <string>
 #include <DirectXMath.h>
 
 class Debug {
     friend class Application;
 
-    static std::unordered_map<std::string, std::string> statistics;
+    static std::vector<std::pair<std::string, std::string>> statistics;
 
     static void NewFrame();
+
+    static void PushStatistic(const std::string &name, const std::string &value);
 
 public:
     static void SetStatistic(const std::string &name, const std::string &value);
@@ -20,5 +22,5 @@ public:
     static void SetStatistic(const std::string &name, const DirectX::XMFLOAT3 &value);
     static void SetStatistic(const std::string &name, const DirectX::XMFLOAT4 &value);
 
-    static const std::unordered_map<std::string, std::string> &GetStatistic();
+    static const std::vector<std::pair<std::string, std::string>> &GetStatistic();
 };
