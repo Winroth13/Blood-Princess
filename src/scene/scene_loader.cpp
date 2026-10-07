@@ -31,8 +31,11 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/skeletal/socket_component.hpp"
 #include "components/audio/character_audio_component.hpp"
+#include "assets/types/font.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
+    std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
+
     Entity *hud = outScene.AddEntity("HUD");
     hud->AddComponent<UIRectComponent>();
     hud->AddComponent<UICanvasComponent>();
