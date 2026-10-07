@@ -294,6 +294,17 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 			}
 		}
 
+		if (this->hitStopTimer >= 0.0)
+		{
+			this->viewmodelAnimator->SetSpeed(HIT_STOP_FACTOR);
+			this->hitStopTimer -= deltaTime;
+		}
+		else
+		{
+			this->hitStopTimer = -1.0;
+			this->viewmodelAnimator->SetSpeed(1.0f);
+		}
+
 		if (this->viewmodelAnimator->IsFinished())
 		{
 			this->currentAttack = -1;
@@ -348,6 +359,11 @@ void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)
 	else
 	{
 		characterAudio->PlayLightAttackHit();
+	}
+
+	if (this->hitStopTimer <= -1.0)
+	{
+		this->hitStopTimer = HIT_STOP_TIME;
 	}
 }
 

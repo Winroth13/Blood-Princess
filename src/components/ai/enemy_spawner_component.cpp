@@ -22,67 +22,6 @@
 
 uint32_t s_gibCounter = 0;
 
-void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEnemies)
-{
-	TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
-	Scene* mainScene = this->GetOwner()->GetScene();
-	DirectX::XMFLOAT3 origin = 
-		player ? 
-		DirectX::XMFLOAT3{ player->GetWorldPosition().x , player->GetWorldPosition().y - 1.5f  ,player->GetWorldPosition().z } :
-		DirectX::XMFLOAT3{ 0.0f,-2.0f,0.0f };
-
-	for (size_t i = 0; i < numberOfEnemies; i++)
-	{
-		Entity* enemy = mainScene->AddEntity("Enemy_" + std::to_string(RNG::Int(0,2000000)));
-		DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
-		do
-		{
-			float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-			float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
-
-			position = {
-				origin.x + cosf(angle) * dist,
-				origin.y,
-				origin.z + sinf(angle) * dist
-			};
-
-			LogInfo("Enemy Y %f : ", origin.y);
-
-		} while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
-
-		TransformComponent* enemyTransform = enemy->AddComponent< TransformComponent>();;
-		enemyTransform->SetWorldPosition(position);
-		enemyTransform->SetWorldScale(0.9f);
-
-		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
-		modelComponent->SetModel(enemyModel);
-
-		AnimatorComponent* animator = enemy->AddComponent<AnimatorComponent>();
-		animator->AddAnimation("run", enemyModel->GetAnimations());
-		animator->SetSkeletonVisible(true);
-		animator->Play("run", true);
-		animator->SetTime(static_cast<float>(rand() % 100));
-
-		Health* enemyHealth = enemy->AddComponent<Health>();
-		enemyHealth->SetMaxHealth(this->enemyHealth);
-		enemyHealth->SetCurrentHealth(this->enemyHealth);
-
-		BoxCollisionComponent* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-		enemyBC->SetExtents({ 1.2f,1.7f,0.45f });
-		enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
-		enemyBC->SetLayer(CollisionLayer::ENEMY);
-		
-		HurtboxComponent* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
-
-
-		EnemyControllerComponent* enemyController = enemy->AddComponent<EnemyControllerComponent>();
-		enemyController->SetMoveSpeed(this->enemyMoveSpeed);
-		
-
-		spawnedEnemies.push_back(enemy);
-	}
-}
-
 void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* scene)
 {
     gibPool.reserve(maxGibsPool);
@@ -173,14 +112,52 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
     }
 }
 
+void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene* scene)
+{
+    enemyPool.reserve(maxEnemyPool);
+    activeEnemy.reserve(maxEnemyPool);
+
+    for (int i = 0; i < maxEnemyPool; ++i)
+    {
+        Entity* enemy = scene->AddEntity("Pooled_Enemy_" + std::to_string(RNG::Int(0, 2000000)));
+
+        auto* enemyTransform = enemy->AddComponent<TransformComponent>();
+        auto* modelComponent = enemy->AddComponent<ModelComponent>();
+        auto* animator = enemy->AddComponent<AnimatorComponent>();
+        auto* enemyHealth = enemy->AddComponent<Health>();
+        auto* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
+        auto* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
+        auto* enemyController = enemy->AddComponent<EnemyControllerComponent>();
+
+        enemyTransform->SetWorldScale(0.9f);
+        modelComponent->SetModel(enemyModel);
+
+        animator->AddAnimation("run", enemyModel->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->Play("run", true);
+
+        enemyBC->SetExtents({ 1.2f, 1.7f, 0.45f });
+        enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
+        enemyBC->SetLayer(CollisionLayer::ENEMY);
+
+
+        enemyController->SetMoveSpeed(this->enemyMoveSpeed);
+
+        enemy->SetLocallyActive(false);
+        enemyPool.push_back(enemy);
+    }
+}
+
+
 
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
 {
     const int numberOfGibs = RNG::Int(3, 5);
-    pos.y += 2.0f;
+    pos.y += 1.5f;
 
     for (int i = 0; i < numberOfGibs; ++i)
     {
+        
         if (this->gibPool.empty()) {
             if (this->activeGibs.empty()) break;
             Entity* oldestGib = this->activeGibs.front();
@@ -219,10 +196,60 @@ void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX
 
 
         projectileGib->Launch(velocity, angularVelocity);
+        if (i == 0) {
+            gib->GetComponent<SplatterComponent>()->SetFirstPaint(pos);
+        }
 
         this->activeGibs.push_back(gib);
     }
 }
+
+void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int numberOfEnemies)
+{
+    TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
+    DirectX::XMFLOAT3 origin =
+        player ?
+        DirectX::XMFLOAT3{ player->GetWorldPosition().x, player->GetWorldPosition().y - 1.5f, player->GetWorldPosition().z } :
+        DirectX::XMFLOAT3{ 0.0f, -2.0f, 0.0f };
+
+    for (int i = 0; i < numberOfEnemies; i++)
+    {
+        if (this->enemyPool.empty()) break;
+
+        Entity* enemy = this->enemyPool.back();
+        this->enemyPool.pop_back();
+
+        DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+        do
+        {
+            float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
+            float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
+
+            position = {
+                origin.x + cosf(angle) * dist,
+                origin.y,
+                origin.z + sinf(angle) * dist
+            };
+
+        } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
+
+
+        TransformComponent* enemyTransform = enemy->GetComponent<TransformComponent>();
+        enemyTransform->SetWorldPosition(position);
+
+
+        Health* enemyHealth = enemy->GetComponent<Health>();
+        enemyHealth->SetMaxHealth(this->enemyHealth);
+        enemyHealth->SetCurrentHealth(this->enemyHealth);
+
+        AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
+        animator->SetTime(static_cast<float>(rand() % 100));
+
+        enemy->SetLocallyActive(true);
+        activeEnemy.push_back(enemy);
+    }
+}
+
 
 
 void EnemySpawnerComponent::CleanGibs()
@@ -252,26 +279,34 @@ void EnemySpawnerComponent::CleanGibs()
 
 void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 {
-	this->spawnedEnemies.erase(
-		std::remove_if(this->spawnedEnemies.begin(), this->spawnedEnemies.end(),
-			[&context, this](Entity* e) {
-				if (!e) return true;
+    for (auto it = activeEnemy.begin(); it != activeEnemy.end(); )
+    {
+        Entity* e = *it;
+        if (!e) {
+            it = activeEnemy.erase(it);
+            continue;
+        }
 
-				auto* hp = e->GetComponent<Health>();
+        auto* hp = e->GetComponent<Health>();
+        if (hp && hp->IsDead())
+        {
+            if (auto* transform = e->GetComponent<TransformComponent>()) {
+                SpawnGibsFromPool(context, transform->GetWorldPosition());
+            }
 
-				if (hp && hp->IsDead()) {
-					if (auto* transform = e->GetComponent<TransformComponent>()) {
-						SpawnGibsFromPool(context, transform->GetWorldPosition());
-					}
-					e->GetScene()->DestroyEntity(e);
-					return true;
-				}
-				return false;
-			}),
-		this->spawnedEnemies.end()
-	);
 
-	this->currentEnemies = static_cast<int>(this->spawnedEnemies.size());
+            e->SetLocallyActive(false);
+            this->enemyPool.push_back(e);
+
+            it = activeEnemy.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    this->currentEnemies = static_cast<int>(this->activeEnemy.size());
 }
 
 
@@ -288,6 +323,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
+    this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
@@ -295,14 +331,18 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
     this->CleanupDeadEnemies(context);
     this->CleanGibs();
 
-    if (static_cast<int>(this->spawnedEnemies.size()) >= this->maxEnemiesAlive)
+
+    if (this->currentEnemies >= this->maxEnemiesAlive)
         return;
 
     this->timer -= deltaTime;
 
     if (this->timer <= 0.0f) {
         this->timer = this->spawnerInterval;
-        SpawnEnemy(context, this->maxEnemiesAlive - this->currentEnemies);
+
+
+        int enemiesToSpawn = this->maxEnemiesAlive - this->currentEnemies;
+        SpawnEnemyFromPool(context, enemiesToSpawn);
     }
 }
 
