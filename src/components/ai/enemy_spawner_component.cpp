@@ -18,7 +18,7 @@
 #include "components/gameplay/paintable_component.hpp"
 #include "components/collisions/sphere_collision_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
-
+#include "components/core/lifetime_component.hpp"
 
 uint32_t s_gibCounter = 0;
 
@@ -148,8 +148,6 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     }
 }
 
-
-
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
 {
     const int numberOfGibs = RNG::Int(3, 5);
@@ -250,7 +248,32 @@ void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int nu
     }
 }
 
+// TODO: Pool these aswell
+void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
+{
+    Entity *bloodExplosionEntity = scene->AddEntity("BloodExplosion");
+    bloodExplosionEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
 
+    ParticleSystemComponent *ps = bloodExplosionEntity->AddComponent<ParticleSystemComponent>();
+    ps->SetSpawnRadius(RNG::Float(0.1f, 0.4f));
+    ps->SetIsBurst(true);
+    ps->SetIsSpread(true);
+    ps->SetCount(20);
+    ps->SetStartTint({ 0.35f, 0.03f, 0.03f });
+    ps->SetEndTint({ 0.15f, 0.02f, 0.02f });
+    ps->SetStartScale(0.8f);
+    ps->SetEndScale(0.8f);
+    ps->SetLifeTime(2.0f);
+
+    ps->SetVelocity({ 4.0f, 4.0f, 4.0f });
+    ps->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+    ps->SetIsAnimate(true);
+    ps->SetAtlasTexture(this->atlasTexture);
+    ps->SetAtlasSize({ 8.0f, 8.0f });
+
+    bloodExplosionEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(2.0f);
+}
 
 void EnemySpawnerComponent::CleanGibs()
 {
@@ -292,9 +315,13 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
         {
             if (auto* transform = e->GetComponent<TransformComponent>()) {
                 SpawnGibsFromPool(context, transform->GetWorldPosition());
+
+
+                XMFLOAT3 position = transform->GetWorldPosition();
+                position.y += 1.4f;
+                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }
-
-
+            
             e->SetLocallyActive(false);
             this->enemyPool.push_back(e);
 
@@ -330,7 +357,6 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
     this->CleanupDeadEnemies(context);
     this->CleanGibs();
-
 
     if (this->currentEnemies >= this->maxEnemiesAlive)
         return;

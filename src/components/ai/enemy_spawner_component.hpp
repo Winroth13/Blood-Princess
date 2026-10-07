@@ -28,19 +28,22 @@ class EnemySpawnerComponent : public Component
 private:
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
+
 	std::vector<Entity*> enemyPool;
 	std::vector<Entity*> activeEnemy;
-
 
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
 
 	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
+
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
 
 	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos);
 	void SpawnEnemyFromPool(const AppContext& context, int numberOfEnemies);
+
+	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
 
 	void CleanGibs();
 	void CleanupDeadEnemies(const AppContext& context);

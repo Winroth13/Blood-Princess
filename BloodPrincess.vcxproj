@@ -200,6 +200,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\components\core\lifetime_component.cpp" />
     <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
     <ClCompile Include="src\components\gameplay\projectile_component.cpp" />
@@ -316,6 +317,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\stb_truetype\stb_truetype.h" />
     <ClInclude Include="external\tinygltf\tinygltf_json_c.h" />
     <ClInclude Include="external\tinygltf\tiny_gltf_v3.h" />
+    <ClInclude Include="src\components\core\lifetime_component.hpp" />
     <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
     <ClInclude Include="src\components\gameplay\projectile_component.hpp" />

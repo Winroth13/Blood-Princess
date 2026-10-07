@@ -60,6 +60,12 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
     {
         flags |= +ParticleFlags::BURST;
     }
+
+    if (isSpread)
+    {
+        flags |= +ParticleFlags::SPREAD;
+    }
+
     command.flags = flags;
 
     command.lifeTime = this->lifeTime;

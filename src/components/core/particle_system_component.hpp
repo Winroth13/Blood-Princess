@@ -12,6 +12,8 @@ class ParticleSystemComponent : public Component
     ExportPropertyRanged(float, lifeTime, "s", 0.0f, 0.0f, 0.1f, 1.0f);
     ExportPropertyRanged(float, spawnRadius, "m", 0.0f, 0.0f, 0.1f, 1.0f);
     ExportProperty(bool, isGlobal, false);
+    ExportProperty(bool, isBurst, false);
+    ExportProperty(bool, isSpread, false);
 
     ExportPropertyCategory("Animation");
     ExportProperty(bool, isAnimated, false);
@@ -26,8 +28,6 @@ class ParticleSystemComponent : public Component
     ExportPropertyCategory("Scale");
     ExportPropertyRanged(float, startScale, "", 0.0f, 0.0f, 0.1f, 0.0f);
     ExportPropertyRanged(float, endScale, "", 0.0f, 0.0f, 0.1f, 1.0f);
-
-    ExportProperty(bool, isBurst, false);
 
     ExportPropertyCategory("Color");
     ExportProperty(bool, isAdditive, false);
@@ -63,9 +63,10 @@ public:
     void SetEndTint(const XMFLOAT3 endTint) { this->endTint = endTint; }
     void SetStartScale(const float startScale) { this->startScale = startScale; }
     void SetEndScale(const float endScale) { this->endScale = endScale; }
-    void SetBurst() { this->shouldReset = true; }
 
     void SetIsAnimate(const bool isAnimated) { this->isAnimated = isAnimated; }
     void SetIsAdditive(const bool isAdditive) { this->isAdditive = isAdditive; }
     void SetIsGlobal(const bool isGlobal) { this->isGlobal = isGlobal; }
+    void SetIsBurst(const bool isBurst) { this->isBurst = isBurst; }
+    void SetIsSpread(const bool isSpread) { this->isSpread = isSpread; }
 };
