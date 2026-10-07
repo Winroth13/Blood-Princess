@@ -56,11 +56,10 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 
 
 		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
-		std::shared_ptr<Model> model = context.assetManager->Get<Model>("assets/models/goblin.glb");
-		modelComponent->SetModel(model);
+		modelComponent->SetModel(enemyModel);
 
 		AnimatorComponent* animator = enemy->AddComponent<AnimatorComponent>();
-		animator->AddAnimation("run", model->GetAnimations());
+		animator->AddAnimation("run", enemyModel->GetAnimations());
 		animator->SetSkeletonVisible(true);
 		animator->Play("run", true);
 		animator->SetTime(static_cast<float>(rand() % 100));
@@ -70,7 +69,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 		enemyHealth->SetCurrentHealth(this->enemyHealth);
 
 		BoxCollisionComponent* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-		enemyBC->SetExtents({ 1.2,1.7,0.45 });
+		enemyBC->SetExtents({ 1.2f,1.7f,0.45f });
 		enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
 		enemyBC->SetLayer(CollisionLayer::ENEMY);
 		
@@ -96,7 +95,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
 				if (hp && hp->IsDead()) {
 					if (auto* transform = e->GetComponent<TransformComponent>()) {
-						SpawnGib(context, transform->GetWorldPosition(), e->GetScene());
+						SpawnGibs(context, transform->GetWorldPosition(), e->GetScene());
 					}
 					e->GetScene()->DestroyEntity(e);
 					return true;
@@ -113,6 +112,14 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
 	this->timer = this->spawnerInterval;
+	gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
+	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
+	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+
+	this->enemyModel = context.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+
+	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
+
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
@@ -131,8 +138,18 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 	}
 }
 
+void EnemySpawnerComponent::OnDestroy(const AppContext& context)
+{
+	for (size_t i = 0; i < 3; i++)
+	{
+		gibModel[i].reset();
+	}
 
-void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
+	this->enemyModel.reset();
+}
+
+
+void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
 {
     const int numberOfGibs = RNG::Int(3, 5);
     pos.y += 2.0f;
@@ -160,7 +177,7 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
         const float pSpeed = RNG::Float(1.0f, 2.0f);
         gibParticle->SetVelocity({
             cosf(pAngle) * pSpeed,
-            RNG::Float(2.0f, 4.5f),
+			RNG::Float(0.1f, 0.3f),
             sinf(pAngle) * pSpeed
             });
         gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });

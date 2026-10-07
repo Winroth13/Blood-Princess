@@ -208,6 +208,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\animation_library.cpp" />
     <ClCompile Include="src\assets\types\compute_shader.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
+    <ClCompile Include="src\assets\types\font.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
     <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
@@ -238,6 +239,14 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\texture_2d.cpp" />
     <ClCompile Include="src\assets\types\vertex_shader.cpp" />
     <ClCompile Include="src\audio\audio_manager.cpp" />
+    <ClCompile Include="src\components\ui\ui_bar_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_button_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_canvas_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_checkbox_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_image_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_rect_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_slider_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_text_component.cpp" />
     <ClCompile Include="src\components\audio\audio_component.cpp" />
     <ClCompile Include="src\components\core\camera_component.cpp" />
     <ClCompile Include="src\components\core\model_component.cpp" />
@@ -268,6 +277,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\rendering\passes\particle_pass.cpp" />
     <ClCompile Include="src\rendering\passes\shadow_pass.cpp" />
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
+    <ClCompile Include="src\rendering\passes\ui_pass.cpp" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\assets\asset_manager.cpp" />
     <ClCompile Include="src\rendering\render_utils.cpp" />
@@ -279,6 +289,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\scene\scene_culler.cpp" />
     <ClCompile Include="src\scene\scene_loader.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
+    <ClCompile Include="src\ui\ui_context.cpp" />
+    <ClCompile Include="src\ui\ui_draw_list.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imguizmo\GraphEditor.h" />
@@ -310,6 +322,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\animation_library.hpp" />
     <ClInclude Include="src\assets\types\compute_shader.hpp" />
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
+    <ClInclude Include="src\assets\types\font.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\components\lights\ambient_light_component.hpp" />
@@ -349,6 +362,14 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\audio\music_component.hpp" />
     <ClInclude Include="src\components\skeletal\socket_component.hpp" />
     <ClInclude Include="src\components\sphere_collider_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_bar_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_button_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_canvas_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_checkbox_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_image_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_rect_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_slider_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_text_component.hpp" />
     <ClInclude Include="src\components\collisions\sphere_collision_component.hpp" />
     <ClInclude Include="src\components\lights\spot_light_component.hpp" />
     <ClInclude Include="src\components\ai\target_component.hpp" />
@@ -383,6 +404,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\rendering\passes\particle_pass.hpp" />
     <ClInclude Include="src\rendering\passes\shadow_pass.hpp" />
     <ClInclude Include="src\rendering\passes\output_pass.hpp" />
+    <ClInclude Include="src\rendering\passes\ui_pass.hpp" />
     <ClInclude Include="src\rendering\renderer.hpp" />
     <ClInclude Include="src\core\window.hpp" />
     <ClInclude Include="src\assets\asset_manager.hpp" />
@@ -401,6 +423,9 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
+    <ClInclude Include="src\ui\ui_context.hpp" />
+    <ClInclude Include="src\ui\ui_draw_list.hpp" />
+    <ClInclude Include="src\ui\ui_types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl">
@@ -522,6 +547,18 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\shaders\shadow\vs_shadow_skinned.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\ui\ps_ui.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\ui\vs_ui.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

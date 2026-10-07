@@ -10,6 +10,7 @@
 #include "rendering/passes/output_pass.hpp"
 #include "rendering/passes/line_pass.hpp"
 #include "rendering/passes/paint_pass.hpp"
+#include "rendering/passes/ui_pass.hpp"
 
 #include <d3d11.h>
 #include <Windows.h>
@@ -35,6 +36,7 @@ class Renderer
     OutputPass outputPass;
 	LinePass linePass;
 	PaintPass paintPass;
+    UIPass uiPass;
 
 	D3D11_VIEWPORT viewport;
 	uint32_t width = 0;

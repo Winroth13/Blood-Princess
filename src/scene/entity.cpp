@@ -52,6 +52,14 @@ void Entity::LateUpdate(const AppContext &context, float deltaTime) {
     }
 }
 
+void Entity::UIRender(UIDrawList &drawList) {
+    for (size_t i = 0; i < this->components.size(); ++i) {
+        Component *component = this->components[i].get();
+        if (component->IsActive() && !component->IsPendingDestroy() && component->WantsUIRender())
+            component->UIRender(drawList);
+    }
+}
+
 void Entity::OnDestroy(const AppContext &context) {
     for (size_t i = 0; i < this->components.size(); ++i)
         this->components[i]->OnDestroy(context);
