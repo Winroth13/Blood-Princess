@@ -65,6 +65,10 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
     transform->SetWorldPosition({-17.0f, -1.0f, -8.0f});
     playerEntity->AddComponent<ListenerComponent>();
+    PointLightComponent *pointLight = playerEntity->AddComponent<PointLightComponent>();
+    pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+    pointLight->SetRadius(8.0f);
+    pointLight->SetIntensity(50.0f);
 
     /* Audio */
     {
@@ -283,13 +287,13 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     }
 
     {
-        Entity *entity = outScene.AddEntity("animation_light");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
-        PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
-        pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
-        pointLight->SetRadius(8.0f);
-        pointLight->SetIntensity(50.0f);
+        //Entity *entity = outScene.AddEntity("animation_light");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
+        //PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
+        //pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+        //pointLight->SetRadius(8.0f);
+        //pointLight->SetIntensity(50.0f);
     }
 
     //outScene.PrintEntityHierarchy();
