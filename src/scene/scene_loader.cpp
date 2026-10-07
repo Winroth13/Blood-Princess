@@ -327,6 +327,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     // Wall center is offset by half the wall thickness (0.5f)
     const float wallRadius = innerRadius + 0.5f;
 
+    Entity *walls = outScene.AddEntity("Walls");
+
     // 1. Build walls (2 walls high) and torches
     for (int i = 0; i < numSegments; ++i)
     {
@@ -341,6 +343,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Lower wall segment entity
         std::string wallName = "Wall_" + std::to_string(i);
         Entity *wallEntity = outScene.AddEntity(wallName);
+        wallEntity->SetParent(walls);
 
         TransformComponent *wallTransform = wallEntity->AddComponent<TransformComponent>();
         wallTransform->SetWorldPosition(posX, posY, posZ);

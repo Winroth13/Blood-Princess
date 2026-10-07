@@ -29,9 +29,12 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 
     bool ribCageSpawned = false;
 
+    Entity *gibs = scene->AddEntity("Gibs");
+
     for (int i = 0; i < maxGibsPool; ++i)
     {
         Entity* gib = scene->AddEntity("Pooled_Gib_" + std::to_string(s_gibCounter++));
+        gib->SetParent(gibs);
 
         auto* gibTransform = gib->AddComponent<TransformComponent>();
         auto* modelComponent = gib->AddComponent<ModelComponent>();
@@ -117,9 +120,12 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     enemyPool.reserve(maxEnemyPool);
     activeEnemy.reserve(maxEnemyPool);
 
+    Entity *enemies = scene->AddEntity("Entities");
+
     for (int i = 0; i < maxEnemyPool; ++i)
     {
         Entity* enemy = scene->AddEntity("Pooled_Enemy_" + std::to_string(RNG::Int(0, 2000000)));
+        enemy->SetParent(enemies);
 
         auto* enemyTransform = enemy->AddComponent<TransformComponent>();
         auto* modelComponent = enemy->AddComponent<ModelComponent>();
