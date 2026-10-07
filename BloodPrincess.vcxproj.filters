@@ -70,7 +70,6 @@
     <ClCompile Include="external\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="src\core\debug.cpp" />
     <ClCompile Include="src\editor\statistics_panel.cpp" />
-<<<<<<< HEAD
     <ClCompile Include="src\rendering\passes\ui_pass.cpp" />
     <ClCompile Include="src\components\ui\ui_canvas_component.cpp" />
     <ClCompile Include="src\components\ui\ui_rect_component.cpp" />
@@ -83,7 +82,6 @@
     <ClCompile Include="src\components\ui\ui_button_component.cpp" />
     <ClCompile Include="src\ui\ui_context.cpp" />
     <ClCompile Include="src\assets\types\font.cpp" />
-=======
     <ClCompile Include="src\components\gameplay\projectile_component.cpp" />
     <ClCompile Include="src\components\lights\ambient_light_component.cpp" />
     <ClCompile Include="src\components\skeletal\animator_component.cpp" />
@@ -110,7 +108,6 @@
     <ClCompile Include="src\components\lights\spot_light_component.cpp" />
     <ClCompile Include="src\components\core\transform_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
->>>>>>> main
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -206,7 +203,6 @@
     <ClInclude Include="external\imgui\imgui_stdlib.h" />
     <ClInclude Include="src\core\debug.hpp" />
     <ClInclude Include="src\editor\statistics_panel.hpp" />
-<<<<<<< HEAD
     <ClInclude Include="src\rendering\passes\ui_pass.hpp" />
     <ClInclude Include="src\components\ui\ui_canvas_component.hpp" />
     <ClInclude Include="src\components\ui\ui_rect_component.hpp" />
@@ -220,7 +216,6 @@
     <ClInclude Include="src\components\ui\ui_button_component.hpp" />
     <ClInclude Include="src\ui\ui_context.hpp" />
     <ClInclude Include="src\assets\types\font.hpp" />
-=======
     <ClInclude Include="src\components\gameplay\projectile_component.hpp" />
     <ClInclude Include="src\components\lights\ambient_light_component.hpp" />
     <ClInclude Include="src\components\skeletal\animator_component.hpp" />
@@ -248,7 +243,6 @@
     <ClInclude Include="src\components\ai\target_component.hpp" />
     <ClInclude Include="src\components\core\transform_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
->>>>>>> main
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
