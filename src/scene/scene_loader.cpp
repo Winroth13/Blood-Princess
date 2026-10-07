@@ -121,7 +121,8 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
         heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
 
-		characterAudio->AddHeavyAttackLayer(heavySwingLayer);
+
+		characterAudio->AddHeavyAttackSwingLayer(heavySwingLayer);
 		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
 		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
 		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);

@@ -2,6 +2,7 @@
 #include "scene/component.hpp"
 #include "input/action.hpp"
 #include "input/input.hpp"
+#include "events/event_bus.hpp"
 
 class TransformComponent;
 class AnimatorComponent;
@@ -86,6 +87,9 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
+	void OnAttackHit(const struct AttackHitEvent& event);
+
+	ConnectionId attackHitConnection = 0;
 
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
