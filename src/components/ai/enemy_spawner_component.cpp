@@ -177,7 +177,7 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
 {
     const int numberOfGibs = RNG::Int(3, 5);
-    pos.y += 2.0f;
+    pos.y += 1.5f;
 
     for (int i = 0; i < numberOfGibs; ++i)
     {
