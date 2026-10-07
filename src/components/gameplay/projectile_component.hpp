@@ -9,9 +9,14 @@ public:
     RegisterComponent(ProjectileComponent);
     DirectX::XMFLOAT3 velocity = { 0,0,0 };
     DirectX::XMFLOAT3 angularVelocity = { 0,0,0 };
-    float groundY = 0.0f;
+    float friction = 50.0f;
+    float restitution = 0.4f; // bounciness(0 = dead, 1 = lossless)
+
+    float groundY = -2.5f;
     float gravity = 9.82f;
     float projectileAliveTime = 8.0f;
+
+    float settleSpeedSq = 0.05f;  // on ground contact, stop when total speed below this
 
     bool isGrounded = false;
 
@@ -24,8 +29,11 @@ public:
     bool IsGrounded()const { return isGrounded; };
 
     float GetAliveTime() const { return projectileAliveTime; }
-    void SetAliveTime(float amount) { this->projectileAliveTime = amount; }
 
+    void SetAliveTime(float amount) { this->projectileAliveTime = amount; }
     void SetGravity(float strength) { this->gravity = strength; }
+    void SetRestitution(float r) { this->restitution = r; }
+    void SetFriction(float f) { this->friction = f; }
+    void SetGroundY(float y) { this->groundY = y; }
 };
 

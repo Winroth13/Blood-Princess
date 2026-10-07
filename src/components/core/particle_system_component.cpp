@@ -51,6 +51,11 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
         flags |= +ParticleFlags::ANIMATED;
     }
 
+    if (isGlobal)
+    {
+        flags |= +ParticleFlags::GLOBAL;
+    }
+
     command.flags = flags;
 
     command.lifeTime = this->lifeTime;
@@ -59,18 +64,27 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
     command.atlasSize = this->atlasSize;
     command.animationSpeed = this->animationSpeed;
     
-    XMFLOAT4 quat = transform->GetWorldRotationQuaternion();
-    XMVECTOR velocityV = XMVector3Rotate(
-        XMLoadFloat3(&this->velocity), 
-        XMLoadFloat4(&quat)
-    );
-    XMStoreFloat3(&command.velocity, velocityV);
+    if (this->isGlobal)
+    {
+        command.velocity = this->velocity;
+        command.acceleration = this->acceleration;
+    }
+    else
+    {
+        XMFLOAT4 quat = transform->GetWorldRotationQuaternion();
+        XMVECTOR velocityV = XMVector3Rotate(
+            XMLoadFloat3(&this->velocity),
+            XMLoadFloat4(&quat)
+        );
+        XMStoreFloat3(&command.velocity, velocityV);
 
-    XMVECTOR accelerationV = XMVector3Rotate(
-        XMLoadFloat3(&this->acceleration),
-        XMLoadFloat4(&quat)
-    );
-    XMStoreFloat3(&command.acceleration, accelerationV);
+        XMVECTOR accelerationV = XMVector3Rotate(
+            XMLoadFloat3(&this->acceleration),
+            XMLoadFloat4(&quat)
+        );
+        XMStoreFloat3(&command.acceleration, accelerationV);
+    }
+    
     
     command.startScale = this->startScale;
     command.endScale = this->endScale;

@@ -4,11 +4,13 @@
 #include "scene/entity.hpp"
 #include "scene/scene_culler.hpp"
 #include "rendering/render_view.hpp"
+#include "ui/ui_context.hpp"
 
 #include <vector>
 #include <memory>
 #include <string>
 #include <unordered_map>
+
 class Entity;
 class Component;
 
@@ -27,6 +29,7 @@ class Scene {
     std::vector<Component *> componentsPendingRemove;
 
     SceneCuller culler;
+    UIContext ui;
 
     const AppContext *context = nullptr;
 
@@ -60,6 +63,7 @@ public:
     void Update(float deltaTime, float fixedDeltaTime, int numFixedTicks);
 
     void GatherRenderCommands(std::vector<RenderView> &outViews);
+    void GatherUICommands(uint32_t width, uint32_t height);
 
     void Clear();
 
@@ -72,9 +76,12 @@ public:
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }
 
+    UIContext &GetUI() { return this->ui; }
+
     void SetAppContext(const AppContext &context);
 
     void PrintEntityHierarchy();
+
     // Groups functions
     void AddEntityToGroup(const std::string& groupName, Entity* entity);
     void RemoveEntityFromGroup(const std::string& groupName, Entity* entity);

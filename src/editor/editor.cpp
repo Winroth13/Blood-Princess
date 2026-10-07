@@ -331,23 +331,46 @@ void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
 		if (!transformComp)
 			continue;
 
-		ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
+		/* Render Model Bounding Box */
+		{
+			ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
 
-		if (!modelComp)
-			return;
+			if (modelComp)
+			{
+				std::vector<LineVertex> vertices{};
 
-		std::vector<LineVertex> vertices{};
+				LineUtils::GetBoxVertices(
+					vertices,
+					modelComp->GetModel()->GetBoundingBox(),
+					transformComp->GetRenderMatrix(),
+					{ 1.0f, 0.75f, 0.0f }
+				);
 
-		LineUtils::GetBoxVertices(
-			vertices,
-			modelComp->GetModel()->GetBoundingBox(),
-			transformComp->GetRenderMatrix(),
-			{ 1.0f, 0.75f, 0.0f }
-		);
+				LineCommand command = {};
+				command.points = vertices;
+				primaryView->queue.Submit(command);
+			}
+		}
 
-		LineCommand command = {};
-		command.points = vertices;
-		primaryView->queue.Submit(command);
+		/* Render Collision Bounding Box */
+		{
+			BoxCollisionComponent *boxComp = entity->GetComponent<BoxCollisionComponent>();
+
+			if (boxComp)
+			{
+				std::vector<LineVertex> vertices{};
+
+				LineUtils::GetBoxVertices(
+					vertices,
+					boxComp->GetWorldOBB(),
+					{ 0.0, 1.0f, 0.0f }
+				);
+
+				LineCommand command = {};
+				command.points = vertices;
+				primaryView->queue.Submit(command);
+			}
+		}
 	}
 }
 

@@ -3,6 +3,7 @@
 
 SamplerState samplerLinearWrap : register(s0);
 SamplerState samplerShadow : register(s1);
+SamplerState samplerLinearClamp : register(s2);
 
 cbuffer PerFrame : register(b0)
 {
@@ -51,6 +52,7 @@ cbuffer Light : register(b4)
 #define PARTICLE_FLAG_ANIMATED 1 << 0
 #define PARTICLE_FLAG_ADDITIVE 1 << 1
 #define PARTICLE_FLAG_RESET 1 << 2
+#define PARTICLE_FLAG_GLOBAL 1 << 3
 
 cbuffer ParticleSystem : register(b5)
 {

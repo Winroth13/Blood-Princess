@@ -2,6 +2,7 @@
 #include "scene/entity.hpp"
 #include "scene/component.hpp"
 #include "events/signal.hpp"
+#include <vector>
 
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
@@ -10,6 +11,12 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11UnorderedAccessView;
 
+
+struct PaintPoint {
+    DirectX::XMFLOAT3 position;
+    float radius;
+};
+
 class PaintableComponent : public Component
 {
     RegisterComponent(PaintableComponent);
@@ -17,6 +24,10 @@ class PaintableComponent : public Component
     ExportProperty(std::shared_ptr<Texture2D>, paintMask, nullptr);
     uint32_t paintMaskWidth = 256;
     uint32_t paintMaskHeight = 256;
+
+    bool shouldPaintThisFrame = false;
+
+    std::vector<PaintPoint> paintThisFrame;
 
     std::vector<ID3D11Texture2D *> maskTextures{};
     std::vector<ID3D11ShaderResourceView *> maskSRVs{};
@@ -36,6 +47,8 @@ public:
     void SetPaintMask(std::shared_ptr<Texture2D> paintMask) { this->paintMask = paintMask; }
     void SetPaintMaskWidth(uint32_t width) { this->paintMaskWidth = width; }
     void SetPaintMaskHeight(uint32_t height) { this->paintMaskHeight = height; }
+
+    void PaintAtPosition(const DirectX::XMFLOAT3& position, float radius = 0.5f);
 
     ID3D11ShaderResourceView *GetMaskSRV(uint32_t index) const { return this->maskSRVs[index]; }
     ID3D11RenderTargetView *GetMaskRTV(uint32_t index) const { return this->maskRTVs[index]; }

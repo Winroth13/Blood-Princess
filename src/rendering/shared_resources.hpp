@@ -30,6 +30,8 @@ enum class SamplerSlot
 {
 	LINEAR_WRAP,
 	SHADOW,
+    LINEAR_CLAMP,
+
 	COUNT
 };
 
@@ -41,7 +43,8 @@ enum class ParticleFlags : uint32_t
 {
 	ANIMATED = 1 << 0,
 	ADDITIVE = 1 << 1,
-	RESET = 1 << 2
+	RESET = 1 << 2,
+	GLOBAL = 1 << 3
 };
 
 constexpr uint32_t operator+(ParticleFlags slot) noexcept {

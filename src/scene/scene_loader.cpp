@@ -7,6 +7,10 @@
 #include "components/core/camera_component.hpp"
 #include "core/app_context.hpp"
 #include "assets/asset_manager.hpp"
+#include "components/ui/ui_canvas_component.hpp"
+#include "components/ui/ui_rect_component.hpp"
+#include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_text_component.hpp"
 #include "components/core/model_component.hpp"
 #include "components/audio/audio_component.hpp"
 #include "components/audio/listener_component.hpp"
@@ -29,6 +33,26 @@
 #include "components/audio/character_audio_component.hpp"
 #include "components/gameplay/shake_component.hpp"
 
+static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UIAnchor::TOP_RIGHT, {-20.0f, 20.0f}, {320.0f, 320.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+
+    Entity *txt = outScene.AddEntity("txt");
+    txt->SetParent(img);
+    txt->AddComponent<UIRectComponent>()->Place(UIAnchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    textComp->SetText("Blood!");
+}
+
 void CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
     Entity* playerEntity = outScene.AddEntity("player");
@@ -44,11 +68,17 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         characterAudio->SetIsPlayer(true);
 
 		SoundLayer swingLayer;
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_1.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_2.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_3.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
-		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_4.ogg"), 0.9f, 1.1f, 0.95f, 1.05f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_1.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_2.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_3.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_4.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
 		characterAudio->AddLightAttackSwingLayer(swingLayer);
+
+		SoundLayer swordSwingLayer;
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840716__nomagician__sword-swing-1.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840715__nomagician__sword-swing-2.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840717__nomagician__sword-swing-3.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		characterAudio->AddLightAttackSwingLayer(swordSwingLayer);
 
         SoundLayer squishLayer;
         squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
@@ -132,16 +162,6 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         animator->Play("idle", true);
         playerEntity->GetComponent<PlayerControllerComponent>()->viewmodelAnimator = animator;
 
-        auto *collider = viewEntity->AddComponent<BoxCollisionComponent>();
-        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
-        collider->SetTrigger(true);
-        collider->SetExtents({ 1.0f, 0.5f, 1.5f });
-        collider->SetCenterOffset({ 0.0f, 0.5, 1.0f });
-
-        auto *swordHitBox = viewEntity->AddComponent<HitboxComponent>();
-        swordHitBox->SetActive(false);
-        swordHitBox->SetKnockbackForce(2);
-
         viewEntity->SetParent(playerEntity);
 
         viewEntity->AddComponent<CameraComponent>();
@@ -169,6 +189,17 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         swordEntity->SetParent(viewEntity);
+
+        auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
+        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
+        collider->SetTrigger(true);
+        collider->SetExtents({ 0.5f, 5.5f, 0.5f });
+        collider->SetCenterOffset({ 0.0f, 7.5f, 0.0f });
+
+        auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
+        swordHitBox->SetActive(false);
+        swordHitBox->SetKnockbackForce(2);
+        playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
     }
 }
 
@@ -179,6 +210,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
+    CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
@@ -369,6 +401,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         wallModelComponent->SetModel(wallModel);
         wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
 
+        PaintableComponent* wallPaintable = wallEntity->AddComponent<PaintableComponent>();
+        wallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        wallPaintable->SetPaintMaskWidth(128);
+        wallPaintable->SetPaintMaskHeight(128);
+
         // Upper wall segment entity stacked 1 wall higher directly on top
         std::string upperWallName = "Wall_Upper_" + std::to_string(i);
         Entity *upperWallEntity = outScene.AddEntity(upperWallName);
@@ -386,6 +423,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
         upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+
+        PaintableComponent* upperWallPaintable = upperWallEntity->AddComponent<PaintableComponent>();
+        upperWallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        upperWallPaintable->SetPaintMaskWidth(128);
+        upperWallPaintable->SetPaintMaskHeight(128);
 
         // Torch entity attached to the lower wall
         std::string torchName = "Torch_" + std::to_string(i);
@@ -495,6 +537,16 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
+
+                BoxCollisionComponent *floorCollision = floorTile->AddComponent<BoxCollisionComponent>();
+                floorCollision->SetStatic(true);
+                floorCollision->SetLayer(CollisionLayer::ENVIRONMENT);
+                floorCollision->SetExtents({ halfTile, 0.5f, halfTile });
+
+                PaintableComponent* floorPaintable = floorTile->AddComponent<PaintableComponent>();
+                floorPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+                floorPaintable->SetPaintMaskWidth(128);
+                floorPaintable->SetPaintMaskHeight(128);
 
                 // Ceiling tile
                 std::string ceilingTileName = "CeilingTile_" + std::to_string(tileIndex);

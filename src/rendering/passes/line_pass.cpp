@@ -31,7 +31,7 @@ bool LinePass::CreateInputLayout(ID3D11Device *device, VertexShader *vertexShade
 		return false;
 	}
 
-	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Deferred");
+	RenderUtils::SetDebugName(this->inputLayout, DebugCategory::RENDER_PASS, "Input Layout", "Lines");
 
 	LogUnindent();
 
@@ -54,6 +54,8 @@ bool LinePass::CreateVertexBuffer(ID3D11Device *device)
 		return false;
 	}
 
+    RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::RENDER_PASS, "VB", "Lines");
+
 	return true;
 }
 
@@ -72,6 +74,8 @@ bool LinePass::CreateDisableDepthResources(ID3D11Device *device)
 			LogError("DirectX failed to create Depth Stencil");
 			return false;
 		}
+
+        RenderUtils::SetDebugName(this->disableDepthStencilState, DebugCategory::RENDER_PASS, "DSS", "Lines");
 	}
 
 	{
@@ -87,6 +91,8 @@ bool LinePass::CreateDisableDepthResources(ID3D11Device *device)
 			LogError("DirectX failed to create Rasterizer State");
 			return false;
 		}
+
+        RenderUtils::SetDebugName(this->disableDepthRasterizerState, DebugCategory::RENDER_PASS, "RS", "Lines");
 	}
 
 	return true;

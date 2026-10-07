@@ -12,6 +12,7 @@
 #include "components/collisions/hit_box_component.hpp"
 #include "components/audio/character_audio_component.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -44,6 +45,8 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	}
 
 	HandleCameraLook(deltaTime);
+
+	HandleAttacks(deltaTime);
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
@@ -192,20 +195,79 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 
 void PlayerControllerComponent::PerformLightAttack()
 {
+	if (!this->CanAttack())
+		return;
+
 	LogInfo("Attack with light attack.");
 
+	this->currentAttack = this->combo;
 
+	this->PerformAttack(this->attacks[this->currentAttack]);
 
-	for (Entity* child : this->GetOwner()->GetChildren()) {
-		if (auto* hb = child->GetComponent<HitboxComponent>()) {
-			hb->SetDamage(10.0f);
-			hb->Activate(0.3f);
-			break;
-		}
+	this->combo++;
+	this->attackTimer = 0.0f;
+
+	if (this->combo >= this->numLightAttacks)
+	{
+		this->combo = 0;
 	}
+
+	this->hitbox->SetDamage(50.0f);
+
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
 		characterAudio->PlayLightAttackSwing();
+	}
+}
+
+void PlayerControllerComponent::PerformAttack(AttackData &attackData)
+{
+	this->viewmodelAnimator->CrossFade(attackData.animationName, 0.1f, false);
+}
+
+bool PlayerControllerComponent::CanAttack()
+{
+	if (this->currentAttack == -1)
+	{
+		return true;
+	}
+	else
+	{
+		AttackData &currentAttackData = this->attacks[this->currentAttack];
+
+		bool inComboWindow =
+			this->attackTimer >= currentAttackData.beginCombo &&
+			this->attackTimer <= currentAttackData.endCombo;
+
+		return inComboWindow;
+	}
+}
+
+void PlayerControllerComponent::HandleAttacks(float deltaTime)
+{
+	if (this->currentAttack != -1)
+	{
+		this->attackTimer += deltaTime;
+
+		AttackData &attackData = this->attacks[this->currentAttack];
+
+		if (this->attackTimer >= attackData.beginDamage)
+		{
+			if (!this->hitbox->IsActive())
+			{
+				this->hitbox->Activate(
+					attackData.stopDamage - attackData.beginDamage
+				);
+			}
+		}
+
+		if (this->viewmodelAnimator->IsFinished())
+		{
+			this->currentAttack = -1;
+			this->combo = 0;
+
+            this->viewmodelAnimator->CrossFade("idle", 0.2f);
+		}
 	}
 }
 
