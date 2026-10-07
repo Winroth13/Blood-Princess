@@ -277,13 +277,13 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
 	this->timer = this->spawnerInterval;
-	gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
-	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
-	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
+	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
+	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
 
 	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
-	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
+	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
