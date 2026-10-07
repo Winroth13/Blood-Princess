@@ -268,7 +268,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (this->currentAttack != -1)
 	{
 		this->attackTimer += deltaTime;
-
+		// LogInfo("Attack Timer: %f", this->attackTimer);
 		AttackData &attackData = this->attacks[this->currentAttack];
 
 		if (this->attackTimer >= attackData.beginDamage)
