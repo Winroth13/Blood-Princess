@@ -225,7 +225,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 	if (!this->CanAttack())
 		return;
 
-	this->currentAttack = 0; // Heavy attack has no combo
+	this->currentAttack = 2; // Heavy attack has no combo
 
 	this->PerformAttack(this->attacks[2]); // Heavy attack is attack 2
 
