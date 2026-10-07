@@ -11,10 +11,10 @@
 #include "assets/asset_manager.hpp"
 #include "rendering/render_utils.hpp"
 #include "assets/asset_utils.hpp"
-
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
 #include "assets/types/compute_shader.hpp"
+#include "assets/types/font.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -28,6 +28,7 @@
 #include <sstream>
 #include <fstream>
 #include <d3d11.h>
+#include <vector>
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -163,7 +164,28 @@ std::shared_ptr<AudioClip> AssetLoader::Load<AudioClip>(const std::string& path)
 
 template<>
 std::shared_ptr<Font> AssetLoader::Load<Font>(const std::string &path) {
-    return nullptr;
+    std::ifstream reader(path, std::ios::binary | std::ios::ate);
+    if (!reader.is_open()) {
+        LogWarn("Could not open font file '%s'", path.c_str());
+        return nullptr;
+    }
+
+    const std::streamsize size = reader.tellg();
+    reader.seekg(std::ios::beg);
+
+    std::vector<unsigned char> fontData(static_cast<size_t>(size));
+    if (!reader.read(reinterpret_cast<char *>(fontData.data()), size)) {
+        LogWarn("Could not read font file '%s'", path.c_str());
+        return nullptr;
+    }
+
+    std::shared_ptr<Font> font = std::make_shared<Font>();
+    if (!font->Create(device, std::move(fontData), AssetUtils::GetNameFromPath(path))) {
+        LogWarn("Failed to create font from file '%s'", path.c_str());
+        return nullptr;
+    }
+
+    return font;
 }
 
 bool AssetLoader::Initialize(

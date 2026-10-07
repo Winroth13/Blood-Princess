@@ -16,6 +16,8 @@ struct AttackData
 
 	float beginCombo; // How many seconds into the animation should it allow combo
 	float endCombo; // How many seconds into the animation should it no longer allow combo
+
+	float damage; // The attacks actual damage
 };
 
 class PlayerControllerComponent : public Component 
@@ -23,7 +25,7 @@ class PlayerControllerComponent : public Component
 	RegisterComponent(PlayerControllerComponent);
 
 	ExportProperty(std::string, groupName, "players");
-	ExportProperty(float, moveSpeed, 10.0f);
+	ExportProperty(float, moveSpeed, 5.5f);
 	ExportProperty(XMFLOAT2, mouseSensitivity, {0.1f,0.1f});
 	ExportProperty(float, pitch, 0.0f);
 	ExportProperty(float, yaw, 0.0f);
@@ -56,19 +58,22 @@ class PlayerControllerComponent : public Component
 		AttackData(
 			"light_attack_01",
 			0.1f, 0.3f,
-			0.32f, 0.75f
+			0.32f, 0.75f,
+			50.0f
 		),
 			AttackData(
 			"light_attack_02",
 			0.1f, 0.3f,
-			0.5f, 1.0f
+			0.5f, 1.0f,
+			50.0f
 		),
 
 		/* Heavy Attacks */
 		AttackData(
 			"heavy_attack_01",
 			0.5, 1.0,
-			-1, -1
+			1.64, 3.0,
+			100.0f
 		)
 	};
 
