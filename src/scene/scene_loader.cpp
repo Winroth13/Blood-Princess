@@ -31,6 +31,7 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/skeletal/socket_component.hpp"
 #include "components/audio/character_audio_component.hpp"
+#include "components/gameplay/shake_component.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     Entity *hud = outScene.AddEntity("HUD");
@@ -169,6 +170,7 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         Entity *cameraEntity = outScene.AddEntity("Camera");
         cameraEntity->AddComponent<CameraComponent>();
         cameraEntity->AddComponent<TransformComponent>();
+        cameraEntity->AddComponent<ShakeComponent>();
         cameraEntity->SetParent(viewEntity);
 
         SocketComponent *cameraSocket = cameraEntity->AddComponent<SocketComponent>();
