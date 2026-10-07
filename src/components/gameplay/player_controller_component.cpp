@@ -212,7 +212,7 @@ void PlayerControllerComponent::PerformLightAttack()
 		this->combo = 0;
 	}
 
-	this->hitbox->SetDamage(10.0f);
+	this->hitbox->SetDamage(50.0f);
 
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{

@@ -18,7 +18,6 @@ public:
     Health* cachedHealth = nullptr;
     ConnectionId collisionEventConn = 0;
 
-
 private:
     void OnStart(const AppContext& context) override;
     void Update(const AppContext& context, float deltaTime) override;
