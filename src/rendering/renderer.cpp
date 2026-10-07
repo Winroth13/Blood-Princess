@@ -211,6 +211,8 @@ void Renderer::Render(Scene *scene, float deltaTime)
         return;
     }
 
+    Debug::BeginTimedStatistic("Setup");
+
     this->deviceContext->ClearRenderTargetView(this->backBuffer.GetRenderTargetView(), this->clearColor);
     this->sharedResources.UploadPerFrameData(this->deviceContext, deltaTime);
 
@@ -220,6 +222,10 @@ void Renderer::Render(Scene *scene, float deltaTime)
 
     scene->GatherRenderCommands(this->views);
     scene->GatherUICommands(this->width, this->height);
+
+    Debug::EndTimedStatistic();
+
+    Debug::BeginTimedStatistic("Drawing");
 
     this->paintPass.Render(
         this->device,
@@ -283,6 +289,7 @@ void Renderer::Render(Scene *scene, float deltaTime)
     ID3D11RenderTargetView *view = this->backBuffer.GetRenderTargetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
 
+    Debug::EndTimedStatistic();
     Debug::EndTimedStatistic();
 }
 

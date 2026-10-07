@@ -15,6 +15,8 @@
 
 void Application::Update(float deltaTime) 
 {
+    Debug::BeginTimedStatistic("Update");
+
     this->deltaTimeElapsed += deltaTime;
     int numFixedTicks = 0;
 
@@ -47,6 +49,8 @@ void Application::Update(float deltaTime)
     }
 
     this->editor.Update(this->appContext, deltaTime);
+
+    Debug::EndTimedStatistic();
 }
 
 void Application::PreRender(float deltaTime)
