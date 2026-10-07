@@ -56,7 +56,7 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 
 
 		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
-		std::shared_ptr<Model> model = context.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+		std::shared_ptr<Model> model = enemyModel;
 		modelComponent->SetModel(model);
 
 
@@ -114,6 +114,14 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
 	this->timer = this->spawnerInterval;
+	gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
+	gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
+	gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+
+	this->enemyModel = context.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+
+	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png");
+
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
@@ -132,8 +140,18 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 	}
 }
 
+void EnemySpawnerComponent::OnDestroy(const AppContext& context)
+{
+	for (size_t i = 0; i < 3; i++)
+	{
+		gibModel[i].reset();
+	}
 
-void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
+	this->enemyModel.reset();
+}
+
+
+void EnemySpawnerComponent::SpawnGibs(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
 {
     const int numberOfGibs = RNG::Int(6, 14);
     pos.y += 2.0f;
@@ -157,10 +175,10 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
         gibParticle->SetIsAnimate(false);
 
         const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float pSpeed = RNG::Float(1.5f, 4.0f);
+        const float pSpeed = RNG::Float(0.7f, 2.0f);
         gibParticle->SetVelocity({
             cosf(pAngle) * pSpeed,
-            RNG::Float(2.0f, 4.5f),
+			RNG::Float(0.1f, 0.3f),
             sinf(pAngle) * pSpeed
             });
         gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
@@ -171,31 +189,30 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
         gibParticle->SetIsAdditive(false);
         gibParticle->SetStartTint({ 0.55f, 0.03f, 0.03f });
         gibParticle->SetEndTint({ 0.35f, 0.02f, 0.02f });
-        gibParticle->SetAtlasTexture(
-            context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        gibParticle->SetAtlasTexture(this->atlasTexture);
 
 
         const int ribCageNum = RNG::Int(1, 10);
         if (ribCageNum < 5)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib1.glb");
+			model = gibModel[0];
             gibTransform->SetWorldScale(RNG::Float(0.7f, 1.2f));
         }
         else if (ribCageNum < 9)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            model = gibModel[1];
             gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
         }
         else if (!ribCageSpawned)
         {
-            model = context.assetManager->Get<Model>("assets/models/gib3.glb");
+            model = gibModel[2];
             gibTransform->SetWorldScale(RNG::Float(1.4f, 1.8f));
             gibParticle->SetLifeTime(0.0f);
             ribCageSpawned = true;
         }
         else
         {
-            model = context.assetManager->Get<Model>("assets/models/gib2.glb");
+            model = gibModel[0];;
             gibTransform->SetWorldScale(RNG::Float(0.3f, 0.5f));
         }
         modelComponent->SetModel(model);
@@ -203,7 +220,7 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
 
         ProjectileComponent* projectileGib = gib->AddComponent<ProjectileComponent>();
         projectileGib->SetAliveTime(RNG::Float(4.0f, 8.0f));
-        projectileGib->SetRestitution(RNG::Float(0.1f, 0.3f));   // meat, not rubber
+        projectileGib->SetRestitution(RNG::Float(0.1f, 0.3f));
         projectileGib->SetGravity(9.82f);
 
         const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
