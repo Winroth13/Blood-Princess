@@ -51,7 +51,10 @@ class PlayerControllerComponent : public Component
 
 	uint32_t currentAttack = -1;
 	uint32_t combo = 0;
-	float attackTimer = 0.0;
+	float attackTimer = 0.0f;
+
+	const float HIT_STOP_TIME = 0.08f;
+	float hitStopTimer = -1.0f;
 
 	std::array<AttackData, 3> attacks =
 	{
