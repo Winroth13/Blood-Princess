@@ -131,6 +131,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         auto* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
         auto* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
         auto* enemyController = enemy->AddComponent<EnemyControllerComponent>();
+        auto* enemySplatter = enemy->AddComponent<SplatterComponent>();
 
         enemyTransform->SetWorldScale(0.9f);
         modelComponent->SetModel(enemyModel);
@@ -217,8 +218,8 @@ void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX
 
 
         projectileGib->Launch(velocity, angularVelocity);
-        if (i == 0) {
-            gib->GetComponent<SplatterComponent>()->SetFirstPaint(pos);
+        if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
+            splatter->Reset();
         }
 
         this->activeGibs.push_back(gib);
@@ -312,6 +313,9 @@ void EnemySpawnerComponent::CleanGibs()
         if (projectile && projectile->GetAliveTime() <= 0.0f)
         {
             gib->SetLocallyActive(false);
+            if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
+                splatter->Reset();
+            }
             this->gibPool.push_back(gib);
 
             it = activeGibs.erase(it);
@@ -336,11 +340,38 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
         auto* hp = e->GetComponent<Health>();
         if (hp && hp->IsDead())
         {
-            if (auto* transform = e->GetComponent<TransformComponent>()) {
-                SpawnGibsFromPool(context, transform->GetWorldPosition());
+            if (auto* transform = e->GetComponent<TransformComponent>())
+            {
+                DirectX::XMFLOAT3 enemyPos = transform->GetWorldPosition();
 
+                if (auto* splatter = e->GetComponent<SplatterComponent>())
+                {
+                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
+                        this->deathBloodRadiusMax);
 
-                XMFLOAT3 position = transform->GetWorldPosition();
+                    splatter->PaintFloorAtPosition(enemyPos, bloodRadius);
+
+                    const int extraSplats = RNG::Int(1, 2);
+                    for (int s = 0; s < extraSplats; ++s)
+                    {
+                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
+
+                        DirectX::XMFLOAT3 splatPos = {
+                            enemyPos.x + cosf(offsetAngle) * offsetDist,
+                            enemyPos.y,
+                            enemyPos.z + sinf(offsetAngle) * offsetDist
+                        };
+
+                        splatter->PaintFloorAtPosition(
+                            splatPos,
+                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
+                    }
+                }
+
+                SpawnGibsFromPool(context, enemyPos);
+
+                XMFLOAT3 position = enemyPos;
                 position.y += 1.4f;
                 SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }

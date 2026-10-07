@@ -20,6 +20,9 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(int, maxGibsPool, 100);
 	ExportProperty(int, maxEnemyPool, 250);
 
+	ExportProperty(float, deathBloodRadiusMin, 2.5f);
+	ExportProperty(float, deathBloodRadiusMax, 4.0f);
+
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Model> enemyModel;
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -35,7 +38,6 @@ private:
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
 
-	void SpawnEnemy(const AppContext& context, int numberOfEnemies);
 
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);

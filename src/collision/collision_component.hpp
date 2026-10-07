@@ -5,6 +5,7 @@
 #include "events/event_bus.hpp"
 
 enum class CollisionShape {
+    NONE,
     BOX,
     SPHERE,
     CAPSULE,
@@ -15,7 +16,7 @@ class CollisionComponent : public Component
 {
 protected:
     CollisionLayer layer = CollisionLayer::ENVIRONMENT;
-    CollisionShape shape;
+    CollisionShape shape = CollisionShape::NONE;
     bool isTrigger = false;
     bool isStatic = false;
     DirectX::XMFLOAT3 centerOffset = { 0.0f, 0.0f, 0.0f };
