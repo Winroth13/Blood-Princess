@@ -552,7 +552,6 @@ static void TestSceneMainMenu(Scene &outScene, const AppContext &appContext) {
     hud->AddComponent<UICanvasComponent>();
     hud->AddComponent<TransformComponent>();
     hud->AddComponent<CameraComponent>();
-    hud->AddComponent<MainMenuComponent>();
 
     Entity *img = outScene.AddEntity("img");
     img->SetParent(hud);
@@ -560,6 +559,7 @@ static void TestSceneMainMenu(Scene &outScene, const AppContext &appContext) {
     UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
     imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
     imageComp->SetShouldPreserveAspectRatio(true);
+    img->AddComponent<MainMenuComponent>();
 }
 
 bool SceneLoader::Initialize(const AppContext &appContext)
