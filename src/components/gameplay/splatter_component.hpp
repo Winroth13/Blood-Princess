@@ -14,7 +14,7 @@ class SplatterComponent :
     DirectX::XMFLOAT3 lastPaintPos = { 0, 0, 0 };
     bool hasPaintedOnce = false;
 
-
+    DirectX::XMFLOAT3 firstPositionToPaint = {0,0,0};
     ConnectionId hitEventId = 0;
 private:
     void OnStart(const AppContext& context) override;
@@ -25,5 +25,6 @@ private:
 public:
     SplatterComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
     void SetPaintSpacing(float distance) { this->lastPaintDist = distance; }
+    void SetFirstPaint(DirectX::XMFLOAT3 pos) { this->firstPositionToPaint = pos; }
 };
 

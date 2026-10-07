@@ -27,6 +27,7 @@ void SplatterComponent::OnDestroy(const AppContext& context)
 
 void SplatterComponent::OnCollisionEvent(const CollisionEvent& e)
 {
+    
     if (!e.selfCollider || e.selfCollider->GetOwner() != this->GetOwner())
         return;
 
@@ -55,6 +56,13 @@ void SplatterComponent::OnCollisionEvent(const CollisionEvent& e)
 
         if (distSq < this->lastPaintDist * this->lastPaintDist)
             return;
+    }
+    if (!this->hasPaintedOnce) {
+        paintable->PaintAtPosition({
+            this->firstPositionToPaint.x, 
+            this->firstPositionToPaint.y - 0.3f, 
+            this->firstPositionToPaint.z 
+            }, RNG::Float(1.4, 6));
     }
 
     paintable->PaintAtPosition(now, RNG::Float(0.2f, 0.6f));
