@@ -20,7 +20,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(int, maxGibsPool, 100);
 	ExportProperty(int, maxEnemyPool, 250);
 
-	std::shared_ptr<Model> gibModel[3];
+	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Model> enemyModel;
 	std::shared_ptr<Texture2D> atlasTexture;
 
