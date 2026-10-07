@@ -2,12 +2,13 @@
 
 #include "assets/asset.hpp"
 
+#include "stb_truetype/stb_truetype.h"
+
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
 #include <memory>
 
-struct stbtt_fontinfo;
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
 struct ID3D11Device;

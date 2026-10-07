@@ -170,7 +170,7 @@ bool Font::Create(ID3D11Device *device, std::vector<unsigned char> &&fontData, c
         return false;
     }
 
-    this->atlasWidth = atlasWidth;
+    this->atlasWidth = ATLAS_WIDTH;
     this->atlasHeight = 32;
     while (this->atlasHeight < usedHeight)
         this->atlasHeight *= 2;

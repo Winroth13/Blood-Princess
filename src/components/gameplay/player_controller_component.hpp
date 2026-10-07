@@ -25,7 +25,7 @@ class PlayerControllerComponent : public Component
 	RegisterComponent(PlayerControllerComponent);
 
 	ExportProperty(std::string, groupName, "players");
-	ExportProperty(float, moveSpeed, 10.0f);
+	ExportProperty(float, moveSpeed, 5.5f);
 	ExportProperty(XMFLOAT2, mouseSensitivity, {0.1f,0.1f});
 	ExportProperty(float, pitch, 0.0f);
 	ExportProperty(float, yaw, 0.0f);
