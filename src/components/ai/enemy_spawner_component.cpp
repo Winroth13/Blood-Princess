@@ -52,18 +52,17 @@ void EnemySpawnerComponent::SpawnEnemy(const AppContext& context, int numberOfEn
 
 		TransformComponent* enemyTransform = enemy->AddComponent< TransformComponent>();;
 		enemyTransform->SetWorldPosition(position);
-		enemyTransform->SetWorldScale(0.5f);
+		enemyTransform->SetWorldScale(0.9f);
 
 
 		ModelComponent* modelComponent = enemy->AddComponent<ModelComponent>();
-		std::shared_ptr<Model> model = context.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+		std::shared_ptr<Model> model = context.assetManager->Get<Model>("assets/models/goblin.glb");
 		modelComponent->SetModel(model);
 
-
 		AnimatorComponent* animator = enemy->AddComponent<AnimatorComponent>();
-		animator->AddAnimation("twerk", model->GetAnimations());
+		animator->AddAnimation("run", model->GetAnimations());
 		animator->SetSkeletonVisible(true);
-		animator->Play("twerk", true);
+		animator->Play("run", true);
 		animator->SetTime(static_cast<float>(rand() % 100));
 
 		Health* enemyHealth = enemy->AddComponent<Health>();
