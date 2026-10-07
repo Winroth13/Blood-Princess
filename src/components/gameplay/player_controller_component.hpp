@@ -71,8 +71,8 @@ class PlayerControllerComponent : public Component
 		/* Heavy Attacks */
 		AttackData(
 			"heavy_attack_01",
-			0.5, 1.0,
-			1.64, 3.0,
+			0.5f, 1.0f,
+			1.64f, 3.0f,
 			100.0f
 		)
 	};

@@ -38,7 +38,7 @@ void UIRectComponent::UpdateRectangle() {
     float screenHeight = static_cast<float>(ui.GetHeight());
 
     if (UICanvasComponent *canvas = this->GetOwner()->GetComponent<UICanvasComponent>()) {
-        const float canvasScale = canvas->GetScaleFactor(screenHeight);
+        const float canvasScale = canvas->GetScaleFactor(static_cast<uint32_t>(screenHeight));
         this->cachedScreenRect = {{0.0f, 0.0f}, {screenWidth, screenHeight}};
         this->cachedPixelScale = {canvasScale, canvasScale};
         return;
