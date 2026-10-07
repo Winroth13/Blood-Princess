@@ -9,7 +9,7 @@ public:
     RegisterComponent(ProjectileComponent);
     DirectX::XMFLOAT3 velocity = { 0,0,0 };
     DirectX::XMFLOAT3 angularVelocity = { 0,0,0 };
-    float friction = 5.0f;
+    float friction = 50.0f;
     float restitution = 0.4f; // bounciness(0 = dead, 1 = lossless)
 
     float groundY = -2.5f;
@@ -33,5 +33,7 @@ public:
     void SetAliveTime(float amount) { this->projectileAliveTime = amount; }
     void SetGravity(float strength) { this->gravity = strength; }
     void SetRestitution(float r) { this->restitution = r; }
+    void SetFriction(float f) { this->friction = f; }
+    void SetGroundY(float y) { this->groundY = y; }
 };
 
