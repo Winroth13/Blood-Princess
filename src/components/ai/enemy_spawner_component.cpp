@@ -134,7 +134,7 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 
 void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT3 pos, Scene* scene)
 {
-    const int numberOfGibs = RNG::Int(6, 14);
+    const int numberOfGibs = RNG::Int(3, 5);
     pos.y += 2.0f;
 
     bool ribCageSpawned = false;
@@ -165,15 +165,16 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
             });
         gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
 
-        const float pScale = RNG::Float(0.6f, 1.4f);
+        const float pScale = RNG::Float(0.3f, 0.6f);
         gibParticle->SetStartScale(pScale);
         gibParticle->SetEndScale(pScale);
         gibParticle->SetIsAdditive(false);
-        gibParticle->SetStartTint({ 0.55f, 0.03f, 0.03f });
-        gibParticle->SetEndTint({ 0.35f, 0.02f, 0.02f });
-        gibParticle->SetAtlasTexture(
-            context.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
-
+        gibParticle->SetStartTint({ 0.3f, 0.03f, 0.03f });
+        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
+        gibParticle->SetAtlasTexture(context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png"));
+		gibParticle->SetIsAnimate(true);
+		gibParticle->SetAtlasSize({ 8.0f, 8.0f });
+		gibParticle->SetAnimationSpeed(0.5f);
 
         const int ribCageNum = RNG::Int(1, 10);
         if (ribCageNum < 5)
