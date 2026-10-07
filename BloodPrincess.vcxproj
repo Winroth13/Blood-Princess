@@ -212,6 +212,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\collision\collision_manager.cpp" />
     <ClCompile Include="src\collision\quad_tree.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
+    <ClCompile Include="src\components\gameplay\shake_component.cpp" />
     <ClCompile Include="src\components\lights\ambient_light_component.cpp" />
     <ClCompile Include="src\components\skeletal\animator_component.cpp" />
     <ClCompile Include="src\components\collisions\box_collision_component.cpp" />
@@ -310,6 +311,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
+    <ClInclude Include="src\components\gameplay\shake_component.hpp" />
     <ClInclude Include="src\components\lights\ambient_light_component.hpp" />
     <ClInclude Include="src\components\skeletal\animator_component.hpp" />
     <ClInclude Include="src\components\collisions\box_collision_component.hpp" />
