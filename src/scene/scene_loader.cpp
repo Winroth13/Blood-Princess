@@ -32,6 +32,7 @@
 #include "components/skeletal/socket_component.hpp"
 #include "components/audio/character_audio_component.hpp"
 #include "assets/types/font.hpp"
+#include "components/gameplay/shake_component.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
@@ -172,6 +173,7 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         Entity *cameraEntity = outScene.AddEntity("Camera");
         cameraEntity->AddComponent<CameraComponent>();
         cameraEntity->AddComponent<TransformComponent>();
+        cameraEntity->AddComponent<ShakeComponent>();
         cameraEntity->SetParent(viewEntity);
 
         SocketComponent *cameraSocket = cameraEntity->AddComponent<SocketComponent>();
@@ -402,6 +404,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         wallModelComponent->SetModel(wallModel);
         wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
 
+        PaintableComponent* wallPaintable = wallEntity->AddComponent<PaintableComponent>();
+        wallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        wallPaintable->SetPaintMaskWidth(128);
+        wallPaintable->SetPaintMaskHeight(128);
+
         // Upper wall segment entity stacked 1 wall higher directly on top
         std::string upperWallName = "Wall_Upper_" + std::to_string(i);
         Entity *upperWallEntity = outScene.AddEntity(upperWallName);
@@ -419,6 +426,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
         upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+
+        PaintableComponent* upperWallPaintable = upperWallEntity->AddComponent<PaintableComponent>();
+        upperWallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        upperWallPaintable->SetPaintMaskWidth(128);
+        upperWallPaintable->SetPaintMaskHeight(128);
 
         // Torch entity attached to the lower wall
         std::string torchName = "Torch_" + std::to_string(i);

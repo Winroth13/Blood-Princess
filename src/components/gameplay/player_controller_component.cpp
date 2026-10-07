@@ -212,16 +212,36 @@ void PlayerControllerComponent::PerformLightAttack()
 		this->combo = 0;
 	}
 
-	this->hitbox->SetDamage(50.0f);
-
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
 		characterAudio->PlayLightAttackSwing();
 	}
 }
 
+void PlayerControllerComponent::PerformHeavyAttack()
+{
+	LogInfo("Attack with Heavy attack.");
+
+	if (!this->CanAttack())
+		return;
+
+	this->currentAttack = 0; // Heavy attack has no combo
+
+	this->PerformAttack(this->attacks[2]); // Heavy attack is attack 2
+
+	this->combo = 0;
+	this->attackTimer = 0.0f;
+
+	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	{
+		characterAudio->PlayHeavyAttackSwing();
+	}
+
+}
+
 void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 {
+	this->hitbox->SetDamage(attackData.damage);
 	this->viewmodelAnimator->CrossFade(attackData.animationName, 0.1f, false);
 }
 
@@ -269,25 +289,6 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
             this->viewmodelAnimator->CrossFade("idle", 0.2f);
 		}
 	}
-}
-
-void PlayerControllerComponent::PerformHeavyAttack()
-{
-	LogInfo("Attack with Heavy attack.");
-
-	for (Entity* child : this->GetOwner()->GetChildren()) {
-		if (auto* hb = child->GetComponent<HitboxComponent>()) {
-			hb->SetDamage(50.0f);
-			hb->Activate(0.3f);
-			break;
-		}
-	}
-
-	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
-	{
-		characterAudio->PlayHeavyAttackSwing();
-	}
-
 }
 
 void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance, float dashDuration)
