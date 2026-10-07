@@ -27,7 +27,6 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
     gibPool.reserve(maxGibsPool);
     activeGibs.reserve(maxGibsPool);
 
-    bool ribCageSpawned = false;
 
     Entity *gibs = scene->AddEntity("Gibs");
 
@@ -45,23 +44,21 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 
 
         std::shared_ptr<Model> model;
-        const int ribCageNum = RNG::Int(1, 10);
-        if (ribCageNum < 5) {
+        if (i < 40) {
             model = gibModel[0];
             gibTransform->SetWorldScale(RNG::Float(0.455f, 0.78f));
         }
-        else if (ribCageNum < 9) {
+        else if (i < 70) {
             model = gibModel[1];
             gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
-        else if (!ribCageSpawned) {
+        else if (i < 85) {
             model = gibModel[2];
             gibTransform->SetWorldScale(RNG::Float(0.91f, 1.17f));
-            ribCageSpawned = true;
         }
         else {
-            model = gibModel[1];
-            gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
+            model = gibModel[3];
+            gibTransform->SetWorldScale(RNG::Float(0.35f, 0.40f));
         }
         modelComponent->SetModel(model);
 
@@ -161,18 +158,38 @@ void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX
     const int numberOfGibs = RNG::Int(3, 5);
     pos.y += 2.0f;
 
+    bool hasSpawnedRib = false;
+    bool hasSpawnedHead = false;
+
     for (int i = 0; i < numberOfGibs; ++i)
     {
-        
-        if (this->gibPool.empty()) {
-            if (this->activeGibs.empty()) break;
-            Entity* oldestGib = this->activeGibs.front();
-            this->activeGibs.erase(this->activeGibs.begin());
-            this->gibPool.push_back(oldestGib);
+        int roll = RNG::Int(1, 100);
+        int type = 0;
+        if (roll <= 40) type = 0;
+        else if (roll <= 70) type = 1;
+        else if (roll <= 85 && !hasSpawnedRib) { type = 2; hasSpawnedRib = true; }
+        else if (!hasSpawnedHead) { type = 3; hasSpawnedHead = true; }
+
+        Entity* gib = nullptr;
+        for (auto it = this->gibPool.begin(); it != this->gibPool.end(); ++it) {
+            if ((*it)->GetComponent<ModelComponent>()->GetModel() == this->gibModel[type]) {
+                gib = *it;
+                this->gibPool.erase(it);
+                break;
+            }
         }
 
-        Entity* gib = this->gibPool.back();
-        this->gibPool.pop_back();
+        if (!gib) {
+            if (this->gibPool.empty()) {
+                if (this->activeGibs.empty()) break;
+                gib = this->activeGibs.front();
+                this->activeGibs.erase(this->activeGibs.begin());
+            }
+            else {
+                gib = this->gibPool.back();
+                this->gibPool.pop_back();
+            }
+        }
 
 
         TransformComponent* gibTransform = gib->GetComponent<TransformComponent>();
@@ -322,6 +339,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
 	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
 	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+	this->gibModel[3] = context.assetManager->Get<Model>("assets/models/gib4.glb");
 
 	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
@@ -354,7 +372,7 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 {
-	for (size_t i = 0; i < 3; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
 		gibModel[i].reset();
 	}
