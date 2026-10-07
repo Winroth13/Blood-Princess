@@ -157,10 +157,10 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
         gibParticle->SetIsAnimate(false);
 
         const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float pSpeed = RNG::Float(2.0f, 6.0f);
+        const float pSpeed = RNG::Float(1.5f, 4.0f);
         gibParticle->SetVelocity({
             cosf(pAngle) * pSpeed,
-            RNG::Float(2.0f, 5.0f),
+            RNG::Float(2.0f, 4.5f),
             sinf(pAngle) * pSpeed
             });
         gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
@@ -207,13 +207,13 @@ void EnemySpawnerComponent::SpawnGib(const AppContext& context, DirectX::XMFLOAT
         projectileGib->SetGravity(9.82f);
 
         const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float gSpeed = RNG::Float(4.0f, 12.0f);
-        const float upBias = RNG::Float(0.4f, 1.2f);
+        const float horizontalSpeed = RNG::Float(1.5f, 4.5f);
+        const float upwardSpeed = RNG::Float(3.0f, 6.0f);
 
         DirectX::XMFLOAT3 velocity = {
-            cosf(gAngle) * gSpeed,
-            gSpeed * upBias,
-            sinf(gAngle) * gSpeed
+            cosf(gAngle) * horizontalSpeed,
+            upwardSpeed,
+            sinf(gAngle) * horizontalSpeed
         };
 
         DirectX::XMFLOAT3 angularVelocity = {
