@@ -2,6 +2,7 @@
 #include "scene/component.hpp"
 #include "input/action.hpp"
 #include "input/input.hpp"
+#include "events/event_bus.hpp"
 
 class TransformComponent;
 class AnimatorComponent;
@@ -71,8 +72,8 @@ class PlayerControllerComponent : public Component
 		/* Heavy Attacks */
 		AttackData(
 			"heavy_attack_01",
-			0.5, 1.0,
-			1.64, 3.0,
+			0.5f, 1.0f,
+			1.64f, 3.0f,
 			100.0f
 		)
 	};
@@ -86,6 +87,9 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
+	void OnAttackHit(const struct AttackHitEvent& event);
+
+	ConnectionId attackHitConnection = 0;
 
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;

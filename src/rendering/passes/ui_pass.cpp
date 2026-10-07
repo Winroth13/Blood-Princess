@@ -17,7 +17,7 @@ void UIPass::CreateView(uint32_t width, uint32_t height)
     );
     DirectX::XMStoreFloat4x4(
         &this->view.projectionMatrix,
-        XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.1f, 2.0f)
+        XMMatrixOrthographicOffCenterLH(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 0.1f, 2.0f)
     );
 
     this->view.cameraPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

@@ -19,6 +19,10 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 
+	this->attackHitConnection = EventBus::Subscribe<AttackHitEvent>(
+		this, &PlayerControllerComponent::OnAttackHit
+	);
+
 	Input::SetMouseMode(MouseMode::CAPTURED);
 }
 
@@ -51,6 +55,12 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
 {
+	if (this->attackHitConnection != 0)
+	{
+		EventBus::Unsubscribe<AttackHitEvent>(this->attackHitConnection);
+		this->attackHitConnection = 0;
+	}
+
 	this->GetOwner()->GetScene()->RemoveEntityFromGroup(this->groupName, this->GetOwner());
 }
 
@@ -321,3 +331,23 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 	transform->SetLocalPosition(newPos);
 }
+
+void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)
+{
+	if (!this->hitbox || event.attacker != this->hitbox->GetOwner())
+		return;
+
+	auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>();
+	if (!characterAudio)
+		return;
+
+	if (this->currentAttack >= this->numLightAttacks)
+	{
+		characterAudio->PlayHeavyAttackHit();
+	}
+	else
+	{
+		characterAudio->PlayLightAttackHit();
+	}
+}
+
