@@ -152,6 +152,7 @@ bool Application::Initialize()
         Action::AddAction("MoveRight", Key::D);
 
         Action::AddAction("Dash", Key::LEFT_SHIFT);
+        Action::AddAction("Dash", Key::SPACE);
 
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);

@@ -220,10 +220,10 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 static void TestScene(Scene& outScene, const AppContext& appContext) {
-    Entity *musicEntity = outScene.AddEntity("music_entity");
-    musicEntity->AddComponent<TransformComponent>();
-    MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-    musicComponent->SetVolume(0.2f);
+    //Entity *musicEntity = outScene.AddEntity("music_entity");
+    //musicEntity->AddComponent<TransformComponent>();
+    //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+    //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
     CreateTestUI(outScene, appContext);
