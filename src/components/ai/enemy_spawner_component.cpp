@@ -264,6 +264,11 @@ void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int nu
         enemyHealth->SetMaxHealth(this->enemyHealth);
         enemyHealth->SetCurrentHealth(this->enemyHealth);
 
+        if (EnemyControllerComponent* enemyController = enemy->GetComponent<EnemyControllerComponent>())
+        {
+            enemyController->ResetKnockback();
+        }
+
         AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
         animator->SetTime(static_cast<float>(rand() % 100));
 
