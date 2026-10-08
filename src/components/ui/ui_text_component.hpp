@@ -6,6 +6,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 class UITextComponent : public Component {
     RegisterComponent(UITextComponent);
@@ -29,6 +30,9 @@ class UITextComponent : public Component {
     ExportPropertyCategory("Outline");
     ExportPropertyCategory("Shadow");
 
+    std::string cachedText;
+    std::vector<uint32_t> codepoints;
+
     void OnAlignHorizontalChanged();
     void OnAlignVerticalChanged();
 
@@ -37,4 +41,25 @@ public:
 
     const std::string &GetText() const { return this->text; }
     void SetText(const std::string &text) { this->text = text; }
+
+    std::shared_ptr<Font> GetFont() const { return this->font; }
+    void SetFont(const std::shared_ptr<Font> &font) { this->font = font; }
+
+    float GetFontSize() const { return this->fontSize; }
+    void SetFontSize(float fontSize) { this->fontSize = fontSize; }
+
+    const DirectX::XMFLOAT4 &GetColour() const { return this->colour; }
+    void SetColour(const DirectX::XMFLOAT4 &colour) { this->colour = colour; }
+
+    UI::AlignHorizontal GetAlignHorizontal() const { return this->alignHorizontal; }
+    void SetAlignHorizontal(UI::AlignHorizontal alignHorizontal);
+
+    UI::AlignVertical GetAlignVertical() const { return this->alignVertical; }
+    void SetAlignVertical(UI::AlignVertical alignVertical);
+
+    bool GetShouldWrap() const { return this->shouldWrap; }
+    void SetShouldWrap(bool shouldWrap) { this->shouldWrap = shouldWrap; }
+
+    float GetLineSpacing() const { return this->lineSpacing; }
+    void SetLineSpacing(float lineSpacing) { this->lineSpacing = lineSpacing; }
 };
