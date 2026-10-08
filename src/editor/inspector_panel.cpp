@@ -9,6 +9,7 @@
 
 #include "assets/types/audio_clip.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/font.hpp"
 
 #include <sstream>
 #include <inttypes.h>
@@ -214,6 +215,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
             if (DrawAsset(name, texture2d))
                 this->assetViewerPanel->SetViewingAsset(texture2d);
+
+        } break;
+
+        case GetTypeHash<std::shared_ptr<Font>>():
+        {
+            std::shared_ptr<Font> font = GetMemberByOffset<std::shared_ptr<Font>>(component, member.Offset);
+
+            if (DrawAsset(name, font))
+                this->assetViewerPanel->SetViewingAsset(font);
 
         } break;
 
