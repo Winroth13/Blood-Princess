@@ -18,6 +18,9 @@
 #include "components/gameplay/paintable_component.hpp"
 #include "components/collisions/sphere_collision_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
+#include "components/core/lifetime_component.hpp"
+#include "components/audio/character_audio_component.hpp"
+#include "assets/types/audio_clip.hpp"
 
 
 uint32_t s_gibCounter = 0;
@@ -27,7 +30,6 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
     gibPool.reserve(maxGibsPool);
     activeGibs.reserve(maxGibsPool);
 
-    bool ribCageSpawned = false;
 
     Entity *gibs = scene->AddEntity("Gibs");
 
@@ -43,25 +45,22 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
         auto* sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
         auto* splatterGib = gib->AddComponent<SplatterComponent>();
 
-
         std::shared_ptr<Model> model;
-        const int ribCageNum = RNG::Int(1, 10);
-        if (ribCageNum < 5) {
+        if (i < 40) {
             model = gibModel[0];
             gibTransform->SetWorldScale(RNG::Float(0.455f, 0.78f));
         }
-        else if (ribCageNum < 9) {
+        else if (i < 70) {
             model = gibModel[1];
             gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
         }
-        else if (!ribCageSpawned) {
+        else if (i < 85) {
             model = gibModel[2];
             gibTransform->SetWorldScale(RNG::Float(0.91f, 1.17f));
-            ribCageSpawned = true;
         }
         else {
-            model = gibModel[1];
-            gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
+            model = gibModel[3];
+            gibTransform->SetWorldScale(RNG::Float(0.35f, 0.40f));
         }
         modelComponent->SetModel(model);
 
@@ -134,6 +133,9 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         auto* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
         auto* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
         auto* enemyController = enemy->AddComponent<EnemyControllerComponent>();
+        auto* enemySplatter = enemy->AddComponent<SplatterComponent>();
+        auto* enemyAudioComponent = enemy->AddComponent<CharacterAudioComponent>();
+
 
         enemyTransform->SetWorldScale(0.9f);
         modelComponent->SetModel(enemyModel);
@@ -151,28 +153,56 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
 
         enemy->SetLocallyActive(false);
         enemyPool.push_back(enemy);
+
+        SoundLayer knockbackLayer;
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/202100__spookymodem__goblin-scream.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/249813__spookymodem__goblin-death.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/270391__littlerobotsoundfactory__goblin_01.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/643655__snowfightstudios__goblin_yell.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/736274__hydrasound__hit_goblin.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        enemyAudioComponent->AddGoblinKnockbackLayer(knockbackLayer);
+
+        
     }
 }
-
-
 
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
 {
     const int numberOfGibs = RNG::Int(3, 5);
     pos.y += 2.0f;
 
+    bool hasSpawnedRib = false;
+    bool hasSpawnedHead = false;
+
     for (int i = 0; i < numberOfGibs; ++i)
     {
-        
-        if (this->gibPool.empty()) {
-            if (this->activeGibs.empty()) break;
-            Entity* oldestGib = this->activeGibs.front();
-            this->activeGibs.erase(this->activeGibs.begin());
-            this->gibPool.push_back(oldestGib);
+        int roll = RNG::Int(1, 100);
+        int type = 0;
+        if (roll <= 40) type = 0;
+        else if (roll <= 70) type = 1;
+        else if (roll <= 85 && !hasSpawnedRib) { type = 2; hasSpawnedRib = true; }
+        else if (!hasSpawnedHead) { type = 3; hasSpawnedHead = true; }
+
+        Entity* gib = nullptr;
+        for (auto it = this->gibPool.begin(); it != this->gibPool.end(); ++it) {
+            if ((*it)->GetComponent<ModelComponent>()->GetModel() == this->gibModel[type]) {
+                gib = *it;
+                this->gibPool.erase(it);
+                break;
+            }
         }
 
-        Entity* gib = this->gibPool.back();
-        this->gibPool.pop_back();
+        if (!gib) {
+            if (this->gibPool.empty()) {
+                if (this->activeGibs.empty()) break;
+                gib = this->activeGibs.front();
+                this->activeGibs.erase(this->activeGibs.begin());
+            }
+            else {
+                gib = this->gibPool.back();
+                this->gibPool.pop_back();
+            }
+        }
 
 
         TransformComponent* gibTransform = gib->GetComponent<TransformComponent>();
@@ -202,8 +232,8 @@ void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX
 
 
         projectileGib->Launch(velocity, angularVelocity);
-        if (i == 0) {
-            gib->GetComponent<SplatterComponent>()->SetFirstPaint(pos);
+        if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
+            splatter->Reset();
         }
 
         this->activeGibs.push_back(gib);
@@ -248,6 +278,11 @@ void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int nu
         enemyHealth->SetMaxHealth(this->enemyHealth);
         enemyHealth->SetCurrentHealth(this->enemyHealth);
 
+        if (EnemyControllerComponent* enemyController = enemy->GetComponent<EnemyControllerComponent>())
+        {
+            enemyController->ResetKnockback();
+        }
+
         AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
         animator->SetTime(static_cast<float>(rand() % 100));
 
@@ -256,7 +291,32 @@ void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int nu
     }
 }
 
+// TODO: Pool these aswell
+void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
+{
+    Entity *bloodExplosionEntity = scene->AddEntity("BloodExplosion");
+    bloodExplosionEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
 
+    ParticleSystemComponent *ps = bloodExplosionEntity->AddComponent<ParticleSystemComponent>();
+    ps->SetSpawnRadius(RNG::Float(0.1f, 0.4f));
+    ps->SetIsBurst(true);
+    ps->SetIsSpread(true);
+    ps->SetCount(20);
+    ps->SetStartTint({ 0.35f, 0.03f, 0.03f });
+    ps->SetEndTint({ 0.15f, 0.02f, 0.02f });
+    ps->SetStartScale(0.8f);
+    ps->SetEndScale(0.8f);
+    ps->SetLifeTime(2.0f);
+
+    ps->SetVelocity({ 4.0f, 4.0f, 4.0f });
+    ps->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+    ps->SetIsAnimate(true);
+    ps->SetAtlasTexture(this->atlasTexture);
+    ps->SetAtlasSize({ 8.0f, 8.0f });
+
+    bloodExplosionEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(2.0f);
+}
 
 void EnemySpawnerComponent::CleanGibs()
 {
@@ -272,6 +332,9 @@ void EnemySpawnerComponent::CleanGibs()
         if (projectile && projectile->GetAliveTime() <= 0.0f)
         {
             gib->SetLocallyActive(false);
+            if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
+                splatter->Reset();
+            }
             this->gibPool.push_back(gib);
 
             it = activeGibs.erase(it);
@@ -296,11 +359,42 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
         auto* hp = e->GetComponent<Health>();
         if (hp && hp->IsDead())
         {
-            if (auto* transform = e->GetComponent<TransformComponent>()) {
-                SpawnGibsFromPool(context, transform->GetWorldPosition());
+            if (auto* transform = e->GetComponent<TransformComponent>())
+            {
+                DirectX::XMFLOAT3 enemyPos = transform->GetWorldPosition();
+
+                if (auto* splatter = e->GetComponent<SplatterComponent>())
+                {
+                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
+                        this->deathBloodRadiusMax);
+
+                    splatter->PaintFloorAtPosition(enemyPos, bloodRadius);
+
+                    const int extraSplats = RNG::Int(1, 2);
+                    for (int s = 0; s < extraSplats; ++s)
+                    {
+                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
+
+                        DirectX::XMFLOAT3 splatPos = {
+                            enemyPos.x + cosf(offsetAngle) * offsetDist,
+                            enemyPos.y,
+                            enemyPos.z + sinf(offsetAngle) * offsetDist
+                        };
+
+                        splatter->PaintFloorAtPosition(
+                            splatPos,
+                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
+                    }
+                }
+
+                SpawnGibsFromPool(context, enemyPos);
+
+                XMFLOAT3 position = enemyPos;
+                position.y += 1.4f;
+                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }
-
-
+            
             e->SetLocallyActive(false);
             this->enemyPool.push_back(e);
 
@@ -322,6 +416,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
 	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
 	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
+	this->gibModel[3] = context.assetManager->Get<Model>("assets/models/gib4.glb");
 
 	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
@@ -336,7 +431,6 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
     this->CleanupDeadEnemies(context);
     this->CleanGibs();
-
 
     if (this->currentEnemies >= this->maxEnemiesAlive)
         return;
@@ -354,7 +448,7 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 {
-	for (size_t i = 0; i < 3; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
 		gibModel[i].reset();
 	}

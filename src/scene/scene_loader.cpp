@@ -35,6 +35,8 @@
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
 
+
+
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
 
@@ -207,12 +209,12 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
         collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
         collider->SetTrigger(true);
-        collider->SetExtents({ 0.5f, 5.5f, 0.5f });
+        collider->SetExtents({ 0.5f, 12.0f, 0.5f });
         collider->SetCenterOffset({ 0.0f, 7.5f, 0.0f });
 
         auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
         swordHitBox->SetActive(false);
-        swordHitBox->SetKnockbackForce(2);
+        swordHitBox->SetKnockbackForce(5.0f);
         playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
     }
 }

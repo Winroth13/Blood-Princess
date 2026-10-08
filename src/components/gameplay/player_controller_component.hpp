@@ -52,6 +52,7 @@ class PlayerControllerComponent : public Component
 	uint32_t currentAttack = -1;
 	uint32_t combo = 0;
 	float attackTimer = 0.0f;
+	bool hasActivatedHitboxThisAttack = false;
 
 	const float HIT_STOP_TIME = 0.06f;
 	const float HIT_STOP_FACTOR = 0.25f;
@@ -62,13 +63,13 @@ class PlayerControllerComponent : public Component
 		/* Light Attacks */
 		AttackData(
 			"light_attack_01",
-			0.1f, 0.4f,
+			0.05f, 0.5f,
 			0.32f, 0.75f,
 			50.0f
 		),
 			AttackData(
 			"light_attack_02",
-			0.05f, 0.45f,
+			0.05f, 0.65f,
 			0.5f, 1.0f,
 			50.0f
 		),
