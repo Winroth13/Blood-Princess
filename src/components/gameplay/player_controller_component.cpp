@@ -280,6 +280,9 @@ bool PlayerControllerComponent::CanAttack()
 
 void PlayerControllerComponent::HandleAttacks(float deltaTime)
 {
+	if (Action::IsActionDown("LightAttack"))
+		this->PerformLightAttack();
+
 	if (this->currentAttack != -1)
 	{
 		this->attackTimer += deltaTime;

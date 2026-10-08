@@ -41,7 +41,7 @@ PixelShaderOutput main(PixelShaderInput input)
     );
     float3 normal = normalize(mul(normalSample, tbnMatrix)) * 0.5f + 0.5f;
     
-    float4 paintMaskSample = paintMaskTexture.SampleLevel(samplerLinearWrap, input.uv1, 0);
+    float4 paintMaskSample = paintMaskTexture.SampleLevel(samplerLinearClamp, input.uv1, 0);
     
     float3 finalAlbedo = lerp(albedo, paintMaskSample.rgb, paintMaskSample.a);
     float finalRoughness = lerp(metallicRoughnessSample.g, 0.62f, paintMaskSample.a);
