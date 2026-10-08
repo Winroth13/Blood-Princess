@@ -63,12 +63,16 @@ public:
     void AddHeavyAttackLayer(const SoundLayer& layer) { this->heavyAttackLayers.push_back(layer); }
     void AddHeavyAttackSwingLayer(const SoundLayer& layer) { this->heavyAttackSwingLayers.push_back(layer); }
     void AddGoblinKnockbackLayer(const SoundLayer& layer) { this->goblinKnockbackLayers.push_back(layer); }
+    void AddAttackShoutLayer(const SoundLayer &layer) { this->attackShoutLayer.push_back(layer); }
+    void AddHeavyAttackShoutLayer(const SoundLayer &layer) { this->heavyAttackShoutLayer.push_back(layer); }
 
     void PlayLightAttackHit() { PlayLayers(this->lightAttackLayers); }
 	void PlayLightAttackSwing() { PlayLayers(this->lightAttackSwingLayers); }
     void PlayHeavyAttackHit() { PlayLayers(this->heavyAttackLayers); }
 	void PlayHeavyAttackSwing() { PlayLayers(this->heavyAttackSwingLayers); }
     void PlayGoblinKnockback() { PlayLayers(this->goblinKnockbackLayers); }
+    void PlayAttackShout() { PlayLayers(this->attackShoutLayer); }
+    void PlayHeavyAttackShout() { PlayLayers(this->heavyAttackShoutLayer); }
 
     void AddFootstepLayer(const SoundLayer& layer) { this->footstepLayers.push_back(layer); }
     void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
@@ -86,7 +90,6 @@ private:
     float minDistance = 1.0f;
     float maxDistance = 15.0f;
 
-
     std::vector<SoundLayer> lightAttackLayers;
     std::vector<SoundLayer> lightAttackSwingLayers;
 
@@ -96,6 +99,9 @@ private:
     std::vector<SoundLayer> footstepLayers;
 
     std::vector<SoundLayer> goblinKnockbackLayers;
+
+    std::vector<SoundLayer> attackShoutLayer;
+    std::vector<SoundLayer> heavyAttackShoutLayer;
 
     float footstepIntervalMeters = 3.0f;
     float movementDistanceAccumulator = 0.0f;
