@@ -251,7 +251,12 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 {
-	this->hitbox->SetDamage(attackData.damage);
+	this->hasActivatedHitboxThisAttack = false;
+	if (this->hitbox)
+	{
+		this->hitbox->Deactivate();
+		this->hitbox->SetDamage(attackData.damage);
+	}
 	this->viewmodelAnimator->CrossFade(attackData.animationName, 0.1f, false);
 }
 
@@ -281,12 +286,10 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		// LogInfo("Attack Timer: %f", this->attackTimer);
 		AttackData &attackData = this->attacks[this->currentAttack];
 
-		if (
-			this->attackTimer >= attackData.beginDamage && 
-			this->attackTimer <= attackData.beginDamage + deltaTime
-			)
+		if (!this->hasActivatedHitboxThisAttack && this->attackTimer >= attackData.beginDamage)
 		{
-			if (!this->hitbox->IsActive())
+			this->hasActivatedHitboxThisAttack = true;
+			if (this->hitbox)
 			{
 				this->hitbox->Activate(
 					attackData.stopDamage - attackData.beginDamage
@@ -309,6 +312,11 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		{
 			this->currentAttack = -1;
 			this->combo = 0;
+			this->hasActivatedHitboxThisAttack = false;
+			if (this->hitbox)
+			{
+				this->hitbox->Deactivate();
+			}
 
             this->viewmodelAnimator->CrossFade("idle", 0.2f);
 		}

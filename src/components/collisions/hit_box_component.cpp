@@ -28,7 +28,7 @@ void HitboxComponent::Deactivate()
 
 bool HitboxComponent::CanHit(Entity* target) const
 {
-	if (!this->IsActive() || !target || target == this->GetOwner())
+	if (!this->IsActive() || !target)
 		return false;
 	Entity* owner = this->GetOwner();
 	if (target == owner || (owner && target == owner->GetParent()))
