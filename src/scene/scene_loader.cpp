@@ -247,7 +247,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
-    CreateTestUI(outScene, appContext);
+    // CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
