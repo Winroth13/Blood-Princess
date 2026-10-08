@@ -7,10 +7,15 @@
 #include "scene/scene.hpp"
 #include "events/event_bus.hpp"
 #include "events/game_events.hpp"
+#include "components/audio/character_audio_component.hpp"
+#include "components/gameplay/health_component.hpp"
+
 #include <algorithm>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
+    this->GetOwner()->GetComponent<CharacterAudioComponent>()->SetIsPlayer(false);
+
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
 
     if (!this->transform) {
@@ -77,6 +82,11 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     }
 
     DirectX::XMFLOAT3 myPosF = this->transform->GetWorldPosition();
+    auto enemyAudioComponent = this->GetOwner()->GetComponent<CharacterAudioComponent>();
+    auto enemyHealth = this->GetOwner()->GetComponent<Health>();
+    if (enemyAudioComponent && !enemyHealth->IsDead()) {
+        enemyAudioComponent->PlayGoblinKnockback();
+    }
     DirectX::XMVECTOR myPosV = DirectX::XMLoadFloat3(&myPosF);
 
     DirectX::XMVECTOR attackerPosV = DirectX::XMVectorZero();

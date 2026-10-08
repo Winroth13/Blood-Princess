@@ -35,6 +35,8 @@
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
 
+
+
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
 

@@ -62,13 +62,13 @@ public:
     void AddLightAttackSwingLayer(const SoundLayer& layer) { this->lightAttackSwingLayers.push_back(layer); }
     void AddHeavyAttackLayer(const SoundLayer& layer) { this->heavyAttackLayers.push_back(layer); }
     void AddHeavyAttackSwingLayer(const SoundLayer& layer) { this->heavyAttackSwingLayers.push_back(layer); }
-
+    void AddGoblinKnockbackLayer(const SoundLayer& layer) { this->goblinKnockbackLayers.push_back(layer); }
 
     void PlayLightAttackHit() { PlayLayers(this->lightAttackLayers); }
 	void PlayLightAttackSwing() { PlayLayers(this->lightAttackSwingLayers); }
     void PlayHeavyAttackHit() { PlayLayers(this->heavyAttackLayers); }
 	void PlayHeavyAttackSwing() { PlayLayers(this->heavyAttackSwingLayers); }
-
+    void PlayGoblinKnockback() { PlayLayers(this->goblinKnockbackLayers); }
 
     void AddFootstepLayer(const SoundLayer& layer) { this->footstepLayers.push_back(layer); }
     void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
@@ -79,6 +79,7 @@ public:
 private:
     void OnStart(const AppContext& context) override;
     void PlayClip(std::shared_ptr<AudioClip> clip, float volume, float pitch);
+
     void PlayLayers(const std::vector<SoundLayer>& layers);
 
     bool isPlayer = false;
@@ -93,6 +94,8 @@ private:
     std::vector<SoundLayer> heavyAttackSwingLayers;
 
     std::vector<SoundLayer> footstepLayers;
+
+    std::vector<SoundLayer> goblinKnockbackLayers;
 
     float footstepIntervalMeters = 3.0f;
     float movementDistanceAccumulator = 0.0f;

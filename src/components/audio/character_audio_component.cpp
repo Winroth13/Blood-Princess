@@ -47,6 +47,7 @@ void CharacterAudioComponent::PlayClip(std::shared_ptr<AudioClip> clip, float vo
     }
 }
 
+
 void CharacterAudioComponent::PlayLayers(const std::vector<SoundLayer>& layers)
 {
     for (const auto& layer : layers)

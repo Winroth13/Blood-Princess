@@ -19,6 +19,9 @@
 #include "components/collisions/sphere_collision_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
 #include "components/core/lifetime_component.hpp"
+#include "components/audio/character_audio_component.hpp"
+#include "assets/types/audio_clip.hpp"
+
 
 uint32_t s_gibCounter = 0;
 
@@ -41,7 +44,6 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
         auto* projectileGib = gib->AddComponent<ProjectileComponent>();
         auto* sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
         auto* splatterGib = gib->AddComponent<SplatterComponent>();
-
 
         std::shared_ptr<Model> model;
         if (i < 40) {
@@ -132,6 +134,8 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         auto* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
         auto* enemyController = enemy->AddComponent<EnemyControllerComponent>();
         auto* enemySplatter = enemy->AddComponent<SplatterComponent>();
+        auto* enemyAudioComponent = enemy->AddComponent<CharacterAudioComponent>();
+
 
         enemyTransform->SetWorldScale(0.9f);
         modelComponent->SetModel(enemyModel);
@@ -149,6 +153,16 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
 
         enemy->SetLocallyActive(false);
         enemyPool.push_back(enemy);
+
+        SoundLayer knockbackLayer;
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/202100__spookymodem__goblin-scream.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/249813__spookymodem__goblin-death.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/270391__littlerobotsoundfactory__goblin_01.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/643655__snowfightstudios__goblin_yell.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        knockbackLayer.AddSound(context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/knockback/736274__hydrasound__hit_goblin.ogg"), 0.9f, 1.9f, 0.7f, 0.8f);
+        enemyAudioComponent->AddGoblinKnockbackLayer(knockbackLayer);
+
+        
     }
 }
 
