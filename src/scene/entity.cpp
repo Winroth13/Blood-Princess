@@ -28,6 +28,14 @@ void Entity::OnStart(const AppContext &context) {
         this->components[i]->OnStart(context);
 }
 
+void Entity::FixedUpdate(const AppContext &context, float deltaTime) {
+    for (size_t i = 0; i < this->components.size(); ++i) {
+        Component *component = this->components[i].get();
+        if (component->IsActive() && !component->IsPendingDestroy() && component->WantsFixedUpdate())
+            component->FixedUpdate(context, deltaTime);
+    }
+}
+
 void Entity::Update(const AppContext &context, float deltaTime) {
     for (size_t i = 0; i < this->components.size(); ++i) {
         Component *component = this->components[i].get();
@@ -41,6 +49,14 @@ void Entity::LateUpdate(const AppContext &context, float deltaTime) {
         Component *component = this->components[i].get();
         if (component->IsActive() && !component->IsPendingDestroy() && component->WantsLateUpdate())
             component->LateUpdate(context, deltaTime);
+    }
+}
+
+void Entity::UIRender(UIDrawList &drawList) {
+    for (size_t i = 0; i < this->components.size(); ++i) {
+        Component *component = this->components[i].get();
+        if (component->IsActive() && !component->IsPendingDestroy() && component->WantsUIRender())
+            component->UIRender(drawList);
     }
 }
 

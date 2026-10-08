@@ -9,6 +9,7 @@
 
 #include "assets/types/audio_clip.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/font.hpp"
 
 #include <sstream>
 #include <inttypes.h>
@@ -217,6 +218,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
         } break;
 
+        case GetTypeHash<std::shared_ptr<Font>>():
+        {
+            std::shared_ptr<Font> font = GetMemberByOffset<std::shared_ptr<Font>>(component, member.Offset);
+
+            if (DrawAsset(name, font))
+                this->assetViewerPanel->SetViewingAsset(font);
+
+        } break;
+
         case GetTypeHash<XMFLOAT2>():
         {
             XMFLOAT2& values = GetMemberByOffset<XMFLOAT2>(component, member.Offset);
@@ -287,6 +297,12 @@ void InspectorPanel::DrawComponentMemberNode(
         {
             bool &value = GetMemberByOffset<bool>(component, member.Offset);
             changed = DrawCheckbox(name, value);
+        } break;
+
+        case GetTypeHash<std::string>():
+        {
+            std::string &text = GetMemberByOffset<std::string>(component, member.Offset);
+            changed = DrawText(name, text);
         } break;
 
         default:

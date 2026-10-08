@@ -4,8 +4,11 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include <string>
 #include <d3d11.h>
+
+using namespace DirectX;
 
 class Texture2D;
 class AnimationLibrary;
@@ -16,14 +19,16 @@ struct Vertex
 {
 	DirectX::XMFLOAT3 position = { 0, 0, 0 };
 	DirectX::XMFLOAT3 normal = { 0, 0, 0 };
-	DirectX::XMFLOAT2 uv = { 0, 0 };
+	DirectX::XMFLOAT2 uv0 = { 0, 0 };
+	DirectX::XMFLOAT2 uv1 = { 0, 0 };
 	DirectX::XMFLOAT4 tangent = { 0, 0, 0, 0 };
 
 	Vertex(
 		const DirectX::XMFLOAT3 position,
 		const DirectX::XMFLOAT3 normal,
-		const DirectX::XMFLOAT2 uv
-	) : position(position), normal(normal), uv(uv)
+		const DirectX::XMFLOAT2 uv0,
+		const DirectX::XMFLOAT2 uv1
+	) : position(position), normal(normal), uv0(uv0), uv1(uv1)
 	{
 	}
 };
@@ -55,8 +60,11 @@ namespace std {
 			combine(v.normal.y);
 			combine(v.normal.z);
 
-			combine(v.uv.x);
-			combine(v.uv.y);
+			combine(v.uv0.x);
+			combine(v.uv0.y);
+
+			combine(v.uv1.x);
+			combine(v.uv1.y);
 
 			return seed;
 		}
@@ -64,8 +72,19 @@ namespace std {
 }
 
 #pragma endregion
+#pragma region SkinVertex
 
+constexpr uint32_t MAX_SKIN_JOINT_COUNT = 256;
+
+struct SkinVertex
+{
+    uint8_t joints[4] = {0, 0, 0, 0};
+    uint8_t weights[4] = {0, 0, 0, 0}; // 8-bit unorm floats
+};
+
+#pragma endregion
 #pragma region Submesh
+
 struct SubMesh
 {
 	uint32_t startIndex;
@@ -84,6 +103,7 @@ class Mesh
 	size_t numIndicies = 0;
 
 	ID3D11Buffer *vertexBuffer = nullptr;
+    ID3D11Buffer *skinVertexBuffer = nullptr;
 	ID3D11Buffer *indexBuffer = nullptr;
 
 public:
@@ -93,6 +113,7 @@ public:
 	bool Create(
 		const std::string &name,
 		const std::vector<Vertex> &vertices,
+        const std::vector<SkinVertex> &skinVertices,
 		const std::vector<uint32_t> &indicies,
 		const std::vector<SubMesh> &subMeshes,
 		ID3D11Device *device
@@ -101,11 +122,13 @@ public:
 	size_t GetNumVertices() const { return this->numVertices; }
 	size_t GetNumIndicies() const { return this->numIndicies; }
 
-	ID3D11Buffer *GetVertexBuffer() { return this->vertexBuffer; }
-	ID3D11Buffer *GetIndexBuffer() { return this->indexBuffer; }
+    bool IsSkinned() const { return this->skinVertexBuffer != nullptr; }
+
+	ID3D11Buffer *GetVertexBuffer() const { return this->vertexBuffer; }
+    ID3D11Buffer *GetSkinVertexBuffer() const { return this->skinVertexBuffer; }
+	ID3D11Buffer *GetIndexBuffer() const { return this->indexBuffer; }
 
     const std::vector<SubMesh> &GetSubMeshes() const { return this->subMeshes; }
-
 };
 #pragma endregion
 
@@ -130,8 +153,10 @@ class Model : public Asset
 	std::vector<Material> materials;
 	std::vector<std::shared_ptr<Texture2D>> textures;
 
-    std::shared_ptr<AnimationLibrary> animations;
     std::shared_ptr<Skeleton> skeleton;
+    std::shared_ptr<AnimationLibrary> animations;
+
+	BoundingBox boundingBox = {};
 
 public:
 	Model() = default;
@@ -143,8 +168,9 @@ public:
 		const std::vector<Mesh*> &meshes, 
 		const std::vector<Material> &materials,
 		const std::vector<std::shared_ptr<Texture2D>> &textures,
+        std::shared_ptr<Skeleton> skeleton,
         std::shared_ptr<AnimationLibrary> animations,
-        std::shared_ptr<Skeleton> skeleton
+		BoundingBox boundingBox
 	);
 
     const std::vector<std::unique_ptr<Mesh>> &GetMeshes() const { return this->meshes; }
@@ -152,10 +178,12 @@ public:
     const std::vector<std::shared_ptr<Texture2D>> &GetTextures() const { return this->textures; }
 
     bool IsSkinned() const { return this->skeleton != nullptr; }
-    std::shared_ptr<AnimationLibrary> GetAnimation() const { return this->animations; }
+    std::shared_ptr<AnimationLibrary> GetAnimations() const { return this->animations; }
     std::shared_ptr<Skeleton> GetSkeleton() const { return this->skeleton; }
 
 	Texture2D *GetTexture(int32_t index);
+
+	BoundingBox GetBoundingBox() const { return this->boundingBox; }
 };
 
 #pragma endregion

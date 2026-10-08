@@ -2,6 +2,7 @@
 
 #include "core/app_context.hpp"
 #include "scene/component.hpp"
+#include "ui/ui_draw_list.hpp"
 
 #include <vector>
 #include <memory>
@@ -42,8 +43,10 @@ public:
 private:
     // These should only ever be called through the main frame loop
     void OnStart(const AppContext &context);
+    void FixedUpdate(const AppContext &context, float deltaTime);
     void Update(const AppContext &context, float deltaTime);
     void LateUpdate(const AppContext &context, float deltaTime);
+    void UIRender(UIDrawList &drawList);
     void OnDestroy(const AppContext &context);
 
 public:

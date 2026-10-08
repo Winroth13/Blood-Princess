@@ -6,15 +6,20 @@
 #include <DirectXMath.h>
 #include "render_view.hpp"
 
-enum class ConstantBufferSlot
+enum class ConstantBufferSlot : int
 {
-	PER_FRAME,
-	PER_VIEW,
-	PER_OBJECT,
-	PER_MATERIAL,
-	LIGHT,
-	PARTICLE,
-	DEBUG
+	PER_FRAME = 0,
+	PER_VIEW = 1,
+	PER_OBJECT = 2,
+	PER_MATERIAL = 3,
+
+	LIGHT = 4,
+	PARTICLE = 5,
+	DEBUG = 6,
+
+	PAINT = 7,
+
+    SKINNING = 8
 };
 
 constexpr int operator+(ConstantBufferSlot slot) noexcept {
@@ -25,6 +30,8 @@ enum class SamplerSlot
 {
 	LINEAR_WRAP,
 	SHADOW,
+    LINEAR_CLAMP,
+
 	COUNT
 };
 
@@ -36,7 +43,10 @@ enum class ParticleFlags : uint32_t
 {
 	ANIMATED = 1 << 0,
 	ADDITIVE = 1 << 1,
-	RESET = 1 << 2
+	RESET = 1 << 2,
+	GLOBAL = 1 << 3,
+	BURST = 1 << 4,
+	SPREAD = 1 << 5
 };
 
 constexpr uint32_t operator+(ParticleFlags slot) noexcept {
@@ -49,6 +59,7 @@ class SharedResources
 	ID3D11Buffer *perViewCB = nullptr;
 	ID3D11Buffer *perObjectCB = nullptr;
 	ID3D11Buffer *perMaterialCB = nullptr;
+    ID3D11Buffer *skinningCB = nullptr;
 
     ID3D11Buffer *lightBufferCB = nullptr;
     ID3D11Buffer *directionalLightBufferSB = nullptr;
@@ -63,17 +74,17 @@ class SharedResources
 	static constexpr int MAX_SPOT_LIGHT_COUNT = 64;
 	static constexpr int MAX_POINT_LIGHT_COUNT = 64;
 
-	ID3D11Texture2D * directionalShadowsDepthTextureArray = nullptr; // DSDTA
-	ID3D11Texture2D * spotShadowsDepthTextureArray = nullptr;
-	ID3D11Texture2D * pointShadowsTextureCubeArray = nullptr;
+	ID3D11Texture2D *directionalShadowsDepthTextureArray = nullptr; // DSDTA
+	ID3D11Texture2D *spotShadowsDepthTextureArray = nullptr;
+	ID3D11Texture2D *pointShadowsTextureCubeArray = nullptr;
 
 	std::array<ID3D11DepthStencilView *, MAX_DIRECTIONAL_LIGHT_COUNT> directionalShadowsDepthStencilViews{ nullptr };
 	std::array<ID3D11DepthStencilView *, MAX_SPOT_LIGHT_COUNT> spotShadowsDepthStencilViews{ nullptr };
-	std::array<ID3D11RenderTargetView *, MAX_POINT_LIGHT_COUNT> pointShadowsRenderTargetViews{ nullptr };
+	std::array<ID3D11RenderTargetView *, MAX_POINT_LIGHT_COUNT * 6> pointShadowsRenderTargetViews{ nullptr };
 
-	ID3D11ShaderResourceView * directionalShadowsShaderResourceView = nullptr;
-	ID3D11ShaderResourceView * spotShadowsShaderResourceView = nullptr;
-	ID3D11ShaderResourceView * pointShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *directionalShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *spotShadowsShaderResourceView = nullptr;
+	ID3D11ShaderResourceView *pointShadowsShaderResourceView = nullptr;
 
 	ID3D11SamplerState *samplers[+SamplerSlot::COUNT] = {};
 
@@ -103,10 +114,13 @@ public:
 
 	void UploadPerFrameData(ID3D11DeviceContext *deviceContext, float deltaTime);
 
+    void UploadSkinMatrices(ID3D11DeviceContext *deviceContext, const XMFLOAT4X4 *skinMatrices, uint32_t skinMatricesCount);
+
 	ID3D11Buffer *GetPerFrame() const { return this->perFrameCB; }
 	ID3D11Buffer *GetPerView() const { return this->perViewCB; }
 	ID3D11Buffer *GetPerObject() const { return this->perObjectCB; }
 	ID3D11Buffer *GetPerMaterial() const { return this->perMaterialCB; }
+    ID3D11Buffer *GetSkinning() const { return this->skinningCB; }
 
 	ID3D11Buffer *GetLightBuffer() const { return this->lightBufferCB; }
 	ID3D11ShaderResourceView *GetDirectionalLightsSRV() const { return this->directionalLightShaderResourceView; }

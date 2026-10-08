@@ -41,11 +41,11 @@ void SceneManager::ReloadCurrentScene() {
     this->shouldReload = true;
 }
 
-void SceneManager::Update(float deltaTime) {
+void SceneManager::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
     if (this->targetSceneName != this->currentSceneName || this->shouldReload) {
         this->ChangeScene(this->targetSceneName);
         this->shouldReload = false;
     }
 
-    this->scene.Update(deltaTime);
+    this->scene.Update(deltaTime, fixedDeltaTime, numFixedTicks);
 }

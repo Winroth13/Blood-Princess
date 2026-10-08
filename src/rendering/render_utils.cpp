@@ -1,5 +1,6 @@
 #include "render_utils.hpp"
 #include "core/logging.hpp"
+#include "core/debug.hpp"
 
 #include <d3d11_1.h>
 
@@ -27,10 +28,7 @@ namespace RenderUtils
         desc.ByteWidth = bufferSize;
         desc.StructureByteStride = 0;
 
-        D3D11_SUBRESOURCE_DATA data{};
-        data.pSysMem = &desc;
-
-        HRESULT result = device->CreateBuffer(&desc, &data, outBuffer);
+        HRESULT result = device->CreateBuffer(&desc, nullptr, outBuffer);
         if (FAILED(result))
         {
             LogWarn("Failed to create Constant Buffer '%s'", debugName.data());
@@ -148,10 +146,14 @@ namespace RenderUtils
             mbstowcs_s(&dummy, wideBuffer, name.data(), _TRUNCATE);
 
             annotator->BeginEvent(wideBuffer);
+
+            Debug::BeginTimedStatistic(name);
         }
 
         void EndEvent()
         {
+            Debug::EndTimedStatistic();
+
             annotator->EndEvent();
         }
     }

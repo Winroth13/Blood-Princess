@@ -1,7 +1,9 @@
 #pragma once
 
 #include "assets/types/model.hpp"
+#include "rendering/lines/line_vertex.hpp"
 
+#include <vector>
 #include <DirectXMath.h>
 #include <d3d11.h>
 
@@ -25,6 +27,18 @@ struct GeometryCommand
     ID3D11ShaderResourceView *albedoSRV;
     ID3D11ShaderResourceView *normalSRV;
     ID3D11ShaderResourceView *metallicRoughnessSRV;
+
+    ID3D11ShaderResourceView *paintMaskSRV;
+
+    ID3D11Buffer *skinVertexBuffer;
+    const DirectX::XMFLOAT4X4 *skinMatrices;
+    uint32_t skinMatrixCount;
+};
+
+struct LineCommand
+{
+    std::vector<LineVertex> points;
+    bool enableDepth;
 };
 
 struct AmbientLightCommand 
@@ -95,4 +109,21 @@ struct ParticleSystemCommand
     ID3D11ShaderResourceView *colorSRV;
     ID3D11ShaderResourceView *particleSRV;
     ID3D11UnorderedAccessView *particleUAV;
+};
+
+struct PaintCommand
+{
+    ID3D11Buffer *vertexBuffer;
+    ID3D11Buffer *indexBuffer;
+    uint32_t startIndex;
+    uint32_t indexCount;
+    XMFLOAT4X4 worldMatrix;
+
+    XMFLOAT3 paintPosition;
+    float paintRadius;
+    uint32_t maskWidth;
+    uint32_t maskHeight;
+    ID3D11RenderTargetView *paintMaskRTV;
+    ID3D11ShaderResourceView *paintMaskSRV;
+    ID3D11ShaderResourceView *splatterMaskSRV;
 };

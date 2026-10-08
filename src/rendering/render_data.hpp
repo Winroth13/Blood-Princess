@@ -66,6 +66,13 @@ struct LightData
 };
 AssertCBufferSize(LightData);
 
+constexpr uint32_t SKINNING_MAX_JOINT_COUNT = 256;
+
+struct SkinningData {
+    XMFLOAT4X4 skinMatrices[SKINNING_MAX_JOINT_COUNT];
+};
+AssertCBufferSize(SkinningData);
+
 struct DirectionalLightData 
 {
     XMFLOAT3   direction;
@@ -128,8 +135,15 @@ AssertCBufferSize(ParticleSystemData);
 struct ParticleData
 {
     XMFLOAT3 position;
+    XMFLOAT3 velocity;
     XMFLOAT3 tint;
     float scale;
     float lifeTime;
 };
-AssertCBufferSize(ParticleData);
+
+struct PaintData
+{
+    XMFLOAT3 paintPosition;
+    float paintRadius;
+};
+AssertCBufferSize(PaintData);

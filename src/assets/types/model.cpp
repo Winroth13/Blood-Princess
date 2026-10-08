@@ -4,6 +4,9 @@
 #include "imgui/imgui.h"
 #include "assets/types/animation_library.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
+#include "rendering/render_utils.hpp"
+
+#include <DirectXCollision.h>
 
 #pragma region Vertex
 
@@ -19,8 +22,11 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 			v1.normal.y == v2.normal.y &&
 			v1.normal.z == v2.normal.z &&
 
-			v1.uv.x == v2.uv.x &&
-			v1.uv.y == v2.uv.y
+			v1.uv0.x == v2.uv0.x &&
+			v1.uv0.y == v2.uv0.y &&
+
+			v1.uv1.x == v2.uv1.x &&
+			v1.uv1.y == v2.uv1.y
 			);
 }
 
@@ -29,20 +35,15 @@ bool operator== (const Vertex &v1, const Vertex &v2)
 #pragma region Mesh
 Mesh::~Mesh()
 {
-	if (this->vertexBuffer)
-	{
-		this->vertexBuffer->Release();
-	}
-
-	if (this->indexBuffer)
-	{
-		this->indexBuffer->Release();
-	}
+    SafeRelease(this->vertexBuffer);
+    SafeRelease(this->skinVertexBuffer);
+    SafeRelease(this->indexBuffer);
 }
 
 bool Mesh::Create(
 	const std::string &name,
 	const std::vector<Vertex> &vertices,
+    const std::vector<SkinVertex> &skinVertices,
 	const std::vector<uint32_t> &indicies,
 	const std::vector<SubMesh> &subMeshes,
 	ID3D11Device *device
@@ -81,7 +82,36 @@ bool Mesh::Create(
 			return false;
 		}
 		//LogInfo("Created Vertex Buffer");
+
+		RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::BUFFER, "VB", name);
 	}
+
+    /* Create Skin Vertex Buffer */
+    if (!skinVertices.empty())
+    {
+        D3D11_BUFFER_DESC desc{};
+        desc.ByteWidth = static_cast<UINT>(sizeof(SkinVertex) * skinVertices.size());
+        desc.Usage = D3D11_USAGE_IMMUTABLE;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        D3D11_SUBRESOURCE_DATA data{};
+        data.pSysMem = skinVertices.data();
+        data.SysMemPitch = 0;
+        data.SysMemSlicePitch = 0;
+
+        hr = device->CreateBuffer(&desc, &data, &this->skinVertexBuffer);
+
+        if (FAILED(hr))
+        {
+            LogError("Failed to create Skin Vertex Buffer");
+            return false;
+        }
+        
+		RenderUtils::SetDebugName(this->skinVertexBuffer, DebugCategory::BUFFER, "VB", name, "Skin");
+    }
 
 	/* Create Index Buffer */
 	{
@@ -104,7 +134,8 @@ bool Mesh::Create(
 			LogError("Failed to create Index Buffer");
 			return false;
 		}
-		//LogInfo("Created Index Buffer");
+		
+		RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::BUFFER, "IB", name);
 	}
 
 	this->numVertices = vertices.size();
@@ -122,8 +153,9 @@ bool Model::Create(
 	const std::vector<Mesh*> &meshes, 
 	const std::vector<Material> &materials,
 	const std::vector<std::shared_ptr<Texture2D>> &textures,
+    std::shared_ptr<Skeleton> skeleton,
     std::shared_ptr<AnimationLibrary> animations,
-    std::shared_ptr<Skeleton> skeleton
+	BoundingBox boundingBox
 )
 {
 	LogInfo("Creating Model...");
@@ -135,9 +167,11 @@ bool Model::Create(
 	this->materials = materials;	
 	this->textures = textures;
 
-    this->animations = animations;
     this->skeleton = skeleton;
+    this->animations = animations;
 	
+	this->boundingBox = boundingBox;
+
 	LogUnindent();
 
 	return true;

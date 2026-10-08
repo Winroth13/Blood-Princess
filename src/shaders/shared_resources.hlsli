@@ -3,6 +3,7 @@
 
 SamplerState samplerLinearWrap : register(s0);
 SamplerState samplerShadow : register(s1);
+SamplerState samplerLinearClamp : register(s2);
 
 cbuffer PerFrame : register(b0)
 {
@@ -51,6 +52,9 @@ cbuffer Light : register(b4)
 #define PARTICLE_FLAG_ANIMATED 1 << 0
 #define PARTICLE_FLAG_ADDITIVE 1 << 1
 #define PARTICLE_FLAG_RESET 1 << 2
+#define PARTICLE_FLAG_GLOBAL 1 << 3
+#define PARTICLE_FLAG_BURST 1 << 4
+#define PARTICLE_FLAG_SPREAD 1 << 5
 
 cbuffer ParticleSystem : register(b5)
 {
@@ -106,6 +110,7 @@ struct SpotLight
 struct Particle
 {
     float3 position;
+    float3 velocity;
     float3 tint;
     float scale;
     float lifeTime;

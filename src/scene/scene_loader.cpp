@@ -2,99 +2,328 @@
 #include "core/logging.hpp"
 #include <cmath>
 #include "scene/entity.hpp"
-#include "components/transform_component.hpp"
-#include "components/music_component.hpp"
-#include "components/camera_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/audio/music_component.hpp"
+#include "components/core/camera_component.hpp"
 #include "core/app_context.hpp"
 #include "assets/asset_manager.hpp"
-#include "components/model_component.hpp"
-#include "components/audio_component.hpp"
-#include "components/listener_component.hpp"
-#include "components/point_light_component.hpp"
-#include "components/directional_light_component.hpp"
-#include "components/spot_light_component.hpp"
-#include "components/player_controller_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/ambient_light_component.hpp"
-#include "components/particle_system_component.hpp"
-#include "components/sphere_collision_component.hpp"
-#include "components/light_flicker_component.hpp"
+#include "components/ui/ui_canvas_component.hpp"
+#include "components/ui/ui_rect_component.hpp"
+#include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_text_component.hpp"
+#include "components/core/model_component.hpp"
+#include "components/audio/audio_component.hpp"
+#include "components/audio/listener_component.hpp"
+#include "components/lights/point_light_component.hpp"
+#include "components/lights/directional_light_component.hpp"
+#include "components/lights/spot_light_component.hpp"
+#include "components/gameplay/player_controller_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/lights/ambient_light_component.hpp"
+#include "components/core/particle_system_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
+#include "components/lights/light_flicker_component.hpp"
+#include "components/skeletal/animator_component.hpp"
+#include "components/gameplay/paintable_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
+#include "components/collisions/hit_box_component.hpp"
+#include "components/ai/enemy_controller_component.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
+#include "components/skeletal/socket_component.hpp"
+#include "components/audio/character_audio_component.hpp"
+#include "assets/types/font.hpp"
+#include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/main_menu_component.hpp"
 
-static void TestScene(Scene &outScene, const AppContext &appContext) {
-    Entity *playerEntity = outScene.AddEntity("player");
-    playerEntity->AddComponent<TransformComponent>();
-    playerEntity->AddComponent<CameraComponent>();
-    playerEntity->AddComponent<ListenerComponent>();
-    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
-    playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
 
-    //Entity *modelEntity = outScene.AddEntity("model");
-    //modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 0.0f });
-    //ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
-    //modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
 
+static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
+    std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
+
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_RIGHT, {-20.0f, 20.0f}, {300.0f, 300.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+
+    Entity *txt = outScene.AddEntity("txt");
+    txt->SetParent(img);
+    txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
+    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
+    textComp->SetText("Blood!");
+}
+
+void CreatePlayer(Scene &outScene, const AppContext &appContext)
+{
+    Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
-    auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
-    playerCol->SetLayer(CollisionLayer::PLAYER);
-    playerCol->SetStatic(false);
-    playerCol->SetRadius(0.5f);
+    playerEntity->AddComponent<TransformComponent>();
+    TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
+    transform->SetWorldPosition({-17.0f, -1.0f, -8.0f});
+    playerEntity->AddComponent<ListenerComponent>();
+    PointLightComponent *pointLight = playerEntity->AddComponent<PointLightComponent>();
+    pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+    pointLight->SetRadius(8.0f);
+    pointLight->SetIntensity(50.0f);
+
+    /* Audio */
+    {
+        playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+        auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
+        characterAudio->SetIsPlayer(true);
+
+		SoundLayer swingLayer;
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_1.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_2.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_3.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		swingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/slash_attack_4.ogg"), 0.9f, 1.1f, 0.7f, 0.8f);
+		characterAudio->AddLightAttackSwingLayer(swingLayer);
+
+		SoundLayer swordSwingLayer;
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840716__nomagician__sword-swing-1.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840715__nomagician__sword-swing-2.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		swordSwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/840717__nomagician__sword-swing-3.ogg"), 0.7f, 0.9f, 1.25f, 1.45f);
+		characterAudio->AddLightAttackSwingLayer(swordSwingLayer);
+
+        SoundLayer squishLayer;
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/271666__honorhunter__tomato-squishwet.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/500912__bertsz__squish-impact.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/536765__egomassive__squish.ogg"), 0.70f, 0.90f, 0.93f, 1.07f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/686363__faircashew__squished.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/524952__magnuswaker__squelch-2.ogg"), 0.65f, 0.85f, 0.95f, 1.05f);
+        squishLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/540076__magnuswaker__meat-slap-2.ogg"), 0.60f, 0.80f, 0.94f, 1.04f);
+
+        SoundLayer boneLayer;
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/192146__brassknucklesfilms__bone-crunch-fast.ogg"), 0.45f, 0.60f, 0.94f, 1.06f);
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.45f, 0.60f, 0.93f, 1.05f);
+        boneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/869107__robo9418__bone-crack.ogg"), 0.45f, 0.60f, 0.95f, 1.05f);
+
+        SoundLayer thudLayer;
+        thudLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/339832__insanity54__thud.ogg"), 0.70f, 0.85f, 0.92f, 1.04f);
+
+		characterAudio->AddLightAttackLayer(squishLayer);
+		characterAudio->AddLightAttackLayer(boneLayer);
+		characterAudio->AddLightAttackLayer(thudLayer);
+
+        SoundLayer heavySwingLayer;
+        heavySwingLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/523230__magnuswaker__hard-swing-1.ogg"), 1.2f, 1.3f, 0.92f, 1.04f);
+
+        SoundLayer heavyGoreLayer;
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/563491__magnuswaker__gore-rend.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/581092__magnuswaker__burst-flesh.ogg"), 0.75f, 0.95f, 0.93f, 1.05f);
+        heavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/563315__magnuswaker__gushing-flesh.ogg"), 0.70f, 0.90f, 0.95f, 1.05f);
+
+        SoundLayer heavyHeavyGoreLayer;
+        heavyHeavyGoreLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522168__magnuswaker__gut-rip-bladed.ogg"), 0.75f, 0.95f, 0.92f, 1.04f);
+
+        SoundLayer heavyBoneLayer;
+        heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522171__magnuswaker__bone-breaker-1.ogg"), 0.65f, 0.80f, 0.92f, 1.03f);
+        heavyBoneLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/369601__evanboyerman__bone-crunchcrack-2-mixed.ogg"), 0.60f, 0.75f, 0.90f, 1.02f);
+
+        SoundLayer heavyImpactLayer;
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/522091__magnuswaker__pound-of-flesh-1.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/528263__magnuswaker__pound-of-flesh-2.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+        heavyImpactLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/530117__magnuswaker__pound-of-flesh-3.ogg"), 0.80f, 1.00f, 0.92f, 1.04f);
+
+
+		characterAudio->AddHeavyAttackSwingLayer(heavySwingLayer);
+		characterAudio->AddHeavyAttackLayer(heavyGoreLayer);
+		characterAudio->AddHeavyAttackLayer(heavyHeavyGoreLayer);
+		characterAudio->AddHeavyAttackLayer(heavyBoneLayer);
+		characterAudio->AddHeavyAttackLayer(heavyImpactLayer);
+
+
+        SoundLayer footstepsLayer;
+		footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_1.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_2.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_3.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_4.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_5.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+        footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_6.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
+		characterAudio->AddFootstepLayer(footstepsLayer);
+
+        SoundLayer attackShoutLayer;
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_01.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_03.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_04.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_05.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_06.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_02.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_07.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_08.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        characterAudio->AddAttackShoutLayer(attackShoutLayer);
+
+        SoundLayer heavyAttackShoutLayer;
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_01.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_02.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_03.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_04.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_05.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_06.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_07.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_08.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_09.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        characterAudio->AddHeavyAttackShoutLayer(heavyAttackShoutLayer);
+    }
+
+    /* Collisions */
+    {
+        auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
+        playerEntity->AddComponent<CameraComponent>();
+        playerCol->SetLayer(CollisionLayer::PLAYER);
+        playerCol->SetStatic(false);
+        playerCol->SetRadius(0.5f);
+    }
+
+    /* Viewmodel */
+    {
+        Entity *viewEntity = outScene.AddEntity("viewmodel");
+        auto *viewTransform = viewEntity->AddComponent<TransformComponent>();
+        viewTransform->SetLocalPosition({ 0.0f, 0.0f, 0.0f });
+        viewTransform->SetLocalScale({ 0.2f, 0.2f ,0.2f });
+        viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
+        ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
+        viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
+
+        playerEntity->GetComponent<PlayerControllerComponent>()->SetRootTransform(viewTransform);
+
+        AnimatorComponent *animator = viewEntity->AddComponent<AnimatorComponent>();
+        animator->AddAnimations(viewmodelModel->GetModel()->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->Play("idle", true);
+        playerEntity->GetComponent<PlayerControllerComponent>()->viewmodelAnimator = animator;
+
+        viewEntity->SetParent(playerEntity);
+
+        viewEntity->AddComponent<CameraComponent>();
+        auto camera = viewEntity->GetComponent<CameraComponent>();
+        
+        Entity *cameraEntity = outScene.AddEntity("Camera");
+        cameraEntity->AddComponent<CameraComponent>();
+        cameraEntity->AddComponent<TransformComponent>();
+        cameraEntity->AddComponent<ShakeComponent>();
+        cameraEntity->SetParent(viewEntity);
+
+        SocketComponent *cameraSocket = cameraEntity->AddComponent<SocketComponent>();
+        cameraSocket->SetJointName("head");
+        cameraSocket->SetOffsetPosition({ 0.0, 0.0f, 0.0f });
+        cameraSocket->SetOffsetRotation({ -90.0, 90.0f, 0.0f });
+        cameraSocket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
+
+        Entity *swordEntity = outScene.AddEntity("sword");
+        auto *swordTransform = swordEntity->AddComponent<TransformComponent>();
+        ModelComponent *swordModel = swordEntity->AddComponent<ModelComponent>();
+        swordModel->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
+        SocketComponent *socket = swordEntity->AddComponent<SocketComponent>();
+        socket->SetJointName("socket.r");
+        socket->SetOffsetPosition({ -1.2f, 0.0f, 0.5f });
+        socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
+        socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
+        swordEntity->SetParent(viewEntity);
+
+        auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
+        collider->SetLayer(CollisionLayer::PLAYER_ATTACK);
+        collider->SetTrigger(true);
+        collider->SetExtents({ 0.5f, 12.0f, 0.5f });
+        collider->SetCenterOffset({ 0.0f, 7.5f, 0.0f });
+
+        auto *swordHitBox = swordEntity->AddComponent<HitboxComponent>();
+        swordHitBox->SetActive(false);
+        swordHitBox->SetKnockbackForce(5.0f);
+        playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
+    }
+}
+
+static void TestScene(Scene& outScene, const AppContext& appContext) {
+    //Entity *musicEntity = outScene.AddEntity("music_entity");
+    //musicEntity->AddComponent<TransformComponent>();
+    //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+    //musicComponent->SetVolume(0.2f);
+
+    CreatePlayer(outScene, appContext);
+    // CreateTestUI(outScene, appContext);
+    
+    // Enemy Spawner
+    Entity* spawnerEntity = outScene.AddEntity("Spawner");
+    spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
+    spawnerEntity->AddComponent<EnemySpawnerComponent>();
 
     Entity *lightEntity = outScene.AddEntity("light");
     AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
     ambientLight->SetColour({0.86f, 0.59f, 0.47f});
     ambientLight->SetIntensity(0.2f);
-    lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
+    /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
     TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
     transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
+    transform->SetWorldRotation(30.0f, 0.0f, 0.0f);
 
     Entity *spotLightEntity = outScene.AddEntity("spot light");
     SpotLightComponent *spotLight = spotLightEntity->AddComponent<SpotLightComponent>();
-    spotLight->SetIntensity(220.0f);
+    spotLight->SetIntensity(50.0f);
     spotLight->SetRange(30.0f);
-    spotLight->SetColor({231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f});
+    spotLight->SetColor({ 231.0f / 255.0f, 172.0f / 255.0f, 80.0f / 255.0f });
     spotLight->SetInnerAngle(XMConvertToRadians(60.0f));
     spotLight->SetOuterAngle(XMConvertToRadians(80.0f));
     TransformComponent *spotTransform = spotLightEntity->AddComponent<TransformComponent>();
-    spotTransform->SetWorldPosition(-3.0f, -0.7f, 3.2f);
+    spotTransform->SetWorldPosition(-8.25f, -0.7f, 5.07f);
+    spotTransform->SetWorldRotation(0, 116, 0);
+
+    Entity *pointLightEntity = outScene.AddEntity("point light");
+    PointLightComponent *pointLight = pointLightEntity->AddComponent<PointLightComponent>();
+    pointLight->SetIntensity(220.0f);
+    pointLight->SetRadius(10.0f);
+    pointLight->SetCastShadows(false);
+    TransformComponent *pointTransform = pointLightEntity->AddComponent<TransformComponent>();
+    pointTransform->SetWorldPosition(-0.6f, -1.0f, 6.8f);*/
 
     SceneLoader::CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
-    //{
-    //    Entity *entity = outScene.AddEntity("animation_entity");
-    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
-    //    transform->SetWorldPosition(0.0f, -1.0f, 5.0f);
-    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
-    //}
-
     {
-        Entity *entity = outScene.AddEntity("princess_entity");
-        TransformComponent *transform = entity->AddComponent<TransformComponent>();
-        transform->SetWorldPosition(-3.0f, -2.5f, 5.0f);
-        transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-        transform->SetWorldScale(0.5f);
-        ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-        modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/princess.glb"));
+        //Entity *entity = outScene.AddEntity("animated_entity_twerk");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
+        //transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        //transform->SetWorldScale(0.5f, 0.5f, 0.5f);
+        //ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        //std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+        //modelComponent->SetModel(model);
+        //AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        //animator->AddAnimation("twerk", model->GetAnimations());
+        //animator->SetSkeletonVisible(true);
+        //animator->Play("twerk", true);
     }
 
-    //{
-    //    Entity *entity = outScene.AddEntity("sword_entity");
-    //    TransformComponent *transform = entity->AddComponent<TransformComponent>();
-    //    transform->SetWorldPosition(-6.0f, 1.0f, 5.0f);
-    //    transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-    //    ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-    //    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/sword.glb"));
-    //}
+    {
+        //Entity *entity = outScene.AddEntity("animated_entity_gangnam_style");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(1.0f, -2.5f, 8.0f);
+        //transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+        //ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+        //std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/demo_gangnam_style.glb");
+        //modelComponent->SetModel(model);
+        //AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+        //animator->AddAnimation("gangnam_style", model->GetAnimations());
+        //animator->SetSkeletonVisible(true);
+        //animator->Play("gangnam_style", true);
+    }
 
-    //Entity *animatedEntity = outScene.AddEntity("animated_entity");
-    //animatedEntity->AddComponent<TransformComponent>()->SetWorldPosition(0.0f, 0.0f, 0.0f);
-    //ModelComponent *animatedEntityModel = animatedEntity->AddComponent<ModelComponent>();
-    //animatedEntityModel->SetModel(appContext.assetManager->Get<Model>("assets/models/animations/demo_animation.glb"));
+    {
+        //Entity *entity = outScene.AddEntity("animation_light");
+        //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+        //transform->SetWorldPosition(0.0f, 0.5f, 8.0f);
+        //PointLightComponent *pointLight = entity->AddComponent<PointLightComponent>();
+        //pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
+        //pointLight->SetRadius(8.0f);
+        //pointLight->SetIntensity(50.0f);
+    }
 
-    auto particle = appContext.assetManager->Get<ParticleSystem>("assets/particles/test.yaml");
-
-    outScene.PrintEntityHierarchy();
+    //outScene.PrintEntityHierarchy();
 }
 
 void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appContext, const DirectX::XMFLOAT3 &center, int numSegments)
@@ -121,6 +350,8 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     // Wall center is offset by half the wall thickness (0.5f)
     const float wallRadius = innerRadius + 0.5f;
 
+    Entity *walls = outScene.AddEntity("Walls");
+
     // 1. Build walls (2 walls high) and torches
     for (int i = 0; i < numSegments; ++i)
     {
@@ -135,6 +366,7 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         // Lower wall segment entity
         std::string wallName = "Wall_" + std::to_string(i);
         Entity *wallEntity = outScene.AddEntity(wallName);
+        wallEntity->SetParent(walls);
 
         TransformComponent *wallTransform = wallEntity->AddComponent<TransformComponent>();
         wallTransform->SetWorldPosition(posX, posY, posZ);
@@ -148,6 +380,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         ModelComponent *wallModelComponent = wallEntity->AddComponent<ModelComponent>();
         wallModelComponent->SetModel(wallModel);
         wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+
+        PaintableComponent* wallPaintable = wallEntity->AddComponent<PaintableComponent>();
+        wallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        wallPaintable->SetPaintMaskWidth(128);
+        wallPaintable->SetPaintMaskHeight(128);
 
         // Upper wall segment entity stacked 1 wall higher directly on top
         std::string upperWallName = "Wall_Upper_" + std::to_string(i);
@@ -166,6 +403,11 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
         upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+
+        PaintableComponent* upperWallPaintable = upperWallEntity->AddComponent<PaintableComponent>();
+        upperWallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+        upperWallPaintable->SetPaintMaskWidth(128);
+        upperWallPaintable->SetPaintMaskHeight(128);
 
         // Torch entity attached to the lower wall
         std::string torchName = "Torch_" + std::to_string(i);
@@ -234,9 +476,9 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
         AudioComponent *audioComponent = fireParticleEntity->AddComponent<AudioComponent>(fireSound);
         audioComponent->SetLooping(true);
         audioComponent->SetAudio3D(true);
-        audioComponent->SetMinDistance(3);
-        audioComponent->SetMaxDistance(10);
-        audioComponent->SetVolume(25.0f);
+        audioComponent->SetMinDistance(3.0f);
+        audioComponent->SetMaxDistance(15.0f);
+        audioComponent->SetVolume(0.8f);
         audioComponent->SetPlayOnStart(true);
     }
 
@@ -273,13 +515,18 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
                 TransformComponent *floorTransform = floorTile->AddComponent<TransformComponent>();
                 floorTransform->SetLocalPosition(x, 0.0f, z);
 
-                BoxCollisionComponent *floorCol = floorTile->AddComponent<BoxCollisionComponent>();
-                floorCol->SetLayer(CollisionLayer::ENVIRONMENT);
-                floorCol->SetStatic(true);
-                floorCol->SetExtents({ halfTile, 0.5f, halfTile });
-
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
+
+                BoxCollisionComponent *floorCollision = floorTile->AddComponent<BoxCollisionComponent>();
+                floorCollision->SetStatic(true);
+                floorCollision->SetLayer(CollisionLayer::ENVIRONMENT);
+                floorCollision->SetExtents({ halfTile, 0.5f, halfTile });
+
+                PaintableComponent* floorPaintable = floorTile->AddComponent<PaintableComponent>();
+                floorPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
+                floorPaintable->SetPaintMaskWidth(128);
+                floorPaintable->SetPaintMaskHeight(128);
 
                 // Ceiling tile
                 std::string ceilingTileName = "CeilingTile_" + std::to_string(tileIndex);
@@ -303,6 +550,48 @@ void SceneLoader::CreateCircularRoom(Scene &outScene, const AppContext &appConte
     }
 }
 
+static void TestScene2(Scene &outScene, const AppContext &appContext) {
+    Entity *playerEntity = outScene.AddEntity("player");
+    playerEntity->AddComponent<TransformComponent>();
+    playerEntity->AddComponent<ListenerComponent>();
+    playerEntity->GetComponent<TransformComponent>()->SetWorldPosition({ 0.0f, -1.0f, 0.0f });
+    playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+
+    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    playerEntity->AddComponent<CameraComponent>();
+    auto playerCol = playerEntity->AddComponent<SphereCollisionComponent>();
+    playerCol->SetLayer(CollisionLayer::PLAYER);
+    playerCol->SetStatic(false);
+    playerCol->SetRadius(0.5f);
+
+    Entity *modelEntity = outScene.AddEntity("model");
+    modelEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0.0f, 0.0f, 2.0f });
+    ModelComponent *modelComponent = modelEntity->AddComponent<ModelComponent>();
+    modelComponent->SetModel(appContext.assetManager->Get<Model>("assets/models/falcata_sword.glb"));
+    modelEntity->SetParent(playerEntity);
+
+    Entity *lightEntity = outScene.AddEntity("light");
+    AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
+    ambientLight->SetColour({0.86f, 0.59f, 0.47f});
+    ambientLight->SetIntensity(1.0f);
+}
+
+static void TestSceneMainMenu(Scene &outScene, const AppContext &appContext) {
+    Entity *hud = outScene.AddEntity("HUD");
+    hud->AddComponent<UIRectComponent>();
+    hud->AddComponent<UICanvasComponent>();
+    hud->AddComponent<TransformComponent>();
+    hud->AddComponent<CameraComponent>();
+
+    Entity *img = outScene.AddEntity("img");
+    img->SetParent(hud);
+    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
+    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
+    imageComp->SetShouldPreserveAspectRatio(true);
+    img->AddComponent<MainMenuComponent>();
+}
+
 bool SceneLoader::Initialize(const AppContext &appContext)
 {
     LogInfo("Creating Scene Loader...");
@@ -316,7 +605,12 @@ bool SceneLoader::Initialize(const AppContext &appContext)
 }
 
 bool SceneLoader::Load(const std::string &name, Scene &outScene) {
-    TestScene(outScene, *this->appContext);
+    outScene.Clear();
+
+    if (name == "demo_main_menu")
+        TestSceneMainMenu(outScene, *this->appContext);
+    else
+        TestScene(outScene, *this->appContext);
 
     LogInfo("Loaded scene '%s'", name.c_str());
 

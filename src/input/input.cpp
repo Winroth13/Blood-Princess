@@ -1,15 +1,28 @@
 #include "input/input.hpp"
+#include "SDL3/SDL.h"
+
 #include <algorithm>
+
+#undef min
+#undef max
+
 // Allocation and definition of static member variables
 MouseState Input::lastMouseState;
 MouseMode Input::mouseMode = MouseMode::VISIBLE;
 std::array<bool, SDL_SCANCODE_COUNT> Input::currentKeys;
 std::array<bool, SDL_SCANCODE_COUNT> Input::previousKeys;
+SDL_Window *Input::sdlWindow;
 
-void Input::Initialize()
+std::array<bool, SDL_SCANCODE_COUNT> Input::savedCurrentKeys;
+std::array<bool, SDL_SCANCODE_COUNT> Input::savedPreviousKeys;
+MouseState Input::savedMouseState;
+
+void Input::Initialize(SDL_Window *window)
 {
 	currentKeys.fill(false);
 	previousKeys.fill(false);
+
+	sdlWindow = window;
 
 	LogInfo("Input initialized..");
 }
@@ -119,14 +132,14 @@ MouseMode Input::GetMouseMode()
 	return mouseMode;
 }
 
-void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
+void Input::SetMouseMode(MouseMode mode)
 {
 	// Set the mouse mode and update the cursor visibility and relative mouse mode accordingly
 	//Window rect is used to define the area where the mouse can move when captured
 	mouseMode = mode;
 	int width, height;
 
-	SDL_GetWindowSize(window, &width, &height);
+	SDL_GetWindowSize(sdlWindow, &width, &height);
 	SDL_Rect rect;
 	rect.x = width / 2;
 	rect.y = height / 2;
@@ -135,20 +148,20 @@ void Input::SetMouseMode(MouseMode mode, SDL_Window* window)
 	switch (mouseMode)
 	{
 	case MouseMode::VISIBLE:
-		SDL_SetWindowMouseRect(window, nullptr);
+		SDL_SetWindowMouseRect(sdlWindow, nullptr);
 		SDL_ShowCursor();
-		SDL_SetWindowRelativeMouseMode(window, false);
+		SDL_SetWindowRelativeMouseMode(sdlWindow, false);
 		break;
 	case MouseMode::HIDDEN:
-		SDL_SetWindowMouseRect(window, nullptr);
+		SDL_SetWindowMouseRect(sdlWindow, nullptr);
 		SDL_HideCursor();
-		SDL_SetWindowRelativeMouseMode(window, true);
+		SDL_SetWindowRelativeMouseMode(sdlWindow, true);
 		break;
 	case MouseMode::CAPTURED:
-		SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
-		SDL_SetWindowMouseRect(window, &rect);
+		SDL_WarpMouseInWindow(sdlWindow, width / 2.0f, height / 2.0f);
+		SDL_SetWindowMouseRect(sdlWindow, &rect);
 		SDL_HideCursor();
-		SDL_SetWindowRelativeMouseMode(window, true);
+		SDL_SetWindowRelativeMouseMode(sdlWindow, true);
 		break;
 	default:
 		break;
@@ -235,4 +248,25 @@ MouseButton Input::GetMouseButtonFromName(const std::string &name)
 		return MouseButton::X2;
 	}
 	return MouseButton::UNKNOWN;
+}
+
+void Input::ClearState()
+{
+	std::fill(currentKeys.begin(), currentKeys.end(), false);
+	std::fill(previousKeys.begin(), previousKeys.end(), false);
+	lastMouseState = {};
+}
+
+void Input::SaveState()
+{
+	savedCurrentKeys = currentKeys;
+	savedPreviousKeys = previousKeys;
+	savedMouseState = lastMouseState;
+}
+
+void Input::LoadState()
+{
+	lastMouseState = savedMouseState;
+	currentKeys = savedCurrentKeys;
+	previousKeys = savedPreviousKeys;
 }

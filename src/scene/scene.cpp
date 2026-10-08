@@ -1,6 +1,7 @@
 #include "scene.hpp"
 #include "core/logging.hpp"
 #include "scene/component.hpp"
+#include "core/debug.hpp"
 
 #include <memory>
 #include <algorithm>
@@ -171,12 +172,17 @@ void Scene::OnEntityParentChanged(Entity *entity) {
         this->rootEntities.push_back(entity);
 }
 
-void Scene::Update(float deltaTime) {
+void Scene::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
     // TODO: Should this follow the hierarchy? Currently entities are started in the order that they are added
     this->StartPendingEntities();
 
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
+
+    for (int i = numFixedTicks; i > 0; i--)
+        for (Entity *entity : this->entityUpdateOrder)
+            if (entity->IsActive())
+                entity->FixedUpdate(*this->context, deltaTime);
 
     for (Entity *entity : this->entityUpdateOrder)
         if (entity->IsActive())
@@ -191,7 +197,22 @@ void Scene::Update(float deltaTime) {
 }
 
 void Scene::GatherRenderCommands(std::vector<RenderView> &outViews) {
+    Debug::BeginTimedStatistic("Gather Render Commands");
     this->culler.GatherRenderCommands(outViews);
+    Debug::EndTimedStatistic();
+}
+
+void Scene::GatherUICommands(uint32_t width, uint32_t height) {
+    this->ui.BeginFrame(width, height);
+
+    if (this->isHierarchyDirty)
+        this->RebuildEntityUpdateOrder();
+
+    UIDrawList &drawList = this->ui.GetDrawList();
+
+    for (Entity *entity : this->entityUpdateOrder)
+        if (entity->HasStarted() && entity->IsActive())
+            entity->UIRender(this->ui.GetDrawList());
 }
 
 void Scene::Clear() {
@@ -200,6 +221,7 @@ void Scene::Clear() {
             entity->OnDestroy(*this->context);
 
     this->culler.Clear();
+    this->ui.Clear();
 
     this->entitiesPendingStart.clear();
     this->entitiesPendingRemove.clear();
@@ -261,6 +283,53 @@ void Scene::PrintEntityHierarchyRecursive(Entity *entity) {
     for (Entity *child : entity->children)
         this->PrintEntityHierarchyRecursive(child);
     LogUnindent();
+}
+
+void Scene::AddEntityToGroup(const std::string& groupName, Entity* entity)
+{
+    if (!entity || groupName.empty())
+        return;
+    auto& group = this->entityGroup[groupName];
+    if (std::find(group.begin(), group.end(), entity) == group.end())
+        group.push_back(entity);
+}
+void Scene::RemoveEntityFromGroup(const std::string& groupName, Entity* entity)
+{
+    if (!entity || groupName.empty())
+        return;
+    auto iter = this->entityGroup.find(groupName);
+    if (iter != this->entityGroup.end())
+    {
+        auto& group = iter->second;
+        group.erase(std::remove(group.begin(), group.end(), entity), group.end());
+        if (group.empty())
+            this->entityGroup.erase(iter);
+    }
+}
+void Scene::RemoveEntityFromAllGroups(Entity* entity)
+{
+    if (!entity)
+        return;
+    for (auto iter = this->entityGroup.begin(); iter != this->entityGroup.end(); )
+    {
+        auto& group = iter->second;
+        group.erase(std::remove(group.begin(), group.end(), entity), group.end());
+        if (group.empty())
+            iter = this->entityGroup.erase(iter);
+        else
+            ++iter;
+    }
+}
+Entity* Scene::GetFirstEntityInGroup(const std::string& groupName) const
+{
+    auto iter = this->entityGroup.find(groupName);
+    if (iter != this->entityGroup.end() && !iter->second.empty())
+        return iter->second.front();
+    return nullptr;
+}
+void Scene::ClearGroup(const std::string& groupName)
+{
+    this->entityGroup.erase(groupName);
 }
 
 void Scene::PrintEntityHierarchy() {

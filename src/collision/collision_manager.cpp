@@ -1,9 +1,13 @@
 #include "collision_manager.hpp"
 #include "core/logging.hpp"
 #include "collision/collision_component.hpp"
-#include "components/box_collision_component.hpp"
-#include "components/transform_component.hpp"
-#include "components/sphere_collision_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
+#include "components/gameplay/paintable_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "events/event_bus.hpp"
+
 
 bool CollisionManager::CheckBoxBoxOverlap(BoxCollisionComponent* a, BoxCollisionComponent* b, CollisionHit& outHit)
 {
@@ -486,15 +490,22 @@ void CollisionManager::SetDefaultLayerMatrix()
     this->SetLayerCollision(CollisionLayer::PLAYER, CollisionLayer::TRIGGER_HAZARD, true);
 
     // Enemy collisions
-    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::ENEMY, true);
+    this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::ENEMY, false);
     this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::PLAYER_ATTACK, true);
     this->SetLayerCollision(CollisionLayer::ENEMY, CollisionLayer::TRIGGER_HAZARD, true);
 
-    // Projectile collisions
+    // Projectile collisions (real projectiles — keep these)
     this->SetLayerCollision(CollisionLayer::PROJECTILE, CollisionLayer::PLAYER, true);
     this->SetLayerCollision(CollisionLayer::PROJECTILE, CollisionLayer::ENEMY, true);
-}
 
+    // Gibs — only collide with the environment. No player, no enemies,
+    // no other gibs. They still hit floors/walls so SplatterComponent fires.
+    this->SetLayerCollision(CollisionLayer::GIBS, CollisionLayer::ENVIRONMENT, true);
+    this->SetLayerCollision(CollisionLayer::GIBS, CollisionLayer::PLAYER, false);
+    this->SetLayerCollision(CollisionLayer::GIBS, CollisionLayer::ENEMY, false);
+    this->SetLayerCollision(CollisionLayer::GIBS, CollisionLayer::PROJECTILE, false);
+    this->SetLayerCollision(CollisionLayer::GIBS, CollisionLayer::GIBS, false);
+}
 
 bool CollisionManager::Initialize()
 {
@@ -508,7 +519,7 @@ void CollisionManager::Shutdown()
     LogInfo("Collision Manager have been succefully Shutdown!");
 }
 
-void CollisionManager::Update(float deltaTime)
+void CollisionManager::FixedUpdate(float deltaTime)
 {
     this->ResolvePairs();
 }

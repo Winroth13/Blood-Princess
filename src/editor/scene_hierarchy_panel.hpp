@@ -12,7 +12,9 @@ using namespace DirectX;
 class SceneHierarchyPanel
 {
 	SceneManager *sceneManager = nullptr;
-	Entity *selectedEntity = nullptr;
+	std::vector<Entity *> selectedEntities;
+
+	bool multiSelect = false;
 
 public:
 	SceneHierarchyPanel() = default;
@@ -24,5 +26,7 @@ public:
 
 	void DrawEntityNode(Entity *entity);
 
-	Entity *GetSelectedEntity() const { return this->selectedEntity; }
+	const bool HasSelectedEntities() const { return this->selectedEntities.size() > 0; }
+	const size_t GetSelectCount() const { return this->selectedEntities.size(); }
+	const std::vector<Entity*> &GetSelectedEntities() const { return this->selectedEntities; }
 };

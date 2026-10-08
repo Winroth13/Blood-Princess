@@ -4,6 +4,8 @@
 #include "assets/asset_manager.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "stb_image/stb_image.h"
+#include "assets/types/sub_types/skeleton.hpp"
+#include "assets/types/animation_library.hpp"
 
 #include <d3d11.h>
 #include <sstream>
@@ -283,6 +285,8 @@ bool GLTFLoader::Load(
         this->AssignDefaultTextures(material);
 
 	this->ReadScenes();
+    this->ReadSkeleton();
+    this->ReadAnimations();
 
 	tg3_model_free(&this->model);
 	tg3_error_stack_free(&errors);
@@ -470,7 +474,10 @@ bool GLTFLoader::ReadPrimitiveAttributes(
 	const tg3_primitive &primitive, 
 	std::vector<DirectX::XMFLOAT3> &positions, 
 	std::vector<DirectX::XMFLOAT3> &normals, 
-	std::vector<DirectX::XMFLOAT2> &uvs
+	std::vector<DirectX::XMFLOAT2> &uv0,
+    std::vector<DirectX::XMFLOAT2> &uv1,
+    std::vector<uint32_t> &joints,
+    std::vector<float> &weights
 )
 {
     std::vector<float> data;
@@ -501,9 +508,27 @@ bool GLTFLoader::ReadPrimitiveAttributes(
             if (!ReadAccessorFloats(this->model, attr.value, 2, data))
                 continue;
 
-            uvs.resize(data.size() / 2);
-            memcpy(uvs.data(), data.data(), uvs.size() * sizeof(XMFLOAT2));
+            uv0.resize(data.size() / 2);
+            memcpy(uv0.data(), data.data(), uv0.size() * sizeof(XMFLOAT2));
 		}
+        else if (attrName == "TEXCOORD_1") 
+        {
+            if (!ReadAccessorFloats(this->model, attr.value, 2, data))
+                continue;
+
+            uv1.resize(data.size() / 2);
+            memcpy(uv1.data(), data.data(), uv1.size() * sizeof(XMFLOAT2));
+        }
+        else if (attrName == "JOINTS_0")
+        {
+            if (!ReadAccessorUnsignedInts(this->model, attr.value, 4, joints))
+                joints.clear();
+        }
+        else if (attrName == "WEIGHTS_0")
+        {
+            if (!ReadAccessorFloats(this->model, attr.value, 4, weights))
+                weights.clear();
+        }
 		else
 		{
 			LogWarn("Unsupported attribute: %s", attrName.c_str());
@@ -551,6 +576,65 @@ bool GLTFLoader::ReadPrimitiveIndices(const tg3_primitive &primitive, uint32_t v
     return true;
 }
 
+static inline XMFLOAT3 ConvertTranslation(const XMFLOAT3 &translation) 
+{
+    return {-translation.x, translation.y, translation.z};
+}
+
+static inline XMFLOAT4 ConvertRotation(const XMFLOAT4 &rotation) 
+{
+    return {rotation.x, -rotation.y, -rotation.z, rotation.w};
+}
+
+static XMFLOAT4X4 ConvertMatrix(XMFLOAT4X4 matrix) 
+{
+    for (int i = 0; i < 4; ++i) 
+    {
+        matrix.m[0][i] = -matrix.m[0][i];
+        matrix.m[i][0] = -matrix.m[i][0];
+    }
+    return matrix;
+}
+
+static void GetNodeTransform(const tg3_node &node, XMFLOAT3 &outTranslation, XMFLOAT4 &outRotation, XMFLOAT3 &outScale) 
+{
+    if (node.has_matrix) 
+    {
+        XMFLOAT4X4 matrix;
+        for (int i = 0; i < 16; ++i)
+            matrix.m[i / 4][i % 4] = static_cast<float>(node.matrix[i]);
+
+        XMVECTOR translation, rotation, scale;
+        if (!XMMatrixDecompose(&scale, &rotation, &translation, XMLoadFloat4x4(&matrix)))
+            LogWarn("Node '%s' has a matrix that can't be decomposed", TG3ToString(node.name).c_str());
+
+        XMStoreFloat3(&outTranslation, translation);
+        XMStoreFloat4(&outRotation, rotation);
+        XMStoreFloat3(&outScale, scale);
+
+        return;
+    }
+
+    outTranslation = {
+        static_cast<float>(node.translation[0]),
+        static_cast<float>(node.translation[1]),
+        static_cast<float>(node.translation[2])
+    };
+
+    outRotation = {
+        static_cast<float>(node.rotation[0]),
+        static_cast<float>(node.rotation[1]),
+        static_cast<float>(node.rotation[2]),
+        static_cast<float>(node.rotation[3])
+    };
+
+    outScale = {
+        static_cast<float>(node.scale[0]),
+        static_cast<float>(node.scale[1]),
+        static_cast<float>(node.scale[2])
+    };
+}
+
 void GLTFLoader::ReadScenes()
 {
 	for (size_t sceneIndex = 0; sceneIndex < this->model.scenes_count; ++sceneIndex)
@@ -584,45 +668,20 @@ void GLTFLoader::ReadNode(int32_t nodeIndex, XMMATRIX parentMatrix)
 	LogInfo("Node '%s'", TG3ToString(node.name).c_str());
 	LogIndent();
 
-    XMMATRIX localMatrix;
+    XMFLOAT3 translation, scale;
+    XMFLOAT4 rotation;
+    GetNodeTransform(node, translation, rotation, scale);
 
-    if (node.has_matrix)
-    {
-        XMFLOAT4X4 matrix;
-        for (int i = 0; i < 16; ++i)
-            matrix.m[i / 4][i % 4] = static_cast<float>(node.matrix[i]);
+    XMMATRIX localMatrix = XMMatrixScalingFromVector(XMLoadFloat3(&scale));
+    localMatrix *= XMMatrixRotationQuaternion(XMLoadFloat4(&rotation));
+    localMatrix *= XMMatrixTranslationFromVector(XMLoadFloat3(&translation));
 
-        localMatrix = XMLoadFloat4x4(&matrix);
-    }
-    else 
-    {
-        localMatrix = XMMatrixScaling(
-            static_cast<float>(node.scale[0]), 
-            static_cast<float>(node.scale[1]),
-            static_cast<float>(node.scale[2])
-        );
-
-        XMVECTOR quaternion = XMVectorSet(
-            static_cast<float>(node.rotation[0]), 
-            static_cast<float>(node.rotation[1]), 
-            static_cast<float>(node.rotation[2]), 
-            static_cast<float>(node.rotation[3])
-        );
-        localMatrix *= XMMatrixRotationQuaternion(quaternion);
-
-        localMatrix *= XMMatrixTranslation(
-            static_cast<float>(node.translation[0]),
-            static_cast<float>(node.translation[1]),
-            static_cast<float>(node.translation[2])
-    	);
-    }
-
-	const XMMATRIX matrix = XMMatrixMultiply(localMatrix, parentMatrix);
+	const XMMATRIX matrix = localMatrix * parentMatrix;
 
 	const int32_t meshIndex = node.mesh;
 	if (meshIndex != -1)
 	{
-		ReadMesh(meshIndex, node.skin != -1 ? XMMatrixIdentity() : matrix);
+		ReadMesh(meshIndex, node.skin != -1 ? XMMatrixIdentity() : matrix, node.skin != -1);
 	}
 
 	if (node.camera != -1)
@@ -669,10 +728,10 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 		XMVECTOR e1 = p1 - p0;
 		XMVECTOR e2 = p2 - p0;
 
-		float du1 = v1.uv.x - v0.uv.x;
-		float dv1 = v1.uv.y - v0.uv.y;
-		float du2 = v2.uv.x - v0.uv.x;
-		float dv2 = v2.uv.y - v0.uv.y;
+		float du1 = v1.uv0.x - v0.uv0.x;
+		float dv1 = v1.uv0.y - v0.uv0.y;
+		float du2 = v2.uv0.x - v0.uv0.x;
+		float dv2 = v2.uv0.y - v0.uv0.y;
 
 		// https://en.wikipedia.org/wiki/Cramer%27s_rule
 		float det = du1 * dv2 - du2 * dv1;
@@ -680,7 +739,7 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 			continue;
 
 		XMVECTOR t = (e1 * dv2 - e2 * dv1) / det;
-		XMVECTOR b = (e2 * du1 - e1 * du2) / det;
+		XMVECTOR b = (e1 * du2 - e2 * du1) / det;
 
 		XMFLOAT3 tf;
 		XMStoreFloat3(&tf, t);
@@ -755,7 +814,59 @@ static void ComputeTangents(std::vector<Vertex> &vertices, const std::vector<UIN
 	}
 }
 
-void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
+// Largest Remainder Method or smth, I don't know how this works lol
+// Needed to ensure that the sum of all weights is 1.0f (255)
+static bool QuantizeSkinWeights(const uint32_t joints[4], const float weights[4], uint32_t skinJointCount, SkinVertex &outSkinVertex)
+{
+    float validWeights[4] = {};
+    float sum = 0.0f;
+
+    for (int i = 0; i < 4; ++i) 
+    {
+        if (joints[i] < skinJointCount && weights[i] > 0.0f)
+            validWeights[i] = weights[i];
+
+        sum += validWeights[i];
+    }
+
+    if (sum <= 0.0f)
+        return false;
+
+    float remainders[4] = {};
+    uint32_t total = 0;
+
+    for (int i = 0; i < 4; ++i) 
+    {
+        const float scaled = validWeights[i] / sum * 255.0f;
+        const uint32_t quantized = static_cast<uint32_t>(scaled);
+
+        outSkinVertex.weights[i] = static_cast<uint8_t>(quantized);
+        outSkinVertex.joints[i] = validWeights[i] > 0.0f ? static_cast<uint8_t>(joints[i]) : 0;
+        remainders[i] = validWeights[i] > 0.0f ? scaled - quantized : -1.0f;
+        total += quantized;
+    }
+
+    while (total < 255) 
+    {
+        int largest = 0;
+        for (int i = 1; i < 4; ++i)
+            if (remainders[i] > remainders[largest])
+                largest = i;
+
+        if (remainders[largest] < 0.0f) 
+            for (int i = 1; i < 4; ++i)
+                if (outSkinVertex.weights[i] > outSkinVertex.weights[largest])
+                    largest = i;
+
+        ++outSkinVertex.weights[largest];
+        remainders[largest] = -1.0f;
+        ++total;
+    }
+
+    return true;
+}
+
+void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix, bool isSkinned)
 {
     if (meshIndex < 0 || static_cast<uint32_t>(meshIndex) >= this->model.meshes_count) 
     {
@@ -775,6 +886,14 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	std::vector<Vertex> meshVertices = {};
 	std::vector<uint32_t> meshIndicies = {};
 	std::vector<SubMesh> subMeshes = {};
+    std::vector<SkinVertex> meshSkinVertices = {};
+
+    const uint32_t skinJointCount = this->model.skins_count > 0 ? this->model.skins[0].joints_count : 0;
+    if (isSkinned && skinJointCount > MAX_SKIN_JOINT_COUNT) 
+    {
+        LogWarn("Mesh '%s' has too many skin joints (%u > %u)", meshName.c_str(), skinJointCount, MAX_SKIN_JOINT_COUNT);
+        isSkinned = false;
+    }
 
 	for (size_t primIndex = 0; primIndex < tMesh.primitives_count; ++primIndex)
 	{
@@ -788,10 +907,13 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		
 		std::vector<DirectX::XMFLOAT3> positions = {};
 		std::vector<DirectX::XMFLOAT3> normals = {};
-		std::vector<DirectX::XMFLOAT2> uvs = {};
+		std::vector<DirectX::XMFLOAT2> uv0 = {};
+        std::vector<DirectX::XMFLOAT2> uv1 = {};
 		std::vector<uint32_t> indicies = {};
+        std::vector<uint32_t> joints = {};
+        std::vector<float> weights = {};
 
-        if (!ReadPrimitiveAttributes(primitive, positions, normals, uvs) ||
+        if (!ReadPrimitiveAttributes(primitive, positions, normals, uv0, uv1, joints, weights) ||
             !ReadPrimitiveIndices(primitive, static_cast<uint32_t>(positions.size()), indicies)
         ) {
             LogWarn("Primitive could not be read (skipped)");
@@ -804,29 +926,76 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
             normals.assign(positions.size(), {0.0f, 0.0f, 1.0f});
         }
 
-        if (uvs.size() != positions.size()) 
+        if (uv0.size() != positions.size()) 
         {
-            LogWarn("Primitve has '%zu' positions but only '%zu' UVs", positions.size(), uvs.size());
-            uvs.assign(positions.size(), {0.0f, 0.0f});
+            LogWarn("Primitve has '%zu' positions but only '%zu' UVs", positions.size(), uv0.size());
+            uv0.assign(positions.size(), {0.0f, 0.0f});
+        }
+
+        if (uv1.size() != uv0.size())
+        {
+            LogWarn("Primitive only has '%zu' UV1 but '%zu' UV0s", uv1.size(), uv0.size());
+            uv1 = uv0;
         }
 
 		for (size_t i = 0; i < positions.size(); ++i)
 		{
 			XMVECTOR position = XMVector3Transform(XMLoadFloat3(&positions[i]), matrix);
 			XMStoreFloat3(&positions[i], position);
-			positions[i].x *= -1; // GLTF uses right-handed coordinate system.
+            positions[i] = ConvertTranslation(positions[i]); // GLTF uses right-handed coordinate system
 
 			XMVECTOR normal = XMLoadFloat3(&normals[i]);
 			normal = XMVector3TransformNormal(normal, inverseTransposeMatrix);
 			normal = XMVector3Normalize(normal);
 			XMStoreFloat3(&normals[i], normal);
-			normals[i].x *= -1; // GLTF uses right-handed coordinate system.
+            normals[i] = ConvertTranslation(normals[i]); // GLTF uses right-handed coordinate system
 		}
 
         const uint32_t baseVertex = static_cast<uint32_t>(meshVertices.size());
 		
-		for (size_t i = 0; i < positions.size(); ++i)
-			meshVertices.emplace_back(positions[i], normals[i], uvs[i]);
+        for (size_t i = 0; i < positions.size(); ++i)
+        {
+            if (vertexCount == 0)
+            {
+                this->boundingMin = positions[i];
+                this->boundingMax = positions[i];
+            }
+            else
+            {
+                this->boundingMin.x = std::min(this->boundingMin.x, positions[i].x);
+                this->boundingMin.y = std::min(this->boundingMin.y, positions[i].y);
+                this->boundingMin.z = std::min(this->boundingMin.z, positions[i].z);
+
+                this->boundingMax.x = std::max(this->boundingMax.x, positions[i].x);
+                this->boundingMax.y = std::max(this->boundingMax.y, positions[i].y);
+                this->boundingMax.z = std::max(this->boundingMax.z, positions[i].z);
+            }
+
+            meshVertices.emplace_back(positions[i], normals[i], uv0[i], uv1[i]);
+
+            this->vertexCount++;
+        }
+
+        if (isSkinned) 
+        {
+            const size_t expectedCount = positions.size() * 4;
+            const bool hasSkinData = joints.size() == expectedCount && weights.size() == expectedCount;
+            if (!hasSkinData)
+                LogWarn("No usable JOINTS_0/WEIGHTS_0 on primitive");
+
+            for (size_t i = 0; i < positions.size(); ++i) 
+            {
+                SkinVertex skinVertex{};
+
+                if (!hasSkinData || !QuantizeSkinWeights(&joints[i * 4], &weights[i * 4], skinJointCount, skinVertex)) 
+                {
+                    skinVertex = {};
+                    skinVertex.weights[0] = 255;
+                }
+
+                meshSkinVertices.push_back(skinVertex);
+            }
+        }
 
 		SubMesh subMesh{};
 		subMesh.startIndex = static_cast<uint32_t>(meshIndicies.size());
@@ -849,7 +1018,6 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 		for (size_t i = indicies.size(); i-- > 0;)
 			meshIndicies.push_back(indicies[i] + baseVertex);
 
-        this->vertexCount += static_cast<uint32_t>(positions.size());
         this->indexCount += static_cast<uint32_t>(indicies.size());
         ++this->subMeshCount;
 	}
@@ -863,10 +1031,13 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 
     ComputeTangents(meshVertices, meshIndicies);
 
+    ComputeBoundingBox();
+
 	Mesh *mesh = new Mesh();
 	bool result = mesh->Create(
 		meshName,
 		meshVertices,
+        meshSkinVertices,
 		meshIndicies,
 		subMeshes,
 		device
@@ -883,4 +1054,263 @@ void GLTFLoader::ReadMesh(int32_t meshIndex, XMMATRIX matrix)
 	meshes.push_back(mesh);
 
 	LogUnindent();
+}
+
+void GLTFLoader::ReadSkeleton() 
+{
+    if (this->model.skins_count == 0)
+        return;
+
+    if (this->model.skins_count > 1)
+        LogWarn("Model has %u skins; only the first one will be used", this->model.skins_count);
+
+    const tg3_skin &skin = this->model.skins[0];
+    const uint32_t nodeCount = this->model.nodes_count;
+
+    if (skin.joints_count == 0) 
+    {
+        LogWarn("Skin '%s' has no joints", TG3ToString(skin.name).c_str());
+        return;
+    }
+
+    std::vector<int32_t> nodeParents(nodeCount, -1);
+    for (uint32_t i = 0; i < nodeCount; ++i) 
+    {
+        const tg3_node &node = this->model.nodes[i];
+        for (uint32_t c = 0; c < node.children_count; ++c) 
+        {
+            const int32_t child = node.children[c];
+            if (child >= 0 && static_cast<uint32_t>(child) < nodeCount)
+                nodeParents[child] = static_cast<int32_t>(i);
+        }
+    }
+
+    std::vector<bool> isInSkeleton(nodeCount, false);
+    for (uint32_t i = 0; i < skin.joints_count; ++i) 
+    {
+        const int32_t jointNode = skin.joints[i];
+        if (jointNode < 0 || static_cast<uint32_t>(jointNode) >= nodeCount) 
+        {
+            LogWarn("Skin joint '%u' refers to invalid node '%d'", i, jointNode);
+            return;
+        }
+
+        for (int32_t node = jointNode; node != -1 && !isInSkeleton[node]; node = nodeParents[node])
+            isInSkeleton[node] = true;
+    }
+
+    std::vector<int32_t> nodeOrder;
+    std::vector<int32_t> nodeStack;
+    for (int32_t root = static_cast<int32_t>(nodeCount) - 1; root >= 0; --root)
+        if (isInSkeleton[root] && nodeParents[root] == -1)
+            nodeStack.push_back(root);
+
+    while (!nodeStack.empty()) 
+    {
+        const int32_t node = nodeStack.back();
+        nodeStack.pop_back();
+        nodeOrder.push_back(node);
+
+        const tg3_node &tNode = this->model.nodes[node];
+        for (int32_t c = static_cast<int32_t>(tNode.children_count) - 1; c >= 0; --c) 
+        {
+            const int32_t child = tNode.children[c];
+            if (child >= 0 && static_cast<uint32_t>(child) < nodeCount && isInSkeleton[child])
+                nodeStack.push_back(child);
+        }
+    }
+
+    std::vector<int32_t> nodeToJoint(nodeCount, -1);
+    std::vector<Joint> joints;
+    joints.reserve(nodeOrder.size());
+
+    for (int32_t node : nodeOrder) 
+    {
+        const tg3_node &tNode = this->model.nodes[node];
+
+        Joint joint{};
+        joint.name = TG3ToString(tNode.name);
+        joint.parentIndex = nodeParents[node] != -1 ? nodeToJoint[nodeParents[node]] : -1;
+
+        XMFLOAT3 translation, scale;
+        XMFLOAT4 rotation;
+        GetNodeTransform(tNode, translation, rotation, scale);
+
+        joint.bindTransform.translation = ConvertTranslation(translation);
+        joint.bindTransform.rotation = ConvertRotation(rotation);
+        joint.bindTransform.scale = scale;
+
+        nodeToJoint[node] = static_cast<int32_t>(joints.size());
+        joints.push_back(joint);
+    }
+
+    std::vector<int32_t> skinJoints(skin.joints_count);
+    for (uint32_t i = 0; i < skin.joints_count; ++i)
+        skinJoints[i] = nodeToJoint[skin.joints[i]];
+
+    std::vector<XMFLOAT4X4> inverseBindMatrices(skin.joints_count);
+    XMStoreFloat4x4(&inverseBindMatrices[0], XMMatrixIdentity());
+    std::fill(inverseBindMatrices.begin(), inverseBindMatrices.end(), inverseBindMatrices[0]);
+
+    if (skin.inverse_bind_matrices != -1) 
+    {
+        std::vector<float> data;
+        if (!ReadAccessorFloats(this->model, skin.inverse_bind_matrices, 16, data) || data.size() != skin.joints_count * 16) 
+        {
+            LogWarn("Failed to read inverse bind matrices of skin '%s'", TG3ToString(skin.name).c_str());
+            return;
+        }
+
+        for (uint32_t i = 0; i < skin.joints_count; ++i) 
+        {
+            XMFLOAT4X4 matrix;
+            memcpy(&matrix, &data[i * 16], sizeof(matrix));
+            inverseBindMatrices[i] = ConvertMatrix(matrix);
+        }
+    }
+
+    std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>();
+    if (!skeleton->Create(joints, skinJoints, inverseBindMatrices)) 
+    {
+        LogWarn("Failed to create skeleton of skin '%s'", TG3ToString(skin.name).c_str());
+        return;
+    }
+
+    this->skeleton = skeleton;
+
+    LogInfo("Created skeleton with %zu joints", joints.size());
+}
+
+void GLTFLoader::ReadAnimations() 
+{
+    if (this->model.animations_count == 0)
+        return;
+
+    std::vector<AnimationClip> clips;
+
+    for (uint32_t animationIndex = 0; animationIndex < this->model.animations_count; ++animationIndex) 
+    {
+        const tg3_animation &tAnimation = this->model.animations[animationIndex];
+
+        AnimationClip clip{};
+        clip.name = TG3ToString(tAnimation.name);
+        if (clip.name.empty())
+            clip.name = "animation_" + std::to_string(animationIndex);
+
+        uint32_t skippedChannelCount = 0;
+        bool hasCubicSpline = false;
+
+        for (uint32_t channelIndex = 0; channelIndex < tAnimation.channels_count; ++channelIndex) 
+        {
+            const tg3_animation_channel &tChannel = tAnimation.channels[channelIndex];
+            const tg3_animation_channel_target &tTarget = tChannel.target;
+
+            if (tTarget.node < 0 || static_cast<uint32_t>(tTarget.node) >= this->model.nodes_count ||
+                tChannel.sampler < 0 || static_cast<uint32_t>(tChannel.sampler) >= tAnimation.samplers_count
+            ) {
+                ++skippedChannelCount;
+                continue;
+            }
+
+            AnimationChannel channel{};
+            channel.jointName = TG3ToString(this->model.nodes[tTarget.node].name);
+
+            uint32_t componentCount;
+            if (tg3_str_equals_cstr(tTarget.path, "translation")) 
+            {
+                channel.path = AnimationPath::TRANSLATION;
+                componentCount = 3;
+            }
+            else if (tg3_str_equals_cstr(tTarget.path, "rotation")) 
+            {
+                channel.path = AnimationPath::ROTATION;
+                componentCount = 4;
+            }
+            else if (tg3_str_equals_cstr(tTarget.path, "scale")) 
+            {
+                channel.path = AnimationPath::SCALE;
+                componentCount = 3;
+            }
+            else {
+                ++skippedChannelCount;
+                continue;
+            }
+
+            const tg3_animation_sampler &sampler = tAnimation.samplers[tChannel.sampler];
+
+            const bool isCubicSpline = tg3_str_equals_cstr(sampler.interpolation, "CUBICSPLINE") != 0;
+            if (isCubicSpline)
+                hasCubicSpline = true;
+
+            channel.interpolation = tg3_str_equals_cstr(sampler.interpolation, "STEP") ? 
+                AnimationInterpolation::STEP : AnimationInterpolation::LINEAR;
+
+            std::vector<float> values;
+            if (!ReadAccessorFloats(this->model, sampler.input, 1, channel.times) ||
+                !ReadAccessorFloats(this->model, sampler.output, componentCount, values)
+            ) {
+                LogWarn("Failed to read keyframes of channel %u in '%s' (skipped)", channelIndex, clip.name.c_str());
+                continue;
+            }
+
+            const size_t keyCount = channel.times.size();
+            const size_t valuesPerKey = isCubicSpline ? 3 : 1;
+            if (keyCount == 0 || values.size() != keyCount * valuesPerKey * componentCount) 
+            {
+                LogWarn("Channel %u in '%s' has %zu times but %zu values (skipped)", 
+                    channelIndex, clip.name.c_str(), keyCount, values.size() / componentCount
+                );
+            }
+
+            channel.values.resize(keyCount);
+            for (size_t key = 0; key < keyCount; ++key) 
+            {
+                const float *value = &values[(key * valuesPerKey + (isCubicSpline ? 1 : 0)) * componentCount];
+
+                switch (channel.path) 
+                {
+                    case AnimationPath::TRANSLATION: {
+                        const XMFLOAT3 translation = ConvertTranslation({value[0], value[1], value[2]});
+                        channel.values[key] = {translation.x, translation.y, translation.z, 0.0f};
+                    } break;
+                    case AnimationPath::ROTATION: {
+                        XMFLOAT4 rotation = ConvertRotation({value[0], value[1], value[2], value[3]});
+                        XMStoreFloat4(&channel.values[key], XMQuaternionNormalize(XMLoadFloat4(&rotation)));
+                    } break;
+                    case AnimationPath::SCALE: {
+                        channel.values[key] = {value[0], value[1], value[2], 0.0f};
+                    } break;
+                }
+            }
+
+            clip.duration = std::max(clip.duration, channel.times.back());
+            clip.channels.push_back(std::move(channel));
+        }
+
+        if (skippedChannelCount > 0)
+            LogWarn("Skipped %u unsupported channels in '%s'", skippedChannelCount, clip.name.c_str());
+
+        if (hasCubicSpline)
+            LogWarn("'%s' uses cubic spline interpolation, which was loaded as linear", clip.name.c_str());
+
+        LogInfo("Animation '%s': %.2f s, %zu channels", clip.name.c_str(), clip.duration, clip.channels.size());
+
+        clips.push_back(std::move(clip));
+    }
+
+    std::shared_ptr<AnimationLibrary> animations = std::make_shared<AnimationLibrary>();
+    if (!animations->Create(std::move(clips))) 
+    {
+        LogWarn("Failed to create animations");
+        return;
+    }
+
+    this->animations = animations;
+}
+
+void GLTFLoader::ComputeBoundingBox()
+{
+    XMVECTOR min = XMLoadFloat3(&this->boundingMin);
+    XMVECTOR max = XMLoadFloat3(&this->boundingMax);
+    BoundingBox::CreateFromPoints(this->boundingBox, min, max);
 }

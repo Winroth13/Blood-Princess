@@ -7,6 +7,8 @@
 #include "core/logging.hpp" 
 #include <DirectXMath.h>
 
+struct SDL_Window;
+
 enum class Key
 {
 	//Unknown key
@@ -94,8 +96,14 @@ private:
 
 	static MouseMode mouseMode;
 	static MouseState lastMouseState;
+	static SDL_Window *sdlWindow;
+
+	static std::array<bool, SDL_SCANCODE_COUNT> savedCurrentKeys;
+	static std::array<bool, SDL_SCANCODE_COUNT> savedPreviousKeys;
+	static MouseState savedMouseState;
+
 public:
-	static void Initialize();
+	static void Initialize(SDL_Window* sdlWindow);
 
 	static void Update();
 
@@ -124,10 +132,14 @@ public:
 	static bool IsMouseButtonReleased(MouseButton button);
 
 	static MouseMode GetMouseMode();
-	static void SetMouseMode(MouseMode mode, SDL_Window* window);
+	static void SetMouseMode(MouseMode mode);
 
 	static const char *GetKeyName(Key key);
 	static Key GetKeyFromName(const std::string &name);
 	static const char *GetMouseButtonName(MouseButton button);
 	static MouseButton GetMouseButtonFromName(const std::string &name);
+
+	static void ClearState();
+	static void SaveState();
+	static void LoadState();
 };

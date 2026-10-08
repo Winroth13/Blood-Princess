@@ -10,6 +10,7 @@ public:
     // TODO: Be better.
     // TODO: Add getters for these
     std::vector<GeometryCommand> geometryCommands;
+    std::vector<LineCommand> lineCommands;
 
     std::optional<AmbientLightCommand> ambientLightCommand;
     std::vector<PointLightCommand> pointLightCommands;
@@ -20,19 +21,28 @@ public:
 
     std::vector<ParticleSystemCommand> particleSystemCommand;
 
+    std::vector<PaintCommand> paintCommands;
+
     void Clear() 
     {
         this->geometryCommands.clear();
+        this->lineCommands.clear();
         this->pointLightCommands.clear();
         this->directionalLightCommands.clear();
         this->spotLightCommands.clear();
         this->skyboxCommand.reset();
         this->particleSystemCommand.clear();
+        this->paintCommands.clear();
     }
 
     void Submit(const GeometryCommand &command)
     {
         this->geometryCommands.push_back(command);
+    }
+
+    void Submit(const LineCommand &command)
+    {
+        this->lineCommands.push_back(command);
     }
 
     void Submit(const AmbientLightCommand &command)
@@ -65,11 +75,18 @@ public:
         this->particleSystemCommand.push_back(command);
     }
 
+    void Submit(const PaintCommand &command)
+    {
+        this->paintCommands.push_back(command);
+    }
+
     const std::vector<GeometryCommand> &GetGeometryCommands() { return this->geometryCommands; }
+    const std::vector<LineCommand> &GetLineCommands() { return this->lineCommands; }
     const std::optional<AmbientLightCommand> &GetAmbientLightCommand() { return this->ambientLightCommand; }
     const std::vector<PointLightCommand> &GetPointLightCommands() { return this->pointLightCommands; }
     const std::vector<DirectionalLightCommand>& GetDirectionalLightCommands() { return this->directionalLightCommands; }
     const std::vector<SpotLightCommand>& GetSpotLightCommands() { return this->spotLightCommands; }
     const std::optional<SkyboxCommand> &GetSkyboxCommand() { return this->skyboxCommand; }
-    const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { this->particleSystemCommand; }
+    const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { return this->particleSystemCommand; }
+    const std::vector<PaintCommand> &GetPaintCommands() { return this->paintCommands; }
 };

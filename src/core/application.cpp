@@ -3,6 +3,8 @@
 #include "input/input.hpp"
 #include "core/app_context.hpp"
 #include "input/action.hpp"
+#include "core/debug.hpp"
+#include "rendering/render_utils.hpp"
 
 #include "assets/types/vertex_shader.hpp"
 #include "assets/types/pixel_shader.hpp"
@@ -13,15 +15,55 @@
 
 void Application::Update(float deltaTime) 
 {
-    this->sceneManager.Update(deltaTime);
-	this->audioManager.Update(deltaTime);
-	this->collisionManager.Update(deltaTime);
+    Debug::BeginTimedStatistic("Update");
+
+    this->deltaTimeElapsed += deltaTime;
+    int numFixedTicks = 0;
+
+    while (this->deltaTimeElapsed > this->fixedDeltaTime)
+    {
+        numFixedTicks++;
+        this->deltaTimeElapsed -= this->fixedDeltaTime;
+    }
+
+    if (this->editor.IsUsingEditor())
+    {
+        Input::SaveState();
+        Input::ClearState();
+        Action::Update();
+    }
+
+    for (int i = numFixedTicks; i > 0; i--)
+    {
+        this->audioManager.FixedUpdate(this->fixedDeltaTime);
+        this->collisionManager.FixedUpdate(this->fixedDeltaTime);
+        this->aiManager.FixedUpdate(this->fixedDeltaTime);
+    }
+
+    this->sceneManager.Update(deltaTime, this->fixedDeltaTime, numFixedTicks);
+
+    if (this->editor.IsUsingEditor())
+    {
+        Input::LoadState();
+        Action::Update();
+    }
+
+    this->editor.Update(this->appContext, deltaTime);
+
+    Debug::EndTimedStatistic();
+}
+
+void Application::PreRender(float deltaTime)
+{
+    this->imGuiLayer.NewFrame();
+
+    this->editor.Render(this->appContext);
 }
 
 void Application::Render(float deltaTime) 
 {
-    this->editor.ImGuiRender(this->appContext);
     this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
+
     this->imGuiLayer.Present();
     this->renderer.Present();
 }
@@ -37,7 +79,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->window.Initialize("Blood Princess", 1400, 900, SDL_WINDOW_RESIZABLE))
+    if (!this->window.Initialize("Blood Princess", 1400, 900, SDL_WINDOW_RESIZABLE)) // 1400, 900
     {
         LogError("Failed to create Window!");
         return false;
@@ -66,7 +108,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->sceneManager.Initialize(this->appContext, "demo_0")) {
+    if (!this->sceneManager.Initialize(this->appContext, "demo_main_menu")) {
         LogError("Failed to create Scene Manager!");
         return false;
     }
@@ -76,6 +118,7 @@ bool Application::Initialize()
         return false;
     }
 
+#if ENABLE_IMGUI_EDITOR
     if (!this->imGuiLayer.Initialize(
         this->window.GetSdlWindow(), 
         this->renderer.GetDevice(), 
@@ -92,8 +135,9 @@ bool Application::Initialize()
         LogError("Failed to create Editor");
         return false;
     }
+#endif
 
-    Input::Initialize();
+    Input::Initialize(this->window.GetSdlWindow());
     this->isRunning = true;
 
     Action::Initialize();
@@ -108,6 +152,7 @@ bool Application::Initialize()
         Action::AddAction("MoveRight", Key::D);
 
         Action::AddAction("Dash", Key::LEFT_SHIFT);
+        Action::AddAction("Dash", Key::SPACE);
 
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
@@ -116,9 +161,6 @@ bool Application::Initialize()
     }
 
     LogInfo("Bindings path: %s", configPath.c_str());
-
-
-    Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
 
     LogUnindent();
     return true;
@@ -147,26 +189,22 @@ void Application::Run()
             isFullscreen = !isFullscreen;
             SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
         }
-        if (Input::IsKeyPressed(Key::F1))
-        {
-            if (Input::GetMouseMode() == MouseMode::VISIBLE)
-            {
-                Input::SetMouseMode(MouseMode::CAPTURED, this->window.GetSdlWindow());
-            }
-            else
-            {
-                Input::SetMouseMode(MouseMode::VISIBLE, this->window.GetSdlWindow());
-            }
-        }
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
         float deltaTime = elapsed.count();
         prevTime = currentTime;
 
         this->renderer.NewFrame();
-        this->imGuiLayer.NewFrame();
-
         this->Update(deltaTime);
+
+        this->PreRender(deltaTime);
+        Debug::NewFrame();
+        Debug::SetStatistic("FPS", 1.0f / deltaTime);
+        Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
+
+        if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
+            Debug::SetStatistic("Position", primary->cameraPosition);
 
         this->Render(deltaTime);
     }
@@ -178,13 +216,16 @@ void Application::Shutdown()
     LogInfo("Shutting down...");
     LogIndent();
 
+#if ENABLE_IMGUI_EDITOR
     this->imGuiLayer.Shutdown();
+#endif
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
     this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
+    this->aiManager.Shutdown();
 
     LogUnindent();
 }

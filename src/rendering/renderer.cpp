@@ -7,6 +7,7 @@
 #include "assets/types/model.hpp"
 #include "editor/imgui_layer.hpp"
 #include "input/input.hpp"
+#include "core/debug.hpp"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -144,6 +145,24 @@ bool Renderer::Initialize(const AppContext &appContext)
         return false;
     }
 
+    if (!this->linePass.Initialize(this->device, appContext.assetManager))
+    {
+        LogError("Failed to create Line Pass");
+        return false;
+    }
+
+    if (!this->paintPass.Initialize(this->device, appContext.assetManager))
+    {
+        LogError("Failed to create Paint Pass");
+        return false;
+    }
+
+    if (!this->uiPass.Initialize(this->device, appContext.assetManager, this->width, this->height)) // TODO: Shouldn't take in width and height
+    {
+        LogError("Failed to create UI Pass");
+        return false;
+    }
+
     LogUnindent();
 
 	return true;
@@ -162,6 +181,9 @@ void Renderer::Shutdown()
     this->particlePass.Shutdown();
     this->outputPass.Shutdown();
     this->shadowPass.Shutdown();
+    this->linePass.Shutdown();
+    this->paintPass.Shutdown();
+    this->uiPass.Shutdown();
 
     LogInfo("Releasing Swap Chain");
     SafeRelease(this->swapChain);
@@ -182,10 +204,14 @@ void Renderer::NewFrame()
 
 void Renderer::Render(Scene *scene, float deltaTime)
 {
+    Debug::BeginTimedStatistic("Rendering");
+
     if (!scene) {
         LogError("Scene was nullptr\n");
         return;
     }
+
+    Debug::BeginTimedStatistic("Setup");
 
     this->deviceContext->ClearRenderTargetView(this->backBuffer.GetRenderTargetView(), this->clearColor);
     this->sharedResources.UploadPerFrameData(this->deviceContext, deltaTime);
@@ -195,6 +221,18 @@ void Renderer::Render(Scene *scene, float deltaTime)
         LogWarn("No primary view was found");
 
     scene->GatherRenderCommands(this->views);
+    scene->GatherUICommands(this->width, this->height);
+
+    Debug::EndTimedStatistic();
+
+    Debug::BeginTimedStatistic("Drawing");
+
+    this->paintPass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->views
+    );
 
     this->shadowPass.Render(
         this->device,
@@ -232,8 +270,27 @@ void Renderer::Render(Scene *scene, float deltaTime)
         this->views
     );
 
+    this->linePass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->backBuffer,
+        this->views
+    );
+
+    this->uiPass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->backBuffer,
+        scene->GetUI()
+    );
+
     ID3D11RenderTargetView *view = this->backBuffer.GetRenderTargetView();
     this->deviceContext->OMSetRenderTargets(1, &view, nullptr);
+
+    Debug::EndTimedStatistic();
+    Debug::EndTimedStatistic();
 }
 
 void Renderer::Present()
@@ -286,8 +343,8 @@ bool Renderer::Resize(uint32_t width, uint32_t height)
         return false;
     }
 
-    // this->SetViewport(width, height);
-    // this->frameGraph.OnResize(width, height);
+    if (!this->uiPass.Resize(this->width, this->height))
+        return false;
 
     LogUnindent();
     return true;

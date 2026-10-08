@@ -7,7 +7,7 @@
 
 using namespace DirectX;
 
-struct BindTransform {
+struct JointTransform {
     XMFLOAT3 translation;
     XMFLOAT4 rotation; 
     XMFLOAT3 scale;
@@ -16,12 +16,12 @@ struct BindTransform {
 struct Joint {
     std::string name;
     int32_t parentIndex = -1;
-    BindTransform bindTransform;
+    JointTransform bindTransform;
 };
 
 class Skeleton {
     std::vector<Joint> joints;
-    std::unordered_map<std::string, int32_t> jointIndeces;
+    std::unordered_map<std::string, int32_t> jointIndices;
 
     std::vector<int32_t> skinJointToJoint;
     std::vector<int32_t> jointToSkinJoint;

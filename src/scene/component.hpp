@@ -2,6 +2,7 @@
 
 #include "core/app_context.hpp"
 #include "rendering/render_view.hpp"
+#include "ui/ui_draw_list.hpp"
 
 #include "reflection/TypeInfo.h"
 #include "reflection/MemberVars.h"
@@ -11,9 +12,11 @@
 
 // Call these in the constructor to indicate that a component never wants Update()/Render()
 // Not strictly necessary, just removes a virtual function call. 
-#define NoUpdate() this->wantsUpdate = false
-#define NoLateUpdate() this->wantsLateUpdate = false
-#define NoRender() this->wantsRender = false
+#define UsesFixedUpdate() this->wantsFixedUpdate = true
+#define UsesUpdate() this->wantsUpdate = true
+#define UsesLateUpdate() this->wantsLateUpdate = true
+#define UsesRender() this->wantsRender = true
+#define UsesUIRender() this->wantsUIRender = true
 
 class Entity;
 
@@ -29,20 +32,24 @@ class Component {
     bool isPendingDestroy = false;
 
 protected:
-    bool wantsUpdate = true;
-    bool wantsLateUpdate = true;
-    bool wantsRender = true;
+    bool wantsFixedUpdate = false;
+    bool wantsUpdate = false;
+    bool wantsLateUpdate = false;
+    bool wantsRender = false;
+    bool wantsUIRender = false;
 
     // A component may only be created via Entity::AddComponent()
     Component(Entity *owner, bool isActive = true) : owner(owner), isActive(isActive) {}
 
 private:
     // These should only ever be called through the main frame loop
-    virtual void OnStart(const AppContext &context) = 0;
-    virtual void Update(const AppContext &context, float deltaTime) = 0;
-    virtual void LateUpdate(const AppContext &context, float deltaTime) = 0;
-    virtual void Render(const RenderView &view, RenderQueue &queue) = 0;
-    virtual void OnDestroy(const AppContext &context) = 0;
+    virtual void OnStart(const AppContext &context) {}
+    virtual void FixedUpdate(const AppContext &context, float deltaTime) {}
+    virtual void Update(const AppContext &context, float deltaTime) {}
+    virtual void LateUpdate(const AppContext &context, float deltaTime) {}
+    virtual void Render(const RenderView &view, RenderQueue &queue) {}
+    virtual void UIRender(UIDrawList &drawList) {}
+    virtual void OnDestroy(const AppContext &context) {}
 
 public:
     virtual ~Component() = default;
@@ -56,9 +63,11 @@ public:
 
     bool IsPendingDestroy() const { return this->isPendingDestroy; }
 
+    bool WantsFixedUpdate() const { return this->wantsFixedUpdate; }
     bool WantsUpdate() const { return this->wantsUpdate; }
     bool WantsLateUpdate() const { return this->wantsLateUpdate; }
     bool WantsRender() const { return this->wantsRender; }
+    bool WantsUIRender() const { return this->wantsUIRender; }
 
     virtual TypeId GetTypeId() const = 0;
 };
