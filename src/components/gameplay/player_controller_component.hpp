@@ -58,6 +58,11 @@ class PlayerControllerComponent : public Component
 	const float HIT_STOP_FACTOR = 0.25f;
 	float hitStopTimer = -1.0f;
 
+	const float ATTACK_COUNTER_RESET_TIME = 2.0f;
+
+	uint32_t attackCounter = 0;
+	float attackCounterTimer = -1.0;
+
 	std::array<AttackData, 3> attacks =
 	{
 		/* Light Attacks */

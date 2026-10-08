@@ -207,6 +207,12 @@ void PlayerControllerComponent::PerformLightAttack()
 {
 	if (!this->CanAttack())
 		return;
+		
+	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	{
+		if (this->attackCounter % 3 == 0)
+			characterAudio->PlayAttackShout();
+	}
 
 	LogInfo("Attack with light attack.");
 
@@ -245,6 +251,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
 	{
 		characterAudio->PlayHeavyAttackSwing();
+		characterAudio->PlayHeavyAttackShout();
 	}
 
 }
@@ -258,6 +265,8 @@ void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 		this->hitbox->SetDamage(attackData.damage);
 	}
 	this->viewmodelAnimator->CrossFade(attackData.animationName, 0.1f, false);
+	this->attackCounter++;
+	this->attackCounterTimer = ATTACK_COUNTER_RESET_TIME;
 }
 
 bool PlayerControllerComponent::CanAttack()
@@ -280,6 +289,19 @@ bool PlayerControllerComponent::CanAttack()
 
 void PlayerControllerComponent::HandleAttacks(float deltaTime)
 {
+	if (Action::IsActionDown("LightAttack"))
+		this->PerformLightAttack();
+
+	if (this->attackCounterTimer > 0.0f)
+	{
+		attackCounterTimer -= deltaTime;
+
+		if (attackCounterTimer <= 0.0f)
+		{
+			this->attackCounter = 0;
+		}
+	}
+
 	if (this->currentAttack != -1)
 	{
 		this->attackTimer += deltaTime;

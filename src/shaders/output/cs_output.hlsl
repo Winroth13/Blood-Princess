@@ -41,8 +41,8 @@ float ditheringPattern(int2 pixelCoord)
 		0.95f, 0.40f, 0.80f, 0.30f
     };
     
-    int x = pixelCoord.x % 4;
-    int y = pixelCoord.y % 4;
+    int x = (uint)pixelCoord.x % 4;
+    int y = (uint)pixelCoord.y % 4;
 
     return pattern[y * 4 + x];
 }
