@@ -10,18 +10,18 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	ExportProperty(float, spawnerInterval, 3.0f);
-	ExportProperty(int, maxEnemiesAlive, 12);
-	ExportProperty(int, currentEnemies, 4);
+	ExportProperty(int, maxEnemiesAlive, 1);
+	ExportProperty(int, currentEnemies, 1);
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
-	ExportProperty(float, enemyMoveSpeed, 3.0f);
+	ExportProperty(float, enemyMoveSpeed, 1.0f);
 	ExportProperty(float, enemyHealth, 100.0f);
 
 	ExportProperty(int, maxGibsPool, 100);
 	ExportProperty(int, maxEnemyPool, 250);
 
-	ExportProperty(float, deathBloodRadiusMin, 2.5f);
-	ExportProperty(float, deathBloodRadiusMax, 4.0f);
+	ExportProperty(float, deathBloodRadiusMin, 1.5f);
+	ExportProperty(float, deathBloodRadiusMax, 2.5f);
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Model> enemyModel;
