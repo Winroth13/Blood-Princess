@@ -78,9 +78,6 @@ void SplatterComponent::OnCollisionEvent(const CollisionEvent& e)
         return;
 
 
-    if (otherOwner->GetName().rfind("FloorTile", 0) == 0) return;
-
-
     PaintableComponent* paintable = otherOwner->GetComponent<PaintableComponent>();
     if (!paintable)
         return;
