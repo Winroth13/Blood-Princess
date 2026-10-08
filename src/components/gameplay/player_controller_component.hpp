@@ -7,6 +7,7 @@
 class TransformComponent;
 class AnimatorComponent;
 class HitboxComponent;
+class Sound;
 
 struct AttackData
 {
@@ -42,6 +43,11 @@ class PlayerControllerComponent : public Component
 	CollisionManager* collisionRef = nullptr;
 
 	TransformComponent *rootTransform = nullptr;
+
+	/*
+	*	Sounds
+	*/
+	std::shared_ptr<Sound> attackShoutSound = nullptr;
 
 	/*
 	*	Attacks

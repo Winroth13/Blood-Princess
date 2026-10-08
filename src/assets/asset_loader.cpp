@@ -15,8 +15,7 @@
 #include "assets/types/pixel_shader.hpp"
 #include "assets/types/compute_shader.hpp"
 #include "assets/types/font.hpp"
-
-#include "assets/types/particle_system.hpp"
+#include "assets/types/sound.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -33,6 +32,9 @@
 #include <fstream>
 #include <d3d11.h>
 #include <vector>
+
+#include "yaml-cpp/yaml.h"
+#include "serialization/custom_yaml_types.hpp"
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -373,43 +375,64 @@ std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string 
 #pragma endregion
 
 template<>
-std::shared_ptr<ParticleSystem> AssetLoader::Load<ParticleSystem>(const std::string &path)
+std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path)
 {
-	std::shared_ptr<ParticleSystem> ps = std::make_shared<ParticleSystem>();
+	std::shared_ptr<Sound> sound = std::make_shared<Sound>();
 
-	try 
+	try
 	{
 		YAML::Node file = YAML::LoadFile(path);
 
 		if (!file.IsDefined() || file.IsNull())
 		{
 			LogWarn("File is empty: %s", path.c_str());
-			return ps;
+			return sound;
 		}
 
-		YAML::Node node = file["ParticleSystem"];
-		if (node)
+		std::vector<Sound::Layer> layers = {};
+		XMFLOAT2 volumeRange = { 1.0f, 1.0f };
+		XMFLOAT2 pitchRange = { 1.0f, 1.0f };
+
+		if (YAML::Node node = file["sound"])
 		{
-			ps->count = node["Count"].as<uint32_t>(10);
-			ps->lifeTime = node["LifeTime"].as<float>(2.0f);
-			ps->spawnRadius = node["SpawnRadius"].as<float>(1.0f);
+			if (node.IsSequence())
+			{
+				for (YAML::Node layer : node)
+				{
+					std::string fileName = layer["file"].as<std::string>("");
+					float minLayerVolume = layer["min_volume"].as<float>(1.0f);
+					float maxLayerVolume = layer["max_volume"].as<float>(1.0f);
+					float minLayerPitch = layer["min_pitch"].as<float>(1.0f);
+					float maxLayerPitch = layer["max_pitch"].as<float>(1.0f);
+
+					Sound::Layer soundLayer = {};
+					soundLayer.audioClip = AssetLoader::Load<AudioClip>(fileName);
+					soundLayer.volumeRange = { minLayerVolume, maxLayerVolume };
+					soundLayer.pitchRange = { minLayerPitch, maxLayerPitch };
+
+					layers.push_back(soundLayer);
+				}
+			}
 		}
+
+		sound->Create(volumeRange, pitchRange, layers);
+		return sound;
 	}
 	catch (const YAML::BadFile &e)
 	{
 		LogWarn("Failed to open file: %s", path.c_str());
-		return ps;
+		return sound;
 	}
-	catch (const YAML::ParserException &e) 
+	catch (const YAML::ParserException &e)
 	{
 		LogWarn("Failed to parse YAML syntax: %s", e.what());
-		return ps;
+		return sound;
 	}
-	catch (const std::exception &e) 
+	catch (const std::exception &e)
 	{
 		LogError("An error occurred: %s", e.what());
-		return ps;
+		return sound;
 	}
 
-	return ps;
+	return sound;
 }

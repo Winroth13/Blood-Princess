@@ -162,13 +162,13 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;YAML_CPP_STATIC_DEFINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external/imgui/backends;$(ProjectDir)external/imgui;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)external/yaml_cpp/include;$(ProjectDir)src;$(ProjectDir)external/sdl3/include;$(ProjectDir)external/imgui/backends;$(ProjectDir)external/imgui;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL3.lib;d3d11.lib;xaudio2.lib;dxguid.lib;yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)external\yaml_cpp\lib;$(ProjectDir)external\sdl3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -200,6 +200,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\types\sound.cpp" />
+    <ClCompile Include="src\components\audio\sound_component.cpp" />
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
     <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
@@ -212,7 +214,6 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
     <ClCompile Include="src\assets\types\font.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
-    <ClCompile Include="src\assets\types\particle_system.cpp" />
     <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\collision\collision_manager.cpp" />
     <ClCompile Include="src\collision\quad_tree.cpp" />
@@ -358,6 +359,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="src\assets\types\sound.hpp" />
+    <ClInclude Include="src\components\audio\sound_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />
     <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
@@ -370,7 +373,6 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\domain_shader.hpp" />
     <ClInclude Include="src\assets\types\font.hpp" />
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
-    <ClInclude Include="src\assets\types\particle_system.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\components\gameplay\shake_component.hpp" />
     <ClInclude Include="src\components\lights\ambient_light_component.hpp" />
