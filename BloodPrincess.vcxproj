@@ -266,6 +266,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\editor\free_cam.cpp" />
     <ClCompile Include="src\editor\inspector_panel.cpp" />
     <ClCompile Include="src\editor\scene_hierarchy_panel.cpp" />
+    <ClCompile Include="src\editor\settings_panel.cpp" />
     <ClCompile Include="src\editor\statistics_panel.cpp" />
     <ClCompile Include="src\input\action.cpp" />
     <ClCompile Include="src\input\input.cpp" />
@@ -391,6 +392,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\editor\imgui_draw_helpers.hpp" />
     <ClInclude Include="src\editor\inspector_panel.hpp" />
     <ClInclude Include="src\editor\scene_hierarchy_panel.hpp" />
+    <ClInclude Include="src\editor\settings_panel.hpp" />
     <ClInclude Include="src\editor\statistics_panel.hpp" />
     <ClInclude Include="src\events\game_events.hpp" />
     <ClInclude Include="src\events\event_bus.hpp" />

@@ -18,6 +18,7 @@
 #include "components/core/model_component.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "core/debug.hpp"
 
 #include "rendering/lines/line_utils.hpp"
 
@@ -35,6 +36,9 @@ static XMFLOAT3 GetJointWorldPosition(const XMFLOAT4X4 &jointMatrix, const XMMAT
 
 void Editor::DrawSkeleton(const AppContext &appContext)
 {
+    if (!Debug::GetSetting("skeletal.drawSkeletons", true))
+        return;
+
     constexpr size_t MAX_POINTS_PER_COMMAND = 32;
     const XMFLOAT3 colour = { 1.0f, 0.0f, 1.0f };
 
@@ -142,6 +146,12 @@ bool Editor::Initialize(SceneManager &sceneManager)
         return false;
     }
 
+    if (!this->settingsPanel.Initialize())
+    {
+        LogError("The settings panel doesn't even need an Initialize() either wtf");
+        return false;
+    }
+
 	LogUnindent();
 
 	return true;
@@ -178,6 +188,7 @@ void Editor::RenderEditor(const AppContext &appContext)
 	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
     this->statisticsPanel.ImGuiRender();
+    this->settingsPanel.ImGuiRender();
 
 	this->DrawSkeleton(appContext);
 
