@@ -38,4 +38,6 @@ public:
 
     Scene *GetCurrentScene() { return &this->scene; }
     const std::string &GetCurrentSceneName() const { return this->currentSceneName; }
+
+    SceneRegistry &GetRegistry() { return this->registry; }
 };
