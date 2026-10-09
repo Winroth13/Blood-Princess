@@ -156,6 +156,7 @@ bool Application::Initialize()
 
         Action::AddAction("LightAttack", MouseButton::LEFT);
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
+        Action::AddAction("Parry", Key::F);
 
         Action::SaveBindings("bindings.cfg");
     }
