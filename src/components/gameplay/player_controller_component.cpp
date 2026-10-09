@@ -300,6 +300,9 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (Action::IsActionDown("LightAttack"))
 		this->PerformLightAttack();
 
+	if (Action::IsActionPressed("Parry"))
+		this->PerformParry();
+
 	if (this->attackCounterTimer > 0.0f)
 	{
 		attackCounterTimer -= deltaTime;
@@ -379,6 +382,11 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 	XMStoreFloat3(&newPos, newPosV);
 
 	transform->SetLocalPosition(newPos);
+}
+
+void PlayerControllerComponent::PerformParry()
+{
+	this->viewmodelAnimator->Play("parry");
 }
 
 void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)

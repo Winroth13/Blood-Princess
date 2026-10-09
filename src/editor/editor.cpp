@@ -169,8 +169,51 @@ void Editor::RenderEditor(const AppContext &appContext)
 		{
 			ImGui::EndMenu();
 		}
+
+        if (ImGui::BeginMenu("Scenes"))
+        {
+            if (ImGui::MenuItem("Reload"))
+                appContext.sceneManager->ReloadCurrentScene();
+
+            if (ImGui::MenuItem("Open..."))
+                this->showOpenScenePopup = true;
+
+            ImGui::EndMenu();
+        }
+
 		ImGui::EndMainMenuBar();
 	}
+
+    if (this->showOpenScenePopup)
+        ImGui::OpenPopup("Open...");
+
+    ImGui::SetNextWindowSize({250.0f, 0.0f});
+    if (ImGui::BeginPopupModal("Open...", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        const std::vector<std::string> &names = appContext.sceneManager->GetRegistry().GetSceneNames();
+        const int namesCount = names.size();
+
+        float itemHeight = ImGui::GetTextLineHeightWithSpacing();
+        float listHeight = itemHeight * (namesCount < 1 ? 1 : namesCount > 10 ? 10 : namesCount) + 5.0f;
+
+        if (ImGui::BeginListBox("##scene_list", {-FLT_MIN, listHeight})) {
+            for (const std::string &name : names) {
+                if (ImGui::Selectable(name.c_str())) {
+                    appContext.sceneManager->RequestSceneChange(name);
+                    this->showOpenScenePopup = false;
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::EndListBox();
+        }
+
+        if (ImGui::Button("Cancel")) {
+            this->showOpenScenePopup = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 
 	this->sceneHierarchyPanel.ImGuiRender();
 
