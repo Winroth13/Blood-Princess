@@ -8,6 +8,7 @@ Texture2D<float4> albedoMetallicTexture : register(t0);
 Texture2D<float4> normalRoughnessTexture : register(t1);
 Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
+Texture2D<float4> noiseTexture : register(t4);
 
 cbuffer DebugView : register(b6)
 {
@@ -105,6 +106,13 @@ float3 SampleQuadrant(float2 uv)
     
     return Tonemap(outputTexture.SampleLevel(samplerLinearWrap, localUV, 0).rgb);
 }
+
+#define SPEED_LINE_COUNT  0.5f // 0.0 - 2.0
+#define SPEED_LINE_DENSITY 0.5f // 0.0 - 1.0
+#define SPEED_LINE_FALLOFF 0.25 //0.0 - 1.0
+#define SPEED_MASK_SIZE 0.1f // 0.0 - 1.0
+#define SPEED_MASK_EDGE 0.5f // 0.0 - 1.0
+#define SPEED_ANIMATION_SPEED 1.0f // 1.0 - 20.0
 
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)

@@ -16,6 +16,8 @@ bool OutputPass::Initialize(
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug View"))
         return false;
 
+    this->noiseTexture = assetManager->Get<Texture2D>("assets/images/noise.png");
+
     this->computeShader = assetManager->Get<ComputeShader>("assets/shaders/cs_output.cso");
 
     this->width = width;
@@ -69,11 +71,12 @@ void OutputPass::Render(
     ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetRenderTargetUAV();
     deviceContext->CSSetUnorderedAccessViews(0, 1, &backBufferUAV, nullptr);
 
-    std::array<ID3D11ShaderResourceView *, 4> srvs = {
+    std::array<ID3D11ShaderResourceView *, 5> srvs = {
         deferredOutput.albedoMetallic,
         deferredOutput.normalRoughness,
         backBuffer.GetDepthStencilSRV(),
-        deferredOutput.output
+        deferredOutput.output,
+        this->noiseTexture->GetShaderResourceView()
     };
     deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 

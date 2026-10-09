@@ -34,6 +34,7 @@ static constexpr int operator+(DebugView val) noexcept {
 }
 
 class OutputPass {
+    std::shared_ptr<Texture2D> noiseTexture;
     std::shared_ptr<ComputeShader> computeShader;
 
     uint32_t width = 0;
