@@ -10,11 +10,11 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	ExportProperty(float, spawnerInterval, 3.0f);
-	ExportProperty(int, maxEnemiesAlive, 1);
+	ExportProperty(int, maxEnemiesAlive, 30);
 	ExportProperty(int, currentEnemies, 1);
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
-	ExportProperty(float, enemyMoveSpeed, 1.0f);
+	ExportProperty(float, enemyMoveSpeed, 3.0f);
 	ExportProperty(float, enemyHealth, 100.0f);
 
 	ExportProperty(int, maxGibsPool, 100);

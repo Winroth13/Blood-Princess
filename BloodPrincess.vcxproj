@@ -294,6 +294,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\scene\scene_manager.cpp" />
     <ClCompile Include="src\ui\ui_context.cpp" />
     <ClCompile Include="src\ui\ui_draw_list.cpp" />
+    <ClCompile Include="src\ui\ui_text_layout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imguizmo\GraphEditor.h" />
@@ -431,6 +432,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scene_manager.hpp" />
     <ClInclude Include="src\ui\ui_context.hpp" />
     <ClInclude Include="src\ui\ui_draw_list.hpp" />
+    <ClInclude Include="src\ui\ui_text_layout.hpp" />
     <ClInclude Include="src\ui\ui_types.hpp" />
   </ItemGroup>
   <ItemGroup>

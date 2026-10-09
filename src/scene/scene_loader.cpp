@@ -148,7 +148,28 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
         footstepsLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/Footsteps_Mono/Male/Concrete/concrete_6.ogg"), 0.8f, 1.0f, 0.9f, 1.05f);
 		characterAudio->AddFootstepLayer(footstepsLayer);
 
+        SoundLayer attackShoutLayer;
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_01.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_03.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_04.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_05.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_06.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_02.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_07.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        attackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_attack_08.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        characterAudio->AddAttackShoutLayer(attackShoutLayer);
 
+        SoundLayer heavyAttackShoutLayer;
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_01.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_02.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_03.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_04.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_05.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_06.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_07.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_08.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        heavyAttackShoutLayer.AddSound(appContext.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_battle_shout_09.ogg"), 0.8f, 1.0f, 0.95f, 1.05f);
+        characterAudio->AddHeavyAttackShoutLayer(heavyAttackShoutLayer);
     }
 
     /* Collisions */
@@ -226,7 +247,7 @@ static void TestScene(Scene& outScene, const AppContext& appContext) {
     //musicComponent->SetVolume(0.2f);
 
     CreatePlayer(outScene, appContext);
-    CreateTestUI(outScene, appContext);
+    // CreateTestUI(outScene, appContext);
     
     // Enemy Spawner
     Entity* spawnerEntity = outScene.AddEntity("Spawner");
