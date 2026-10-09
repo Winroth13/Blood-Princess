@@ -347,7 +347,7 @@ void EnemySpawnerComponent::SpawnOgre(const AppContext& context, int numberOfOgr
         ogreHealth->SetCurrentHealth(this->ogreHealth);
 
         BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
-        ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f });
+        ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
         ogreBC->SetLayer(CollisionLayer::ENEMY);
         ogreBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
 
