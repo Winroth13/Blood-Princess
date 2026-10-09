@@ -295,6 +295,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\scene\scene_culler.cpp" />
     <ClCompile Include="src\scene\scene_loader.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
+    <ClCompile Include="src\scene\scene_registry.cpp" />
     <ClCompile Include="src\ui\ui_context.cpp" />
     <ClCompile Include="src\ui\ui_draw_list.cpp" />
     <ClCompile Include="src\ui\ui_text_layout.cpp" />
@@ -472,9 +473,13 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_headers.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
+    <ClInclude Include="src\scene\scene_registry.hpp" />
     <ClInclude Include="src\serialization\custom_yaml_types.hpp" />
     <ClInclude Include="src\ui\ui_context.hpp" />
     <ClInclude Include="src\ui\ui_draw_list.hpp" />
