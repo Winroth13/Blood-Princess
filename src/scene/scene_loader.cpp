@@ -28,6 +28,7 @@ bool SceneLoader::Load(const std::string &name, Scene &outScene) {
 
     outScene.Clear();
     (*func)(outScene, *this->appContext);
+    outScene.SetName(name);
 
     LogInfo("Loaded scene '%s'", name.c_str());
 
