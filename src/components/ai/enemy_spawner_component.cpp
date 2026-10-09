@@ -166,9 +166,16 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     }
 }
 
-void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos)
+void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count)
 {
-    const int numberOfGibs = RNG::Int(3, 5);
+    int numberOfGibs = 0;
+    if (count == 3) {
+        numberOfGibs = RNG::Int(3, 5);
+    }
+    else
+    {
+        numberOfGibs = RNG::Int(6, 10);
+    }
     pos.y += 2.0f;
 
     bool hasSpawnedRib = false;
@@ -291,6 +298,79 @@ void EnemySpawnerComponent::SpawnEnemyFromPool(const AppContext& context, int nu
     }
 }
 
+void EnemySpawnerComponent::SpawnOgre(const AppContext& context, int numberOfOgre)
+{
+    TransformComponent* player = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players")->GetComponent<TransformComponent>();
+    Scene* mainScene = this->GetOwner()->GetScene();
+    DirectX::XMFLOAT3 origin =
+        player ?
+        DirectX::XMFLOAT3{ player->GetWorldPosition().x , player->GetWorldPosition().y - 1.5f  ,player->GetWorldPosition().z } :
+        DirectX::XMFLOAT3{ 0.0f,-2.0f,0.0f };
+
+    for (size_t i = 0; i < numberOfOgre; i++)
+    {
+        Entity* ogre = mainScene->AddEntity("Enemy_Ogre_" + std::to_string(rand()));
+        float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
+        float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnOuterRadius) + this->spawnOuterRadius;
+
+        DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+        do
+        {
+            float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
+            float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
+
+            position = {
+                origin.x + cosf(angle) * dist,
+                origin.y,
+                origin.z + sinf(angle) * dist
+            };
+
+        } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
+
+        TransformComponent* ogreTransform = ogre->AddComponent< TransformComponent>();;
+        ogreTransform->SetWorldPosition(position);
+        ogreTransform->SetWorldScale(2.0f);
+
+
+        ModelComponent* modelComponent = ogre->AddComponent<ModelComponent>();
+        modelComponent->SetModel(this->ogreModel);
+
+        AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
+        animator->AddAnimation("run", ogreModel->GetAnimations());
+        animator->SetSkeletonVisible(true);
+        animator->SetTime(static_cast<float>(rand() % 100));
+        animator->Play("run", true);
+
+
+        Health* ogreHealth = ogre->AddComponent<Health>();
+        ogreHealth->SetMaxHealth(this->ogreHealth);
+        ogreHealth->SetCurrentHealth(this->ogreHealth);
+
+        BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
+        ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f });
+        ogreBC->SetLayer(CollisionLayer::ENEMY);
+        ogreBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
+
+        HurtboxComponent* ogreHurtbox = ogre->AddComponent<HurtboxComponent>();
+
+        EnemyControllerComponent* ogreController = ogre->AddComponent<EnemyControllerComponent>();
+        ogreController->SetMoveSpeed(this->ogreMoveSpeed);
+
+        if (ogreController)
+        {
+            ogreController->ResetKnockback();
+        }
+
+
+        auto* ogreSplatter = ogre->AddComponent<SplatterComponent>();
+        auto* ogreAudioComponent = ogre->AddComponent<CharacterAudioComponent>();
+
+
+
+        activeOgre.push_back(ogre);
+    }
+}
+
 // TODO: Pool these aswell
 void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
 {
@@ -406,6 +486,64 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
         }
     }
 
+
+    for (auto it = activeOgre.begin(); it != activeOgre.end(); )
+    {
+        Entity* e = *it;
+        if (!e) {
+            it = activeOgre.erase(it);
+            continue;
+        }
+
+        auto* hp = e->GetComponent<Health>();
+        if (hp && hp->IsDead())
+        {
+            if (auto* transform = e->GetComponent<TransformComponent>())
+            {
+                DirectX::XMFLOAT3 ogrePos = transform->GetWorldPosition();
+
+                if (auto* splatter = e->GetComponent<SplatterComponent>())
+                {
+                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
+                        this->deathBloodRadiusMax);
+
+                    splatter->PaintFloorAtPosition(ogrePos, bloodRadius + 1.4f);
+
+                    const int extraSplats = RNG::Int(1, 2);
+                    for (int s = 0; s < extraSplats; ++s)
+                    {
+                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
+
+                        DirectX::XMFLOAT3 splatPos = {
+                            ogrePos.x + cosf(offsetAngle) * offsetDist,
+                            ogrePos.y,
+                            ogrePos.z + sinf(offsetAngle) * offsetDist
+                        };
+
+                        splatter->PaintFloorAtPosition(
+                            splatPos,
+                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
+                    }
+                }
+
+                SpawnGibsFromPool(context, ogrePos, 6);
+
+                XMFLOAT3 position = ogrePos;
+                position.y += 2.5f;
+                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
+            }
+
+            this->GetOwner()->GetScene()->DestroyEntity(e);
+
+            it = activeOgre.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    
     this->currentEnemies = static_cast<int>(this->activeEnemy.size());
 }
 
@@ -422,6 +560,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 
 	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
+    this->ogreModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
@@ -443,6 +582,8 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 
         int enemiesToSpawn = this->maxEnemiesAlive - this->currentEnemies;
         SpawnEnemyFromPool(context, enemiesToSpawn);
+        SpawnOgre(context, maxOgreEnemies - this->activeOgre.size());
+
     }
 }
 

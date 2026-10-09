@@ -8,10 +8,19 @@ class Entity;
 class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
-
+	
 	ExportProperty(float, spawnerInterval, 3.0f);
+
+	// ogre start
+	ExportProperty(float, maxOgreEnemies, 4.0f);
+	ExportProperty(float, ogreMoveSpeed, 2.0f);
+	ExportProperty(float, ogreHealth, 500.0f);
+	// ogre end
+
+
 	ExportProperty(int, maxEnemiesAlive, 1);
 	ExportProperty(int, currentEnemies, 1);
+
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
 	ExportProperty(float, enemyMoveSpeed, 3.0f);
@@ -24,9 +33,12 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
 
 	std::shared_ptr<Model> gibModel[4];
-	std::shared_ptr<Model> enemyModel;
 	std::shared_ptr<Texture2D> atlasTexture;
+	
+	std::shared_ptr<Model> enemyModel;
 
+	// ogre
+	std::shared_ptr<Model> ogreModel;
 
 private:
 	float gibTimer = 0.0f;
@@ -35,6 +47,8 @@ private:
 	std::vector<Entity*> enemyPool;
 	std::vector<Entity*> activeEnemy;
 
+	std::vector<Entity*> activeOgre;
+
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
 
@@ -42,8 +56,10 @@ private:
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
 
-	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos);
+	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count = 3);
 	void SpawnEnemyFromPool(const AppContext& context, int numberOfEnemies);
+	void SpawnOgre(const AppContext& context, int numberOfOgre);
+
 
 	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
 
