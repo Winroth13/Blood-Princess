@@ -126,6 +126,8 @@ public:
 	void PerformHeavyAttack();
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 
+	void PerformParry();
+
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
 
