@@ -14,13 +14,13 @@ using namespace DirectX;
 * attack_shout.sound
 * 
 * sound:
-	- file: assets/audio/sfx/LightAttack/slash_attack_1.ogg
+	- file: assets/audio/sfx/LightAttack/swing_1.ogg
 		min_volume: 1.0
 		max_volume: 1.0
 		min_pitch: 1.0
 		max_pitch: 1.0
 
-	- file: assets/audio/sfx/LightAttack/slash_attack_2.ogg
+	- file: assets/audio/sfx/LightAttack/swing_2.ogg
 		min_volume: 1.0
 		max_volume: 1.0
 		min_pitch: 1.0

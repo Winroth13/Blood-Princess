@@ -1,6 +1,9 @@
 #include "scene_manager.hpp"
 #include "core/logging.hpp"
 
+#include "scene/scenes/scene_main_menu.hpp"
+#include "scene/scenes/scene_gameplay.hpp"
+
 void SceneManager::ChangeScene(const std::string &name) {
     if (!this->loader.Load(name, this->scene)) {
         LogWarn("Failed to load scene '%s'", name.c_str());
@@ -11,17 +14,24 @@ void SceneManager::ChangeScene(const std::string &name) {
     this->shouldReload = false;
 }
 
+void SceneManager::RegisterScenes() {
+    this->registry.AddScene("main_menu", Scenes::MainMenu);
+    this->registry.AddScene("gameplay", Scenes::Gameplay);
+}
+
 bool SceneManager::Initialize(const AppContext &context, const std::string &startSceneName) {
     LogInfo("Creating Scene Manager...");
     LogIndent();
 
-    if (!this->loader.Initialize(context))
+    if (!this->loader.Initialize(context, &this->registry))
     {
-        LogError("Failed to create Asset Loader");
+        LogError("Failed to create Scene Loader");
         return false;
     }
 
     this->scene.SetAppContext(context);
+
+    this->RegisterScenes();
 
     this->RequestSceneChange(startSceneName);
 
@@ -31,6 +41,7 @@ bool SceneManager::Initialize(const AppContext &context, const std::string &star
 
 void SceneManager::Shutdown() {
     this->scene.Clear();
+    this->registry.Clear();
 }
 
 void SceneManager::RequestSceneChange(const std::string &name) {

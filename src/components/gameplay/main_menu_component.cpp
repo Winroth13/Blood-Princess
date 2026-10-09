@@ -11,6 +11,6 @@ void MainMenuComponent::Update(const AppContext &context, float deltaTime) {
         std::shared_ptr<Texture2D> texture = context.assetManager->Get<Texture2D>("assets/images/loading_screen.png");
         imageComp->SetTexture(texture);
 
-        context.sceneManager->RequestSceneChange("demo_gameplay");
+        context.sceneManager->RequestSceneChange("gameplay");
     }
 }

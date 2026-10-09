@@ -108,7 +108,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->sceneManager.Initialize(this->appContext, "demo_main_menu")) {
+    if (!this->sceneManager.Initialize(this->appContext, "main_menu")) {
         LogError("Failed to create Scene Manager!");
         return false;
     }

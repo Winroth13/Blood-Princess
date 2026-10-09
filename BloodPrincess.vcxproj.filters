@@ -110,6 +110,11 @@
     <ClCompile Include="src\components\lights\spot_light_component.cpp" />
     <ClCompile Include="src\components\core\transform_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
+    <ClCompile Include="src\components\core\lifetime_component.cpp" />
+    <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
+    <ClCompile Include="src\components\gameplay\shake_component.cpp" />
+    <ClCompile Include="src\ui\ui_text_layout.cpp" />
+    <ClCompile Include="src\editor\settings_panel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -289,6 +294,11 @@
     <ClInclude Include="src\components\ai\target_component.hpp" />
     <ClInclude Include="src\components\core\transform_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
+    <ClInclude Include="src\components\core\lifetime_component.hpp" />
+    <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
+    <ClInclude Include="src\components\gameplay\shake_component.hpp" />
+    <ClInclude Include="src\ui\ui_text_layout.hpp" />
+    <ClInclude Include="src\editor\settings_panel.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
