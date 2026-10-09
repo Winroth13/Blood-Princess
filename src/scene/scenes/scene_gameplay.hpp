@@ -41,7 +41,8 @@ static void CreatePlayer(Scene &outScene, const AppContext &appContext)
 
     /* Audio */
     {
-        playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+        //playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/dashAction.ogg"));
+        playerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_parry_1.ogg"));
         auto characterAudio = playerEntity->AddComponent<CharacterAudioComponent>();
         characterAudio->SetIsPlayer(true);
 

@@ -18,7 +18,7 @@ class EnemySpawnerComponent : public Component
 	// ogre end
 
 
-	ExportProperty(int, maxEnemiesAlive, 1);
+	ExportProperty(int, maxEnemiesAlive, 50);
 	ExportProperty(int, currentEnemies, 1);
 
 	ExportProperty(float, spawnOuterRadius, 20.0f);
