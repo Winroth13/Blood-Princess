@@ -34,8 +34,8 @@
 #include "assets/types/font.hpp"
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
-
-
+#include "components/audio/sound_component.hpp"
+#include "assets/types/sound.hpp"
 
 static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
@@ -71,6 +71,8 @@ void CreatePlayer(Scene &outScene, const AppContext &appContext)
     pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
     pointLight->SetRadius(8.0f);
     pointLight->SetIntensity(50.0f);
+
+    playerEntity->AddComponent<SoundComponent>();
 
     /* Audio */
     {

@@ -2,6 +2,7 @@
 
 #include "core/application.hpp"
 
+
 // Hint to make the application use dedicated graphics cards (NIVIDA/AMD)
 extern "C" {
     __declspec(dllexport) DWORD NvOptimusEnablement = 1;

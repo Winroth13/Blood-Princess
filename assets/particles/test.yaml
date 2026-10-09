@@ -1,0 +1,4 @@
+ParticleSystem:
+    Count: 35
+    LifeTime: 2.0
+    SpawnRadius: 1.0

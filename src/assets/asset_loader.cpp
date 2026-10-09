@@ -15,6 +15,7 @@
 #include "assets/types/pixel_shader.hpp"
 #include "assets/types/compute_shader.hpp"
 #include "assets/types/font.hpp"
+#include "assets/types/sound.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -25,10 +26,15 @@
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis/stb_vorbis.c"
 
+#include "yaml-cpp/yaml.h"
+
 #include <sstream>
 #include <fstream>
 #include <d3d11.h>
 #include <vector>
+
+#include "yaml-cpp/yaml.h"
+#include "serialization/custom_yaml_types.hpp"
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -367,3 +373,66 @@ std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string 
 }
 
 #pragma endregion
+
+template<>
+std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path)
+{
+	std::shared_ptr<Sound> sound = std::make_shared<Sound>();
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		if (!file.IsDefined() || file.IsNull())
+		{
+			LogWarn("File is empty: %s", path.c_str());
+			return sound;
+		}
+
+		std::vector<Sound::Layer> layers = {};
+		XMFLOAT2 volumeRange = { 1.0f, 1.0f };
+		XMFLOAT2 pitchRange = { 1.0f, 1.0f };
+
+		if (YAML::Node node = file["sound"])
+		{
+			if (node.IsSequence())
+			{
+				for (YAML::Node layer : node)
+				{
+					std::string fileName = layer["file"].as<std::string>("");
+					float minLayerVolume = layer["min_volume"].as<float>(1.0f);
+					float maxLayerVolume = layer["max_volume"].as<float>(1.0f);
+					float minLayerPitch = layer["min_pitch"].as<float>(1.0f);
+					float maxLayerPitch = layer["max_pitch"].as<float>(1.0f);
+
+					Sound::Layer soundLayer = {};
+					soundLayer.audioClip = AssetLoader::Load<AudioClip>(fileName);
+					soundLayer.volumeRange = { minLayerVolume, maxLayerVolume };
+					soundLayer.pitchRange = { minLayerPitch, maxLayerPitch };
+
+					layers.push_back(soundLayer);
+				}
+			}
+		}
+
+		sound->Create(volumeRange, pitchRange, layers);
+		return sound;
+	}
+	catch (const YAML::BadFile &e)
+	{
+		LogWarn("Failed to open file: %s", path.c_str());
+		return sound;
+	}
+	catch (const YAML::ParserException &e)
+	{
+		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		return sound;
+	}
+	catch (const std::exception &e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return sound;
+	}
+
+	return sound;
+}

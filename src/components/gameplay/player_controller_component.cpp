@@ -13,6 +13,9 @@
 #include "components/audio/character_audio_component.hpp"
 #include "components/skeletal/animator_component.hpp"
 #include "components/collisions/box_collision_component.hpp"
+#include "assets/types/sound.hpp"
+#include "assets/asset_manager.hpp"
+#include "components/audio/sound_component.hpp"
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -22,6 +25,8 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->attackHitConnection = EventBus::Subscribe<AttackHitEvent>(
 		this, &PlayerControllerComponent::OnAttackHit
 	);
+
+	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 
 	Input::SetMouseMode(MouseMode::CAPTURED);
 }
@@ -208,10 +213,13 @@ void PlayerControllerComponent::PerformLightAttack()
 	if (!this->CanAttack())
 		return;
 		
-	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
+	if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
 	{
 		if (this->attackCounter % 3 == 0)
-			characterAudio->PlayAttackShout();
+		{
+			soundComponent->SetSound(this->attackShoutSound);
+			soundComponent->Play();
+		}
 	}
 
 	LogInfo("Attack with light attack.");
