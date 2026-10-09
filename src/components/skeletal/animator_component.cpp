@@ -45,6 +45,10 @@ namespace {
     }
 }
 
+void AnimatorComponent::OnTimeChanged() {
+    this->SetTime(this->time_);
+}
+
 void AnimatorComponent::LateUpdate(const AppContext &context, float deltaTime) {
     this->RefreshSkeleton();
     if (this->skeleton == nullptr)
@@ -58,6 +62,8 @@ void AnimatorComponent::LateUpdate(const AppContext &context, float deltaTime) {
             this->fadeTime += deltaTime;
             this->UpdateFadeWeights();
         }
+
+        this->time_ = this->GetTime();
     }
     
     this->UpdateLocalPose();

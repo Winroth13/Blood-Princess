@@ -14,6 +14,10 @@ class AnimatorComponent : public Component {
     ExportProperty(bool, isPaused, false); // Pose still needs to be evaluated so that e.g. SetTime() works
     ExportProperty(bool, isSkeletonVisible, false); // Debug
 
+    ExportPropertyCategory("Editor QoL");
+    ExportPropertyRanged(float, time_, "s", 0.0f, 0.0f, 0.01f, 1.0f);
+    ExportPropertyChanged(time_, OnTimeChanged);
+
     struct ClipBinding {
         std::shared_ptr<AnimationLibrary> animations = nullptr;
         uint32_t clipIndex = 0;
@@ -45,6 +49,8 @@ class AnimatorComponent : public Component {
     std::vector<JointTransform> blendPose;
     std::vector<DirectX::XMFLOAT4X4> jointModelMatrices;
     std::vector<DirectX::XMFLOAT4X4> skinMatrices;
+
+    void OnTimeChanged();
 
 public:
     AnimatorComponent(Entity *owner, bool isActive) : Component(owner, isActive) { 

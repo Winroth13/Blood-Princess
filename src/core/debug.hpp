@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <stack>
 #include <chrono>
+#include <map>
 
 class Debug {
     friend class Application;
