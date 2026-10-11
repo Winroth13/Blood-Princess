@@ -6,6 +6,7 @@
 #include "rendering/shared_resources.hpp"
 #include "ui/ui_context.hpp"
 #include "ui/ui_draw_list.hpp"
+#include "core/debug.hpp"
 
 namespace {
     constexpr size_t INITIAL_QUAD_CAPACITY = 4096;
@@ -174,6 +175,9 @@ void UIPass::Render(
     BackBuffer &backBuffer,
     UI::Context &uiContext
 ) {
+    if (!Debug::GetSetting("ui.isVisible", true))
+        return;
+
     const UI::DrawList &drawList = uiContext.GetDrawList();
     if (drawList.IsEmpty())
         return;
