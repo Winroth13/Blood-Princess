@@ -27,6 +27,15 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     textComp->SetFontSize(50.0f);
     textComp->SetOutline(1.75f, {240.0f / 255.0f, 0.0f, 1.0f, 1.0f});
     textComp->SetShadow({7.0f, 4.0f}, {0.0f, 0.0f, 0.0f, 0.8f});
+
+    std::shared_ptr<Texture2D> panelSprite = appContext.assetManager->Get<Texture2D>("assets/images/test_9_slice.png");
+
+    Entity *frame = outScene.AddEntity("sliced_frame");
+    frame->SetParent(hud);
+    frame->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_LEFT, {20.0f, 20.0f}, {420.0f, 120.0f});
+    UIImageComponent *frameImage = frame->AddComponent<UIImageComponent>();
+    frameImage->SetTexture(panelSprite);
+    frameImage->SetSlicing(20.0f);
 }
 
 static void CreatePlayer(Scene &outScene, const AppContext &appContext)
