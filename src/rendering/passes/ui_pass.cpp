@@ -7,7 +7,9 @@
 #include "ui/ui_context.hpp"
 #include "ui/ui_draw_list.hpp"
 
-constexpr size_t UI_VERTEX_COUNT_MAX = 4096;
+namespace {
+    constexpr size_t UI_VERTEX_COUNT_MAX = 65536;
+}
 
 void UIPass::CreateView(uint32_t width, uint32_t height)
 {
@@ -32,7 +34,7 @@ bool UIPass::CreateBuffers(ID3D11Device *device)
     /* Create Vertex Buffer */
     {
         D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth = UINT(sizeof(UIVertex) * UI_VERTEX_COUNT_MAX);
+        desc.ByteWidth = UINT(sizeof(UI::Vertex) * UI_VERTEX_COUNT_MAX);
         desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -78,13 +80,17 @@ bool UIPass::CreateInputLayout(ID3D11Device *device, VertexShader *vertexShader)
 
     D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, 8,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",	  0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "POSITION",         0, DXGI_FORMAT_R32G32_FLOAT,   0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",         0, DXGI_FORMAT_R32G32_FLOAT,   0, 8,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",	          0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "IS_TEXT",	      0, DXGI_FORMAT_R32_UINT,       0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "OUTLINE_COLOUR",	  0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "OUTLINE_WIDTH",	  0, DXGI_FORMAT_R32_FLOAT,      0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "DISTANCE_SCALE",	  0, DXGI_FORMAT_R32_FLOAT,      0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
     HRESULT result = device->CreateInputLayout(
-        layoutDesc, 3,
+        layoutDesc, ARRAYSIZE(layoutDesc),
         vertexShader->GetByteCode().data(),
         vertexShader->GetByteCode().length(),
         &this->inputLayout
@@ -158,9 +164,9 @@ void UIPass::Render(
     ID3D11DeviceContext *deviceContext,
     SharedResources &sharedResources,
     BackBuffer &backBuffer,
-    UIContext &uiContext
+    UI::Context &uiContext
 ) {
-    const UIDrawList &drawList = uiContext.GetDrawList();
+    const UI::DrawList &drawList = uiContext.GetDrawList();
     if (drawList.IsEmpty())
         return;
 
@@ -178,7 +184,7 @@ void UIPass::Render(
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     deviceContext->IASetInputLayout(this->inputLayout);
 
-    const UINT stride = sizeof(UIVertex);
+    const UINT stride = sizeof(UI::Vertex);
     const UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &this->vertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(this->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
@@ -204,9 +210,9 @@ void UIPass::Render(
 
     // Map vertices
     deviceContext->Map(this->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-    UIVertex *verticesData = static_cast<UIVertex *>(mapped.pData);
-    const std::vector<UIVertex> &newVertices = drawList.GetVertices();
-    memcpy(verticesData, newVertices.data(), sizeof(UIVertex) * newVertices.size());
+    UI::Vertex *verticesData = static_cast<UI::Vertex *>(mapped.pData);
+    const std::vector<UI::Vertex> &newVertices = drawList.GetVertices();
+    memcpy(verticesData, newVertices.data(), sizeof(UI::Vertex) * newVertices.size());
     deviceContext->Unmap(this->vertexBuffer, 0);
 
     // Map indices
@@ -217,7 +223,7 @@ void UIPass::Render(
     deviceContext->Unmap(this->indexBuffer, 0);
 
     ID3D11ShaderResourceView *whiteSRV = this->whiteTexture->GetShaderResourceView();
-    for (const UIDrawCommand &command : drawList.GetDrawCommands())
+    for (const UI::DrawCommand &command : drawList.GetDrawCommands())
     {
         ID3D11ShaderResourceView *srv = command.textureSRV ? command.textureSRV : whiteSRV;
         deviceContext->PSSetShaderResources(0, 1, &srv);

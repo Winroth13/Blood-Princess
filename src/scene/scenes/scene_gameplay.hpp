@@ -22,6 +22,9 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
     UITextComponent *textComp = txt->AddComponent<UITextComponent>();
     textComp->SetText("Blood!");
+    textComp->SetColour({1.0f, 1.0f, 1.0f, 1.0f});
+    textComp->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
+    textComp->SetFontSize(40.0f);
 }
 
 static void CreatePlayer(Scene &outScene, const AppContext &appContext)
@@ -440,7 +443,7 @@ namespace Scenes {
         //musicComponent->SetVolume(0.2f);
 
         CreatePlayer(outScene, appContext);
-        // CreateTestUI(outScene, appContext);
+        CreateTestUI(outScene, appContext);
 
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("Spawner");

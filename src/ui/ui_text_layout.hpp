@@ -16,6 +16,18 @@ namespace UI {
         DirectX::XMFLOAT2 boxDimensions = {0.0f, 0.0f};
         AlignHorizontal alignHorizontal = AlignHorizontal::LEFT;
         AlignVertical alignVertical = AlignVertical::TOP;
+
+        bool operator==(const TextLayoutSettings &other) const {
+            return (
+                this->fontSize        == other.fontSize &&
+                this->lineSpacing     == other.lineSpacing &&
+                this->shouldWrap      == other.shouldWrap &&
+                this->boxDimensions.x == other.boxDimensions.x &&
+                this->boxDimensions.y == other.boxDimensions.y &&
+                this->alignHorizontal == other.alignHorizontal &&
+                this->alignVertical   == other.alignVertical
+            );
+        }
     };
 
     struct TextLayoutGlyph {

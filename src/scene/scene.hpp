@@ -29,7 +29,7 @@ class Scene {
     std::vector<Component *> componentsPendingRemove;
 
     SceneCuller culler;
-    UIContext ui;
+    UI::Context ui;
 
     const AppContext *context = nullptr;
 
@@ -76,7 +76,7 @@ public:
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }
 
-    UIContext &GetUI() { return this->ui; }
+    UI::Context &GetUI() { return this->ui; }
 
     void SetAppContext(const AppContext &context);
 

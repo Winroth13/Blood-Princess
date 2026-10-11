@@ -52,7 +52,7 @@ public:
         ID3D11DeviceContext *deviceContext,
         SharedResources &sharedResources,
         BackBuffer &backBuffer,
-        UIContext &uiContext
+        UI::Context &uiContext
     );
 
     bool Initialize(

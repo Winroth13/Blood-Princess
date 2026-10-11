@@ -31,7 +31,7 @@ UI::Rect UIImageComponent::GetPreservedAspectRatioRect(const UI::Rect &rect) con
     return result;
 }
 
-void UIImageComponent::UIRender(UIDrawList &drawList) {
+void UIImageComponent::UIRender(UI::DrawList &drawList) {
     UIRectComponent *rectComponent = this->GetOwner()->GetComponent<UIRectComponent>();
     if (!rectComponent)
         return;

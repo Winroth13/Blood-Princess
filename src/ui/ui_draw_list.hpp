@@ -7,45 +7,61 @@
 
 using namespace DirectX;
 
-struct UIVertex {
-    XMFLOAT2 position;
-    XMFLOAT2 uv;
-    uint32_t colour;
+namespace UI {
+    struct Vertex {
+        XMFLOAT2 position;
+        XMFLOAT2 uv;
+        uint32_t colour;
 
-    UIVertex(XMFLOAT2 position, XMFLOAT2 uv, uint32_t colour)
-        : position(position), uv(uv), colour(colour) {}
-};
+        uint32_t isText;
+        uint32_t outlineColour;
+        float outlineWidth;
+        float distanceScale;
+    };
 
-struct UIDrawCommand {
-    ID3D11ShaderResourceView *textureSRV;
-    uint32_t indexStart;
-    uint32_t indexCount;
-};
+    struct DrawCommand {
+        ID3D11ShaderResourceView *textureSRV;
+        uint32_t indexStart;
+        uint32_t indexCount;
+    };
 
-class UIDrawList {
-    std::vector<UIVertex> vertices;
-    std::vector<uint32_t> indices;
-    std::vector<UIDrawCommand> drawCommands;
+    class DrawList {
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+        std::vector<DrawCommand> drawCommands;
 
-    void AddVertices(const UIVertex (&quad)[4], ID3D11ShaderResourceView *textureSRV);
+        void AddVertices(const Vertex (&quad)[4], ID3D11ShaderResourceView *textureSRV);
 
-public:
-    UIDrawList() = default;
+    public:
+        DrawList() = default;
 
-    void Clear();
+        void Clear();
 
-    void AddQuad(
-        XMFLOAT2 topLeft,
-        XMFLOAT2 bottomRight,
-        XMFLOAT2 uvTopLeft,
-        XMFLOAT2 uvBottomRight,
-        XMFLOAT4 colour,
-        ID3D11ShaderResourceView *textureSRV = nullptr
-    );
+        void AddQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 colour,
+            ID3D11ShaderResourceView *textureSRV = nullptr
+        );
 
-    const std::vector<UIVertex> &GetVertices() const { return this->vertices; }
-    const std::vector<uint32_t> &GetIndices() const { return this->indices; }
-    const std::vector<UIDrawCommand> &GetDrawCommands() const { return this->drawCommands; }
+        void AddGlyphQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 colour,
+            XMFLOAT4 outlineColour,
+            float outlineWidth,
+            float distanceScale,
+            ID3D11ShaderResourceView *atlasSRV
+        );
 
-    bool IsEmpty() const { return this->drawCommands.empty(); }
-};
+        const std::vector<Vertex> &GetVertices() const { return this->vertices; }
+        const std::vector<uint32_t> &GetIndices() const { return this->indices; }
+        const std::vector<DrawCommand> &GetDrawCommands() const { return this->drawCommands; }
+
+        bool IsEmpty() const { return this->drawCommands.empty(); }
+    };
+}

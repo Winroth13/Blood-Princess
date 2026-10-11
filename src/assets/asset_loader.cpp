@@ -177,7 +177,7 @@ std::shared_ptr<Font> AssetLoader::Load<Font>(const std::string &path) {
     }
 
     const std::streamsize size = reader.tellg();
-    reader.seekg(std::ios::beg);
+    reader.seekg(0, std::ios::beg);
 
     std::vector<unsigned char> fontData(static_cast<size_t>(size));
     if (!reader.read(reinterpret_cast<char *>(fontData.data()), size)) {

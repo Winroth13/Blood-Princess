@@ -208,7 +208,7 @@ void Scene::GatherUICommands(uint32_t width, uint32_t height) {
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
 
-    UIDrawList &drawList = this->ui.GetDrawList();
+    UI::DrawList &drawList = this->ui.GetDrawList();
 
     for (Entity *entity : this->entityUpdateOrder)
         if (entity->HasStarted() && entity->IsActive())

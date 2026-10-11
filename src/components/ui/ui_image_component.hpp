@@ -26,7 +26,7 @@ public:
     UIImageComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUIRender(); }
 
 private:
-    void UIRender(UIDrawList &drawList) override;
+    void UIRender(UI::DrawList &drawList) override;
 
 public:
     std::shared_ptr<Texture2D> GetTexture() const { return this->texture; }
