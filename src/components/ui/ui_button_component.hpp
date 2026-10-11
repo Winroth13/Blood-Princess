@@ -8,5 +8,5 @@ class UIButtonComponent : public Component {
     // ExportProperty(DirectX::XMFLOAT2, anchorTopLeft, {0.0f, 0.0f});
 
 public:
-    UIButtonComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    UIButtonComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
 };

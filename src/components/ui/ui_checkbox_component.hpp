@@ -8,5 +8,5 @@ class UICheckboxComponent : public Component {
     // ExportProperty(DirectX::XMFLOAT2, anchorTopLeft, {0.0f, 0.0f});
 
 public:
-    UICheckboxComponent(Entity *owner, bool isActive) : Component(owner, isActive) { NoUpdate(), NoLateUpdate(), NoRender(); }
+    UICheckboxComponent(Entity *owner, bool isActive) : Component(owner, isActive) {}
 };
