@@ -144,6 +144,9 @@ void UIBarComponent::UIRender(UI::DrawList &drawList) {
     const XMFLOAT2 pixelScale = rectComponent->GetPixelScale();
     const XMFLOAT2 borderScale = {this->sliceScale * pixelScale.x, this->sliceScale * pixelScale.y};
 
+    if (this->isRaycastTarget)
+        drawList.AddHitTarget(rect, this->GetOwner());
+
     if (this->backgroundColour.w > 0.0f) {
         ID3D11ShaderResourceView *srv = this->backgroundTexture ? this->backgroundTexture->GetShaderResourceView() : nullptr;
 

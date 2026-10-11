@@ -99,6 +99,9 @@ void UITextComponent::UIRender(UI::DrawList &drawList) {
     const UI::Rect &rect = rectComponent->GetScreenRect();
     const XMFLOAT2 pixelScale = rectComponent->GetPixelScale();
 
+    if (this->isRaycastTarget)
+        drawList.AddHitTarget(rect, this->GetOwner());
+
     if (!this->font || !this->font->GetTextureAtlasSRV() || this->text.empty())
         return;
 

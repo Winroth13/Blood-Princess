@@ -26,6 +26,7 @@ namespace UI {
         this->vertices.clear();
         this->indices.clear();
         this->drawCommands.clear();
+        this->hitTargets.clear();
     }
 
     void DrawList::AddQuad(

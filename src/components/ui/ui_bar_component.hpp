@@ -23,6 +23,8 @@ class UIBarComponent : public Component {
 
     ExportPropertyRanged(float, sliceScale, "x", 0.01f, 10.0f, 0.01f, 1.0f);
 
+    ExportProperty(bool, isRaycastTarget, false);
+
     ExportPropertyCategory("Background");
     ExportProperty(std::shared_ptr<Texture2D>, backgroundTexture, nullptr);
     ExportPropertyColor(XMFLOAT4, backgroundColour, {1.0f, 1.0f, 1.0f, 1.0f});
@@ -79,6 +81,9 @@ public:
     XMFLOAT4 GetFillPadding() const { return this->fillPadding; }
     void SetFillPadding(XMFLOAT4 fillPadding) { this->fillPadding = fillPadding; }
     void SetFillPadding(float padding) { this->fillPadding = {padding, padding, padding, padding}; }
+
+    bool IsRaycastTarget() const { return this->isRaycastTarget; }
+    void SetRaycastTarget(bool isRaycastTarget) { this->isRaycastTarget = isRaycastTarget; }
 
     float GetSliceScale() const { return this->sliceScale; }
     void SetSliceScale(float sliceScale) { this->sliceScale = sliceScale; }

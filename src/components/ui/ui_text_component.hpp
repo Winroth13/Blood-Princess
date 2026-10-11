@@ -30,6 +30,8 @@ class UITextComponent : public Component {
     ExportProperty(bool, shouldWrap, true);
     ExportPropertyRanged(float, lineSpacing, "x", 0.1f, 5.0f, 0.01f, 1.0f);
 
+    ExportProperty(bool, isRaycastTarget, false);
+
     ExportPropertyCategory("Outline");
     ExportPropertyRanged(float, outlineThickness, "px", 0.0f, 50.0f, 0.05f, 0.0f);
     ExportPropertyColor(DirectX::XMFLOAT4, outlineColour, { 0.0f, 0.0f, 0.0f, 1.0f });
@@ -91,6 +93,9 @@ public:
 
     bool GetShouldWrap() const { return this->shouldWrap; }
     void SetShouldWrap(bool shouldWrap) { this->shouldWrap = shouldWrap; }
+
+    bool IsRaycastTarget() const { return this->isRaycastTarget; }
+    void SetRaycastTarget(bool isRaycastTarget) { this->isRaycastTarget = isRaycastTarget; }
 
     float GetLineSpacing() const { return this->lineSpacing; }
     void SetLineSpacing(float lineSpacing) { this->lineSpacing = lineSpacing; }

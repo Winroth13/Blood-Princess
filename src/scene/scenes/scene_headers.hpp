@@ -54,6 +54,7 @@
 #include "components/ui/ui_canvas_component.hpp"
 #include "components/ui/ui_checkbox_component.hpp"
 #include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_interactable_component.hpp"
 #include "components/ui/ui_rect_component.hpp"
 #include "components/ui/ui_slider_component.hpp"
 #include "components/ui/ui_text_component.hpp"

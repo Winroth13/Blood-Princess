@@ -38,6 +38,9 @@ void UIImageComponent::UIRender(UI::DrawList &drawList) {
 
     const UI::Rect &rect = rectComponent->GetScreenRect();
 
+    if (this->isRaycastTarget)
+        drawList.AddHitTarget(rect, this->GetOwner());
+
     if (this->colour.w <= 0.0f)
         return;
 

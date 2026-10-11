@@ -15,7 +15,6 @@ class Entity;
 class Component;
 
 class Scene {
-
     std::unordered_map<std::string, std::vector<Entity*>> entityGroup;
     std::vector<std::unique_ptr<Entity>> entities;
 
@@ -79,6 +78,7 @@ public:
     UI::Context &GetUI() { return this->ui; }
 
     void SetAppContext(const AppContext &context);
+    const AppContext &GetAppContext() const { return *this->context; }
 
     void PrintEntityHierarchy();
 

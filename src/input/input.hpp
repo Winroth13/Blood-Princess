@@ -115,6 +115,7 @@ public:
 	static bool IsKeyDown(Key key);
 
 	static DirectX::XMFLOAT2 GetMousePosition();
+    static DirectX::XMFLOAT2 GetMousePositionInPixels();
 	static float GetMouseX();
 	static float GetMouseY();
 

@@ -20,6 +20,8 @@ class UIImageComponent : public Component {
 
     ExportProperty(bool, shouldPreserveAspectRatio, false);
 
+    ExportProperty(bool, isRaycastTarget, true);
+
     ExportPropertyCategory("Slicing");
     ExportProperty(bool, isSliced, false);
     ExportProperty(XMFLOAT4, sliceBorder, {0.0f, 0.0f, 0.0f, 0.0f});
@@ -48,6 +50,9 @@ public:
 
     bool GetShouldPreserveAspectRatio() const { return this->shouldPreserveAspectRatio; }
     void SetShouldPreserveAspectRatio(bool shouldPreserveAspectRatio) { this->shouldPreserveAspectRatio = shouldPreserveAspectRatio; }
+
+    bool IsRaycastTarget() const { return this->isRaycastTarget; }
+    void SetRaycastTarget(bool isRaycastTarget) { this->isRaycastTarget = isRaycastTarget; }
 
     bool IsSliced() const { return this->isSliced; }
     void SetSliced(bool isSliced) { this->isSliced = isSliced; }

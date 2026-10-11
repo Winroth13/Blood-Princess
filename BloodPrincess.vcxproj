@@ -249,6 +249,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\ui\ui_canvas_component.cpp" />
     <ClCompile Include="src\components\ui\ui_checkbox_component.cpp" />
     <ClCompile Include="src\components\ui\ui_image_component.cpp" />
+    <ClCompile Include="src\components\ui\ui_interactable_component.cpp" />
     <ClCompile Include="src\components\ui\ui_rect_component.cpp" />
     <ClCompile Include="src\components\ui\ui_slider_component.cpp" />
     <ClCompile Include="src\components\ui\ui_text_component.cpp" />
@@ -419,6 +420,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\ui\ui_canvas_component.hpp" />
     <ClInclude Include="src\components\ui\ui_checkbox_component.hpp" />
     <ClInclude Include="src\components\ui\ui_image_component.hpp" />
+    <ClInclude Include="src\components\ui\ui_interactable_component.hpp" />
     <ClInclude Include="src\components\ui\ui_rect_component.hpp" />
     <ClInclude Include="src\components\ui\ui_slider_component.hpp" />
     <ClInclude Include="src\components\ui\ui_text_component.hpp" />

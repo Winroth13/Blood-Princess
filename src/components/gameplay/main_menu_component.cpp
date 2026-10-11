@@ -5,6 +5,10 @@
 #include "scene/entity.hpp"
 #include "assets/asset_manager.hpp"
 
+void MainMenuComponent::OnStart(const AppContext &context) {
+    Input::SetMouseMode(MouseMode::VISIBLE);
+}
+
 void MainMenuComponent::Update(const AppContext &context, float deltaTime) {
     if (Input::IsKeyPressed(Key::SPACE)) {
         UIImageComponent *imageComp = this->GetOwner()->GetComponent<UIImageComponent>();

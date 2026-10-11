@@ -1,11 +1,15 @@
 #pragma once
 
+#include "ui/ui_types.hpp"
+
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <vector>
 #include <cstdint>
 
 using namespace DirectX;
+
+class Entity;
 
 namespace UI {
     struct Vertex {
@@ -25,10 +29,16 @@ namespace UI {
         uint32_t indexCount;
     };
 
+    struct HitTarget {
+        Rect rect;
+        Entity *entity;
+    };
+
     class DrawList {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         std::vector<DrawCommand> drawCommands;
+        std::vector<HitTarget> hitTargets;
 
         void AddVertices(const Vertex (&quad)[4], ID3D11ShaderResourceView *textureSRV);
 
@@ -73,6 +83,9 @@ namespace UI {
         const std::vector<Vertex> &GetVertices() const { return this->vertices; }
         const std::vector<uint32_t> &GetIndices() const { return this->indices; }
         const std::vector<DrawCommand> &GetDrawCommands() const { return this->drawCommands; }
+
+        void AddHitTarget(const Rect &rect, Entity *entity) { this->hitTargets.push_back({rect, entity}); }
+        const std::vector<HitTarget> &GetHitTargets() const { return this->hitTargets; }
 
         bool IsEmpty() const { return this->drawCommands.empty(); }
     };
