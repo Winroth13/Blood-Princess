@@ -50,4 +50,11 @@ namespace UI {
         TOP_TO_BOTTOM,
         BOTTOM_TO_TOP
     };
+
+    enum class ButtonState {
+        NORMAL,
+        HOVERED,
+        PRESSED,
+        DISABLED
+    };
 }
