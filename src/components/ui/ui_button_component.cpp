@@ -62,7 +62,7 @@ UI::ButtonState UIButtonComponent::GetStateFromInteractable() {
         return UI::ButtonState::DISABLED;
 
     if (interactable->IsPressed())
-        return interactable->IsHovered() ? UI::ButtonState::PRESSED : UI::ButtonState::NORMAL;
+        return interactable->IsHovered() || this->staysPressedWhenDraggedOff ? UI::ButtonState::PRESSED : UI::ButtonState::NORMAL;
 
     if (interactable->IsHovered())
         return UI::ButtonState::HOVERED;

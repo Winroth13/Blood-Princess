@@ -17,6 +17,8 @@ class UIInteractableComponent;
 class UIButtonComponent : public Component {
     RegisterComponent(UIButtonComponent);
 
+    ExportProperty(bool, staysPressedWhenDraggedOff, false);
+
     ExportPropertyCategory("Tint");
     ExportProperty(bool, isTinted, true);
     ExportPropertyColor(XMFLOAT4, normalColour, {0.85f, 0.85f, 0.85f, 1.0f});
@@ -94,6 +96,9 @@ public:
 
     float GetFadeDuration() const { return this->fadeDuration; }
     void SetFadeDuration(float fadeDuration) { this->fadeDuration = fadeDuration; }
+
+    bool StaysPressedWhenDraggedOff() const { return this->staysPressedWhenDraggedOff; }
+    void SetStaysPressedWhenDraggedOff(bool staysPressedWhenDraggedOff) { this->staysPressedWhenDraggedOff = staysPressedWhenDraggedOff; }
 
     std::shared_ptr<Texture2D> GetHoveredTexture() const { return this->hoveredTexture; }
     void SetHoveredTexture(std::shared_ptr<Texture2D> hoveredTexture) { this->hoveredTexture = hoveredTexture; }
