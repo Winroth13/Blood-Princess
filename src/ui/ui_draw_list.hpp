@@ -46,6 +46,18 @@ namespace UI {
             ID3D11ShaderResourceView *textureSRV = nullptr
         );
 
+        void AddSlicedQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 border,
+            XMFLOAT2 textureSize,
+            XMFLOAT2 borderScale,
+            XMFLOAT4 colour,
+            ID3D11ShaderResourceView *textureSRV
+        );
+
         void AddGlyphQuad(
             XMFLOAT2 topLeft,
             XMFLOAT2 bottomRight,

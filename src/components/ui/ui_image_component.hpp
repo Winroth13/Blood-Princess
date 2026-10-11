@@ -20,6 +20,11 @@ class UIImageComponent : public Component {
 
     ExportProperty(bool, shouldPreserveAspectRatio, false);
 
+    ExportPropertyCategory("Slicing");
+    ExportProperty(bool, isSliced, false);
+    ExportProperty(XMFLOAT4, sliceBorder, {0.0f, 0.0f, 0.0f, 0.0f});
+    ExportPropertyRanged(float, sliceScale, "x", 0.01f, 10.0f, 0.01f, 1.0f);
+
     UI::Rect GetPreservedAspectRatioRect(const UI::Rect &rect) const;
 
 public:
@@ -43,4 +48,17 @@ public:
 
     bool GetShouldPreserveAspectRatio() const { return this->shouldPreserveAspectRatio; }
     void SetShouldPreserveAspectRatio(bool shouldPreserveAspectRatio) { this->shouldPreserveAspectRatio = shouldPreserveAspectRatio; }
+
+    bool IsSliced() const { return this->isSliced; }
+    void SetSliced(bool isSliced) { this->isSliced = isSliced; }
+
+    XMFLOAT4 GetSliceBorder() const { return this->sliceBorder; }
+    void SetSliceBorder(XMFLOAT4 sliceBorder) { this->sliceBorder = sliceBorder; }
+
+    float GetSliceScale() const { return this->sliceScale; }
+    void SetSliceScale(float sliceScale) { this->sliceScale = sliceScale; }
+
+    void SetSlicing(float border, float scale = 1.0f) {
+        this->isSliced = true; this->sliceBorder = {border, border, border, border}; this->sliceScale = scale;
+    }
 };
