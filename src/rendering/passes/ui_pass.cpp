@@ -8,7 +8,7 @@
 #include "ui/ui_draw_list.hpp"
 
 namespace {
-    constexpr size_t UI_VERTEX_COUNT_MAX = 65536;
+    constexpr size_t INITIAL_QUAD_CAPACITY = 4096;
 }
 
 void UIPass::CreateView(uint32_t width, uint32_t height)
@@ -25,52 +25,6 @@ void UIPass::CreateView(uint32_t width, uint32_t height)
     this->view.cameraPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
     this->view.nearPlane = 0.0f;
     this->view.farPlane = 2.0f;
-}
-
-bool UIPass::CreateBuffers(ID3D11Device *device)
-{
-    HRESULT hr;
-
-    /* Create Vertex Buffer */
-    {
-        D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth = UINT(sizeof(UI::Vertex) * UI_VERTEX_COUNT_MAX);
-        desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        desc.MiscFlags = 0;
-        desc.StructureByteStride = 0;
-
-        hr = device->CreateBuffer(&desc, nullptr, &this->vertexBuffer);
-
-        if (FAILED(hr)) {
-            LogError("Failed to create Vertex Buffer");
-            return false;
-        }
-
-        RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::RENDER_PASS, "VB", "UI");
-    }
-
-    /* Create Index Buffer */
-    {
-        D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth = UINT(sizeof(uint32_t) * UI_VERTEX_COUNT_MAX);
-        desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        desc.MiscFlags = 0;
-
-        hr = device->CreateBuffer(&desc, nullptr, &this->indexBuffer);
-
-        if (FAILED(hr)) {
-            LogError("Failed to create Index Buffer");
-            return false;
-        }
-
-        RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::RENDER_PASS, "IB", "UI");
-    }
-    
-    return true;
 }
 
 bool UIPass::CreateInputLayout(ID3D11Device *device, VertexShader *vertexShader)
@@ -159,6 +113,60 @@ bool UIPass::CreateDisableDepthResources(ID3D11Device *device) {
     return true;
 }
 
+bool UIPass::EnsureBufferCapacity(ID3D11Device *device, uint32_t vertexCount, uint32_t indexCount) {
+    if (vertexCount > this->vertexCapacity || !this->vertexBuffer)
+    {
+        uint32_t capacity = this->vertexCapacity > 0 ? this->vertexCapacity : INITIAL_QUAD_CAPACITY * 4;
+        while (capacity < vertexCount)
+            capacity *= 2;
+
+        SafeRelease(this->vertexBuffer);
+
+        D3D11_BUFFER_DESC desc{};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        desc.ByteWidth = sizeof(UI::Vertex) * capacity;
+
+        if (FAILED(device->CreateBuffer(&desc, nullptr, &this->vertexBuffer)))
+        {
+            LogError("Failed to create UI Vertex Buffer");
+            this->vertexCapacity = 0;
+            return false;
+        }
+
+        RenderUtils::SetDebugName(this->vertexBuffer, DebugCategory::BUFFER, "Vertex Buffer", "UI");
+        this->vertexCapacity = capacity;
+    }
+
+    if (indexCount > this->indexCapacity || !this->indexBuffer)
+    {
+        uint32_t capacity = this->indexCapacity > 0 ? this->indexCapacity : INITIAL_QUAD_CAPACITY * 6;
+        while (capacity < indexCount)
+            capacity *= 2;
+
+        SafeRelease(this->indexBuffer);
+
+        D3D11_BUFFER_DESC desc{};
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        desc.ByteWidth = sizeof(uint32_t) * capacity;
+
+        if (FAILED(device->CreateBuffer(&desc, nullptr, &this->indexBuffer)))
+        {
+            LogError("Failed to create UI Index Buffer");
+            this->indexCapacity = 0;
+            return false;
+        }
+
+        RenderUtils::SetDebugName(this->indexBuffer, DebugCategory::BUFFER, "Index Buffer", "UI");
+        this->indexCapacity = capacity;
+    }
+
+    return true;
+}
+
 void UIPass::Render(
     ID3D11Device *device,
     ID3D11DeviceContext *deviceContext,
@@ -171,6 +179,35 @@ void UIPass::Render(
         return;
 
     BeginAnnotation("UI Pass");
+
+    const std::vector<UI::Vertex> &vertices = drawList.GetVertices();
+    const std::vector<uint32_t> &indices = drawList.GetIndices();
+
+    if (!this->EnsureBufferCapacity(device, static_cast<uint32_t>(vertices.size()), static_cast<uint32_t>(indices.size())))
+    {
+        EndAnnotation();
+        return;
+    }
+
+    D3D11_MAPPED_SUBRESOURCE mapped;
+
+    if (FAILED(deviceContext->Map(this->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+    {
+        LogWarn("Failed to map the UI Vertex Buffer");
+        EndAnnotation();
+        return;
+    }
+    memcpy(mapped.pData, vertices.data(), sizeof(UI::Vertex) * vertices.size());
+    deviceContext->Unmap(this->vertexBuffer, 0);
+
+    if (FAILED(deviceContext->Map(this->indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+    {
+        LogWarn("Failed to map the UI Index Buffer");
+        EndAnnotation();
+        return;
+    }
+    memcpy(mapped.pData, indices.data(), sizeof(uint32_t) * indices.size());
+    deviceContext->Unmap(this->indexBuffer, 0);
 
     sharedResources.UploadPerViewData(deviceContext, this->view);
 
@@ -205,22 +242,6 @@ void UIPass::Render(
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     deviceContext->RSSetViewports(1, &viewport);
-
-    D3D11_MAPPED_SUBRESOURCE mapped;
-
-    // Map vertices
-    deviceContext->Map(this->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-    UI::Vertex *verticesData = static_cast<UI::Vertex *>(mapped.pData);
-    const std::vector<UI::Vertex> &newVertices = drawList.GetVertices();
-    memcpy(verticesData, newVertices.data(), sizeof(UI::Vertex) * newVertices.size());
-    deviceContext->Unmap(this->vertexBuffer, 0);
-
-    // Map indices
-    deviceContext->Map(this->indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-    uint32_t *indicesData = static_cast<uint32_t *>(mapped.pData);
-    const std::vector<uint32_t> &newindices = drawList.GetIndices();
-    memcpy(indicesData, newindices.data(), sizeof(uint32_t) * newindices.size());
-    deviceContext->Unmap(this->indexBuffer, 0);
 
     ID3D11ShaderResourceView *whiteSRV = this->whiteTexture->GetShaderResourceView();
     for (const UI::DrawCommand &command : drawList.GetDrawCommands())
@@ -261,13 +282,13 @@ bool UIPass::Initialize(
 
     this->CreateView(width, height);
 
-    if (!this->CreateBuffers(device))
-        return false;
-
     if (!this->CreateInputLayout(device, this->vertexShader.get()))
         return false;
 
     if (!this->CreateDisableDepthResources(device))
+        return false;
+
+    if (!this->EnsureBufferCapacity(device, INITIAL_QUAD_CAPACITY * 4, INITIAL_QUAD_CAPACITY * 6))
         return false;
 
     LogUnindent();
