@@ -1,6 +1,7 @@
 #include "ai/ai_manager.hpp"
 #include "components/ai/enemy_controller_component.hpp"
 #include "core/logging.hpp"
+#include "scene/entity.hpp"
 #include <algorithm>
 
 AIManager::AIManager()
@@ -71,14 +72,17 @@ void AIManager::FixedUpdate(float deltaTime)
     this->spatialGrid.BeginFrame(enemyCount);
     for (size_t i = 0; i < enemyCount; ++i)
     {
-        if (this->enemies[i]) {
-            this->spatialGrid.Insert(i, this->enemies[i]->GetPosition());
+        auto* e = this->enemies[i];
+        if (e && e->GetOwner()->IsLocallyActive()) {
+            this->spatialGrid.Insert(i, e->GetPosition());
         }
     }
 
     for (size_t i = 0; i < enemyCount; ++i)
     {
-        this->enemies[i]->UpdateAI(deltaTime, i, this->spatialGrid);
+        auto* e = this->enemies[i];
+        if (e && e->GetOwner()->IsLocallyActive())
+            e->UpdateAI(deltaTime, i, this->spatialGrid);
     }
 
     for (auto* e : pendingRemovals) UnregisterEnemy(e);
