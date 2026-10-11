@@ -25,16 +25,16 @@ class UIBarComponent : public Component {
 
     ExportPropertyCategory("Background");
     ExportProperty(std::shared_ptr<Texture2D>, backgroundTexture, nullptr);
-    ExportPropertyColor(XMFLOAT4, backgroundColour, {0.08f, 0.06f, 0.07f, 0.9f});
+    ExportPropertyColor(XMFLOAT4, backgroundColour, {1.0f, 1.0f, 1.0f, 1.0f});
     ExportProperty(XMFLOAT4, backgroundSliceBorder, {0.0f, 0.0f, 0.0f, 0.0f});
 
     ExportPropertyCategory("Fill");
     ExportProperty(std::shared_ptr<Texture2D>, fillTexture, nullptr);
-    ExportPropertyColor(XMFLOAT4, fillColour, {0.75f, 0.08f, 0.12f, 1.0f});
+    ExportPropertyColor(XMFLOAT4, fillColour, {1.0f, 1.0f, 1.0f, 1.0f});
     ExportProperty(XMFLOAT4, fillSliceBorder, {0.0f, 0.0f, 0.0f, 0.0f});
 
     ExportPropertyCategory("Trail");
-    ExportPropertyColor(XMFLOAT4, trailColour, {1.0f, 0.85f, 0.55f, 1.0f});
+    ExportPropertyColor(XMFLOAT4, trailColour, {0.8f, 0.8f, 0.8f, 1.0f});
     ExportPropertyRanged(float, trailDelay, "s", 0.0f, 5.0f, 0.01f, 0.5f);
     ExportPropertyRanged(float, trailSpeed, "/s", 0.01f, 10.0f, 0.01f, 0.6f);
 

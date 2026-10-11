@@ -36,6 +36,38 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
     UIImageComponent *frameImage = frame->AddComponent<UIImageComponent>();
     frameImage->SetTexture(panelSprite);
     frameImage->SetSlicing(20.0f);
+
+    Entity *demoHealthEntity = outScene.AddEntity("test_health");
+    Health *demoHealth = demoHealthEntity->AddComponent<Health>();
+
+    Entity *healthBarEntity = outScene.AddEntity("health_bar");
+    healthBarEntity->SetParent(hud);
+    healthBarEntity->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_LEFT, {20.0f, 160.0f}, {420.0f, 40.0f});
+    UIBarComponent *healthBar = healthBarEntity->AddComponent<UIBarComponent>();
+    healthBar->SetBackgroundTexture(panelSprite);
+    healthBar->SetBackgroundSliceBorder(20.0f);
+    healthBar->SetFillPadding(5.0f);
+    healthBar->SetFillColour({0.75f, 0.08f, 0.12f, 1.0f});
+    healthBar->SetTrailColour({1.0f, 0.85f, 0.55f, 1.0f});
+
+    Entity *healthLabelEntity = outScene.AddEntity("health_label");
+    healthLabelEntity->SetParent(healthBarEntity);
+    healthLabelEntity->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+    UITextComponent *healthLabel = healthLabelEntity->AddComponent<UITextComponent>();
+    healthLabel->SetFont(font);
+    healthLabel->SetFontSize(22.0f);
+    healthLabel->SetColour({1.0f, 1.0f, 1.0f, 1.0f});
+    healthLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
+    healthLabel->SetOutline(2.0f, {0.0f, 0.0f, 0.0f, 1.0f});
+
+    auto showHealthFunc = [healthBar, healthLabel](float current, float max) {
+        healthBar->SetValue(current, max);
+        healthLabel->SetText(std::format("{} / {}", static_cast<int>(current), static_cast<int>(max)));
+    };
+
+    showHealthFunc(demoHealth->GetCurrentHealth(), demoHealth->GetMaxHealth());
+    demoHealth->GetOnChangedHealth().Connect(showHealthFunc);
+    demoHealth->GetOnDeath().Connect([]() { LogInfo("DemoHealth died"); });
 }
 
 static void CreatePlayer(Scene &outScene, const AppContext &appContext)
