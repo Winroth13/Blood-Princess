@@ -18,13 +18,15 @@ static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
 
     Entity *txt = outScene.AddEntity("txt");
     txt->SetParent(img);
-    txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {200.0f, 80.0f});
+    txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {320.0f, 120.0f});
     txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
     UITextComponent *textComp = txt->AddComponent<UITextComponent>();
-    textComp->SetText("Blood!");
+    textComp->SetText("Hello World! This is a test");
     textComp->SetColour({1.0f, 1.0f, 1.0f, 1.0f});
     textComp->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
-    textComp->SetFontSize(40.0f);
+    textComp->SetFontSize(50.0f);
+    textComp->SetOutline(1.75f, {240.0f / 255.0f, 0.0f, 1.0f, 1.0f});
+    textComp->SetShadow({7.0f, 4.0f}, {0.0f, 0.0f, 0.0f, 0.8f});
 }
 
 static void CreatePlayer(Scene &outScene, const AppContext &appContext)
