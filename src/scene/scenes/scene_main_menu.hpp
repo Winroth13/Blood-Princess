@@ -4,7 +4,7 @@
 
 namespace Scenes {
     void MainMenu(Scene &outScene, const AppContext &appContext) {
-        std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
+        std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
         Entity *hud = outScene.AddEntity("HUD");
         hud->AddComponent<UIRectComponent>();
