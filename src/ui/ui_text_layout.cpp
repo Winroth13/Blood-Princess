@@ -127,6 +127,31 @@ namespace UI {
         this->size = {widest, count > 0 ? textHeight : 0.0f};
     }
 
+    DirectX::XMFLOAT2 TextLayout::Measure(
+        const Font &font,
+        const std::string &text,
+        float fontSize,
+        float lineSpacing,
+        float maxWidth
+    ) {
+        std::vector<uint32_t> codepoints;
+        DecodeUTF8(text, codepoints);
+
+        TextLayoutSettings layoutSettings{};
+        layoutSettings.fontSize = fontSize;
+        layoutSettings.lineSpacing = lineSpacing;
+        layoutSettings.shouldWrap = maxWidth > 0.0f;
+        layoutSettings.boxDimensions = {maxWidth, 0.0f};
+
+        TextLayout layout;
+        layout.Build(font, codepoints, layoutSettings);
+        return layout.GetSize();
+    }
+
+    float TextLayout::GetSingleLineHeight(const Font &font, float fontSize) {
+        return (font.GetAscent() - font.GetDescent()) * fontSize / Font::BASE_SIZE;
+    }
+
     // Honestly idk how this works lol
     void TextLayout::DecodeUTF8(const std::string &text, std::vector<uint32_t> &outCodepoints) {
         outCodepoints.clear();

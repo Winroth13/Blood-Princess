@@ -299,6 +299,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\scene\scene_registry.cpp" />
     <ClCompile Include="src\ui\ui_context.cpp" />
     <ClCompile Include="src\ui\ui_draw_list.cpp" />
+    <ClCompile Include="src\ui\ui_factory.cpp" />
+    <ClCompile Include="src\ui\ui_style.cpp" />
     <ClCompile Include="src\ui\ui_text_layout.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -485,6 +487,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\serialization\custom_yaml_types.hpp" />
     <ClInclude Include="src\ui\ui_context.hpp" />
     <ClInclude Include="src\ui\ui_draw_list.hpp" />
+    <ClInclude Include="src\ui\ui_factory.hpp" />
+    <ClInclude Include="src\ui\ui_style.hpp" />
     <ClInclude Include="src\ui\ui_text_layout.hpp" />
     <ClInclude Include="src\ui\ui_types.hpp" />
   </ItemGroup>

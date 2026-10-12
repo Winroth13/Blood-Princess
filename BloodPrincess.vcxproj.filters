@@ -117,6 +117,8 @@
     <ClCompile Include="src\components\audio\sound_component.cpp" />
     <ClCompile Include="src\scene\scene_registry.cpp" />
     <ClCompile Include="src\components\ui\ui_interactable_component.cpp" />
+    <ClCompile Include="src\ui\ui_factory.cpp" />
+    <ClCompile Include="src\ui\ui_style.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -306,6 +308,8 @@
     <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
     <ClInclude Include="src\scene\scene_registry.hpp" />
     <ClInclude Include="src\components\ui\ui_interactable_component.hpp" />
+    <ClInclude Include="src\ui\ui_style.hpp" />
+    <ClInclude Include="src\ui\ui_factory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
