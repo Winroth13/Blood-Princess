@@ -17,14 +17,23 @@
 #include "assets/types/sound.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/audio/sound_component.hpp"
+#include "events/event_bus.hpp"
 #include "core/debug.hpp"
-
+#include "components/gameplay/health_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
 #include <cmath>
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
+	this->health = this->GetOwner()->GetComponent<Health>();
+
+	if (this->health)
+	{
+		this->health->SetMaxHealth(this->maxHealth);
+		this->health->SetCurrentHealth(this->maxHealth);
+	}
 
 	this->attackHitConnection = EventBus::Subscribe<AttackHitEvent>(
 		this, &PlayerControllerComponent::OnAttackHit
@@ -32,11 +41,20 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 
+	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
+		this, &PlayerControllerComponent::OnDamageTaken
+	);
+
+
+
 	Input::SetMouseMode(MouseMode::CAPTURED);
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
 {
+	if (this->isDead)
+		return;
+
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
@@ -97,6 +115,11 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 	{
 		EventBus::Unsubscribe<AttackHitEvent>(this->attackHitConnection);
 		this->attackHitConnection = 0;
+	}
+	if (this->damageTakenConnection != 0)
+	{
+		EventBus::Unsubscribe<DamageTakenEvent>(this->damageTakenConnection);
+		this->damageTakenConnection = 0;
 	}
 
 	this->GetOwner()->GetScene()->RemoveEntityFromGroup(this->groupName, this->GetOwner());
@@ -453,5 +476,38 @@ void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)
 	{
 		this->hitStopTimer = HIT_STOP_TIME;
 	}
+}
+
+void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
+{
+	if (event.victim != this->GetOwner())
+		return;
+
+	if (this->health && this->health->IsDead())
+	{
+		this->OnDeath();
+	}
+}
+
+void PlayerControllerComponent::OnDeath()
+{
+	if (this->isDead)
+		return;
+
+	this->isDead = true;
+
+	if (this->hitbox)
+		this->hitbox->Deactivate();
+
+
+	if (auto* hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>())
+		hurtbox->SetActive(false);
+
+
+	this->GetOwner()->GetScene()->RemoveEntityFromGroup(
+		this->groupName, this->GetOwner()
+	);
+
+	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
 

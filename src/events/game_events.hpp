@@ -32,6 +32,11 @@ struct CollisionEvent
     CollisionComponent* otherCollider;
     DirectX::XMFLOAT3 normal{ 0.0f,0.0f,0.0f };
 };
+
+struct PlayerDiedEvent
+{
+    Entity* player = nullptr;
+};
 /*
 ConnectionId enemyKilledConn = 0;
 

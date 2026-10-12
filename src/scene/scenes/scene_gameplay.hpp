@@ -193,6 +193,9 @@ static void CreatePlayer(Scene &outScene, const AppContext &appContext)
         playerCol->SetLayer(CollisionLayer::PLAYER);
         playerCol->SetStatic(false);
         playerCol->SetRadius(0.5f);
+
+        playerEntity->AddComponent<Health>();
+        playerEntity->AddComponent<HurtboxComponent>();
     }
 
     /* Viewmodel */

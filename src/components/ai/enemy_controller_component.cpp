@@ -13,7 +13,7 @@
 #include "components/gameplay/health_component.hpp"
 #include "components/skeletal/animator_component.hpp"
 #include "core/rng.hpp"
-
+#include "components/collisions/hit_box_component.hpp"
 #include <algorithm>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
@@ -26,6 +26,10 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+
+
+    this->SetEnemyType(this->enemyType);
+
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -82,6 +86,33 @@ void EnemyControllerComponent::ResetKnockback()
     this->knockbackStunTimer = 0.0f;
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
     this->isAttacking = false;
+
+    this->attackElapsed = 0.0f;
+    this->hitboxActivated = false;
+
+    if (this->hitbox)
+        this->hitbox->Deactivate();
+}
+
+void EnemyControllerComponent::SetEnemyType(EnemyType type)
+{
+    this->enemyType = type;
+
+    const EnemyStats s = GetEnemyStats(type);
+
+    this->moveSpeed = s.moveSpeed;
+    this->stopDistance = s.stopDistance;
+    this->knockbackMultiplier = s.knockbackMultiplier;
+    this->attackDamage = s.attackDamage;
+    this->attackKnockback = s.attackKnockback;
+    this->attackHitboxDelay = s.attackHitboxDelay;
+    this->attackHitboxDuration = s.attackHitboxDuration;
+
+    if (this->hitbox)
+    {
+        this->hitbox->SetDamage(s.attackDamage);
+        this->hitbox->SetKnockbackForce(s.attackKnockback);
+    }
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
@@ -262,29 +293,45 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     if (this->isAttacking)
     {
+        this->attackElapsed += deltaTime;
+
+        if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+        {
+            this->hitboxActivated = true;
+            if (this->hitbox)
+                this->hitbox->Activate(this->attackHitboxDuration);
+        }
+
         if (!this->animator || this->animator->IsFinished())
         {
             if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation("Shank"))
             {
+                // restart the swing
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
                 this->animator->CrossFade("Shank", 0.1f, false);
             }
             else
             {
                 this->isAttacking = false;
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
+                if (this->hitbox)
+                    this->hitbox->Deactivate();
+
                 if (this->animator && this->animator->HasAnimation("Jog"))
-                {
                     this->animator->CrossFade("Jog", 0.15f, true);
-                }
             }
         }
     }
     else if (inAttackRange && this->knockbackStunTimer <= 0.0f)
     {
         this->isAttacking = true;
+        this->attackElapsed = 0.0f;
+        this->hitboxActivated = false;
+
         if (this->animator && this->animator->HasAnimation("Shank"))
-        {
             this->animator->CrossFade("Shank", 0.1f, false);
-        }
     }
 
     XMVECTOR steer = XMVectorZero();

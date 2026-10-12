@@ -140,8 +140,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         auto* enemySplatter = enemy->AddComponent<SplatterComponent>();
         auto* enemySoundComponent = enemy->AddComponent<SoundComponent>();
 
-
-        enemyTransform->SetWorldScale(0.9f);
+        enemyTransform->SetWorldScale(GetEnemyStats(EnemyType::Goblin).scale);
         modelComponent->SetModel(enemyModel);
 
         animator->AddAnimations(enemyModel->GetAnimations());
@@ -153,11 +152,33 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         enemyBC->SetLayer(CollisionLayer::ENEMY);
 
 
-        enemyController->SetMoveSpeed(this->enemyMoveSpeed);
+        enemyController->SetEnemyType(EnemyType::Goblin);
         enemyController->SetHitSound(goblinHitSound);
         enemyController->SetDeathSound(goblinDeathSound);
         enemyController->SetRandomSound(goblinRandomSound);
         enemySoundComponent->SetSound(goblinHitSound);
+        // goblin attack collider
+
+        Entity* claw = scene->AddEntity(enemy->GetName() + "_Claw");
+        claw->SetParent(enemy);
+
+        auto* clawTransform = claw->AddComponent<TransformComponent>();
+        clawTransform->SetLocalPosition({ 0.0f, 1.3f, 0.8f });
+
+        auto* clawCol = claw->AddComponent<BoxCollisionComponent>();
+        clawCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+        clawCol->SetTrigger(true);
+        clawCol->SetStatic(false);
+        clawCol->SetExtents({ 0.6f, 0.6f, 0.7f });
+
+        auto* clawHitbox = claw->AddComponent<HitboxComponent>();
+        clawHitbox->SetActive(false);
+        clawHitbox->SetDamage(GetEnemyStats(EnemyType::Goblin).attackDamage);
+        clawHitbox->SetKnockbackForce(GetEnemyStats(EnemyType::Goblin).attackKnockback);
+
+
+        enemyController->SetAttackHitbox(clawHitbox);
+        // end goblin attack collider
 
         enemy->SetLocallyActive(false);
         enemyPool.push_back(enemy);
@@ -284,8 +305,9 @@ bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
 
 
     Health* enemyHealth = enemy->GetComponent<Health>();
-    enemyHealth->SetMaxHealth(this->enemyHealth);
-    enemyHealth->SetCurrentHealth(this->enemyHealth);
+    const EnemyStats goblinStats = GetEnemyStats(EnemyType::Goblin);
+    enemyHealth->SetMaxHealth(goblinStats.health);
+    enemyHealth->SetCurrentHealth(goblinStats.health);
 
     if (EnemyControllerComponent* enemyController = enemy->GetComponent<EnemyControllerComponent>())
     {
@@ -303,6 +325,7 @@ bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
 
 bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 {
+    const EnemyStats ogreStats = GetEnemyStats(EnemyType::Ogre);
 
     Entity* playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
     TransformComponent* player = nullptr;
@@ -337,7 +360,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
     TransformComponent* ogreTransform = ogre->AddComponent< TransformComponent>();;
     ogreTransform->SetWorldPosition(position);
-    ogreTransform->SetWorldScale(2.0f);
+    ogreTransform->SetWorldScale(ogreStats.scale);
 
 
     ModelComponent* modelComponent = ogre->AddComponent<ModelComponent>();
@@ -351,8 +374,9 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
 
     Health* ogreHealth = ogre->AddComponent<Health>();
-    ogreHealth->SetMaxHealth(this->ogreHealth);
-    ogreHealth->SetCurrentHealth(this->ogreHealth);
+    ogreHealth->SetMaxHealth(ogreStats.health);
+    ogreHealth->SetCurrentHealth(ogreStats.health);
+    ogreTransform->SetWorldScale(ogreStats.scale);
 
     BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
     ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
@@ -362,9 +386,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     HurtboxComponent* ogreHurtbox = ogre->AddComponent<HurtboxComponent>();
 
     EnemyControllerComponent* ogreController = ogre->AddComponent<EnemyControllerComponent>();
-    ogreController->SetMoveSpeed(this->ogreMoveSpeed);
-    ogreController->SetKnockbackMultiplier(0.0f);
-	ogreController->SetStopDistance(1.7f);
+    ogreController->SetEnemyType(EnemyType::Ogre);
 
     if (ogreController)
     {
@@ -383,7 +405,24 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     }
     ogreSoundComponent->SetSound(ogreHitSound);
 
+    // ogre attack collider
+    Entity* fist = mainScene->AddEntity(ogre->GetName() + "_Fist");
+    fist->SetParent(ogre);
 
+    auto* fistTransform = fist->AddComponent<TransformComponent>();
+    fistTransform->SetLocalPosition({ 0.0f, 1.6f, 1.4f });
+
+    auto* fistCol = fist->AddComponent<BoxCollisionComponent>();
+    fistCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    fistCol->SetTrigger(true);
+    fistCol->SetStatic(false);
+    fistCol->SetExtents({ 1.0f, 1.0f, 1.0f });
+
+    auto* fistHitbox = fist->AddComponent<HitboxComponent>();
+    fistHitbox->SetActive(false);
+
+    ogreController->SetAttackHitbox(fistHitbox);
+    // end ogre attack collider
 
     activeOgre.push_back(ogre);
     return true;
