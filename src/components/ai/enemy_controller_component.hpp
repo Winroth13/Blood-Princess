@@ -16,11 +16,12 @@ class EnemyControllerComponent : public Component
 	ExportProperty(std::string, groupName, "Enemy");
 	ExportProperty(float, moveSpeed, 3.5f);
 	ExportProperty(float, avoidanceRadius, 1.5f);
-	ExportProperty(float, stopDistance, 2.0f);
+	ExportProperty(float, stopDistance, 1.0f);
 	ExportProperty(float, knockbackMultiplier, 4.0f);
 	ExportProperty(float, knockbackDecay, 12.0f);
 	ExportProperty(float, knockbackStunDuration, 0.2f);
 	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
+	ExportProperty(std::shared_ptr<Sound>, deathSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
 	ExportProperty(float, footstepIntervalMeters, 2.5f);
 	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
@@ -72,6 +73,9 @@ public:
 
 	std::shared_ptr<Sound> GetHitSound() const { return this->hitSound; }
 	void SetHitSound(std::shared_ptr<Sound> sound) { this->hitSound = sound; }
+
+	std::shared_ptr<Sound> GetDeathSound() const { return this->deathSound; }
+	void SetDeathSound(std::shared_ptr<Sound> sound) { this->deathSound = sound; }
 
 	std::shared_ptr<Sound> GetFootstepSound() const { return this->footstepSound; }
 	void SetFootstepSound(std::shared_ptr<Sound> sound) { this->footstepSound = sound; }

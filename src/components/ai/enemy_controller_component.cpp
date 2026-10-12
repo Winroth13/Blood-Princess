@@ -99,11 +99,17 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     DirectX::XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>();
     auto* enemyHealth = this->GetOwner()->GetComponent<Health>();
-    if (soundComponent && (!enemyHealth || !enemyHealth->IsDead())) {
-        if (this->hitSound) {
-            soundComponent->SetSound(this->hitSound);
+    if (soundComponent) {
+        if (enemyHealth && enemyHealth->IsDead()) {
+            if (this->deathSound) {
+                soundComponent->SetSound(this->deathSound);
+                soundComponent->Play();
+            }
         }
-        soundComponent->Play();
+        else if (this->hitSound) {
+            soundComponent->SetSound(this->hitSound);
+            soundComponent->Play();
+        }
     }
     DirectX::XMVECTOR myPosV = DirectX::XMLoadFloat3(&myPosF);
 
