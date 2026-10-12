@@ -33,6 +33,8 @@ class Editor
     StatisticsPanel statisticsPanel;
     SettingsPanel settingsPanel;
 
+    bool showOpenScenePopup = false;
+
 	uint32_t flags;
 
 	ImGuizmo::OPERATION currentOperation{ ImGuizmo::OPERATION::TRANSLATE };

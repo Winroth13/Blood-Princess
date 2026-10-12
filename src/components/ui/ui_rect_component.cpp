@@ -33,7 +33,7 @@ namespace {
 }
 
 void UIRectComponent::UpdateRectangle() {
-    UIContext &ui = this->GetOwner()->GetScene()->GetUI();
+    UI::Context &ui = this->GetOwner()->GetScene()->GetUI();
     float screenWidth = static_cast<float>(ui.GetWidth());
     float screenHeight = static_cast<float>(ui.GetHeight());
 

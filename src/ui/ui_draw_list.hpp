@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ui/ui_types.hpp"
+
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <vector>
@@ -7,45 +9,84 @@
 
 using namespace DirectX;
 
-struct UIVertex {
-    XMFLOAT2 position;
-    XMFLOAT2 uv;
-    uint32_t colour;
+class Entity;
 
-    UIVertex(XMFLOAT2 position, XMFLOAT2 uv, uint32_t colour)
-        : position(position), uv(uv), colour(colour) {}
-};
+namespace UI {
+    struct Vertex {
+        XMFLOAT2 position;
+        XMFLOAT2 uv;
+        uint32_t colour;
 
-struct UIDrawCommand {
-    ID3D11ShaderResourceView *textureSRV;
-    uint32_t indexStart;
-    uint32_t indexCount;
-};
+        uint32_t isText;
+        uint32_t outlineColour;
+        float outlineWidth;
+        float distanceScale;
+    };
 
-class UIDrawList {
-    std::vector<UIVertex> vertices;
-    std::vector<uint32_t> indices;
-    std::vector<UIDrawCommand> drawCommands;
+    struct DrawCommand {
+        ID3D11ShaderResourceView *textureSRV;
+        uint32_t indexStart;
+        uint32_t indexCount;
+    };
 
-    void AddVertices(const UIVertex (&quad)[4], ID3D11ShaderResourceView *textureSRV);
+    struct HitTarget {
+        Rect rect;
+        Entity *entity;
+    };
 
-public:
-    UIDrawList() = default;
+    class DrawList {
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+        std::vector<DrawCommand> drawCommands;
+        std::vector<HitTarget> hitTargets;
 
-    void Clear();
+        void AddVertices(const Vertex (&quad)[4], ID3D11ShaderResourceView *textureSRV);
 
-    void AddQuad(
-        XMFLOAT2 topLeft,
-        XMFLOAT2 bottomRight,
-        XMFLOAT2 uvTopLeft,
-        XMFLOAT2 uvBottomRight,
-        XMFLOAT4 colour,
-        ID3D11ShaderResourceView *textureSRV = nullptr
-    );
+    public:
+        DrawList() = default;
 
-    const std::vector<UIVertex> &GetVertices() const { return this->vertices; }
-    const std::vector<uint32_t> &GetIndices() const { return this->indices; }
-    const std::vector<UIDrawCommand> &GetDrawCommands() const { return this->drawCommands; }
+        void Clear();
 
-    bool IsEmpty() const { return this->drawCommands.empty(); }
-};
+        void AddQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 colour,
+            ID3D11ShaderResourceView *textureSRV = nullptr
+        );
+
+        void AddSlicedQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 border,
+            XMFLOAT2 textureSize,
+            XMFLOAT2 borderScale,
+            XMFLOAT4 colour,
+            ID3D11ShaderResourceView *textureSRV
+        );
+
+        void AddGlyphQuad(
+            XMFLOAT2 topLeft,
+            XMFLOAT2 bottomRight,
+            XMFLOAT2 uvTopLeft,
+            XMFLOAT2 uvBottomRight,
+            XMFLOAT4 colour,
+            XMFLOAT4 outlineColour,
+            float outlineWidth,
+            float distanceScale,
+            ID3D11ShaderResourceView *atlasSRV
+        );
+
+        const std::vector<Vertex> &GetVertices() const { return this->vertices; }
+        const std::vector<uint32_t> &GetIndices() const { return this->indices; }
+        const std::vector<DrawCommand> &GetDrawCommands() const { return this->drawCommands; }
+
+        void AddHitTarget(const Rect &rect, Entity *entity) { this->hitTargets.push_back({rect, entity}); }
+        const std::vector<HitTarget> &GetHitTargets() const { return this->hitTargets; }
+
+        bool IsEmpty() const { return this->drawCommands.empty(); }
+    };
+}

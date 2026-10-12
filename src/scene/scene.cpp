@@ -2,6 +2,8 @@
 #include "core/logging.hpp"
 #include "scene/component.hpp"
 #include "core/debug.hpp"
+#include "editor/editor.hpp"
+#include "input/input.hpp"
 
 #include <memory>
 #include <algorithm>
@@ -179,6 +181,14 @@ void Scene::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
 
+    UI::PointerState pointer{};
+    pointer.isEnabled = Input::GetMouseMode() == MouseMode::VISIBLE && !this->context->editor->IsUsingEditor();
+    pointer.position = Input::GetMousePositionInPixels();
+    pointer.isDown = Input::IsMouseButtonDown(MouseButton::LEFT); // TODO: ui_click action?
+    pointer.wasPressed = Input::IsMouseButtonPressed(MouseButton::LEFT);
+    pointer.wasReleased = Input::IsMouseButtonReleased(MouseButton::LEFT);
+    this->ui.ProcessInput(pointer);
+
     for (int i = numFixedTicks; i > 0; i--)
         for (Entity *entity : this->entityUpdateOrder)
             if (entity->IsActive())
@@ -208,7 +218,7 @@ void Scene::GatherUICommands(uint32_t width, uint32_t height) {
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
 
-    UIDrawList &drawList = this->ui.GetDrawList();
+    UI::DrawList &drawList = this->ui.GetDrawList();
 
     for (Entity *entity : this->entityUpdateOrder)
         if (entity->HasStarted() && entity->IsActive())

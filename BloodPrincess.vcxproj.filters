@@ -59,8 +59,6 @@
     <ClCompile Include="src\rendering\passes\output_pass.cpp" />
     <ClCompile Include="src\assets\types\domain_shader.cpp" />
     <ClCompile Include="src\assets\types\geometry_shader.cpp" />
-    <ClCompile Include="src\assets\types\particle_system.cpp" />
-    <ClCompile Include="src\components\health_component.cpp" />
     <ClCompile Include="src\assets\types\sub_types\skeleton.cpp" />
     <ClCompile Include="src\assets\types\animation_library.cpp" />
     <ClCompile Include="src\rendering\lines\line_utils.cpp" />
@@ -115,6 +113,10 @@
     <ClCompile Include="src\components\gameplay\shake_component.cpp" />
     <ClCompile Include="src\ui\ui_text_layout.cpp" />
     <ClCompile Include="src\editor\settings_panel.cpp" />
+    <ClCompile Include="src\assets\types\sound.cpp" />
+    <ClCompile Include="src\components\audio\sound_component.cpp" />
+    <ClCompile Include="src\scene\scene_registry.cpp" />
+    <ClCompile Include="src\components\ui\ui_interactable_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -236,9 +238,7 @@
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
-    <ClInclude Include="src\assets\types\particle_system.hpp" />
     <ClInclude Include="src\serialization\custom_yaml_types.hpp" />
-    <ClInclude Include="src\components\health_component.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\assets\types\animation_library.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
@@ -299,6 +299,13 @@
     <ClInclude Include="src\components\gameplay\shake_component.hpp" />
     <ClInclude Include="src\ui\ui_text_layout.hpp" />
     <ClInclude Include="src\editor\settings_panel.hpp" />
+    <ClInclude Include="src\assets\types\sound.hpp" />
+    <ClInclude Include="src\components\audio\sound_component.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_headers.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
+    <ClInclude Include="src\scene\scene_registry.hpp" />
+    <ClInclude Include="src\components\ui\ui_interactable_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

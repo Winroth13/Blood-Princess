@@ -1,24 +1,36 @@
 #include "health_component.hpp"
 
-Health::Health(Entity* owner, bool isActive)
-	: Component(owner, isActive)
-{}
+#include <algorithm>
 
-void Health::TakeDamage(float damage)
-{
-	if (damage <= 0.0f || IsDead()) return;
+#undef min
+#undef max
 
-	currentHealth = (0.0f > this->currentHealth - damage) ? (0.0f) : (this->currentHealth - damage);
+void Health::NotifyChanged(bool wasDead) {
+    this->onChangedHealth.Emit(this->currentHealth, this->maxHealth);
 
-	//OnChangedHealth.Emit(this->currentHealth, this->maxHealth);
-
-	if (IsDead()) {
-		//OnDeath.Emit();
-	}
+    if (!wasDead && this->IsDead())
+        this->onDeath.Emit();
 }
 
-bool Health::IsDead()
-{
-	return currentHealth <= 0.0f;;
+void Health::OnHealthEdited() {
+    this->onChangedHealth.Emit(this->currentHealth, this->maxHealth);
 }
 
+void Health::TakeDamage(float damage) {
+	if (damage <= 0.0f || this->IsDead())
+       return;
+
+	this->currentHealth = std::max(this->currentHealth - damage, 0.0f);
+    this->NotifyChanged(false);
+}
+
+void Health::SetMaxHealth(float maxHealth) {
+    this->maxHealth = maxHealth;
+    this->onChangedHealth.Emit(this->currentHealth, this->maxHealth);
+}
+
+void Health::SetCurrentHealth(float currentHealth) {
+    const bool wasDead = this->IsDead();
+    this->currentHealth = currentHealth;
+    this->NotifyChanged(wasDead);
+}

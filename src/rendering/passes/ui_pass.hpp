@@ -26,6 +26,8 @@ class UIPass {
 
     ID3D11Buffer *vertexBuffer = nullptr;
     ID3D11Buffer *indexBuffer = nullptr;
+    uint32_t vertexCapacity = 0;
+    uint32_t indexCapacity = 0;
 
     ID3D11RasterizerState *disableDepthRasterizerState = nullptr;
     ID3D11DepthStencilState *disableDepthStencilState = nullptr;
@@ -39,9 +41,9 @@ class UIPass {
     RenderView view{};
 
     void CreateView(uint32_t width, uint32_t height);
-    bool CreateBuffers(ID3D11Device *device);
     bool CreateInputLayout(ID3D11Device *device, VertexShader *vertexShader);
     bool CreateDisableDepthResources(ID3D11Device *device);
+    bool EnsureBufferCapacity(ID3D11Device *device, uint32_t vertexCount, uint32_t indexCount);
 
 public:
     UIPass() = default;
@@ -52,7 +54,7 @@ public:
         ID3D11DeviceContext *deviceContext,
         SharedResources &sharedResources,
         BackBuffer &backBuffer,
-        UIContext &uiContext
+        UI::Context &uiContext
     );
 
     bool Initialize(

@@ -46,7 +46,7 @@ private:
     void FixedUpdate(const AppContext &context, float deltaTime);
     void Update(const AppContext &context, float deltaTime);
     void LateUpdate(const AppContext &context, float deltaTime);
-    void UIRender(UIDrawList &drawList);
+    void UIRender(UI::DrawList &drawList);
     void OnDestroy(const AppContext &context);
 
 public:

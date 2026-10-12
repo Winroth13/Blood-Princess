@@ -31,15 +31,35 @@ UI::Rect UIImageComponent::GetPreservedAspectRatioRect(const UI::Rect &rect) con
     return result;
 }
 
-void UIImageComponent::UIRender(UIDrawList &drawList) {
+void UIImageComponent::UIRender(UI::DrawList &drawList) {
     UIRectComponent *rectComponent = this->GetOwner()->GetComponent<UIRectComponent>();
     if (!rectComponent)
         return;
 
     const UI::Rect &rect = rectComponent->GetScreenRect();
 
+    if (this->isRaycastTarget)
+        drawList.AddHitTarget(rect, this->GetOwner());
+
     if (this->colour.w <= 0.0f)
         return;
+
+    if (this->isSliced && this->texture) {
+        const XMFLOAT2 pixelScale = rectComponent->GetPixelScale();
+
+        drawList.AddSlicedQuad(
+            rect.topLeft,
+            rect.BottomRight(),
+            this->uvTopLeft,
+            this->uvBottomRight,
+            this->sliceBorder,
+            {static_cast<float>(this->texture->GetWidth()), static_cast<float>(this->texture->GetHeight())},
+            {this->sliceScale * pixelScale.x, this->sliceScale * pixelScale.y},
+            this->colour,
+            this->texture->GetShaderResourceView()
+        );
+        return;
+    }
 
     const UI::Rect drawRect = this->GetPreservedAspectRatioRect(rect);
     const XMFLOAT2 bottomRight = drawRect.BottomRight();

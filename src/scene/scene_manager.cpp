@@ -1,5 +1,6 @@
 #include "scene_manager.hpp"
 #include "core/logging.hpp"
+#include "editor/editor.hpp"
 
 #include "scene/scenes/scene_main_menu.hpp"
 #include "scene/scenes/scene_gameplay.hpp"
@@ -9,6 +10,8 @@ void SceneManager::ChangeScene(const std::string &name) {
         LogWarn("Failed to load scene '%s'", name.c_str());
         return;
     }
+
+    this->scene.GetAppContext().editor->SetShowEditor(false); // lol
 
     this->currentSceneName = name;
     this->shouldReload = false;

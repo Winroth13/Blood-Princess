@@ -15,7 +15,6 @@ class Entity;
 class Component;
 
 class Scene {
-
     std::unordered_map<std::string, std::vector<Entity*>> entityGroup;
     std::vector<std::unique_ptr<Entity>> entities;
 
@@ -29,7 +28,7 @@ class Scene {
     std::vector<Component *> componentsPendingRemove;
 
     SceneCuller culler;
-    UIContext ui;
+    UI::Context ui;
 
     const AppContext *context = nullptr;
 
@@ -76,9 +75,10 @@ public:
     const std::string &GetName() const { return this->name; }
     void SetName(const std::string &name) { this->name = name; }
 
-    UIContext &GetUI() { return this->ui; }
+    UI::Context &GetUI() { return this->ui; }
 
     void SetAppContext(const AppContext &context);
+    const AppContext &GetAppContext() const { return *this->context; }
 
     void PrintEntityHierarchy();
 
