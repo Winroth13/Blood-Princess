@@ -71,12 +71,12 @@ void OutputPass::Render(
     RenderUtils::UploadConstantBuffer(deviceContext, this->debugCB, debugViewData);
 
     PostProcessingData postProcessingData{};
-    postProcessingData.speedLineColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f });
-    postProcessingData.speedLineCount = Debug::GetSetting("speedLines.count", 2.0f);
-    postProcessingData.speedLineDensity = Debug::GetSetting("speedLines.density", 0.4f);
+    postProcessingData.speedLineColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+    postProcessingData.speedLineCount = Debug::GetSetting("speedLines.count", 10.0f);
+    postProcessingData.speedLineDensity = Debug::GetSetting("speedLines.density", 0.5f);
     postProcessingData.speedLineFaloff = Debug::GetSetting("speedLines.falloff", 0.25f);
-    postProcessingData.speedLineMaskSize = Debug::GetSetting("speedLines.maskSize", 0.1f);
-    postProcessingData.speedLineMaskEdge = Debug::GetSetting("speedLines.maskEdge", 0.5f);
+    postProcessingData.speedLineMaskSize = Debug::GetSetting("speedLines.maskSize", 0.01f);
+    postProcessingData.speedLineMaskEdge = Debug::GetSetting("speedLines.maskEdge", 0.55f);
     postProcessingData.speedLineAnimationSpeed = Debug::GetSetting("speedLines.animationSpeed", 10.0f);
 
     RenderUtils::UploadConstantBuffer(deviceContext, this->postProcessingCB, postProcessingData);

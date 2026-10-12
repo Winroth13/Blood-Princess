@@ -224,6 +224,8 @@ static void CreatePlayer(Scene &outScene, const AppContext &appContext)
         cameraEntity->AddComponent<ShakeComponent>();
         cameraEntity->SetParent(viewEntity);
 
+        playerEntity->GetComponent<PlayerControllerComponent>()->camera = cameraEntity->GetComponent<CameraComponent>();
+
         SocketComponent *cameraSocket = cameraEntity->AddComponent<SocketComponent>();
         cameraSocket->SetJointName("head");
         cameraSocket->SetOffsetPosition({ 0.0, 0.0f, 0.0f });
