@@ -19,9 +19,10 @@ using namespace DirectX;
 
 struct PerFrameData
 {
+    float totalTime;
     float deltaTime;
     uint32_t ticks;
-    XMFLOAT2   pad0;
+    float   pad0;
 };
 AssertCBufferSize(PerFrameData);
 

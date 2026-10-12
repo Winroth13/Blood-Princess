@@ -1,4 +1,5 @@
 #include "../shared_resources.hlsli"
+#include "speed_lines.hlsli"
 
 #define ENABLE_TONEMAP 1
 
@@ -8,11 +9,12 @@ Texture2D<float4> albedoMetallicTexture : register(t0);
 Texture2D<float4> normalRoughnessTexture : register(t1);
 Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
+Texture2D<float4> noiseTexture : register(t4);
 
-cbuffer DebugView : register(b6)
+cbuffer DebugView : register(b7)
 {
     int debugView;
-    float3 pad5;
+    float3 pad6;
 }
 
 float3 Tonemap(float3 hdr)
@@ -26,7 +28,7 @@ float3 Tonemap(float3 hdr)
     return saturate((hdr * (a * hdr + b)) / (hdr * (c * hdr + d) + e));
 #else
     return hdr;
-#endif
+#endif // ENABLE_TONEMAP
 }
 
 #define MAX_COLORS 128
@@ -146,6 +148,8 @@ void main(uint3 id : SV_DispatchThreadID)
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
     
+    float4 speedLineColour = speedLines(noiseTexture, uv);
+    afterFogColour = lerp(afterFogColour, speedLineColour.rgb, speedLineColour.a);
     
     float ditherSize = 2.0f;
     int2 pixelUV = int2(uv.x * width, uv.y * height);

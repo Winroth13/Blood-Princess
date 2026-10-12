@@ -181,6 +181,17 @@ void Editor::RenderEditor(const AppContext &appContext)
             ImGui::EndMenu();
         }
 
+		if (ImGui::BeginMenu("Debug"))
+		{
+			ImGui::Checkbox("Scene Hierarchy", &this->showSceneHierarchyPanel);
+			ImGui::Checkbox("Inspector", &this->showInspectorPanel);
+			ImGui::Checkbox("Asset Viewer", &this->showAssetViewerPanel);
+			ImGui::Checkbox("Statistics", &this->showStatisticsPanel);
+			ImGui::Checkbox("Settings", &this->showSettingsPanel);
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 	}
 
@@ -190,7 +201,7 @@ void Editor::RenderEditor(const AppContext &appContext)
     ImGui::SetNextWindowSize({250.0f, 0.0f});
     if (ImGui::BeginPopupModal("Open...", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         const std::vector<std::string> &names = appContext.sceneManager->GetRegistry().GetSceneNames();
-        const int namesCount = names.size();
+        const int namesCount = static_cast<int>(names.size());
 
         float itemHeight = ImGui::GetTextLineHeightWithSpacing();
         float listHeight = itemHeight * (namesCount < 1 ? 1 : namesCount > 10 ? 10 : namesCount) + 5.0f;
@@ -215,23 +226,33 @@ void Editor::RenderEditor(const AppContext &appContext)
         ImGui::EndPopup();
     }
 
-	this->sceneHierarchyPanel.ImGuiRender();
-
-	if (sceneHierarchyPanel.GetSelectCount() == 1)
+	if (this->showSceneHierarchyPanel)
 	{
-		this->inspectorPanel.SetEntity(
-			sceneHierarchyPanel.GetSelectedEntities()[0]
-		);
-	}
-	else
-	{
-		this->inspectorPanel.SetEntity(nullptr);
+		this->sceneHierarchyPanel.ImGuiRender();
+
+		if (sceneHierarchyPanel.GetSelectCount() == 1)
+		{
+			this->inspectorPanel.SetEntity(
+				sceneHierarchyPanel.GetSelectedEntities()[0]
+			);
+		}
+		else
+		{
+			this->inspectorPanel.SetEntity(nullptr);
+		}
 	}
 
-	this->inspectorPanel.ImGuiRender();
-	this->assetViewerPanel.ImGuiRender();
-    this->statisticsPanel.ImGuiRender();
-    this->settingsPanel.ImGuiRender();
+	if (showInspectorPanel)
+		this->inspectorPanel.ImGuiRender();
+
+	if (showAssetViewerPanel)
+		this->assetViewerPanel.ImGuiRender();
+
+	if (showStatisticsPanel)
+		this->statisticsPanel.ImGuiRender();
+    
+	if (showSettingsPanel)
+		this->settingsPanel.ImGuiRender();
 
 	this->DrawSkeleton(appContext);
 

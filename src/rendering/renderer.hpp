@@ -55,7 +55,7 @@ public:
 	void Shutdown();
 
     void NewFrame();
-	void Render(Scene *scene, float deltaTime);
+	void Render(Scene *scene, float totalTime, float deltaTime);
     void Present();
 
     bool Resize(uint32_t width, uint32_t height);

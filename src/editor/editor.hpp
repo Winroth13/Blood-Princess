@@ -33,6 +33,12 @@ class Editor
     StatisticsPanel statisticsPanel;
     SettingsPanel settingsPanel;
 
+	bool showSceneHierarchyPanel = true;
+	bool showInspectorPanel = true;
+	bool showAssetViewerPanel = true;
+	bool showStatisticsPanel = true;
+	bool showSettingsPanel = true;
+
     bool showOpenScenePopup = false;
 
 	uint32_t flags;
