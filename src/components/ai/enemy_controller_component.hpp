@@ -6,6 +6,7 @@
 
 class TransformComponent;
 class SpatialGrid;
+class Sound;
 struct AttackHitEvent;
 
 class EnemyControllerComponent : public Component
@@ -18,6 +19,9 @@ class EnemyControllerComponent : public Component
 	ExportProperty(float, knockbackMultiplier, 4.0f);
 	ExportProperty(float, knockbackDecay, 12.0f);
 	ExportProperty(float, knockbackStunDuration, 0.2f);
+	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
+	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
+	ExportProperty(float, footstepIntervalMeters, 2.5f);
 
 private:
 	TransformComponent *transform = nullptr;
@@ -25,6 +29,7 @@ private:
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
+	float movementDistanceAccumulator = 0.0f;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -57,6 +62,15 @@ public:
 
 	float GetKnockbackStunDuration() const { return this->knockbackStunDuration; }
 	void SetKnockbackStunDuration(float duration) { this->knockbackStunDuration = duration; }
+
+	std::shared_ptr<Sound> GetHitSound() const { return this->hitSound; }
+	void SetHitSound(std::shared_ptr<Sound> sound) { this->hitSound = sound; }
+
+	std::shared_ptr<Sound> GetFootstepSound() const { return this->footstepSound; }
+	void SetFootstepSound(std::shared_ptr<Sound> sound) { this->footstepSound = sound; }
+
+	float GetFootstepInterval() const { return this->footstepIntervalMeters; }
+	void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
 };

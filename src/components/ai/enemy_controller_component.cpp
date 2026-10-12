@@ -7,14 +7,18 @@
 #include "scene/scene.hpp"
 #include "events/event_bus.hpp"
 #include "events/game_events.hpp"
-#include "components/audio/character_audio_component.hpp"
+#include "components/audio/sound_component.hpp"
+#include "assets/types/sound.hpp"
+#include "assets/asset_manager.hpp"
 #include "components/gameplay/health_component.hpp"
 
 #include <algorithm>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
-    this->GetOwner()->GetComponent<CharacterAudioComponent>()->SetIsPlayer(false);
+    if (!this->hitSound && context.assetManager) {
+        this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    }
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
 
@@ -82,10 +86,13 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     }
 
     DirectX::XMFLOAT3 myPosF = this->transform->GetWorldPosition();
-    auto enemyAudioComponent = this->GetOwner()->GetComponent<CharacterAudioComponent>();
-    auto enemyHealth = this->GetOwner()->GetComponent<Health>();
-    if (enemyAudioComponent && !enemyHealth->IsDead()) {
-        enemyAudioComponent->PlayGoblinKnockback();
+    auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>();
+    auto* enemyHealth = this->GetOwner()->GetComponent<Health>();
+    if (soundComponent && (!enemyHealth || !enemyHealth->IsDead())) {
+        if (this->hitSound) {
+            soundComponent->SetSound(this->hitSound);
+        }
+        soundComponent->Play();
     }
     DirectX::XMVECTOR myPosV = DirectX::XMLoadFloat3(&myPosF);
 
@@ -232,14 +239,31 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     const float steerLen = XMVectorGetX(XMVector3Length(steer));
     if (steerLen > 1e-4f)
     {
+        float effectiveSteerLen = steerLen;
         if (steerLen > 1.0f)
         {
             steer = XMVectorScale(steer, 1.0f / steerLen);
+            effectiveSteerLen = 1.0f;
         }
 
+        const float distMoved = effectiveSteerLen * this->moveSpeed * deltaTime;
         myPos = XMVectorAdd(myPos,
             XMVectorScale(steer,
                 this->moveSpeed * deltaTime));
+
+        if (this->footstepSound && this->footstepIntervalMeters > 0.0f)
+        {
+            this->movementDistanceAccumulator += distMoved;
+            if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+            {
+                this->movementDistanceAccumulator = 0.0f;
+                if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                {
+                    soundComponent->SetSound(this->footstepSound);
+                    soundComponent->Play();
+                }
+            }
+        }
     }
 
     if (steerLen > 1e-4f || hasKnockback)

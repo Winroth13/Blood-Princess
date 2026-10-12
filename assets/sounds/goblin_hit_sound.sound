@@ -1,0 +1,30 @@
+sound:
+    - file: assets/audio/sfx/Goblin/knockback/202100__spookymodem__goblin-scream.ogg
+      min_volume: 0.9
+      max_volume: 1.9
+      min_pitch: 0.7
+      max_pitch: 0.8
+
+    - file: assets/audio/sfx/Goblin/knockback/249813__spookymodem__goblin-death.ogg
+      min_volume: 0.9
+      max_volume: 1.9
+      min_pitch: 0.7
+      max_pitch: 0.8
+
+    - file: assets/audio/sfx/Goblin/knockback/270391__littlerobotsoundfactory__goblin_01.ogg
+      min_volume: 0.9
+      max_volume: 1.9
+      min_pitch: 0.7
+      max_pitch: 0.8
+
+    - file: assets/audio/sfx/Goblin/knockback/643655__snowfightstudios__goblin_yell.ogg
+      min_volume: 0.9
+      max_volume: 1.9
+      min_pitch: 0.7
+      max_pitch: 0.8
+
+    - file: assets/audio/sfx/Goblin/knockback/736274__hydrasound__hit_goblin.ogg
+      min_volume: 0.9
+      max_volume: 1.9
+      min_pitch: 0.7
+      max_pitch: 0.8
