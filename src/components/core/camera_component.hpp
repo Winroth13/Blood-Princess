@@ -13,6 +13,7 @@ class CameraComponent : public Component
 public:
     CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 
+    void SetFov(float fov) { this->fieldOfView = fov; }
 private:
     void Update(const AppContext &context, float deltaTime) override;
 };
