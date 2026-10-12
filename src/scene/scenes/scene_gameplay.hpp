@@ -526,18 +526,18 @@ namespace Scenes {
         CreateCircularRoom(outScene, appContext, { 0.0f, 0.0f, 0.0f }, 16);
 
         {
-            Entity *entity = outScene.AddEntity("animated_entity_twerk");
-            TransformComponent *transform = entity->AddComponent<TransformComponent>();
-            transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
-            transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
-            transform->SetWorldScale(0.5f, 0.5f, 0.5f);
-            ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
-            std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
-            modelComponent->SetModel(model);
-            AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
-            animator->AddAnimation("twerk", model->GetAnimations());
-            animator->SetSkeletonVisible(true);
-            animator->Play("twerk", true);
+            //Entity *entity = outScene.AddEntity("animated_entity_twerk");
+            //TransformComponent *transform = entity->AddComponent<TransformComponent>();
+            //transform->SetWorldPosition(-1.0f, -2.5f, 8.0f);
+            //transform->SetWorldRotation(0.0f, 180.0f, 0.0f);
+            //transform->SetWorldScale(0.5f, 0.5f, 0.5f);
+            //ModelComponent *modelComponent = entity->AddComponent<ModelComponent>();
+            //std::shared_ptr<Model> model = appContext.assetManager->Get<Model>("assets/models/animations/princess_twerk.glb");
+            //modelComponent->SetModel(model);
+            //AnimatorComponent *animator = entity->AddComponent<AnimatorComponent>();
+            //animator->AddAnimation("twerk", model->GetAnimations());
+            //animator->SetSkeletonVisible(true);
+            //animator->Play("twerk", true);
         }
 
         {
