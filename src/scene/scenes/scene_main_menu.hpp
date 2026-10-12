@@ -4,6 +4,8 @@
 
 namespace Scenes {
     void MainMenu(Scene &outScene, const AppContext &appContext) {
+        std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
+
         Entity *hud = outScene.AddEntity("HUD");
         hud->AddComponent<UIRectComponent>();
         hud->AddComponent<UICanvasComponent>();
@@ -36,6 +38,7 @@ namespace Scenes {
             label->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
             UITextComponent *labelText = label->AddComponent<UITextComponent>();
             labelText->SetText(text);
+            labelText->SetFont(font);
             labelText->SetFontSize(30.0f);
             labelText->SetColour({1.0f, 0.92f, 0.8f, 1.0f});
             labelText->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
@@ -88,6 +91,7 @@ namespace Scenes {
             entity->AddComponent<UIRectComponent>()->Place(anchor, position, size);
             UITextComponent *labelText = entity->AddComponent<UITextComponent>();
             labelText->SetText(text);
+            labelText->SetFont(font);
             labelText->SetFontSize(28.0f);
             labelText->SetColour({1.0f, 0.92f, 0.8f, 1.0f});
             labelText->SetOutline(2.0f, {0.0f, 0.0f, 0.0f, 0.8f});
