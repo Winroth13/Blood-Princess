@@ -18,6 +18,7 @@
 #include "components/core/model_component.hpp"
 #include "assets/types/sub_types/skeleton.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "core/debug.hpp"
 
 #include "rendering/lines/line_utils.hpp"
 
@@ -35,6 +36,9 @@ static XMFLOAT3 GetJointWorldPosition(const XMFLOAT4X4 &jointMatrix, const XMMAT
 
 void Editor::DrawSkeleton(const AppContext &appContext)
 {
+    if (!Debug::GetSetting("skeletal.drawSkeletons", true))
+        return;
+
     constexpr size_t MAX_POINTS_PER_COMMAND = 32;
     const XMFLOAT3 colour = { 1.0f, 0.0f, 1.0f };
 
@@ -142,6 +146,12 @@ bool Editor::Initialize(SceneManager &sceneManager)
         return false;
     }
 
+    if (!this->settingsPanel.Initialize())
+    {
+        LogError("The settings panel doesn't even need an Initialize() either wtf");
+        return false;
+    }
+
 	LogUnindent();
 
 	return true;
@@ -159,8 +169,51 @@ void Editor::RenderEditor(const AppContext &appContext)
 		{
 			ImGui::EndMenu();
 		}
+
+        if (ImGui::BeginMenu("Scenes"))
+        {
+            if (ImGui::MenuItem("Reload"))
+                appContext.sceneManager->ReloadCurrentScene();
+
+            if (ImGui::MenuItem("Open..."))
+                this->showOpenScenePopup = true;
+
+            ImGui::EndMenu();
+        }
+
 		ImGui::EndMainMenuBar();
 	}
+
+    if (this->showOpenScenePopup)
+        ImGui::OpenPopup("Open...");
+
+    ImGui::SetNextWindowSize({250.0f, 0.0f});
+    if (ImGui::BeginPopupModal("Open...", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        const std::vector<std::string> &names = appContext.sceneManager->GetRegistry().GetSceneNames();
+        const int namesCount = names.size();
+
+        float itemHeight = ImGui::GetTextLineHeightWithSpacing();
+        float listHeight = itemHeight * (namesCount < 1 ? 1 : namesCount > 10 ? 10 : namesCount) + 5.0f;
+
+        if (ImGui::BeginListBox("##scene_list", {-FLT_MIN, listHeight})) {
+            for (const std::string &name : names) {
+                if (ImGui::Selectable(name.c_str())) {
+                    appContext.sceneManager->RequestSceneChange(name);
+                    this->showOpenScenePopup = false;
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::EndListBox();
+        }
+
+        if (ImGui::Button("Cancel")) {
+            this->showOpenScenePopup = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 
 	this->sceneHierarchyPanel.ImGuiRender();
 
@@ -178,6 +231,7 @@ void Editor::RenderEditor(const AppContext &appContext)
 	this->inspectorPanel.ImGuiRender();
 	this->assetViewerPanel.ImGuiRender();
     this->statisticsPanel.ImGuiRender();
+    this->settingsPanel.ImGuiRender();
 
 	this->DrawSkeleton(appContext);
 

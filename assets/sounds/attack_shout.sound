@@ -1,0 +1,54 @@
+sound:
+    - file: assets/audio/female_a/voice_female_a_attack_01.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+    
+    - file: assets/audio/female_a/voice_female_a_attack_02.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+      
+    - file: assets/audio/female_a/voice_female_a_attack_03.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+    
+    - file: assets/audio/female_a/voice_female_a_attack_04.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+      
+    - file: assets/audio/female_a/voice_female_a_attack_05.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+    
+    - file: assets/audio/female_a/voice_female_a_attack_06.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+      
+    - file: assets/audio/female_a/voice_female_a_attack_07.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+    
+    - file: assets/audio/female_a/voice_female_a_attack_08.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+      
+    - file: assets/audio/female_a/voice_female_a_attack_09.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05

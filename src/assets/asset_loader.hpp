@@ -12,6 +12,7 @@ class AssetManager;
 class Texture2D;
 class Model;
 class AudioClip;
+class Sound;
 class Font;
 
 class VertexShader;
@@ -73,3 +74,6 @@ template<>
 std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string &path);
 
 #pragma endregion
+
+template<>
+std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path);

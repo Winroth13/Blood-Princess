@@ -48,7 +48,7 @@ private:
     virtual void Update(const AppContext &context, float deltaTime) {}
     virtual void LateUpdate(const AppContext &context, float deltaTime) {}
     virtual void Render(const RenderView &view, RenderQueue &queue) {}
-    virtual void UIRender(UIDrawList &drawList) {}
+    virtual void UIRender(UI::DrawList &drawList) {}
     virtual void OnDestroy(const AppContext &context) {}
 
 public:

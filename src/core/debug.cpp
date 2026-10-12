@@ -6,6 +6,8 @@ std::vector<std::pair<std::string, std::string>> Debug::statistics;
 std::pair<std::string, std::chrono::steady_clock::time_point> Debug::statisticPair;
 std::stack<std::pair<std::string, std::chrono::steady_clock::time_point>> Debug::statisticStack;
 
+std::map<std::string, bool> Debug::settings;
+
 void Debug::NewFrame() {
     statistics.clear();
 }
@@ -82,4 +84,20 @@ void Debug::EndTimedStatistic() {
     Debug::SetStatistic(statisticPair.first + " (ms)", static_cast<float>(msTime.count()) / 1000);
 
     statisticStack.pop();
+}
+
+bool Debug::GetSetting(const std::string &name, bool defaultValue) {
+    auto iter = settings.find(name);
+    if (iter != settings.end())
+        return iter->second;
+
+    return settings[name] = defaultValue;
+}
+
+void Debug::SetSetting(const std::string &name, bool value) {
+    settings[name] = value; 
+}
+
+std::map<std::string, bool> &Debug::GetSettings() {
+    return settings;
 }

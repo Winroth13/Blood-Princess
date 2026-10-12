@@ -87,6 +87,23 @@ DirectX::XMFLOAT2 Input::GetMousePosition()
 	return position;
 }
 
+DirectX::XMFLOAT2 Input::GetMousePositionInPixels()
+{
+    DirectX::XMFLOAT2 position = Input::GetMousePosition();
+
+    int width = 0, height = 0, pixelWidth = 0, pixelHeight = 0;
+    if (!sdlWindow || !SDL_GetWindowSize(sdlWindow, &width, &height) || !SDL_GetWindowSizeInPixels(sdlWindow, &pixelWidth, &pixelHeight))
+        return position;
+
+    if (width > 0 && height > 0)
+    {
+        position.x *= static_cast<float>(pixelWidth) / width;
+        position.y *= static_cast<float>(pixelHeight) / height;
+    }
+
+    return position;
+}
+
 float Input::GetMouseX()
 {
 	return GetMousePosition().x;

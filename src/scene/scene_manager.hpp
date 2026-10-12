@@ -3,12 +3,14 @@
 #include "scene/scene.hpp"
 #include "scene/scene_loader.hpp"
 #include "core/app_context.hpp"
+#include "scene/scene_registry.hpp"
 
 #include <string>
 
 class SceneManager
 {
     SceneLoader loader;
+    SceneRegistry registry;
 
 	Scene scene;
     std::string currentSceneName;
@@ -16,6 +18,8 @@ class SceneManager
     bool shouldReload = false;
 
     void ChangeScene(const std::string &name);
+
+    void RegisterScenes();
 
 public:
     SceneManager() = default;
@@ -34,4 +38,6 @@ public:
 
     Scene *GetCurrentScene() { return &this->scene; }
     const std::string &GetCurrentSceneName() const { return this->currentSceneName; }
+
+    SceneRegistry &GetRegistry() { return this->registry; }
 };

@@ -4,6 +4,7 @@
 #include "editor/asset_viewer_panel.hpp"
 #include "editor/free_cam.hpp"
 #include "editor/statistics_panel.hpp"
+#include "editor/settings_panel.hpp"
 
 #include "imgui/imgui.h"
 #include "imguizmo/ImGuizmo.h"
@@ -30,6 +31,9 @@ class Editor
 	InspectorPanel inspectorPanel;
 	AssetViewerPanel assetViewerPanel;
     StatisticsPanel statisticsPanel;
+    SettingsPanel settingsPanel;
+
+    bool showOpenScenePopup = false;
 
 	uint32_t flags;
 

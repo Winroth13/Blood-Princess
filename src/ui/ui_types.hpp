@@ -43,4 +43,18 @@ namespace UI {
         CENTRE,
         BOTTOM
     };
+
+    enum class FillDirection {
+        LEFT_TO_RIGHT,
+        RIGHT_TO_LEFT,
+        TOP_TO_BOTTOM,
+        BOTTOM_TO_TOP
+    };
+
+    enum class ButtonState {
+        NORMAL,
+        HOVERED,
+        PRESSED,
+        DISABLED
+    };
 }

@@ -10,6 +10,7 @@
 #include "assets/types/audio_clip.hpp"
 #include "assets/types/texture_2d.hpp"
 #include "assets/types/font.hpp"
+#include "assets/types/sound.hpp"
 
 #include <sstream>
 #include <inttypes.h>
@@ -193,6 +194,13 @@ void InspectorPanel::DrawComponentMemberNode(
 
     switch (member.VariableId.GetHash())
     {
+        case GetTypeHash<std::shared_ptr<Sound>>():
+        {
+            std::shared_ptr<Sound> sound = GetMemberByOffset<std::shared_ptr<Sound>>(component, member.Offset);
+            if (DrawAsset(name, sound))
+                this->assetViewerPanel->SetViewingAsset(sound);
+        } break;
+
         case GetTypeHash<std::shared_ptr<Model>>():
         {
             std::shared_ptr<Model> model = GetMemberByOffset<std::shared_ptr<Model>>(component, member.Offset);

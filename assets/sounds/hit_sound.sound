@@ -1,0 +1,42 @@
+sound:
+    - file: assets/audio/sfx/troll/troll_sound_01.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_02.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_03.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_04.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_05.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_06.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/troll_sound_07.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05

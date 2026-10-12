@@ -14,6 +14,8 @@ class Debug {
     static std::pair<std::string, std::chrono::steady_clock::time_point> statisticPair;
     static std::stack<std::pair<std::string, std::chrono::steady_clock::time_point>> statisticStack;
 
+    static std::map<std::string, bool> settings;
+
     static void NewFrame();
 
     static void PushStatistic(const std::string &name, const std::string &value);
@@ -33,4 +35,9 @@ public:
 
     static void BeginTimedStatistic(const std::string &name);
     static void EndTimedStatistic();
+
+    static bool GetSetting(const std::string &name, bool defaultValue = false);
+    static void SetSetting(const std::string &name, bool value);
+
+    static std::map<std::string, bool> &GetSettings();
 };
