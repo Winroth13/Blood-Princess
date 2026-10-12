@@ -1,15 +1,18 @@
 #ifndef SHARED_RESOURCES
 #define SHARED_RESOURCES
 
+static const float PI = 3.14159265359f;
+
 SamplerState samplerLinearWrap : register(s0);
 SamplerState samplerShadow : register(s1);
 SamplerState samplerLinearClamp : register(s2);
 
 cbuffer PerFrame : register(b0)
 {
+    float totalTime;
     float deltaTime;
     uint ticks;
-    float2 pad0;
+    float pad0;
 };
 
 cbuffer PerView : register(b1)
@@ -72,6 +75,18 @@ cbuffer ParticleSystem : register(b5)
     uint        flags;
     float3      pad4;
 };
+
+cbuffer PostProcessing : register(b6)
+{
+    float4 speedLineColour;
+    float speedLineCount;
+    float speedLineDensity;
+    float speedLineFaloff;
+    float speedLineMaskSize;
+    float speedLineMaskEdge;
+    float speedLineAnimationSpeed;
+    float2 pad5;
+}
 
 struct DirectionalLight
 {

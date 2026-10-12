@@ -583,9 +583,10 @@ void SharedResources::UploadPerViewData(ID3D11DeviceContext *deviceContext, cons
 	RenderUtils::UploadConstantBuffer(deviceContext, this->perViewCB, data);
 }
 
-void SharedResources::UploadPerFrameData(ID3D11DeviceContext *deviceContext, float deltaTime)
+void SharedResources::UploadPerFrameData(ID3D11DeviceContext *deviceContext, float totalTime, float deltaTime)
 {
     PerFrameData data{};
+    data.totalTime = totalTime;
     data.deltaTime = deltaTime;
     data.ticks = static_cast<uint32_t>(SDL_GetTicks());
 

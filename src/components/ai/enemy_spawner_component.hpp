@@ -10,7 +10,7 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	// ogre start
-	ExportProperty(int, maxOgreEnemies, 4.0f);
+	ExportProperty(int, maxOgreEnemies, 4);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 	ExportProperty(float, ogreMoveSpeed, 2.0f);
 	ExportProperty(float, ogreHealth, 500.0f);
@@ -87,10 +87,10 @@ public:
 
 
 	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
-	void SetGoblinSpawnDuration(int amount) { this->enemySpawnDuration = amount; }
+	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }
 
 	void SetOgreMaxAlive(int amount) { this->maxOgreEnemies = amount; }
-	void SetOgreSpawnDuration(int amount) { this->ogreSpawnDuration = amount; }
+	void SetOgreSpawnDuration(float amount) { this->ogreSpawnDuration = amount; }
 
 	void BeginWave();
 };

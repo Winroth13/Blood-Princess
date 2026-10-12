@@ -1,7 +1,7 @@
 #ifndef PBR
 #define PBR
 
-static const float PI = 3.14159265359f;
+#include "../shared_resources.hlsli"
 
 float3 FresnelSchlick(float cosTheta, float3 F0)
 {

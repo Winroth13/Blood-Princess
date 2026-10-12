@@ -202,7 +202,7 @@ void Renderer::NewFrame()
     this->views.clear();
 }
 
-void Renderer::Render(Scene *scene, float deltaTime)
+void Renderer::Render(Scene *scene, float totalTime, float deltaTime)
 {
     Debug::BeginTimedStatistic("Rendering");
 
@@ -214,7 +214,7 @@ void Renderer::Render(Scene *scene, float deltaTime)
     Debug::BeginTimedStatistic("Setup");
 
     this->deviceContext->ClearRenderTargetView(this->backBuffer.GetRenderTargetView(), this->clearColor);
-    this->sharedResources.UploadPerFrameData(this->deviceContext, deltaTime);
+    this->sharedResources.UploadPerFrameData(this->deviceContext, totalTime, deltaTime);
 
     RenderView *primary = RenderUtils::GetView(this->views, ViewType::PRIMARY);
     if (!primary)
