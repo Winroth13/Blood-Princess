@@ -11,20 +11,5 @@ sound:
       min_pitch: 0.95
       max_pitch: 1.05
 
-    - file: assets/audio/sfx/Goblin/442815__qubodup__goblin-snarl.ogg
-      min_volume: 0.8
-      max_volume: 1.0
-      min_pitch: 0.95
-      max_pitch: 1.05
 
-    - file: assets/audio/sfx/Goblin/442816__qubodup__goblin-scream.ogg
-      min_volume: 0.8
-      max_volume: 1.0
-      min_pitch: 0.95
-      max_pitch: 1.05
 
-    - file: assets/audio/sfx/Goblin/442817__qubodup__goblin-growl.ogg
-      min_volume: 0.8
-      max_volume: 1.0
-      min_pitch: 0.95
-      max_pitch: 1.05

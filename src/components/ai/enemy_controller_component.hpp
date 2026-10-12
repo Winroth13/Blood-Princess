@@ -23,8 +23,8 @@ class EnemyControllerComponent : public Component
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
 	ExportProperty(float, footstepIntervalMeters, 2.5f);
 	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
-	ExportProperty(float, randomSoundMinInterval, 8.0f);
-	ExportProperty(float, randomSoundMaxInterval, 25.0f);
+	ExportProperty(float, randomSoundMinInterval, 5.0f);
+	ExportProperty(float, randomSoundMaxInterval, 50.0f);
 
 private:
 	TransformComponent *transform = nullptr;

@@ -21,7 +21,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     }
 
-    this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
 
@@ -74,7 +74,7 @@ void EnemyControllerComponent::ResetKnockback()
 {
     this->knockbackVelocity = { 0.0f, 0.0f, 0.0f };
     this->knockbackStunTimer = 0.0f;
-    this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
