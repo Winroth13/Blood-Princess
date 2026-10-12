@@ -11,6 +11,8 @@
 #include "assets/types/sound.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/health_component.hpp"
+#include "components/skeletal/animator_component.hpp"
+#include "core/rng.hpp"
 
 #include <algorithm>
 
@@ -20,7 +22,10 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     }
 
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
+
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
+    this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -61,6 +66,10 @@ void EnemyControllerComponent::OnDestroy(const AppContext & context)
 void EnemyControllerComponent::ApplyKnockback(const DirectX::XMFLOAT3& direction, float force)
 {
     const float totalForce = force * this->knockbackMultiplier;
+    if (totalForce <= 0.0f)
+    {
+        return;
+    }
     this->knockbackVelocity.x = direction.x * totalForce;
     this->knockbackVelocity.y = 0.0f;
     this->knockbackVelocity.z = direction.z * totalForce;
@@ -71,6 +80,8 @@ void EnemyControllerComponent::ResetKnockback()
 {
     this->knockbackVelocity = { 0.0f, 0.0f, 0.0f };
     this->knockbackStunTimer = 0.0f;
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
+    this->isAttacking = false;
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
@@ -88,11 +99,17 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     DirectX::XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>();
     auto* enemyHealth = this->GetOwner()->GetComponent<Health>();
-    if (soundComponent && (!enemyHealth || !enemyHealth->IsDead())) {
-        if (this->hitSound) {
-            soundComponent->SetSound(this->hitSound);
+    if (soundComponent) {
+        if (enemyHealth && enemyHealth->IsDead()) {
+            if (this->deathSound) {
+                soundComponent->SetSound(this->deathSound);
+                soundComponent->Play();
+            }
         }
-        soundComponent->Play();
+        else if (this->hitSound) {
+            soundComponent->SetSound(this->hitSound);
+            soundComponent->Play();
+        }
     }
     DirectX::XMVECTOR myPosV = DirectX::XMLoadFloat3(&myPosF);
 
@@ -161,6 +178,20 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 {
     if (!this->transform) return;
 
+    if (this->randomSound)
+    {
+        this->randomSoundTimer -= deltaTime;
+        if (this->randomSoundTimer <= 0.0f)
+        {
+            this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
+            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->randomSound);
+                soundComponent->Play();
+            }
+        }
+    }
+
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);
 
@@ -209,13 +240,17 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         return;
     }
 
+    if (!this->animator)
+    {
+        this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    }
+
     XMFLOAT3 playerPosF = playerT->GetWorldPosition();
     XMVECTOR player = XMLoadFloat3(&playerPosF);
 
     XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
     const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-
-    XMVECTOR seek = XMVectorZero();
+    const bool inAttackRange = distSq <= (this->stopDistance * this->stopDistance);
 
     if (distSq > 1e-4f)
     {
@@ -223,18 +258,51 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         XMStoreFloat3(&dir, toPlayer);
         const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
         this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+    }
 
-        if (this->knockbackStunTimer <= 0.0f && distSq > this->stopDistance * this->stopDistance)
+    if (this->isAttacking)
+    {
+        if (!this->animator || this->animator->IsFinished())
         {
-            seek = XMVector3Normalize(toPlayer);
+            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation("Shank"))
+            {
+                this->animator->CrossFade("Shank", 0.1f, false);
+            }
+            else
+            {
+                this->isAttacking = false;
+                if (this->animator && this->animator->HasAnimation("Jog"))
+                {
+                    this->animator->CrossFade("Jog", 0.15f, true);
+                }
+            }
+        }
+    }
+    else if (inAttackRange && this->knockbackStunTimer <= 0.0f)
+    {
+        this->isAttacking = true;
+        if (this->animator && this->animator->HasAnimation("Shank"))
+        {
+            this->animator->CrossFade("Shank", 0.1f, false);
         }
     }
 
-    XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
-        this->avoidanceRadius),
-        0.0f);
+    XMVECTOR steer = XMVectorZero();
 
-    XMVECTOR steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
+    if (!this->isAttacking && !inAttackRange)
+    {
+        XMVECTOR seek = XMVectorZero();
+        if (distSq > 1e-4f && this->knockbackStunTimer <= 0.0f)
+        {
+            seek = XMVector3Normalize(toPlayer);
+        }
+
+        XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
+            this->avoidanceRadius),
+            0.0f);
+
+        steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
+    }
 
     const float steerLen = XMVectorGetX(XMVector3Length(steer));
     if (steerLen > 1e-4f)

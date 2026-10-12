@@ -122,6 +122,8 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     Entity *enemies = scene->AddEntity("Entities");
 
     auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
+    auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
 
     for (int i = 0; i < maxEnemyPool; ++i)
     {
@@ -153,6 +155,8 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
 
         enemyController->SetMoveSpeed(this->enemyMoveSpeed);
         enemyController->SetHitSound(goblinHitSound);
+        enemyController->SetDeathSound(goblinDeathSound);
+        enemyController->SetRandomSound(goblinRandomSound);
         enemySoundComponent->SetSound(goblinHitSound);
 
         enemy->SetLocallyActive(false);
@@ -289,6 +293,7 @@ bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
     }
 
     AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
+    animator->Play("Jog", true);
     animator->SetTime(static_cast<float>(rand() % 100));
 
     enemy->SetLocallyActive(true);
@@ -339,10 +344,10 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     modelComponent->SetModel(this->ogreModel);
 
     AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
-    animator->AddAnimation("run", ogreModel->GetAnimations());
+    animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
+    animator->Play("Jog", true);
     animator->SetTime(static_cast<float>(rand() % 100));
-    animator->Play("run", true);
 
 
     Health* ogreHealth = ogre->AddComponent<Health>();
@@ -358,6 +363,8 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
     EnemyControllerComponent* ogreController = ogre->AddComponent<EnemyControllerComponent>();
     ogreController->SetMoveSpeed(this->ogreMoveSpeed);
+    ogreController->SetKnockbackMultiplier(0.0f);
+	ogreController->SetStopDistance(1.7f);
 
     if (ogreController)
     {

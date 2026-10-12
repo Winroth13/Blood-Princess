@@ -2,6 +2,7 @@
 #include "core/logging.hpp"
 #include "scene/entity.hpp"
 #include "components/core/transform_component.hpp"
+#include "components/core/camera_component.hpp"
 #include "input/input.hpp"
 #include "input/action.hpp"
 #include <algorithm>
@@ -16,6 +17,9 @@
 #include "assets/types/sound.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/audio/sound_component.hpp"
+#include "core/debug.hpp"
+
+#include <cmath>
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -49,6 +53,35 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	}
 	else
 	{
+		if (this->lingeringDashTimer >= 0.0f)
+		{
+			DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+
+			float ligneringDashFactor = this->lingeringDashTimer / this->lingeringDashDuration;
+			
+			dashColour.w = std::expf(4 * (ligneringDashFactor - 1)) * this->maxDashAlpha;
+			//dashColour.w = 1 - std::expf(-4 * ligneringDashFactor);
+			//dashColour.w = std::logf(ligneringDashFactor);
+			//dashColour.w = std::pow(ligneringDashFactor, 0.5f);
+			Debug::SetSetting("speedLines.colour", dashColour);
+			this->lingeringDashTimer -= deltaTime;
+
+			float dashDensity = std::lerp(this->minDashDensity, this->maxDashDensity, ligneringDashFactor);
+			Debug::SetSetting("speedLines.density", dashDensity);
+
+			float fov = std::lerp(DirectX::XM_PIDIV2, this->dashFov, ligneringDashFactor);
+			this->camera->SetFov(fov);
+		}
+		else
+		{
+			this->lingeringDashTimer = -1;
+			DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+			dashColour.w = 0.0f;
+			Debug::SetSetting("speedLines.colour", dashColour);
+			Debug::SetSetting("speedLines.density", this->minDashDensity);
+			this->camera->SetFov(DirectX::XM_PIDIV2);
+		}
+
 		HandleMovement(deltaTime);
 		HandleCombat(deltaTime); 
 	}
@@ -196,6 +229,15 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 			this->canUseDash = false;
 			this->dashTimer = 0.0f;
 
+			DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+			dashColour.w = this->maxDashAlpha;
+			Debug::SetSetting("speedLines.colour", dashColour);
+
+			Debug::SetSetting("speedLines.density", this->maxDashDensity);
+			
+			this->lingeringDashTimer = this->lingeringDashDuration;
+
+			this->camera->SetFov(this->dashFov);
 			
 			auto dashSound = GetOwner()->GetComponent<AudioComponent>();
 			dashSound->SetAudio3D(false);

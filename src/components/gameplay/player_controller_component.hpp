@@ -7,6 +7,7 @@
 class TransformComponent;
 class AnimatorComponent;
 class HitboxComponent;
+class CameraComponent;
 class Sound;
 
 struct AttackData
@@ -38,6 +39,12 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, dashTimer, 0.0f);
 	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
+	ExportProperty(float, lingeringDashDuration, 0.2f);
+	ExportProperty(float, lingeringDashTimer, -1.0f);
+	ExportProperty(float, maxDashAlpha, 1.0f);
+	ExportProperty(float, maxDashDensity, 0.45f);
+	ExportProperty(float, minDashDensity, 0.4f);
+	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
 	XMVECTOR dashDirection = {};
 	CollisionManager* collisionRef = nullptr;
@@ -94,7 +101,6 @@ class PlayerControllerComponent : public Component
 		)
 	};
 
-
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
 
@@ -110,6 +116,7 @@ private:
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;
+	CameraComponent *camera = nullptr;
 
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
 
