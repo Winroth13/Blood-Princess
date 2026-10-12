@@ -307,9 +307,14 @@ namespace UI {
     }
 
     UITextComponent *Factory::FitToText(UITextComponent *text, float maxWidth) {
-        const std::shared_ptr<Font> font = text ? text->GetFont() : nullptr;
-        if (!font)
+        if (!text)
             return text;
+
+        const std::shared_ptr<Font> font = text->GetFont();
+        if (!font) {
+            text->SetShouldWrap(maxWidth > 0.0f);
+            return text;
+        }
 
         const float lineHeight = UI::TextLayout::GetSingleLineHeight(*font, text->GetFontSize());
 
