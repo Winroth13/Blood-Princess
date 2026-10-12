@@ -112,7 +112,7 @@ public:
 		const RenderView &view
 	) const;
 
-	void UploadPerFrameData(ID3D11DeviceContext *deviceContext, float deltaTime);
+	void UploadPerFrameData(ID3D11DeviceContext *deviceContext, float totalTime, float deltaTime);
 
     void UploadSkinMatrices(ID3D11DeviceContext *deviceContext, const XMFLOAT4X4 *skinMatrices, uint32_t skinMatricesCount);
 

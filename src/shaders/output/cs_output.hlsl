@@ -1,4 +1,5 @@
 #include "../shared_resources.hlsli"
+#include "speed_lines.hlsli"
 
 #define ENABLE_TONEMAP 1
 
@@ -27,7 +28,7 @@ float3 Tonemap(float3 hdr)
     return saturate((hdr * (a * hdr + b)) / (hdr * (c * hdr + d) + e));
 #else
     return hdr;
-#endif
+#endif // ENABLE_TONEMAP
 }
 
 #define MAX_COLORS 128
@@ -107,13 +108,6 @@ float3 SampleQuadrant(float2 uv)
     return Tonemap(outputTexture.SampleLevel(samplerLinearWrap, localUV, 0).rgb);
 }
 
-#define SPEED_LINE_COUNT  0.5f // 0.0 - 2.0
-#define SPEED_LINE_DENSITY 0.5f // 0.0 - 1.0
-#define SPEED_LINE_FALLOFF 0.25 //0.0 - 1.0
-#define SPEED_MASK_SIZE 0.1f // 0.0 - 1.0
-#define SPEED_MASK_EDGE 0.5f // 0.0 - 1.0
-#define SPEED_ANIMATION_SPEED 1.0f // 1.0 - 20.0
-
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)
 {
@@ -154,6 +148,8 @@ void main(uint3 id : SV_DispatchThreadID)
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
     
+    float4 speedLineColour = speedLines(noiseTexture, uv);
+    afterFogColour = lerp(afterFogColour, speedLineColour.rgb, speedLineColour.a);
     
     float ditherSize = 2.0f;
     int2 pixelUV = int2(uv.x * width, uv.y * height);

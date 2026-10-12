@@ -17,6 +17,7 @@ void Application::Update(float deltaTime)
 {
     Debug::BeginTimedStatistic("Update");
 
+    this->totalTime += deltaTime;
     this->deltaTimeElapsed += deltaTime;
     int numFixedTicks = 0;
 
@@ -62,7 +63,7 @@ void Application::PreRender(float deltaTime)
 
 void Application::Render(float deltaTime) 
 {
-    this->renderer.Render(this->sceneManager.GetCurrentScene(), deltaTime);
+    this->renderer.Render(this->sceneManager.GetCurrentScene(), this->totalTime, deltaTime);
 
     this->imGuiLayer.Present();
     this->renderer.Present();
