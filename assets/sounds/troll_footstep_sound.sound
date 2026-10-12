@@ -1,0 +1,66 @@
+sound:
+    - file: assets/audio/sfx/troll/footsteps/footstep_01.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_02.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_03.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_04.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_05.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_06.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_07.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_08.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_09.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_10.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/troll/footsteps/footstep_11.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05

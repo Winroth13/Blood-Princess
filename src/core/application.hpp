@@ -17,6 +17,7 @@ struct AppContext;
 
 class Application 
 {
+    float totalTime = 0.0f;
     float fixedDeltaTime = 1.0f / 60.0f;
     float deltaTimeElapsed = 0.0f;
 

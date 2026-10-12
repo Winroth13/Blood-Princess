@@ -338,5 +338,6 @@
     <None Include="src\shaders\shadow\shadows.hlsli" />
     <None Include="src\shaders\skinning.hlsli" />
     <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
+    <None Include="src\shaders\output\speed_lines.hlsli" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,15 @@
+sound:
+    - file: assets/audio/sfx/Goblin/202096__spookymodem__goblin-cackle.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/Goblin/253532__nanakisan__evil-laugh-8.ogg
+      min_volume: 0.8
+      max_volume: 1.0
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+
+

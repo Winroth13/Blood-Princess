@@ -7,16 +7,29 @@
 #include "scene/scene.hpp"
 #include "events/event_bus.hpp"
 #include "events/game_events.hpp"
-#include "components/audio/character_audio_component.hpp"
+#include "components/audio/sound_component.hpp"
+#include "assets/types/sound.hpp"
+#include "assets/asset_manager.hpp"
 #include "components/gameplay/health_component.hpp"
-
+#include "components/skeletal/animator_component.hpp"
+#include "core/rng.hpp"
+#include "components/collisions/hit_box_component.hpp"
 #include <algorithm>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
-    this->GetOwner()->GetComponent<CharacterAudioComponent>()->SetIsPlayer(false);
+    if (!this->hitSound && context.assetManager) {
+        this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    }
+
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
+    this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+
+
+    this->SetEnemyType(this->enemyType);
+
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -57,6 +70,10 @@ void EnemyControllerComponent::OnDestroy(const AppContext & context)
 void EnemyControllerComponent::ApplyKnockback(const DirectX::XMFLOAT3& direction, float force)
 {
     const float totalForce = force * this->knockbackMultiplier;
+    if (totalForce <= 0.0f)
+    {
+        return;
+    }
     this->knockbackVelocity.x = direction.x * totalForce;
     this->knockbackVelocity.y = 0.0f;
     this->knockbackVelocity.z = direction.z * totalForce;
@@ -67,6 +84,35 @@ void EnemyControllerComponent::ResetKnockback()
 {
     this->knockbackVelocity = { 0.0f, 0.0f, 0.0f };
     this->knockbackStunTimer = 0.0f;
+    this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
+    this->isAttacking = false;
+
+    this->attackElapsed = 0.0f;
+    this->hitboxActivated = false;
+
+    if (this->hitbox)
+        this->hitbox->Deactivate();
+}
+
+void EnemyControllerComponent::SetEnemyType(EnemyType type)
+{
+    this->enemyType = type;
+
+    const EnemyStats s = GetEnemyStats(type);
+
+    this->moveSpeed = s.moveSpeed;
+    this->stopDistance = s.stopDistance;
+    this->knockbackMultiplier = s.knockbackMultiplier;
+    this->attackDamage = s.attackDamage;
+    this->attackKnockback = s.attackKnockback;
+    this->attackHitboxDelay = s.attackHitboxDelay;
+    this->attackHitboxDuration = s.attackHitboxDuration;
+
+    if (this->hitbox)
+    {
+        this->hitbox->SetDamage(s.attackDamage);
+        this->hitbox->SetKnockbackForce(s.attackKnockback);
+    }
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
@@ -82,10 +128,19 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     }
 
     DirectX::XMFLOAT3 myPosF = this->transform->GetWorldPosition();
-    auto enemyAudioComponent = this->GetOwner()->GetComponent<CharacterAudioComponent>();
-    auto enemyHealth = this->GetOwner()->GetComponent<Health>();
-    if (enemyAudioComponent && !enemyHealth->IsDead()) {
-        enemyAudioComponent->PlayGoblinKnockback();
+    auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>();
+    auto* enemyHealth = this->GetOwner()->GetComponent<Health>();
+    if (soundComponent) {
+        if (enemyHealth && enemyHealth->IsDead()) {
+            if (this->deathSound) {
+                soundComponent->SetSound(this->deathSound);
+                soundComponent->Play();
+            }
+        }
+        else if (this->hitSound) {
+            soundComponent->SetSound(this->hitSound);
+            soundComponent->Play();
+        }
     }
     DirectX::XMVECTOR myPosV = DirectX::XMLoadFloat3(&myPosF);
 
@@ -154,6 +209,20 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 {
     if (!this->transform) return;
 
+    if (this->randomSound)
+    {
+        this->randomSoundTimer -= deltaTime;
+        if (this->randomSoundTimer <= 0.0f)
+        {
+            this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
+            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->randomSound);
+                soundComponent->Play();
+            }
+        }
+    }
+
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);
 
@@ -202,13 +271,17 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         return;
     }
 
+    if (!this->animator)
+    {
+        this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    }
+
     XMFLOAT3 playerPosF = playerT->GetWorldPosition();
     XMVECTOR player = XMLoadFloat3(&playerPosF);
 
     XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
     const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-
-    XMVECTOR seek = XMVectorZero();
+    const bool inAttackRange = distSq <= (this->stopDistance * this->stopDistance);
 
     if (distSq > 1e-4f)
     {
@@ -216,30 +289,96 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         XMStoreFloat3(&dir, toPlayer);
         const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
         this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+    }
 
-        if (this->knockbackStunTimer <= 0.0f && distSq > this->stopDistance * this->stopDistance)
+    if (this->isAttacking)
+    {
+        this->attackElapsed += deltaTime;
+
+        if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+        {
+            this->hitboxActivated = true;
+            if (this->hitbox)
+                this->hitbox->Activate(this->attackHitboxDuration);
+        }
+
+        if (!this->animator || this->animator->IsFinished())
+        {
+            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation("Shank"))
+            {
+                // restart the swing
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
+                this->animator->CrossFade("Shank", 0.1f, false);
+            }
+            else
+            {
+                this->isAttacking = false;
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
+                if (this->hitbox)
+                    this->hitbox->Deactivate();
+
+                if (this->animator && this->animator->HasAnimation("Jog"))
+                    this->animator->CrossFade("Jog", 0.15f, true);
+            }
+        }
+    }
+    else if (inAttackRange && this->knockbackStunTimer <= 0.0f)
+    {
+        this->isAttacking = true;
+        this->attackElapsed = 0.0f;
+        this->hitboxActivated = false;
+
+        if (this->animator && this->animator->HasAnimation("Shank"))
+            this->animator->CrossFade("Shank", 0.1f, false);
+    }
+
+    XMVECTOR steer = XMVectorZero();
+
+    if (!this->isAttacking && !inAttackRange)
+    {
+        XMVECTOR seek = XMVectorZero();
+        if (distSq > 1e-4f && this->knockbackStunTimer <= 0.0f)
         {
             seek = XMVector3Normalize(toPlayer);
         }
+
+        XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
+            this->avoidanceRadius),
+            0.0f);
+
+        steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
     }
-
-    XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
-        this->avoidanceRadius),
-        0.0f);
-
-    XMVECTOR steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
 
     const float steerLen = XMVectorGetX(XMVector3Length(steer));
     if (steerLen > 1e-4f)
     {
+        float effectiveSteerLen = steerLen;
         if (steerLen > 1.0f)
         {
             steer = XMVectorScale(steer, 1.0f / steerLen);
+            effectiveSteerLen = 1.0f;
         }
 
+        const float distMoved = effectiveSteerLen * this->moveSpeed * deltaTime;
         myPos = XMVectorAdd(myPos,
             XMVectorScale(steer,
                 this->moveSpeed * deltaTime));
+
+        if (this->footstepSound && this->footstepIntervalMeters > 0.0f)
+        {
+            this->movementDistanceAccumulator += distMoved;
+            if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+            {
+                this->movementDistanceAccumulator = 0.0f;
+                if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                {
+                    soundComponent->SetSound(this->footstepSound);
+                    soundComponent->Play();
+                }
+            }
+        }
     }
 
     if (steerLen > 1e-4f || hasKnockback)

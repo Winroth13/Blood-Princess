@@ -8,7 +8,7 @@ class HitboxComponent : public Component
     RegisterComponent(HitboxComponent);
 
     ExportProperty(float, damage, 20.0f);
-    ExportProperty(float, knockbackForce, 5.0f);
+    ExportProperty(float, knockbackForce, 2.0f);
     ExportProperty(float, activeDuration, 0.0f);
 
     float activeTimer = 0.0f;
