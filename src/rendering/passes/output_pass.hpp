@@ -17,6 +17,17 @@ struct DebugViewData {
     float pad0[3];
 };
 
+struct PostProcessingData {
+    XMFLOAT4 speedLineColour;
+    float speedLineCount;
+    float speedLineDensity;
+    float speedLineFaloff;
+    float speedLineMaskSize;
+    float speedLineMaskEdge;
+    float speedLineAnimationSpeed;
+    float pad0[2];
+};
+
 enum class DebugView : int {
     DEFAULT,
     ALBEDO,
@@ -42,6 +53,7 @@ class OutputPass {
 
     DebugView debugView = DebugView::DEFAULT;
     ID3D11Buffer *debugCB = nullptr;
+    ID3D11Buffer *postProcessingCB = nullptr;
 
 public:
     OutputPass() = default;

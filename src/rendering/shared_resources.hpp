@@ -8,6 +8,7 @@
 
 enum class ConstantBufferSlot : int
 {
+	// Shared
 	PER_FRAME = 0,
 	PER_VIEW = 1,
 	PER_OBJECT = 2,
@@ -15,7 +16,10 @@ enum class ConstantBufferSlot : int
 
 	LIGHT = 4,
 	PARTICLE = 5,
-	DEBUG = 6,
+	POST_PROCESSING = 6,
+
+	// Unique
+	DEBUG = 7,
 
 	PAINT = 7,
 
@@ -59,7 +63,7 @@ class SharedResources
 	ID3D11Buffer *perViewCB = nullptr;
 	ID3D11Buffer *perObjectCB = nullptr;
 	ID3D11Buffer *perMaterialCB = nullptr;
-    ID3D11Buffer *skinningCB = nullptr;
+	ID3D11Buffer *skinningCB = nullptr;
 
     ID3D11Buffer *lightBufferCB = nullptr;
     ID3D11Buffer *directionalLightBufferSB = nullptr;
@@ -120,7 +124,7 @@ public:
 	ID3D11Buffer *GetPerView() const { return this->perViewCB; }
 	ID3D11Buffer *GetPerObject() const { return this->perObjectCB; }
 	ID3D11Buffer *GetPerMaterial() const { return this->perMaterialCB; }
-    ID3D11Buffer *GetSkinning() const { return this->skinningCB; }
+	ID3D11Buffer *GetSkinning() const { return this->skinningCB; }
 
 	ID3D11Buffer *GetLightBuffer() const { return this->lightBufferCB; }
 	ID3D11ShaderResourceView *GetDirectionalLightsSRV() const { return this->directionalLightShaderResourceView; }

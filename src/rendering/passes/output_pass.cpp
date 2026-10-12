@@ -3,6 +3,7 @@
 #include "assets/asset_manager.hpp"
 #include "assets/types/compute_shader.hpp"
 #include "rendering/render_utils.hpp"
+#include "core/debug.hpp"
 
 bool OutputPass::Initialize(
     ID3D11Device *device,
@@ -14,6 +15,9 @@ bool OutputPass::Initialize(
     LogIndent();
 
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(DebugViewData), &this->debugCB, "Debug View"))
+        return false;
+
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(PostProcessingData), &this->postProcessingCB, "Post Processing"))
         return false;
 
     this->noiseTexture = assetManager->Get<Texture2D>("assets/images/noise.png");
@@ -66,6 +70,17 @@ void OutputPass::Render(
     debugViewData.debugView = +this->debugView;
     RenderUtils::UploadConstantBuffer(deviceContext, this->debugCB, debugViewData);
 
+    PostProcessingData postProcessingData{};
+    postProcessingData.speedLineColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 1.0f });
+    postProcessingData.speedLineCount = Debug::GetSetting("speedLines.count", 2.0f);
+    postProcessingData.speedLineDensity = Debug::GetSetting("speedLines.density", 0.4f);
+    postProcessingData.speedLineFaloff = Debug::GetSetting("speedLines.falloff", 0.25f);
+    postProcessingData.speedLineMaskSize = Debug::GetSetting("speedLines.maskSize", 0.1f);
+    postProcessingData.speedLineMaskEdge = Debug::GetSetting("speedLines.maskEdge", 0.5f);
+    postProcessingData.speedLineAnimationSpeed = Debug::GetSetting("speedLines.animationSpeed", 10.0f);
+
+    RenderUtils::UploadConstantBuffer(deviceContext, this->postProcessingCB, postProcessingData);
+
     DeferredPass::OutputTextures deferredOutput = deferredPass.GetOutputTextures();
 
     ID3D11UnorderedAccessView *backBufferUAV = backBuffer.GetRenderTargetUAV();
@@ -82,9 +97,13 @@ void OutputPass::Render(
 
     deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
+    ID3D11Buffer *perFrame = sharedResources.GetPerFrame();
+    deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_FRAME, 1, &perFrame);
     ID3D11Buffer *perView = sharedResources.GetPerView();
     deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+
     deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::DEBUG, 1, &this->debugCB);
+    deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::POST_PROCESSING, 1, &this->postProcessingCB);
 
     const UINT groupsX = (this->width + 7) / 8;
     const UINT groupsY = (this->height + 7) / 8;

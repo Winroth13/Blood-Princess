@@ -190,7 +190,7 @@ void Editor::RenderEditor(const AppContext &appContext)
     ImGui::SetNextWindowSize({250.0f, 0.0f});
     if (ImGui::BeginPopupModal("Open...", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         const std::vector<std::string> &names = appContext.sceneManager->GetRegistry().GetSceneNames();
-        const int namesCount = names.size();
+        const int namesCount = static_cast<int>(names.size());
 
         float itemHeight = ImGui::GetTextLineHeightWithSpacing();
         float listHeight = itemHeight * (namesCount < 1 ? 1 : namesCount > 10 ? 10 : namesCount) + 5.0f;
