@@ -22,6 +22,9 @@ class EnemyControllerComponent : public Component
 	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
 	ExportProperty(float, footstepIntervalMeters, 2.5f);
+	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
+	ExportProperty(float, randomSoundMinInterval, 8.0f);
+	ExportProperty(float, randomSoundMaxInterval, 25.0f);
 
 private:
 	TransformComponent *transform = nullptr;
@@ -30,6 +33,7 @@ private:
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
 	float movementDistanceAccumulator = 0.0f;
+	float randomSoundTimer = 0.0f;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -71,6 +75,9 @@ public:
 
 	float GetFootstepInterval() const { return this->footstepIntervalMeters; }
 	void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
+
+	std::shared_ptr<Sound> GetRandomSound() const { return this->randomSound; }
+	void SetRandomSound(std::shared_ptr<Sound> sound) { this->randomSound = sound; }
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
 };

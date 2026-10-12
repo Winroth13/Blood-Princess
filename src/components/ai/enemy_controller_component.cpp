@@ -11,6 +11,7 @@
 #include "assets/types/sound.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/health_component.hpp"
+#include "core/rng.hpp"
 
 #include <algorithm>
 
@@ -19,6 +20,8 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     if (!this->hitSound && context.assetManager) {
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     }
+
+    this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
 
@@ -71,6 +74,7 @@ void EnemyControllerComponent::ResetKnockback()
 {
     this->knockbackVelocity = { 0.0f, 0.0f, 0.0f };
     this->knockbackStunTimer = 0.0f;
+    this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
@@ -160,6 +164,20 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     const SpatialGrid& grid)
 {
     if (!this->transform) return;
+
+    if (this->randomSound)
+    {
+        this->randomSoundTimer -= deltaTime;
+        if (this->randomSoundTimer <= 0.0f)
+        {
+            this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
+            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->randomSound);
+                soundComponent->Play();
+            }
+        }
+    }
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
     XMVECTOR myPos = XMLoadFloat3(&myPosF);

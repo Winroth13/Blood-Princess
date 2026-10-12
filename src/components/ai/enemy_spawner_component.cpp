@@ -122,6 +122,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     Entity *enemies = scene->AddEntity("Entities");
 
     auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
 
     for (int i = 0; i < maxEnemyPool; ++i)
     {
@@ -153,6 +154,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
 
         enemyController->SetMoveSpeed(this->enemyMoveSpeed);
         enemyController->SetHitSound(goblinHitSound);
+        enemyController->SetRandomSound(goblinRandomSound);
         enemySoundComponent->SetSound(goblinHitSound);
 
         enemy->SetLocallyActive(false);
