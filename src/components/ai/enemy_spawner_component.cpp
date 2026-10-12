@@ -140,9 +140,9 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         enemyTransform->SetWorldScale(0.9f);
         modelComponent->SetModel(enemyModel);
 
-        animator->AddAnimation("run", enemyModel->GetAnimations());
+        animator->AddAnimations(enemyModel->GetAnimations());
         animator->SetSkeletonVisible(true);
-        animator->Play("run", true);
+        animator->Play("Jog", true);
 
         enemyBC->SetExtents({ 1.2f, 1.7f, 0.45f });
         enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
