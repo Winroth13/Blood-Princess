@@ -291,6 +291,7 @@ bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
     }
 
     AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
+    animator->Play("Jog", true);
     animator->SetTime(static_cast<float>(rand() % 100));
 
     enemy->SetLocallyActive(true);
@@ -341,10 +342,10 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     modelComponent->SetModel(this->ogreModel);
 
     AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
-    animator->AddAnimation("run", ogreModel->GetAnimations());
+    animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
+    animator->Play("Jog", true);
     animator->SetTime(static_cast<float>(rand() % 100));
-    animator->Play("run", true);
 
 
     Health* ogreHealth = ogre->AddComponent<Health>();
@@ -360,6 +361,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
     EnemyControllerComponent* ogreController = ogre->AddComponent<EnemyControllerComponent>();
     ogreController->SetMoveSpeed(this->ogreMoveSpeed);
+    ogreController->SetKnockbackMultiplier(0.0f);
 
     if (ogreController)
     {

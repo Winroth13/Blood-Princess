@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 
 class TransformComponent;
+class AnimatorComponent;
 class SpatialGrid;
 class Sound;
 struct AttackHitEvent;
@@ -28,12 +29,14 @@ class EnemyControllerComponent : public Component
 
 private:
 	TransformComponent *transform = nullptr;
+	AnimatorComponent *animator = nullptr;
 	AIManager* aiManager = nullptr;
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
 	float movementDistanceAccumulator = 0.0f;
 	float randomSoundTimer = 0.0f;
+	bool isAttacking = false;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
