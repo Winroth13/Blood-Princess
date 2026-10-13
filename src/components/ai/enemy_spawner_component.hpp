@@ -12,7 +12,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(int, maxOgreEnemies, 3);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 
-	ExportProperty(int, maxSkeletonEnemies, 5);
+	ExportProperty(int, maxSkeletonEnemies, 0);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
 
 	ExportProperty(int, maxEnemiesAlive, 30);
