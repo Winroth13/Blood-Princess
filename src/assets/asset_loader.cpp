@@ -464,8 +464,8 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 		enemy->model = this->assetManager->Get<Model>(file["model"].as<std::string>(""));
 		enemy->walkAnimation = file["walk_animation"].as<std::string>("");
 
-		enemy->extends = file["extends"].as<XMFLOAT3>({ 1.0f, 1.0f, 1.0f });
-		enemy->extendsOffset = file["extends_offset"].as<XMFLOAT3>({ 1.0f, 1.0f, 1.0f });
+		enemy->extends = file["extends"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
+		enemy->extendsOffset = file["extends_offset"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 		enemy->hitSound = this->assetManager->Get<Sound>(file["hit_sound"].as<std::string>(""));
 		enemy->deathSound = this->assetManager->Get<Sound>(file["death_sound"].as<std::string>(""));
