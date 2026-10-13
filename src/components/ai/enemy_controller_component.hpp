@@ -18,7 +18,8 @@ enum class EnemyType
 {
 	Goblin,
 	Ogre,
-	Archer
+	Archer,
+	Skeleton
 };
 
 struct EnemyStats
@@ -83,6 +84,18 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/* attack anim */	   "Shank",
 			/* walk anim */		   "Walk"
 		};
+	case EnemyType::Skeleton:
+		return {
+			/*moveSpeed*/          3.5f,
+			/*health*/             100.0f,
+			/*attackDamage*/       15.0f,
+			/*attackKnockback*/    2.0f,
+			/*attackHitboxDelay*/  0.30f,
+			/*attackHitboxDur*/    0.25f,
+			/*stopDistance*/       15.0f,
+			/*knockbackMult*/      4.0f,
+			/*scale*/              0.9f
+		};
 	}
 	return {};
 }
@@ -124,6 +137,7 @@ private:
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
 	float movementDistanceAccumulator = 0.0f;
+	float lastFootstepAnimTime = -1.0f;
 	float randomSoundTimer = 0.0f;
 	bool isAttacking = false;
 
