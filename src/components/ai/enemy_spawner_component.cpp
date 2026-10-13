@@ -369,7 +369,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
     animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
-    animator->Play("Walk", true);
+    animator->Play(ogreStats.walkAnimation, true);
     animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
 
 
