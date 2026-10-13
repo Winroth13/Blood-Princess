@@ -8,36 +8,6 @@
 #include "scene/scene.hpp"
 
 
-std::vector<PaintableComponent*> SplatterComponent::s_floorTiles;
-Scene* SplatterComponent::s_cachedScene = nullptr;
-
-void SplatterComponent::CacheFloorTiles(Scene* scene)
-{
-    s_floorTiles.clear();
-    s_cachedScene = scene;
-    if (!scene) return;
-
-    for (Entity* root : scene->GetRootEntities())
-    {
-        if (root && root->GetName() == "Floor")
-        {
-            for (Entity* child : root->GetChildren())
-            {
-                if (child)
-                    if (auto* paintable = child->GetComponent<PaintableComponent>())
-                        s_floorTiles.push_back(paintable);
-            }
-            return;
-        }
-    }
-
-    for (Entity* e : scene->GetEntities())
-    {
-        if (e && e->GetName().rfind("FloorTile", 0) == 0)
-            if (auto* paintable = e->GetComponent<PaintableComponent>())
-                s_floorTiles.push_back(paintable);
-    }
-}
 
 
 void SplatterComponent::OnStart(const AppContext& context)
@@ -109,16 +79,25 @@ void SplatterComponent::PaintFloorAtPosition(const DirectX::XMFLOAT3& position, 
     Scene* scene = this->GetOwner()->GetScene();
     if (!scene) return;
 
-    if (s_cachedScene != scene || s_floorTiles.empty())
-        CacheFloorTiles(scene);
+    Entity* floorRoot = nullptr;
+    for (Entity* root : scene->GetRootEntities())
+    {
+        if (root && root->GetName() == "Floor")
+        {
+            floorRoot = root;
+            break;
+        }
+    }
+    if (!floorRoot) return;
 
     const float halfTile = 5.0f;
 
-    for (PaintableComponent* tilePaintable : s_floorTiles)
+    for (Entity* tileEntity : floorRoot->GetChildren())
     {
-        if (!tilePaintable) continue;
-        Entity* tileEntity = tilePaintable->GetOwner();
         if (!tileEntity || !tileEntity->IsActive()) continue;
+
+        PaintableComponent* tilePaintable = tileEntity->GetComponent<PaintableComponent>();
+        if (!tilePaintable) continue;
 
         TransformComponent* tr = tileEntity->GetComponent<TransformComponent>();
         if (!tr) continue;

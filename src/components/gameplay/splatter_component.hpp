@@ -17,12 +17,6 @@ class SplatterComponent :
 
     ConnectionId hitEventId = 0;
 private:
-
-    static std::vector<PaintableComponent*> s_floorTiles;
-    static Scene* s_cachedScene;
-
-    static void CacheFloorTiles(Scene* scene);
-
     void OnStart(const AppContext& context) override;
     void Update(const AppContext& context, float deltaTime) override;
     void OnDestroy(const AppContext& context) override;
@@ -34,12 +28,5 @@ public:
 
     void SetPaintSpacing(float distance) { this->lastPaintDist = distance; }
     void Reset();
-
-    // if Scene got changed call this
-    static void InvalidateFloorCache()
-    {
-        s_cachedScene = nullptr;
-        s_floorTiles.clear();
-    }
 };
 
