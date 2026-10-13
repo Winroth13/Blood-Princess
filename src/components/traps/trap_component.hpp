@@ -16,7 +16,7 @@ class TrapComponent : public Component
     ExportProperty(float, telegraphDuration, 1.0f);
     ExportProperty(float, armedDuration, 3.0f);
 
-    ExportProperty(float, riseHeight, 1.5f);
+    ExportProperty(float, riseHeight, 0.0f);
 
     DirectX::XMFLOAT3 restPosition = { 0.0f,0.0f,0.0f };
     float elapsedTime = 0.0f;

@@ -21,8 +21,6 @@ static bool SampleSpawnPosition(
     float innerR, float outerR,
     DirectX::XMFLOAT3& outPos)
 {
-    if (!context.aiManager) return false;
-
     const int maxAttempts = 30;
     for (int i = 0; i < maxAttempts; ++i)
     {
@@ -33,10 +31,10 @@ static bool SampleSpawnPosition(
             origin.y,
             origin.z + sinf(angle) * dist
         };
-        if (context.aiManager->GetGrid().IsAreaClear(outPos, 1.0f))
+        if (!context.aiManager || context.aiManager->GetGrid().IsAreaClear(outPos, 1.0f))
             return true;
     }
-    return false;
+    return true;
 }
 
 void TrapSpawnerComponent::InitializeTrapPools(const AppContext& context, Scene* scene)
@@ -70,7 +68,7 @@ Entity* TrapSpawnerComponent::BuildSpikeTrap(Scene * scene, const std::string & 
     Entity* trap = scene->AddEntity(name);
 
     auto* transform = trap->AddComponent<TransformComponent>();
-    transform->SetLocalScale({2.5f,2.5f,2.5f});
+    transform->SetLocalScale({3.75f,3.75f,3.75f});
 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->spikeTrapModel);
@@ -101,7 +99,7 @@ Entity* TrapSpawnerComponent::BuildFireTrap(Scene* scene, const std::string& nam
     Entity* trap = scene->AddEntity(name);
 
     auto* transform = trap->AddComponent<TransformComponent>();
-    transform->SetLocalScale({ 2.5f,2.5f,2.5f });
+    transform->SetLocalScale({ 3.75f,3.75f,3.75f });
 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->fireTrapModel);
@@ -126,16 +124,16 @@ Entity* TrapSpawnerComponent::BuildFireTrap(Scene* scene, const std::string& nam
 
     Entity* flame = scene->AddEntity(name + "_Flame");
     flame->SetParent(trap);
-    flame->AddComponent<TransformComponent>()->SetLocalPosition({ 0.0f, 0.3f, 0.0f });
+    flame->AddComponent<TransformComponent>()->SetLocalPosition({ 0.0f, 0.45f, 0.0f });
 
     auto* ps = flame->AddComponent<ParticleSystemComponent>();
     ps->SetAtlasTexture(this->flameTexture);
     ps->SetAtlasSize({ 12.0f, 6.0f });
     ps->SetCount(3);
     ps->SetLifeTime(1.0f);
-    ps->SetSpawnRadius(0.4f);
-    ps->SetStartScale(0.6f);
-    ps->SetEndScale(0.6f);
+    ps->SetSpawnRadius(0.6f);
+    ps->SetStartScale(0.9f);
+    ps->SetEndScale(0.9f);
     ps->SetIsAnimate(true);
     ps->SetIsAdditive(true);
     ps->SetAnimationSpeed(1.2f);
@@ -151,14 +149,7 @@ bool TrapSpawnerComponent::SpawnOneSpikeTrap(const AppContext& context)
 {
     if (this->spikeTrapPool.empty()) return false;
 
-    Scene* scene = this->GetOwner()->GetScene();
-    Entity* player = scene->GetFirstEntityInGroup("players");
-    if (!player) return false;
-    auto* playerT = player->GetComponent<TransformComponent>();
-    if (!playerT) return false;
-
-    DirectX::XMFLOAT3 playerPos = playerT->GetWorldPosition();
-    DirectX::XMFLOAT3 origin = { playerPos.x, playerPos.y - 1.5f, playerPos.z };
+    DirectX::XMFLOAT3 origin = { 0.0f, -2.48f, 0.0f };
 
     DirectX::XMFLOAT3 position;
     if (!SampleSpawnPosition(context, origin,
@@ -182,14 +173,7 @@ bool TrapSpawnerComponent::SpawnOneFireTrap(const AppContext& context)
 {
     if (this->fireTrapPool.empty()) return false;
 
-    Scene* scene = this->GetOwner()->GetScene();
-    Entity* player = scene->GetFirstEntityInGroup("players");
-    if (!player) return false;
-    auto* playerT = player->GetComponent<TransformComponent>();
-    if (!playerT) return false;
-
-    DirectX::XMFLOAT3 playerPos = playerT->GetWorldPosition();
-    DirectX::XMFLOAT3 origin = { playerPos.x, playerPos.y - 1.5f, playerPos.z };
+    DirectX::XMFLOAT3 origin = { 0.0f, -2.48f, 0.0f };
 
     DirectX::XMFLOAT3 position;
     if (!SampleSpawnPosition(context, origin,
@@ -252,48 +236,12 @@ void TrapSpawnerComponent::OnStart(const AppContext& context)
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
 
     this->InitializeTrapPools(context, this->GetOwner()->GetScene());
-    this->BeginWave();
+    for (int i = 0; i < this->maxSpikeTraps; ++i) this->SpawnOneSpikeTrap(context);
+    for (int i = 0; i < this->maxFireTraps; ++i) this->SpawnOneFireTrap(context);
 }
 
 void TrapSpawnerComponent::Update(const AppContext & context, float deltaTime)
 {
-    this->CleanupExpiredTraps();
-    
-    // spike traps
-    if (this->spikeElapsed < this->spikeSpawnDuration &&
-        (int)this->activeSpikeTraps.size() < this->maxSpikeTraps)
-    {
-        this->spikeElapsed += deltaTime;
-        this->spikeTimer -= deltaTime;
-
-        if (this->spikeTimer <= 0.0f)
-        {
-            this->spikeTimer += (this->maxSpikeTraps > 0)
-                ? (this->spikeSpawnDuration / this->maxSpikeTraps)
-                : this->spikeSpawnDuration;
-
-            if (this->SpawnOneSpikeTrap(context))
-                this->spikesSpawned++;
-        }
-    }
-
-    // Fire traps
-    if (this->fireElapsed < this->fireSpawnDuration &&
-        (int)this->activeFireTraps.size() < this->maxFireTraps)
-    {
-        this->fireElapsed += deltaTime;
-        this->fireTimer -= deltaTime;
-
-        if (this->fireTimer <= 0.0f)
-        {
-            this->fireTimer += (this->maxFireTraps > 0)
-                ? (this->fireSpawnDuration / this->maxFireTraps)
-                : this->fireSpawnDuration;
-
-            if (this->SpawnOneFireTrap(context))
-                this->firesSpawned++;
-        }
-    }
 }
 
 void TrapSpawnerComponent::OnDestroy(const AppContext& context)
