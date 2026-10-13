@@ -119,6 +119,8 @@
     <ClCompile Include="src\components\ui\ui_interactable_component.cpp" />
     <ClCompile Include="src\ui\ui_factory.cpp" />
     <ClCompile Include="src\ui\ui_style.cpp" />
+    <ClCompile Include="src\components\traps\trap_component.cpp" />
+    <ClCompile Include="src\components\traps\trap_spawner_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -310,6 +312,8 @@
     <ClInclude Include="src\components\ui\ui_interactable_component.hpp" />
     <ClInclude Include="src\ui\ui_style.hpp" />
     <ClInclude Include="src\ui\ui_factory.hpp" />
+    <ClInclude Include="src\components\traps\trap_component.hpp" />
+    <ClInclude Include="src\components\traps\trap_spawner_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

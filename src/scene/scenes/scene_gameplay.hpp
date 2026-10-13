@@ -464,6 +464,12 @@ namespace Scenes {
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
         spawnerEntity->AddComponent<EnemySpawnerComponent>();
 
+        // Trap Spawner
+        Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
+        trapSpawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, -2, 0 });
+        trapSpawnerEntity->AddComponent<TrapSpawnerComponent>();
+
+
         Entity *lightEntity = outScene.AddEntity("light");
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
