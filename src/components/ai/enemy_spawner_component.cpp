@@ -428,6 +428,106 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     return true;
 }
 
+bool EnemySpawnerComponent::SpawnOneSkeleton(const AppContext& context)
+{
+    const EnemyStats skeletonStats = GetEnemyStats(EnemyType::Skeleton);
+
+    Entity* playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    TransformComponent* player = nullptr;
+    if (playerEntity) {
+        player = playerEntity->GetComponent<TransformComponent>();
+    }
+    if (!player)       return false;
+
+    Scene* mainScene = this->GetOwner()->GetScene();
+    DirectX::XMFLOAT3 origin =
+        player ?
+        DirectX::XMFLOAT3{ player->GetWorldPosition().x, player->GetWorldPosition().y - 1.5f, player->GetWorldPosition().z } :
+        DirectX::XMFLOAT3{ 0.0f, -2.0f, 0.0f };
+
+    Entity* skeleton = mainScene->AddEntity("Enemy_Skeleton_" + std::to_string(rand()));
+
+    DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+    do
+    {
+        float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
+        float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
+
+        position = {
+            origin.x + cosf(angle) * dist,
+            origin.y,
+            origin.z + sinf(angle) * dist
+        };
+
+    } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
+
+    TransformComponent* skeletonTransform = skeleton->AddComponent<TransformComponent>();
+    skeletonTransform->SetWorldPosition(position);
+    skeletonTransform->SetWorldScale(skeletonStats.scale);
+
+    ModelComponent* modelComponent = skeleton->AddComponent<ModelComponent>();
+    modelComponent->SetModel(this->skeletonModel);
+
+    AnimatorComponent* animator = skeleton->AddComponent<AnimatorComponent>();
+    animator->AddAnimations(this->skeletonModel->GetAnimations());
+    animator->SetSkeletonVisible(true);
+    if (animator->HasAnimation("Jog"))
+        animator->Play("Jog", true);
+    else if (animator->HasAnimation("Bow_Shot"))
+        animator->Play("Bow_Shot", true);
+    animator->SetTime(static_cast<float>(rand() % 100));
+
+    Health* skeletonHealth = skeleton->AddComponent<Health>();
+    skeletonHealth->SetMaxHealth(skeletonStats.health);
+    skeletonHealth->SetCurrentHealth(skeletonStats.health);
+
+    BoxCollisionComponent* skeletonBC = skeleton->AddComponent<BoxCollisionComponent>();
+    skeletonBC->SetExtents({ 1.2f, 1.7f, 0.45f });
+    skeletonBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
+    skeletonBC->SetLayer(CollisionLayer::ENEMY);
+
+    HurtboxComponent* skeletonHurtbox = skeleton->AddComponent<HurtboxComponent>();
+
+    EnemyControllerComponent* skeletonController = skeleton->AddComponent<EnemyControllerComponent>();
+    skeletonController->SetEnemyType(EnemyType::Skeleton);
+    skeletonController->ResetKnockback();
+
+    auto* skeletonSplatter = skeleton->AddComponent<SplatterComponent>();
+    auto* skeletonSoundComponent = skeleton->AddComponent<SoundComponent>();
+    auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
+    auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
+
+    skeletonController->SetHitSound(goblinHitSound);
+    skeletonController->SetDeathSound(goblinDeathSound);
+    skeletonController->SetRandomSound(goblinRandomSound);
+    skeletonSoundComponent->SetSound(goblinHitSound);
+
+    // skeleton attack collider
+    Entity* claw = mainScene->AddEntity(skeleton->GetName() + "_Claw");
+    claw->SetParent(skeleton);
+
+    auto* clawTransform = claw->AddComponent<TransformComponent>();
+    clawTransform->SetLocalPosition({ 0.0f, 1.3f, 0.8f });
+
+    auto* clawCol = claw->AddComponent<BoxCollisionComponent>();
+    clawCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    clawCol->SetTrigger(true);
+    clawCol->SetStatic(false);
+    clawCol->SetExtents({ 0.6f, 0.6f, 0.7f });
+
+    auto* clawHitbox = claw->AddComponent<HitboxComponent>();
+    clawHitbox->SetActive(false);
+    clawHitbox->SetDamage(skeletonStats.attackDamage);
+    clawHitbox->SetKnockbackForce(skeletonStats.attackKnockback);
+
+    skeletonController->SetAttackHitbox(clawHitbox);
+    // end skeleton attack collider
+
+    activeSkeleton.push_back(skeleton);
+    return true;
+}
+
 void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
 {
     Entity *bloodExplosionEntity = scene->AddEntity("BloodExplosion");
@@ -599,6 +699,63 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
             ++it;
         }
     }
+
+    for (auto it = activeSkeleton.begin(); it != activeSkeleton.end(); )
+    {
+        Entity* e = *it;
+        if (!e) {
+            it = activeSkeleton.erase(it);
+            continue;
+        }
+
+        auto* hp = e->GetComponent<Health>();
+        if (hp && hp->IsDead())
+        {
+            if (auto* transform = e->GetComponent<TransformComponent>())
+            {
+                DirectX::XMFLOAT3 skeletonPos = transform->GetWorldPosition();
+
+                if (auto* splatter = e->GetComponent<SplatterComponent>())
+                {
+                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
+                        this->deathBloodRadiusMax);
+
+                    splatter->PaintFloorAtPosition(skeletonPos, bloodRadius);
+
+                    const int extraSplats = RNG::Int(1, 2);
+                    for (int s = 0; s < extraSplats; ++s)
+                    {
+                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
+
+                        DirectX::XMFLOAT3 splatPos = {
+                            skeletonPos.x + cosf(offsetAngle) * offsetDist,
+                            skeletonPos.y,
+                            skeletonPos.z + sinf(offsetAngle) * offsetDist
+                        };
+
+                        splatter->PaintFloorAtPosition(
+                            splatPos,
+                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
+                    }
+                }
+
+                SpawnGibsFromPool(context, skeletonPos);
+
+                XMFLOAT3 position = skeletonPos;
+                position.y += 1.4f;
+                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
+            }
+
+            this->GetOwner()->GetScene()->DestroyEntity(e);
+
+            it = activeSkeleton.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
     
     this->currentEnemies = static_cast<int>(this->activeEnemy.size());
 }
@@ -616,6 +773,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
     this->ogreModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
+    this->skeletonModel = context.assetManager->Get<Model>("assets/models/skeleton.glb");
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
@@ -659,6 +817,22 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
                 this->ogresSpawned++;
         }
     }
+
+    // ---------- Skeletons ----------
+    if (this->skeletonElapsed < this->skeletonSpawnDuration
+        && this->skeletonsSpawned < this->maxSkeletonEnemies)
+    {
+        this->skeletonElapsed += deltaTime;
+        this->skeletonTimer -= deltaTime;
+
+        if (this->skeletonTimer <= 0.0f)
+        {
+            this->skeletonTimer += (this->skeletonSpawnDuration / this->maxSkeletonEnemies);
+
+            if (this->SpawnOneSkeleton(context))
+                this->skeletonsSpawned++;
+        }
+    }
 }
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)
@@ -669,6 +843,7 @@ void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 	}
 
 	this->enemyModel.reset();
+	this->skeletonModel.reset();
 }
 
 void EnemySpawnerComponent::BeginWave()
@@ -684,4 +859,10 @@ void EnemySpawnerComponent::BeginWave()
         : 0.0f;
     this->ogreElapsed = 0.0f;
     this->ogresSpawned = 0;
+
+    this->skeletonTimer = (this->maxSkeletonEnemies > 0)
+        ? this->skeletonSpawnDuration / this->maxSkeletonEnemies
+        : 0.0f;
+    this->skeletonElapsed = 0.0f;
+    this->skeletonsSpawned = 0;
 }
