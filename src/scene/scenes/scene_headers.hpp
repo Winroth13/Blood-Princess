@@ -21,6 +21,9 @@
 #include "components/ai/enemy_controller_component.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
 
+#include "components/traps/trap_component.hpp"
+#include "components/traps/trap_spawner_component.hpp"
+
 #include "components/audio/audio_component.hpp"
 #include "components/audio/character_audio_component.hpp"
 #include "components/audio/listener_component.hpp"

@@ -11,8 +11,10 @@ class HitboxComponent : public Component
     ExportProperty(float, knockbackForce, 2.0f);
     ExportProperty(float, activeDuration, 0.0f);
 
+    ExportProperty(float, retriggerCooldown, 0.0f);
+
     float activeTimer = 0.0f;
-    std::unordered_set<Entity*> hitEntities;
+    std::unordered_map<Entity*, float> hitEntities;
 
 
 private:
@@ -32,6 +34,7 @@ public:
     float GetKnockbackForce() const { return this->knockbackForce; }
     void SetKnockbackForce(float amount) { this->knockbackForce = amount; }
 
-
+    float GetRetriggerCooldown() const { return this->retriggerCooldown; }
+    void SetRetriggerCooldown(float s) { this->retriggerCooldown = s; }
 
 };

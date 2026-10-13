@@ -119,6 +119,8 @@
     <ClCompile Include="src\components\ui\ui_interactable_component.cpp" />
     <ClCompile Include="src\ui\ui_factory.cpp" />
     <ClCompile Include="src\ui\ui_style.cpp" />
+    <ClCompile Include="src\components\traps\trap_component.cpp" />
+    <ClCompile Include="src\components\traps\trap_spawner_component.cpp" />
     <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -311,6 +313,8 @@
     <ClInclude Include="src\components\ui\ui_interactable_component.hpp" />
     <ClInclude Include="src\ui\ui_style.hpp" />
     <ClInclude Include="src\ui\ui_factory.hpp" />
+    <ClInclude Include="src\components\traps\trap_component.hpp" />
+    <ClInclude Include="src\components\traps\trap_spawner_component.hpp" />
     <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
     <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
