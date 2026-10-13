@@ -122,7 +122,7 @@ Entity* TrapSpawnerComponent::BuildFireTrap(Scene* scene, const std::string& nam
     tc->SetArmed(this->fireArmedDuration);
 
 
-    Entity* flame = scene->AddEntity(name + "_Flame");
+    /*Entity* flame = scene->AddEntity(name + "_Flame");
     flame->SetParent(trap);
     flame->AddComponent<TransformComponent>()->SetLocalPosition({ 0.0f, 0.45f, 0.0f });
 
@@ -139,7 +139,7 @@ Entity* TrapSpawnerComponent::BuildFireTrap(Scene* scene, const std::string& nam
     ps->SetAnimationSpeed(1.2f);
     ps->SetVelocity({ 0.0f, 0.5f, 0.0f });
     ps->SetStartTint({ 1.0f, 0.55f, 0.15f });
-    ps->SetEndTint({ 0.4f, 0.05f, 0.0f });
+    ps->SetEndTint({ 0.4f, 0.05f, 0.0f });*/
 
     trap->SetLocallyActive(false);
     return trap;
