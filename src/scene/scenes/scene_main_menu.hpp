@@ -74,7 +74,7 @@ namespace Scenes {
             if (state == UI::ButtonState::HOVERED)
                 audioManager->PlaySoundEffect(hoveredClip, false);
             else if (state == UI::ButtonState::PRESSED)
-                audioManager->PlaySoundEffect(pressedClip, false, 0.5f);
+                audioManager->PlaySoundEffect(pressedClip, false, 0.4f);
         };
 
         btnStart->GetOnStateChanged().Connect(btnSoundFunc);
@@ -86,5 +86,10 @@ namespace Scenes {
         btnQuit->GetOnClick().Connect([app]() {
             app->Stop();
         });
+
+        Entity *wind = outScene.AddEntity("wind");
+        wind->AddComponent<TransformComponent>();
+        MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg"));
+        musicComponent->SetVolume(0.2f);
     }
 }
