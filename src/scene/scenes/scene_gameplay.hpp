@@ -210,11 +210,6 @@ static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *pla
 
     Health *health = player->GetComponent<Health>();
 
-    SceneManager *sceneManager = appContext.sceneManager;
-    health->GetOnDeath().Connect([sceneManager]() {
-        sceneManager->RequestSceneChange("main_menu");
-    });
-
     UIBarComponent *healthBar = ui.CreateBar(hud, health->GetCurrentHealth(), health->GetMaxHealth(), "health_bar");
     UI::Factory::Place(healthBar, UI::Anchor::TOP_LEFT, {40.0f, 40.0f});
 
@@ -458,6 +453,9 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
 namespace Scenes {
     void Gameplay(Scene& outScene, const AppContext& appContext) {
+        Entity *gameEntity = outScene.AddEntity("Game");
+        GameControllerComponent *gameController = gameEntity->AddComponent<GameControllerComponent>();
+
         //Entity *musicEntity = outScene.AddEntity("music_entity");
         //musicEntity->AddComponent<TransformComponent>();
         //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
@@ -466,10 +464,15 @@ namespace Scenes {
         Entity *playerEntity = CreatePlayer(outScene, appContext);
         CreateHUD(outScene, appContext, playerEntity);
 
+        Health *health = playerEntity->GetComponent<Health>();
+        gameController->SetPlayerHealthComponent(appContext, health);
+
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("Spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
-        spawnerEntity->AddComponent<EnemySpawnerComponent>();
+        EnemySpawnerComponent *enemySpawner = spawnerEntity->AddComponent<EnemySpawnerComponent>();
+
+        gameController->SetEnemySpawnerComponent(appContext, enemySpawner);
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");

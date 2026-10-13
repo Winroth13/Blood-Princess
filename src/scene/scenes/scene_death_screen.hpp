@@ -15,7 +15,7 @@ namespace Scenes {
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
-        UI::Factory::Place(ui.CreateText(hud, "YOU ARE DEAD", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
+        UI::Factory::Place(ui.CreateText(hud, "YOU DIED", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
 
         UIButtonComponent *menu_button = UI::Factory::Place(ui.CreateButton(hud, "Main Menu", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
         menu_button->GetOnClick().Connect([appContext]() {
