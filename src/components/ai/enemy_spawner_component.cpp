@@ -23,7 +23,26 @@
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
 
+#include <format>
+
 uint32_t s_gibCounter = 0;
+
+void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *scene)
+{
+    this->enemies[GOBLIN] = context.assetManager->Get<Enemy>("assets/enemies/goblin.yaml");
+    this->enemies[OGRE] = context.assetManager->Get<Enemy>("assets/enemies/ogre.yaml");
+
+    for (size_t i = 0; i < this->enemies.size(); ++i)
+    {
+        std::shared_ptr<Enemy> enemy = this->enemies[i];
+
+        PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
+        pool->SetSize(this->enemyPoolSize[i]);
+        pool->SetCreateEntityCallback([this, enemy, scene](){
+            return this->CreateEnemyEntity(enemy, scene);
+        });
+    }
+}
 
 void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* scene)
 {
@@ -116,11 +135,6 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 
 void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene* scene)
 {
-    this->enemies[GOBLIN] = context.assetManager->Get<Enemy>("assets/enemies/goblin.yaml");
-    this->enemies[OGRE] = context.assetManager->Get<Enemy>("assets/enemies/ogre.yaml");
-
-    this->CreateEnemyEntity(this->enemies[OGRE], scene);
-
     enemyPool.reserve(maxEnemyPool);
     activeEnemy.reserve(maxEnemyPool);
 
@@ -502,7 +516,7 @@ void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
 
 Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
 {
-    Entity *entity = scene->AddEntity(enemy->name);
+    Entity *entity = scene->AddEntity(std::format("{}_{}", enemy->name, RNG::Int(0, INT_MAX)));
     entity->SetParent(this->GetOwner());
 
     auto *enemyTransform = entity->AddComponent<TransformComponent>();
@@ -778,6 +792,8 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
 
     this->BeginWave();
+
+    this->InitializePools(context, context.sceneManager->GetCurrentScene());
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)

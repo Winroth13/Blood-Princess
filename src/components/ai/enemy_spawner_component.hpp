@@ -1,8 +1,11 @@
 #pragma once
 #include "scene/component.hpp"
+#include "assets/types/audio_clip.hpp"
+#include "components/core/pool_component.hpp"
+
 #include <DirectXMath.h>
 #include <vector>
-#include "assets/types/audio_clip.hpp"
+
 
 class Entity;
 class Enemy;
@@ -35,6 +38,14 @@ class EnemySpawnerComponent : public Component
 	const size_t SKELETON = 2;
 
 	std::array<std::shared_ptr<Enemy>, 2> enemies = {};
+
+	std::array<int, 2> enemyPoolSize = 
+	{
+		128,
+		8
+	};
+
+	std::array<PoolComponent *, 2> enemyPools = {};
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -73,6 +84,7 @@ private:
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
 
+	void InitializePools(const AppContext &context, Scene *scene);
 
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
@@ -93,7 +105,6 @@ private:
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
-
 
 public:
 

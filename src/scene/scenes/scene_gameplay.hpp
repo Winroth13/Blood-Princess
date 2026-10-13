@@ -456,8 +456,10 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     }
 }
 
-namespace Scenes {
-    void Gameplay(Scene& outScene, const AppContext& appContext) {
+namespace Scenes 
+{
+    void Gameplay(Scene& outScene, const AppContext& appContext) 
+    {
         //Entity *musicEntity = outScene.AddEntity("music_entity");
         //musicEntity->AddComponent<TransformComponent>();
         //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));

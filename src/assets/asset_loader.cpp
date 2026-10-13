@@ -489,7 +489,7 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 			}
 			else
 			{
-				LogWarn("Invalid attack type: %s", attackTypeStr);
+				LogWarn("Invalid attack type: %s", attackTypeStr.c_str());
 			}
 
 			attack.animation = attackNode["animation"].as<std::string>("");

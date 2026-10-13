@@ -73,6 +73,11 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 		flags |= ImGuiTreeNodeFlags_Selected;
 	}
 
+	if (!entity->IsActive())
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, { 0.5f, 0.5f, 0.5f, 0.5f });
+	}
+
 	bool open = ImGui::TreeNodeEx(entity->GetName().c_str(), flags);
 
 	if (ImGui::IsItemClicked())
@@ -104,4 +109,8 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 		ImGui::TreePop();
 	}
 
+	if (!entity->IsActive())
+	{
+		ImGui::PopStyleColor();
+	}
 }

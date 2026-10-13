@@ -40,6 +40,7 @@
 #include "components/core/model_component.hpp"
 #include "components/core/particle_system_component.hpp"
 #include "components/core/transform_component.hpp"
+#include "components/core/pool_component.hpp"
 
 #include "components/gameplay/health_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
