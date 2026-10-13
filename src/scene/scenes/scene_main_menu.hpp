@@ -66,31 +66,12 @@ namespace Scenes {
             sceneManager->RequestSceneChange("gameplay");
         });
 
-        std::shared_ptr<AudioClip> hoveredClip = appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_swing_1.ogg");
-        std::shared_ptr<AudioClip> pressedClip = appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_parry_1.ogg");
-
-        AudioManager *audioManager = appContext.audioManager;
-        auto btnSoundFunc = [audioManager, pressedClip, hoveredClip](UI::ButtonState state) {
-            if (state == UI::ButtonState::HOVERED)
-                audioManager->PlaySoundEffect(hoveredClip, false);
-            else if (state == UI::ButtonState::PRESSED)
-                audioManager->PlaySoundEffect(pressedClip, false, 0.4f);
-        };
-
-        btnStart->GetOnStateChanged().Connect(btnSoundFunc);
-        btnSettings->GetOnStateChanged().Connect(btnSoundFunc);
-        btnCredits->GetOnStateChanged().Connect(btnSoundFunc);
-        btnQuit->GetOnStateChanged().Connect(btnSoundFunc);
-
         Application *app = appContext.application;
         btnQuit->GetOnClick().Connect([app]() {
             app->Stop();
         });
 
-        Entity *wind = outScene.AddEntity("wind");
-        wind->AddComponent<TransformComponent>();
-        MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg"));
-        musicComponent->SetVolume(0.2f);
+        SetDefaultSounds(outScene, appContext, { btnStart, btnSettings, btnCredits, btnQuit });
 
         //std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nParry: F\nDash: Shift/Space";
         //UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");
