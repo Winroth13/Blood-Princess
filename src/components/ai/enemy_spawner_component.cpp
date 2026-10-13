@@ -117,6 +117,9 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene* scene)
 {
     this->enemies[GOBLIN] = context.assetManager->Get<Enemy>("assets/enemies/goblin.yaml");
+    this->enemies[OGRE] = context.assetManager->Get<Enemy>("assets/enemies/ogre.yaml");
+
+    this->CreateEnemyEntity(this->enemies[OGRE], scene);
 
     enemyPool.reserve(maxEnemyPool);
     activeEnemy.reserve(maxEnemyPool);
@@ -126,65 +129,6 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
     auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
-
-    for (int i = 0; i < maxEnemyPool; ++i)
-    {
-        Entity* enemy = scene->AddEntity("Pooled_Enemy_" + std::to_string(RNG::Int(0, 2000000)));
-        enemy->SetParent(enemies);
-
-        auto* enemyTransform = enemy->AddComponent<TransformComponent>();
-        auto* modelComponent = enemy->AddComponent<ModelComponent>();
-        auto* animator = enemy->AddComponent<AnimatorComponent>();
-        auto* enemyHealth = enemy->AddComponent<Health>();
-        auto* enemyBC = enemy->AddComponent<BoxCollisionComponent>();
-        auto* enemyHurtbox = enemy->AddComponent<HurtboxComponent>();
-        auto* enemyController = enemy->AddComponent<EnemyControllerComponent>();
-        auto* enemySplatter = enemy->AddComponent<SplatterComponent>();
-        auto* enemySoundComponent = enemy->AddComponent<SoundComponent>();
-
-        enemyTransform->SetWorldScale(GetEnemyStats(EnemyType::Goblin).scale);
-        modelComponent->SetModel(enemyModel);
-
-        animator->AddAnimations(enemyModel->GetAnimations());
-        animator->SetSkeletonVisible(true);
-        animator->Play("Jog", true);
-
-        enemyBC->SetExtents({ 1.2f, 1.7f, 0.45f });
-        enemyBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
-        enemyBC->SetLayer(CollisionLayer::ENEMY);
-
-
-        enemyController->SetEnemyType(EnemyType::Goblin);
-        enemyController->SetHitSound(goblinHitSound);
-        enemyController->SetDeathSound(goblinDeathSound);
-        enemyController->SetRandomSound(goblinRandomSound);
-        enemySoundComponent->SetSound(goblinHitSound);
-        // goblin attack collider
-
-        Entity* claw = scene->AddEntity(enemy->GetName() + "_Claw");
-        claw->SetParent(enemy);
-
-        auto* clawTransform = claw->AddComponent<TransformComponent>();
-        clawTransform->SetLocalPosition({ 0.0f, 1.3f, 0.8f });
-
-        auto* clawCol = claw->AddComponent<BoxCollisionComponent>();
-        clawCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
-        clawCol->SetTrigger(true);
-        clawCol->SetStatic(false);
-        clawCol->SetExtents({ 0.6f, 0.6f, 0.7f });
-
-        auto* clawHitbox = claw->AddComponent<HitboxComponent>();
-        clawHitbox->SetActive(false);
-        clawHitbox->SetDamage(GetEnemyStats(EnemyType::Goblin).attackDamage);
-        clawHitbox->SetKnockbackForce(GetEnemyStats(EnemyType::Goblin).attackKnockback);
-
-
-        enemyController->SetAttackHitbox(clawHitbox);
-        // end goblin attack collider
-
-        enemy->SetLocallyActive(false);
-        enemyPool.push_back(enemy);
-    }
 }
 
 void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count)
@@ -556,6 +500,60 @@ void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
     bloodExplosionEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(2.0f);
 }
 
+Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
+{
+    Entity *entity = scene->AddEntity(enemy->name);
+    entity->SetParent(this->GetOwner());
+
+    auto *enemyTransform = entity->AddComponent<TransformComponent>();
+    enemyTransform->SetLocalPosition(0.0f, -0.5f, 0.0f);
+    enemyTransform->SetWorldScale(enemy->scale);
+    
+    auto *modelComponent = entity->AddComponent<ModelComponent>();
+    modelComponent->SetModel(enemy->model);
+
+    auto *animator = entity->AddComponent<AnimatorComponent>();
+    animator->AddAnimations(enemy->model->GetAnimations());
+    animator->SetSkeletonVisible(true);
+    animator->Play(enemy->walkAnimation, true);
+
+    auto *enemyHealth = entity->AddComponent<Health>();
+
+    auto *enemyBC = entity->AddComponent<BoxCollisionComponent>();
+    enemyBC->SetExtents(enemy->extends);
+    enemyBC->SetCenterOffset(enemy->extendsOffset);
+    enemyBC->SetLayer(CollisionLayer::ENEMY);
+
+    auto *enemyHurtbox = entity->AddComponent<HurtboxComponent>();
+
+    auto *enemyController = entity->AddComponent<EnemyControllerComponent>();
+    enemyController->SetHitSound(enemy->hitSound);
+    enemyController->SetDeathSound(enemy->deathSound);
+    enemyController->SetRandomSound(enemy->barkSound);
+    
+    auto *enemySplatter = entity->AddComponent<SplatterComponent>();
+
+    auto *enemySoundComponent = entity->AddComponent<SoundComponent>();
+    enemySoundComponent->SetSound(enemy->hitSound);
+
+    Entity *hitboxEntity = scene->AddEntity("hitbox");
+    hitboxEntity->SetParent(entity);
+
+    auto *hitboxTransform = hitboxEntity->AddComponent<TransformComponent>();
+
+    auto *hitboxCol = hitboxEntity->AddComponent<BoxCollisionComponent>();
+    hitboxCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    hitboxCol->SetTrigger(true);
+    hitboxCol->SetStatic(false);
+
+    auto *hitbox = hitboxEntity->AddComponent<HitboxComponent>();
+    hitbox->SetActive(false);
+
+    enemyController->SetAttackHitbox(hitbox);
+
+    return entity;
+}
+
 void EnemySpawnerComponent::CleanGibs()
 {
     for (auto it = activeGibs.begin(); it != activeGibs.end(); )
@@ -761,7 +759,6 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
     
     this->currentEnemies = static_cast<int>(this->activeEnemy.size());
 }
-
 
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {

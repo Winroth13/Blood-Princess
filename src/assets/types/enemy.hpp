@@ -26,6 +26,10 @@ struct EnemyAttack
 	float hitDelay;
 	float hitDuration;
 	float range;
+
+	XMFLOAT3 extends;
+	XMFLOAT3 extendsOffset;
+	std::string socket;
 };
 
 class Enemy : public Asset

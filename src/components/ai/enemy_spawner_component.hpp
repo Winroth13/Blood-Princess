@@ -11,10 +11,10 @@ class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
-	ExportProperty(int, maxOgreEnemies, 3);
+	ExportProperty(int, maxOgreEnemies, 0);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 
-	ExportProperty(int, maxSkeletonEnemies, 5);
+	ExportProperty(int, maxSkeletonEnemies, 0);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
 
 	ExportProperty(int, maxEnemiesAlive, 0);
@@ -34,7 +34,7 @@ class EnemySpawnerComponent : public Component
 	const size_t OGRE = 1;
 	const size_t SKELETON = 2;
 
-	std::array<std::shared_ptr<Enemy>, 1> enemies = {};
+	std::array<std::shared_ptr<Enemy>, 2> enemies = {};
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -84,6 +84,8 @@ private:
 
 
 	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
+
+	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene);
 
 	void CleanGibs();
 	void CleanupDeadEnemies(const AppContext& context);

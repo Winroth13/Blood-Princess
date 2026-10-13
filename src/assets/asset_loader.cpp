@@ -500,6 +500,10 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 			attack.hitDuration = attackNode["hit_duration"].as<float>(1.0f);
 			attack.range = attackNode["range"].as<float>(1.0f);
 
+			attack.extends = attackNode["extends"].as<XMFLOAT3>(XMFLOAT3(0.5f, 0.5f, 0.5f));
+			attack.extendsOffset = attackNode["extends_offset"].as<XMFLOAT3>(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			attack.socket = attackNode["socket"].as<std::string>("");
+
 			attacks.push_back(attack);
 		}
 
