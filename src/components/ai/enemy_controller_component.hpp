@@ -58,7 +58,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 		};
 	case EnemyType::Ogre:
 		return {
-			/*moveSpeed*/          2.0f,
+			/*moveSpeed*/          6.0f,
 			/*health*/             500.0f,
 			/*attackDamage*/       40.0f,
 			/*attackKnockback*/    0.0f,
