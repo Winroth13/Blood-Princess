@@ -21,7 +21,7 @@
 #include "components/core/lifetime_component.hpp"
 #include "components/audio/sound_component.hpp"
 #include "assets/types/sound.hpp"
-
+#include "assets/types/enemy.hpp"
 
 uint32_t s_gibCounter = 0;
 
@@ -116,6 +116,8 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
 
 void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene* scene)
 {
+    this->enemies[GOBLIN] = context.assetManager->Get<Enemy>("assets/enemies/goblin.yaml");
+
     enemyPool.reserve(maxEnemyPool);
     activeEnemy.reserve(maxEnemyPool);
 

@@ -16,6 +16,7 @@
 #include "assets/types/compute_shader.hpp"
 #include "assets/types/font.hpp"
 #include "assets/types/sound.hpp"
+#include "assets/types/enemy.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -35,6 +36,9 @@
 
 #include "yaml-cpp/yaml.h"
 #include "serialization/custom_yaml_types.hpp"
+
+#include <DirectXMath.h>
+using namespace DirectX;
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -435,4 +439,87 @@ std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path)
 	}
 
 	return sound;
+}
+
+template<>
+std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
+{
+	std::shared_ptr<Enemy> enemy = std::make_shared<Enemy>();
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		if (!file.IsDefined() || file.IsNull())
+		{
+			LogWarn("File is empty: %s", path.c_str());
+			return enemy;
+		}
+
+		enemy->name = file["name"].as<std::string>("unknown");
+		enemy->health = file["health"].as<float>(100.0f);
+		enemy->scale = file["scale"].as<float>(1.0f);
+		enemy->knockbackFactor = file["knockback_factor"].as<float>(1.0f);
+
+		enemy->model = this->assetManager->Get<Model>(file["model"].as<std::string>(""));
+		enemy->walkAnimation = file["walk_animation"].as<std::string>("");
+
+		enemy->extends = file["extends"].as<XMFLOAT3>({ 1.0f, 1.0f, 1.0f });
+		enemy->extendsOffset = file["extends_offset"].as<XMFLOAT3>({ 1.0f, 1.0f, 1.0f });
+
+		enemy->hitSound = this->assetManager->Get<Sound>(file["hit_sound"].as<std::string>(""));
+		enemy->deathSound = this->assetManager->Get<Sound>(file["death_sound"].as<std::string>(""));
+		enemy->barkSound = this->assetManager->Get<Sound>(file["bark_sound"].as<std::string>(""));
+
+		std::vector<EnemyAttack> attacks = {};
+
+		for (YAML::Node attackNode : file["attacks"])
+		{
+			EnemyAttack attack = {};
+			attack.name = attackNode["name"].as<std::string>("");
+			
+			std::string attackTypeStr = attackNode["type"].as<std::string>("");
+			if (attackTypeStr == "Melee")
+			{
+				attack.type = AttackType::Melee;
+			}
+			else if (attackTypeStr == "Projectile")
+			{
+				attack.type = AttackType::Projectile;
+			}
+			else
+			{
+				LogWarn("Invalid attack type: %s", attackTypeStr);
+			}
+
+			attack.animation = attackNode["animation"].as<std::string>("");
+			attack.sound = this->assetManager->Get<Sound>(file["sound"].as<std::string>(""));
+			attack.damage = attackNode["damage"].as<float>(1.0f);
+			attack.knockback = attackNode["knockback"].as<float>(1.0f);
+			attack.hitDelay = attackNode["hit_delay"].as<float>(1.0f);
+			attack.hitDuration = attackNode["hit_duration"].as<float>(1.0f);
+			attack.range = attackNode["range"].as<float>(1.0f);
+
+			attacks.push_back(attack);
+		}
+
+		enemy->attacks = attacks;
+	}
+	catch (const YAML::BadFile &e)
+	{
+		LogWarn("Failed to open file: %s", path.c_str());
+		return enemy;
+	}
+	catch (const YAML::ParserException &e)
+	{
+		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		return enemy;
+	}
+	catch (const std::exception &e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return enemy;
+	}
+
+	return enemy;
 }

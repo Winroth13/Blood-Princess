@@ -13,7 +13,6 @@ class SpatialGrid;
 class Sound;
 struct AttackHitEvent;
 
-
 enum class EnemyType
 {
 	Goblin,

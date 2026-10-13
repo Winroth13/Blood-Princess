@@ -13,6 +13,8 @@
 #include "assets/types/domain_shader.hpp"
 #include "assets/types/sound.hpp"
 
+#include "assets/types/enemy.hpp"
+
 #include <unordered_map>
 #include <string>
 #include <memory>

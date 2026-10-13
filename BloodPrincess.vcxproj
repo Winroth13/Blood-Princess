@@ -367,6 +367,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="src\assets\types\enemy.hpp" />
     <ClInclude Include="src\assets\types\sound.hpp" />
     <ClInclude Include="src\components\audio\sound_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />

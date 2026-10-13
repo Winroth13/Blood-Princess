@@ -3,7 +3,9 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "assets/types/audio_clip.hpp"
+
 class Entity;
+class Enemy;
 
 class EnemySpawnerComponent : public Component
 {
@@ -27,6 +29,12 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
+
+	const size_t GOBLIN = 0;
+	const size_t OGRE = 1;
+	const size_t SKELETON = 2;
+
+	std::array<std::shared_ptr<Enemy>, 1> enemies = {};
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Texture2D> atlasTexture;
