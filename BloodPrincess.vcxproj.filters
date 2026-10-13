@@ -122,6 +122,7 @@
     <ClCompile Include="src\components\traps\trap_component.cpp" />
     <ClCompile Include="src\components\traps\trap_spawner_component.cpp" />
     <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
+    <ClCompile Include="src\components\gameplay\tutorial_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -318,6 +319,7 @@
     <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
     <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
+    <ClInclude Include="src\components\gameplay\tutorial_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

@@ -208,6 +208,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
     <ClCompile Include="src\components\gameplay\projectile_component.cpp" />
+    <ClCompile Include="src\components\gameplay\tutorial_component.cpp" />
     <ClCompile Include="src\ai\ai_manager.cpp" />
     <ClCompile Include="src\ai\spatial_grid.cpp" />
     <ClCompile Include="src\assets\asset_utils.cpp" />
@@ -376,6 +377,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
     <ClInclude Include="src\components\gameplay\projectile_component.hpp" />
+    <ClInclude Include="src\components\gameplay\tutorial_component.hpp" />
     <ClInclude Include="src\ai\ai_manager.hpp" />
     <ClInclude Include="src\ai\spatial_grid.hpp" />
     <ClInclude Include="src\assets\asset_utils.hpp" />

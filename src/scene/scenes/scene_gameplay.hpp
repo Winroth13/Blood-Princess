@@ -194,7 +194,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 // Not final!!!!!
-static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player) {
+static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, EnemySpawnerComponent *enemySpawner = nullptr) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -225,6 +225,20 @@ static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *pla
 
     showHealthFunc(health->GetCurrentHealth(), health->GetMaxHealth());
     health->GetOnChangedHealth().Connect(showHealthFunc);
+
+    // Tutorial Popup
+    Entity *popupPanel = ui.CreatePanel(hud, { 700.0f, 130.0f }, "tutorial_popup");
+    UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
+
+    UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
+    UI::Factory::Place(tutorialText, UI::Anchor::STRETCH, { 20.0f, 15.0f }, { -40.0f, -30.0f });
+    tutorialText->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
+    tutorialText->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+    TutorialComponent *tutorialComp = hud->AddComponent<TutorialComponent>();
+    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);
+
+    return hud;
 }
 
 static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, const DirectX::XMFLOAT3 &center, int numSegments)
@@ -462,7 +476,6 @@ namespace Scenes {
         //musicComponent->SetVolume(0.2f);
 
         Entity *playerEntity = CreatePlayer(outScene, appContext);
-        CreateHUD(outScene, appContext, playerEntity);
 
         Health *health = playerEntity->GetComponent<Health>();
         gameController->SetPlayerHealthComponent(appContext, health);
@@ -471,8 +484,11 @@ namespace Scenes {
         Entity* spawnerEntity = outScene.AddEntity("Spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
         EnemySpawnerComponent *enemySpawner = spawnerEntity->AddComponent<EnemySpawnerComponent>();
+        enemySpawner->SetAutoStartWave(false);
 
         gameController->SetEnemySpawnerComponent(appContext, enemySpawner);
+
+        CreateHUD(outScene, appContext, playerEntity, enemySpawner);
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");

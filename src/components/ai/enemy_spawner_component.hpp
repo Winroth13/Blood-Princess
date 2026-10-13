@@ -27,6 +27,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
+	ExportProperty(bool, autoStartWave, true);
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -52,6 +53,8 @@ private:
 	float skeletonTimer = 0.0f;
 	float skeletonElapsed = 0.0f;
 	int   skeletonsSpawned = 0;
+
+	bool isWaveActive = false;
 
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
@@ -99,6 +102,7 @@ public:
 
 	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
 	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
+	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
 
 	void BeginWave();
 };

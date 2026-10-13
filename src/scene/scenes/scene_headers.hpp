@@ -50,6 +50,7 @@
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
 #include "components/gameplay/game_controller_component.hpp"
+#include "components/gameplay/tutorial_component.hpp"
 
 #include "components/lights/ambient_light_component.hpp"
 #include "components/lights/directional_light_component.hpp"

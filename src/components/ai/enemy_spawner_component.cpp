@@ -778,13 +778,21 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
 
-    this->BeginWave();
+    if (this->autoStartWave)
+    {
+        this->BeginWave();
+    }
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
     this->CleanupDeadEnemies(context);
     this->CleanGibs();
+
+    if (!this->isWaveActive)
+    {
+        return;
+    }
 
     // ---------- Goblins ----------
     if (this->goblinElapsed < this->enemySpawnDuration
@@ -848,6 +856,8 @@ void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 
 void EnemySpawnerComponent::BeginWave()
 {
+    this->isWaveActive = true;
+
     this->goblinTimer = (this->maxEnemiesAlive > 0)
         ? this->enemySpawnDuration / this->maxEnemiesAlive
         : 0.0f;
