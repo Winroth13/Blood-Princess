@@ -60,4 +60,6 @@ public:
 	bool Initialize();
 	void Run();
 	void Shutdown();
+
+    void Stop() { this->isRunning = false; }
 };

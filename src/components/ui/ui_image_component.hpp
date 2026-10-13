@@ -47,6 +47,11 @@ public:
 
     const XMFLOAT4 &GetColour() const { return this->colour; }
     void SetColour(const XMFLOAT4 &colour) { this->colour = colour; }
+    void SetOpacity(float opacity) { this->colour.w = opacity; }
+
+    XMFLOAT2 GetSpriteSize() const;
+
+    float GetAspectRatio() const;
 
     bool GetShouldPreserveAspectRatio() const { return this->shouldPreserveAspectRatio; }
     void SetShouldPreserveAspectRatio(bool shouldPreserveAspectRatio) { this->shouldPreserveAspectRatio = shouldPreserveAspectRatio; }
