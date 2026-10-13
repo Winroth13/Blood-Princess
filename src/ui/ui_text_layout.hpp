@@ -56,6 +56,16 @@ namespace UI {
         const std::vector<TextLayoutGlyph> &GetGlyphs() const { return this->glyphs; }
         DirectX::XMFLOAT2 GetSize() const { return this->size; }
 
+        static DirectX::XMFLOAT2 Measure(
+            const Font &font,
+            const std::string &text,
+            float fontSize,
+            float lineSpacing = 1.0f,
+            float maxWidth = 0.0f
+        );
+
+        static float GetSingleLineHeight(const Font &font, float fontSize);
+
         static void DecodeUTF8(const std::string &text, std::vector<uint32_t> &outCodepoints);
     };
 }

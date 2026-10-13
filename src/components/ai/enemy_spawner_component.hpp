@@ -10,21 +10,16 @@ class EnemySpawnerComponent : public Component
 	RegisterComponent(EnemySpawnerComponent);
 
 	// ogre start
-	ExportProperty(int, maxOgreEnemies, 4);
+	ExportProperty(int, maxOgreEnemies, 3);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
-	ExportProperty(float, ogreMoveSpeed, 2.0f);
-	ExportProperty(float, ogreHealth, 500.0f);
 	// ogre end
 
-
-	ExportProperty(int, maxEnemiesAlive, 30);
+	ExportProperty(int, maxEnemiesAlive, 40);
 	ExportProperty(float, enemySpawnDuration, 10.0f);
 	ExportProperty(int, currentEnemies, 1);
 
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
-	ExportProperty(float, enemyMoveSpeed, 3.0f);
-	ExportProperty(float, enemyHealth, 100.0f);
 
 	ExportProperty(int, maxGibsPool, 100);
 	ExportProperty(int, maxEnemyPool, 250);

@@ -159,21 +159,14 @@ void UITextComponent::UIRender(UI::DrawList &drawList) {
 }
 
 DirectX::XMFLOAT2 UITextComponent::GetPreferredSize() {
-    if (!this->font || this->text.empty())
-        return { 0.0f, 0.0f };
+    return this->GetPreferredSize(0.0f);
+}
 
-    std::vector<uint32_t> preferredCodepoints;
-    UI::TextLayout::DecodeUTF8(this->text, preferredCodepoints);
+DirectX::XMFLOAT2 UITextComponent::GetPreferredSize(float maxWidth) {
+    if (!this->font)
+        return {0.0f, 0.0f};
 
-    UI::TextLayoutSettings layoutSettings{};
-    layoutSettings.fontSize = this->fontSize;
-    layoutSettings.lineSpacing = this->lineSpacing;
-    layoutSettings.shouldWrap = false;
-
-    UI::TextLayout preferredLayout;
-    preferredLayout.Build(*this->font, preferredCodepoints, layoutSettings);
-
-    return preferredLayout.GetSize();
+    return UI::TextLayout::Measure(*this->font, this->text, this->fontSize, this->lineSpacing, this->shouldWrap ? maxWidth : 0.0f);
 }
 
 void UITextComponent::SetAlignHorizontal(UI::AlignHorizontal alignHorizontal) {

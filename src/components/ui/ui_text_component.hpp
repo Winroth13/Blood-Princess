@@ -70,6 +70,7 @@ private:
 
 public:
     DirectX::XMFLOAT2 GetPreferredSize();
+    DirectX::XMFLOAT2 GetPreferredSize(float maxWidth);
 
     const std::string &GetText() const { return this->text; }
     void SetText(const std::string &text) { this->text = text; }

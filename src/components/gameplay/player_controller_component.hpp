@@ -9,6 +9,7 @@ class AnimatorComponent;
 class HitboxComponent;
 class CameraComponent;
 class Sound;
+class Health;
 
 struct AttackData
 {
@@ -46,10 +47,17 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, minDashDensity, 0.4f);
 	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
+	// health
+	ExportProperty(float, maxHealth, 200.0f);
+
+
 	XMVECTOR dashDirection = {};
 	CollisionManager* collisionRef = nullptr;
 
 	TransformComponent *rootTransform = nullptr;
+	// health
+	Health* health = nullptr;
+	bool isDead = false;
 
 	/*
 	*	Sounds
@@ -109,10 +117,14 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
-	void OnAttackHit(const struct AttackHitEvent& event);
+
 
 	ConnectionId attackHitConnection = 0;
+	ConnectionId damageTakenConnection = 0;
 
+	void OnDeath();
+	void OnAttackHit(const struct AttackHitEvent& event);
+	void OnDamageTaken(const DamageTakenEvent& event);
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;

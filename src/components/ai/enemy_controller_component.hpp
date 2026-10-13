@@ -6,20 +6,89 @@
 
 class TransformComponent;
 class AnimatorComponent;
+class HitboxComponent;
 class SpatialGrid;
 class Sound;
 struct AttackHitEvent;
 
+
+enum class EnemyType
+{
+	Goblin,
+	Ogre,
+	Archer
+};
+
+struct EnemyStats
+{
+	float moveSpeed;
+	float health;
+	float attackDamage;
+	float attackKnockback;
+	float attackHitboxDelay;
+	float attackHitboxDuration;
+	float stopDistance;
+	float knockbackMultiplier;
+	float scale;
+};
+inline EnemyStats GetEnemyStats(EnemyType type)
+{
+	switch (type)
+	{
+	case EnemyType::Goblin:
+		return {
+			/*moveSpeed*/          3.5f,
+			/*health*/             100.0f,
+			/*attackDamage*/       15.0f,
+			/*attackKnockback*/    2.0f,
+			/*attackHitboxDelay*/  0.30f,
+			/*attackHitboxDur*/    0.25f,
+			/*stopDistance*/       1.0f,
+			/*knockbackMult*/      4.0f,
+			/*scale*/              0.9f
+		};
+	case EnemyType::Ogre:
+		return {
+			/*moveSpeed*/          2.0f,
+			/*health*/             500.0f,
+			/*attackDamage*/       40.0f,
+			/*attackKnockback*/    0.0f,
+			/*attackHitboxDelay*/  0.50f,
+			/*attackHitboxDur*/    0.45f,
+			/*stopDistance*/       1.7f,
+			/*knockbackMult*/      0.0f,
+			/*scale*/              2.0f
+		};
+	case EnemyType::Archer:
+		return {
+			/*moveSpeed*/          4.0f,
+			/*health*/             60.0f,
+			/*attackDamage*/       10.0f,
+			/*attackKnockback*/    0.0f,
+			/*attackHitboxDelay*/  0.60f,
+			/*attackHitboxDur*/    0.15f,
+			/*stopDistance*/       8.0f,
+			/*knockbackMult*/      3.0f,
+			/*scale*/              0.9f
+		};
+	}
+	return {};
+}
+
 class EnemyControllerComponent : public Component
 {
 	RegisterComponent(EnemyControllerComponent);
+
 	ExportProperty(std::string, groupName, "Enemy");
+
 	ExportProperty(float, moveSpeed, 3.5f);
 	ExportProperty(float, avoidanceRadius, 1.5f);
 	ExportProperty(float, stopDistance, 1.0f);
+
 	ExportProperty(float, knockbackMultiplier, 4.0f);
 	ExportProperty(float, knockbackDecay, 12.0f);
 	ExportProperty(float, knockbackStunDuration, 0.2f);
+
 	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, deathSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
@@ -27,10 +96,17 @@ class EnemyControllerComponent : public Component
 	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
 	ExportProperty(float, randomSoundMinInterval, 5.0f);
 	ExportProperty(float, randomSoundMaxInterval, 50.0f);
+	// attack
+	ExportProperty(float, attackDamage, 15.0f);
+	ExportProperty(float, attackKnockback, 2.0f);
+	ExportProperty(float, attackHitboxDelay, 0.3f);
+	ExportProperty(float, attackHitboxDuration, 0.3f);
+
 
 private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
+	HitboxComponent* hitbox = nullptr;
 	AIManager* aiManager = nullptr;
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
@@ -38,6 +114,12 @@ private:
 	float movementDistanceAccumulator = 0.0f;
 	float randomSoundTimer = 0.0f;
 	bool isAttacking = false;
+
+	// attack
+	float attackElapsed = 0.0f;
+	bool hitboxActivated = false;
+	// enemy type
+	EnemyType enemyType = EnemyType::Goblin;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -86,5 +168,12 @@ public:
 	std::shared_ptr<Sound> GetRandomSound() const { return this->randomSound; }
 	void SetRandomSound(std::shared_ptr<Sound> sound) { this->randomSound = sound; }
 
+	void SetAttackHitbox(HitboxComponent* hb) { this->hitbox = hb; }
+	HitboxComponent* GetAttackHitbox() const { return this->hitbox; }
+
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
+
+	void SetEnemyType(EnemyType type);
+	EnemyType GetEnemyType() const { return this->enemyType; }
+
 };

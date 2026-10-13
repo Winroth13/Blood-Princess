@@ -2,75 +2,7 @@
 
 #include "scene_headers.hpp"
 
-static void CreateTestUI(Scene &outScene, const AppContext &appContext) {
-    std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/ComicRelief-Regular.ttf");
-
-    Entity *hud = outScene.AddEntity("HUD");
-    hud->AddComponent<UIRectComponent>();
-    hud->AddComponent<UICanvasComponent>();
-
-    Entity *img = outScene.AddEntity("img");
-    img->SetParent(hud);
-    img->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_RIGHT, {-20.0f, 20.0f}, {300.0f, 300.0f});
-    UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
-    imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
-    imageComp->SetShouldPreserveAspectRatio(true);
-
-    Entity *txt = outScene.AddEntity("txt");
-    txt->SetParent(img);
-    txt->AddComponent<UIRectComponent>()->Place(UI::Anchor::CENTRE, {0.0f, 0.0f}, {320.0f, 120.0f});
-    txt->AddComponent<UIImageComponent>()->SetColour({0.0f, 0.0f, 0.0f, 0.3f});
-    UITextComponent *textComp = txt->AddComponent<UITextComponent>();
-    textComp->SetText("Hello World! This is a test");
-    textComp->SetColour({1.0f, 1.0f, 1.0f, 1.0f});
-    textComp->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
-    textComp->SetFontSize(50.0f);
-    textComp->SetOutline(1.75f, {240.0f / 255.0f, 0.0f, 1.0f, 1.0f});
-    textComp->SetShadow({7.0f, 4.0f}, {0.0f, 0.0f, 0.0f, 0.8f});
-
-    std::shared_ptr<Texture2D> panelSprite = appContext.assetManager->Get<Texture2D>("assets/images/test_9_slice.png");
-
-    Entity *frame = outScene.AddEntity("sliced_frame");
-    frame->SetParent(hud);
-    frame->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_LEFT, {20.0f, 20.0f}, {420.0f, 120.0f});
-    UIImageComponent *frameImage = frame->AddComponent<UIImageComponent>();
-    frameImage->SetTexture(panelSprite);
-    frameImage->SetSlicing(20.0f);
-
-    Entity *demoHealthEntity = outScene.AddEntity("test_health");
-    Health *demoHealth = demoHealthEntity->AddComponent<Health>();
-
-    Entity *healthBarEntity = outScene.AddEntity("health_bar");
-    healthBarEntity->SetParent(hud);
-    healthBarEntity->AddComponent<UIRectComponent>()->Place(UI::Anchor::TOP_LEFT, {20.0f, 160.0f}, {420.0f, 40.0f});
-    UIBarComponent *healthBar = healthBarEntity->AddComponent<UIBarComponent>();
-    healthBar->SetBackgroundTexture(panelSprite);
-    healthBar->SetBackgroundSliceBorder(20.0f);
-    healthBar->SetFillPadding(5.0f);
-    healthBar->SetFillColour({0.75f, 0.08f, 0.12f, 1.0f});
-    healthBar->SetTrailColour({1.0f, 0.85f, 0.55f, 1.0f});
-
-    Entity *healthLabelEntity = outScene.AddEntity("health_label");
-    healthLabelEntity->SetParent(healthBarEntity);
-    healthLabelEntity->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
-    UITextComponent *healthLabel = healthLabelEntity->AddComponent<UITextComponent>();
-    healthLabel->SetFont(font);
-    healthLabel->SetFontSize(22.0f);
-    healthLabel->SetColour({1.0f, 1.0f, 1.0f, 1.0f});
-    healthLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
-    healthLabel->SetOutline(2.0f, {0.0f, 0.0f, 0.0f, 1.0f});
-
-    auto showHealthFunc = [healthBar, healthLabel](float current, float max) {
-        healthBar->SetValue(current, max);
-        healthLabel->SetText(std::format("{} / {}", static_cast<int>(current), static_cast<int>(max)));
-    };
-
-    showHealthFunc(demoHealth->GetCurrentHealth(), demoHealth->GetMaxHealth());
-    demoHealth->GetOnChangedHealth().Connect(showHealthFunc);
-    demoHealth->GetOnDeath().Connect([]() { LogInfo("DemoHealth died"); });
-}
-
-static void CreatePlayer(Scene &outScene, const AppContext &appContext)
+static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
     Entity* playerEntity = outScene.AddEntity("player");
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
@@ -193,6 +125,9 @@ static void CreatePlayer(Scene &outScene, const AppContext &appContext)
         playerCol->SetLayer(CollisionLayer::PLAYER);
         playerCol->SetStatic(false);
         playerCol->SetRadius(0.5f);
+
+        playerEntity->AddComponent<Health>();
+        playerEntity->AddComponent<HurtboxComponent>();
     }
 
     /* Viewmodel */
@@ -254,6 +189,40 @@ static void CreatePlayer(Scene &outScene, const AppContext &appContext)
         swordHitBox->SetKnockbackForce(2.0f);
         playerEntity->GetComponent<PlayerControllerComponent>()->hitbox = swordHitBox;
     }
+
+    return playerEntity;
+}
+
+// Not final!!!!!
+static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player) {
+    UI::Factory ui(outScene, *appContext.assetManager);
+    SetDefaultStyle(ui.style, *appContext.assetManager);
+
+    ui.style.panelTexture = appContext.assetManager->Get<Texture2D>("assets/images/test_9_slice.png");
+    ui.style.panelSliceBorder = 20.0f;
+    ui.style.panelColour = {1.0f, 1.0f, 1.0f, 1.0f};
+    ui.style.barColourFill = {0.75f, 0.08f, 0.12f, 1.0f};
+    ui.style.barColourTrail = {1.0f, 0.85f, 0.55f, 1.0f};
+
+    Entity *hud = ui.CreateCanvas("hud");
+
+    Health *health = player->GetComponent<Health>();
+
+    UIBarComponent *healthBar = ui.CreateBar(hud, health->GetCurrentHealth(), health->GetMaxHealth(), "health_bar");
+    UI::Factory::Place(healthBar, UI::Anchor::TOP_LEFT, {40.0f, 40.0f});
+
+    UITextComponent *healthLabel = ui.CreateText(healthBar->GetOwner(), "", 22.0f, "health_label");
+    UI::Factory::Place(healthLabel, UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+    healthLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
+    healthLabel->SetOutline(2.0f, {0.0f, 0.0f, 0.0f, 1.0f});
+
+    auto showHealthFunc = [healthBar, healthLabel](float current, float max) {
+        healthBar->SetValue(current, max);
+        healthLabel->SetText(std::format("{:.0f} / {:.0f}", current, max));
+    };
+
+    showHealthFunc(health->GetCurrentHealth(), health->GetMaxHealth());
+    health->GetOnChangedHealth().Connect(showHealthFunc);
 }
 
 static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, const DirectX::XMFLOAT3 &center, int numSegments)
@@ -487,8 +456,8 @@ namespace Scenes {
         //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
         //musicComponent->SetVolume(0.2f);
 
-        CreatePlayer(outScene, appContext);
-        CreateTestUI(outScene, appContext);
+        Entity *playerEntity = CreatePlayer(outScene, appContext);
+        CreateHUD(outScene, appContext, playerEntity);
 
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("Spawner");

@@ -12,6 +12,11 @@
 #include "assets/types/sound.hpp"
 #include "assets/types/texture_2d.hpp"
 
+#include "ui/ui_factory.hpp"
+#include "ui/ui_style.hpp"
+#include "ui/ui_text_layout.hpp"
+#include "ui/ui_types.hpp"
+
 #include "components/ai/enemy_controller_component.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
 
@@ -62,3 +67,29 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+
+inline void SetDefaultStyle(UI::Style &style, AssetManager &assetManager) {
+    style.fontSizeRegular = 28.0f;
+    style.fontSizeTitle = 44.0f;
+    style.textColour = {1.0f, 0.92f, 0.8f, 1.0f};
+
+    style.panelTexture = assetManager.Get<Texture2D>("assets/images/ui/placeholder_panel.png");
+    style.panelColour = {1.0f, 1.0f, 1.0f, 1.0f};
+    style.panelSliceBorder = 14.0f;
+
+    style.buttonTextureNormal = assetManager.Get<Texture2D>("assets/images/ui/placeholder_button_grey.png");
+    style.buttonSliceBorder = 14.0f;
+    style.buttonColourNormal = {0.55f, 0.42f, 0.4f, 1.0f};
+    style.buttonColourHovered = {0.9f, 0.7f, 0.6f, 1.0f};
+    style.buttonColourPressed = {0.8f, 0.2f, 0.22f, 1.0f};
+    style.buttonColourDisabled = {0.4f, 0.4f, 0.4f, 0.5f};
+    style.buttonFadeDuration = 0.1f;
+    style.buttonTextPadding = {24.0f, 18.0f};
+
+    style.checkmarkTexture = assetManager.Get<Texture2D>("assets/images/ui/placeholder_checkmark.png");
+    style.checkmarkColour = {1.0f, 0.92f, 0.8f, 1.0f};
+
+    style.sliderFillColour = {0.75f, 0.08f, 0.12f, 1.0f};
+    style.barColourFill = {0.75f, 0.08f, 0.12f, 1.0f};
+    style.barColourTrail = {1.0f, 0.85f, 0.55f, 1.0f};
+}
