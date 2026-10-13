@@ -16,7 +16,8 @@ enum class EnemyType
 {
 	Goblin,
 	Ogre,
-	Archer
+	Archer,
+	Skeleton
 };
 
 struct EnemyStats
@@ -57,7 +58,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.45f,
 			/*stopDistance*/       1.7f,
 			/*knockbackMult*/      0.0f,
-			/*scale*/              2.0f
+			/*scale*/              1.25f
 		};
 	case EnemyType::Archer:
 		return {
@@ -69,6 +70,18 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.15f,
 			/*stopDistance*/       8.0f,
 			/*knockbackMult*/      3.0f,
+			/*scale*/              0.9f
+		};
+	case EnemyType::Skeleton:
+		return {
+			/*moveSpeed*/          3.5f,
+			/*health*/             100.0f,
+			/*attackDamage*/       15.0f,
+			/*attackKnockback*/    2.0f,
+			/*attackHitboxDelay*/  0.30f,
+			/*attackHitboxDur*/    0.25f,
+			/*stopDistance*/       15.0f,
+			/*knockbackMult*/      4.0f,
 			/*scale*/              0.9f
 		};
 	}

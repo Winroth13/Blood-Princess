@@ -14,6 +14,11 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 	// ogre end
 
+	// skeleton start
+	ExportProperty(int, maxSkeletonEnemies, 5);
+	ExportProperty(float, skeletonSpawnDuration, 10.0f);
+	// skeleton end
+
 	ExportProperty(int, maxEnemiesAlive, 40);
 	ExportProperty(float, enemySpawnDuration, 10.0f);
 	ExportProperty(int, currentEnemies, 1);
@@ -35,6 +40,9 @@ class EnemySpawnerComponent : public Component
 	// ogre
 	std::shared_ptr<Model> ogreModel;
 
+	// skeleton
+	std::shared_ptr<Model> skeletonModel;
+
 private:
 
 	float goblinTimer = 0.0f;   // countdown to next goblin
@@ -45,6 +53,10 @@ private:
 	float ogreElapsed = 0.0f;
 	int   ogresSpawned = 0;
 
+	float skeletonTimer = 0.0f;
+	float skeletonElapsed = 0.0f;
+	int   skeletonsSpawned = 0;
+
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
 
@@ -52,6 +64,7 @@ private:
 	std::vector<Entity*> activeEnemy;
 
 	std::vector<Entity*> activeOgre;
+	std::vector<Entity*> activeSkeleton;
 
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
@@ -63,6 +76,7 @@ private:
 	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count = 3);
 	bool SpawnOneEnemyFromPool(const AppContext& context);
 	bool SpawnOneOgre(const AppContext& context);
+	bool SpawnOneSkeleton(const AppContext& context);
 
 
 	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
@@ -86,6 +100,9 @@ public:
 
 	void SetOgreMaxAlive(int amount) { this->maxOgreEnemies = amount; }
 	void SetOgreSpawnDuration(float amount) { this->ogreSpawnDuration = amount; }
+
+	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
+	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
 
 	void BeginWave();
 };
