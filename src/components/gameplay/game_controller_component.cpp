@@ -13,8 +13,7 @@ void GameControllerComponent::SetPlayerHealthComponent(const AppContext &context
 void GameControllerComponent::SetEnemySpawnerComponent(const AppContext &context, EnemySpawnerComponent *enemySpawner)
 {
 	SceneManager *sceneManager = context.sceneManager;
-	// TODO: Fix once EnemySpawnerComponent has been refactored
-	//enemySpawner->GetOnEnemyDeath().Connect([sceneManager]() {
-	//	sceneManager->RequestSceneChange("win_screen");
-	//	});
+	enemySpawner->GetOnWaveComplete().Connect([sceneManager]() {
+		sceneManager->RequestSceneChange("win_screen");
+		});
 }

@@ -378,6 +378,10 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     ogreHealth->SetCurrentHealth(ogreStats.health);
     ogreTransform->SetWorldScale(ogreStats.scale);
 
+    ogreHealth->GetOnDeath().Connect([this]() {
+        this->ogresAlive--;
+        });
+
     BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
     ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
     ogreBC->SetLayer(CollisionLayer::ENEMY);
@@ -841,6 +845,13 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
                 this->skeletonsSpawned++;
         }
     }
+
+    if (this->goblinsSpawned == this->maxEnemiesAlive
+        && this->ogresSpawned == this->maxOgreEnemies
+        && this->skeletonsSpawned == this->maxSkeletonEnemies
+        && this->currentEnemies == 0
+        && this->ogresAlive == 0)
+        this->onWaveComplete.Emit();
 }
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)

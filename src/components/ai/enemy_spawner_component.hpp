@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "assets/types/audio_clip.hpp"
+#include "events/signal.hpp"
 class Entity;
 
 class EnemySpawnerComponent : public Component
@@ -11,6 +12,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(int, maxOgreEnemies, 3);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
+	int ogresAlive = maxOgreEnemies;
 
 	ExportProperty(int, maxSkeletonEnemies, 0);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
@@ -55,6 +57,8 @@ private:
 	int   skeletonsSpawned = 0;
 
 	bool isWaveActive = false;
+
+	Signal<> onWaveComplete;
 
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
@@ -105,4 +109,6 @@ public:
 	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
 
 	void BeginWave();
+
+	Signal<> &GetOnWaveComplete() { return this->onWaveComplete; }
 };
