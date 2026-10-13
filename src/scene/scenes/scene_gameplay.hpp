@@ -470,10 +470,10 @@ namespace Scenes {
         Entity *gameEntity = outScene.AddEntity("Game");
         GameControllerComponent *gameController = gameEntity->AddComponent<GameControllerComponent>();
 
-        //Entity *musicEntity = outScene.AddEntity("music_entity");
-        //musicEntity->AddComponent<TransformComponent>();
-        //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-        //musicComponent->SetVolume(0.2f);
+        Entity *musicEntity = outScene.AddEntity("music_entity");
+        musicEntity->AddComponent<TransformComponent>();
+        MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Blood_Princess_draft4.ogg"));
+        musicComponent->SetVolume(0.2f);
 
         Entity *playerEntity = CreatePlayer(outScene, appContext);
 
