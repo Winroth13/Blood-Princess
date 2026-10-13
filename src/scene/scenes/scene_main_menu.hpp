@@ -6,24 +6,35 @@ namespace Scenes {
     void MainMenu(Scene &outScene, const AppContext &appContext) {
         std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
-        Entity *hud = outScene.AddEntity("HUD");
-        hud->AddComponent<UIRectComponent>();
-        hud->AddComponent<UICanvasComponent>();
-        hud->AddComponent<TransformComponent>();
-        hud->AddComponent<CameraComponent>();
-
-        Entity *img = outScene.AddEntity("img");
-        img->SetParent(hud);
-        img->AddComponent<UIRectComponent>()->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
-        UIImageComponent *imageComp = img->AddComponent<UIImageComponent>();
-        imageComp->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
-        imageComp->SetShouldPreserveAspectRatio(true);
-        img->AddComponent<MainMenuComponent>();
-
         // Test //
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
+
+        Entity *hud = ui.CreateCanvas("hud");
+        hud->AddComponent<TransformComponent>();
+        hud->AddComponent<CameraComponent>();
+
+        UIImageComponent *img = ui.CreateImage(hud, appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
+        Entity *imgEntity = UI::Factory::GetEntity(img);
+        UIRectComponent *imgRect = UI::Factory::GetRect(imgEntity);
+        imgRect->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        imgRect->SetAspectRatio(img->GetAspectRatio());
+        imgRect->SetReferenceHeight(img->GetSpriteSize().y);
+        imgEntity->AddComponent<MainMenuComponent>();
+
+        const AppContext *context = &appContext;
+        UIButtonComponent *startButton = ui.CreateButton(imgEntity, "", [context, img]() {
+            img->SetTexture(context->assetManager->Get<Texture2D>("assets/images/loading_screen.png"));
+            context->sceneManager->RequestSceneChange("gameplay");
+        }, "start_button");
+        UI::Factory::Place(startButton, UI::Anchor::TOP_LEFT, {494.0f, 892.0f}, {623.0f, 76.0f});
+        startButton->SetColours(
+            {1.0f, 0.85f, 0.7f, 0.0f},      // Normal: invisible
+            {1.0f, 0.85f, 0.7f, 0.25f},     // Hovered
+            {0.8f, 0.2f, 0.22f, 0.4f},      // Pressed
+            {0.0f, 0.0f, 0.0f, 0.0f}        // Disabled
+        );
 
         Entity *column = UI::Factory::Place(ui.CreateGroup(hud, {440.0f, 566.0f}, "demo_column"), UI::Anchor::TOP_RIGHT, {-180.0f, 300.0f});
 

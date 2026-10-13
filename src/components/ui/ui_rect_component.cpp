@@ -68,10 +68,17 @@ void UIRectComponent::UpdateRectangle() {
         parentRect.topLeft.y + parentRect.size.y * this->anchorBottomRight.y
     };
 
-    const XMFLOAT2 rectSize = {
+    XMFLOAT2 rectSize = {
         std::max(0.0f, (bottomRight.x - topLeft.x + this->sizeDelta.x * parentScale.x) * this->scale.x),
         std::max(0.0f, (bottomRight.y - topLeft.y + this->sizeDelta.y * parentScale.y) * this->scale.y)
     };
+
+    if (this->aspectRatio > 0.0f && rectSize.x > 0.0f && rectSize.y > 0.0f) {
+        if (rectSize.x / rectSize.y > this->aspectRatio)
+            rectSize.x = rectSize.y * this->aspectRatio;
+        else
+            rectSize.y = rectSize.x / this->aspectRatio;
+    }
 
     const XMFLOAT2 pivotPosition = {
         topLeft.x + (bottomRight.x - topLeft.x) * this->pivot.x + this->position.x * parentScale.x,
@@ -84,10 +91,16 @@ void UIRectComponent::UpdateRectangle() {
     };
     this->cachedScreenRect.size = rectSize;
 
-    this->cachedPixelScale = {
-        parentScale.x * this->scale.x,
-        parentScale.y * this->scale.y
-    };
+    if (this->referenceHeight > 0.0f) {
+        const float pixelScale = rectSize.y / this->referenceHeight;
+        this->cachedPixelScale = {pixelScale, pixelScale};
+    }
+    else {
+        this->cachedPixelScale = {
+            parentScale.x * this->scale.x,
+            parentScale.y * this->scale.y
+        };
+    }
 }
 
 const UI::Rect &UIRectComponent::GetScreenRect() {

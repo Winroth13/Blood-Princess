@@ -17,6 +17,9 @@ class UIRectComponent : public Component {
     ExportProperty(XMFLOAT2, pivot, {0.0f, 0.0f});
     ExportProperty(XMFLOAT2, scale, {1.0f, 1.0f});
 
+    ExportProperty(float, aspectRatio, 0.0f);
+    ExportProperty(float, referenceHeight, 0.0f);
+
     UI::Rect cachedScreenRect{};
     XMFLOAT2 cachedPixelScale = {1.0f, 1.0f};
     uint32_t cachedFrameIndex = UINT32_MAX;
@@ -52,4 +55,10 @@ public:
 
     XMFLOAT2 GetScale() const { return this->scale; }
     void SetScale(XMFLOAT2 scale) { this->scale = scale; }
+
+    float GetAspectRatio() const { return this->aspectRatio; }
+    void SetAspectRatio(float aspectRatio) { this->aspectRatio = aspectRatio; }
+
+    float GetReferenceHeight() const { return this->referenceHeight; }
+    void SetReferenceHeight(float referenceHeight) { this->referenceHeight = referenceHeight; }
 };
