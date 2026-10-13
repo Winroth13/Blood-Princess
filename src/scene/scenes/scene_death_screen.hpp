@@ -18,8 +18,8 @@ namespace Scenes {
 
         UI::Factory::Place(ui.CreateText(hud, "YOU DIED", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
 
-        UIButtonComponent *menu_button = UI::Factory::Place(ui.CreateButton(hud, "Main Menu", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
-        menu_button->GetOnClick().Connect([appContext]() {
+        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "Main Menu", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
+        menuButton->GetOnClick().Connect([appContext]() {
             appContext.sceneManager->RequestSceneChange("main_menu");
             });
 
@@ -35,7 +35,7 @@ namespace Scenes {
                 audioManager->PlaySoundEffect(pressedClip, false, 0.4f);
             };
 
-        menu_button->GetOnStateChanged().Connect(btnSoundFunc);
+        menuButton->GetOnStateChanged().Connect(btnSoundFunc);
 
         // Ambient sound
         Entity *wind = outScene.AddEntity("wind");
