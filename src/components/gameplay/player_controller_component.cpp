@@ -28,6 +28,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
+	this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
 
 	if (this->health)
 	{
@@ -336,6 +337,11 @@ void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 
 bool PlayerControllerComponent::CanAttack()
 {
+	if (this->isParrying)
+	{
+		return false;
+	}
+
 	if (this->currentAttack == -1)
 	{
 		return true;
@@ -357,8 +363,17 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (Action::IsActionDown("LightAttack"))
 		this->PerformLightAttack();
 
-	if (Action::IsActionPressed("Parry"))
+	if (Action::IsActionPressed("Parry") || Input::IsKeyPressed(Key::F))
 		this->PerformParry();
+
+	if (this->isParrying)
+	{
+		if (this->viewmodelAnimator && this->viewmodelAnimator->IsFinished())
+		{
+			this->isParrying = false;
+			this->viewmodelAnimator->CrossFade("idle", 0.2f);
+		}
+	}
 
 	if (this->attackCounterTimer > 0.0f)
 	{
@@ -443,7 +458,32 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 void PlayerControllerComponent::PerformParry()
 {
-	this->viewmodelAnimator->Play("parry");
+	if (this->isParrying)
+		return;
+
+	this->isParrying = true;
+	this->currentAttack = -1;
+	this->combo = 0;
+	this->hasActivatedHitboxThisAttack = false;
+	if (this->hitbox)
+	{
+		this->hitbox->Deactivate();
+	}
+
+	if (this->viewmodelAnimator)
+	{
+		this->viewmodelAnimator->Play("parry", false);
+	}
+
+	if (!this->hurtbox)
+	{
+		this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
+	}
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GrantInvulnerability(1.0f);
+	}
 
 	if (auto parrySound = GetOwner()->GetComponent<AudioComponent>())
 	{
@@ -496,6 +536,7 @@ void PlayerControllerComponent::OnDeath()
 		return;
 
 	this->isDead = true;
+	this->isParrying = false;
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();
