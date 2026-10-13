@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/app_context.hpp"
+#include "core/application.hpp"
 #include "core/logging.hpp"
 
 #include "scene/scene_loader.hpp"

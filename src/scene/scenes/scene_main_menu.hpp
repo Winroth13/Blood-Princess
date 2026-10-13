@@ -6,113 +6,69 @@ namespace Scenes {
     void MainMenu(Scene &outScene, const AppContext &appContext) {
         std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
-        // Test //
-
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
-        Entity *hud = ui.CreateCanvas("hud");
-        hud->AddComponent<TransformComponent>();
-        hud->AddComponent<CameraComponent>();
+        Entity *canvas = ui.CreateCanvas();
+        canvas->AddComponent<TransformComponent>();
+        canvas->AddComponent<CameraComponent>();
+        canvas->AddComponent<MainMenuComponent>();
 
-        UIImageComponent *img = ui.CreateImage(hud, appContext.assetManager->Get<Texture2D>("assets/images/tower.png"));
-        Entity *imgEntity = UI::Factory::GetEntity(img);
-        UIRectComponent *imgRect = UI::Factory::GetRect(imgEntity);
-        imgRect->Place(UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
-        imgRect->SetAspectRatio(img->GetAspectRatio());
-        imgRect->SetReferenceHeight(img->GetSpriteSize().y);
-        imgEntity->AddComponent<MainMenuComponent>();
+        UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(canvas, nullptr, "black"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        blackImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
 
-        const AppContext *context = &appContext;
-        UIButtonComponent *startButton = ui.CreateButton(imgEntity, "", [context, img]() {
-            img->SetTexture(context->assetManager->Get<Texture2D>("assets/images/loading_screen.png"));
-            context->sceneManager->RequestSceneChange("gameplay");
-        }, "start_button");
-        UI::Factory::Place(startButton, UI::Anchor::TOP_LEFT, {494.0f, 892.0f}, {623.0f, 76.0f});
-        startButton->SetColours(
-            {1.0f, 0.85f, 0.7f, 0.0f},      // Normal: invisible
-            {1.0f, 0.85f, 0.7f, 0.25f},     // Hovered
-            {0.8f, 0.2f, 0.22f, 0.4f},      // Pressed
-            {0.0f, 0.0f, 0.0f, 0.0f}        // Disabled
-        );
+        std::shared_ptr<Texture2D> bgTexture = appContext.assetManager->Get<Texture2D>("assets/images/johannes_tower.png");
+        UIImageComponent *bgImage = UI::Factory::Place(ui.CreateImage(canvas, bgTexture, "background"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        Entity *bgEntity = UI::Factory::GetEntity(bgImage);
+        UIRectComponent *bgRect = UI::Factory::GetRect(bgEntity);
+        bgRect->SetAspectRatio(bgImage->GetAspectRatio());
+        bgRect->SetReferenceHeight(bgImage->GetSpriteSize().y);
 
-        Entity *column = UI::Factory::Place(ui.CreateGroup(hud, {440.0f, 566.0f}, "demo_column"), UI::Anchor::TOP_RIGHT, {-180.0f, 300.0f});
+        UIImageComponent *loadingImage = UI::Factory::Place(ui.CreateImage(canvas, nullptr, "loading"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        loadingImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
+        Entity *loadingEntity = UI::Factory::GetEntity(loadingImage);
+        loadingEntity->SetLocallyActive(false);
+        UITextComponent *loadingText = UI::Factory::Place(ui.CreateTitle(loadingEntity, "Loading..."), UI::Anchor::CENTRE, {0.0f, 0.0f}, {0.0f, 0.0f});
 
-        UIButtonComponent *tintButton = UI::Factory::Place(ui.CreateButton(column, "Click me :D", nullptr, "tint_button"), UI::Anchor::TOP, {0.0f, 0.0f});
-        UITextComponent *tintLabel = UI::Factory::FindLabel(tintButton->GetOwner());
-        std::shared_ptr<int> clickCount = std::make_shared<int>(0);
-        tintButton->GetOnClick().Connect([ui, tintButton, tintLabel, clickCount]() {
-            ++*clickCount;
-            tintLabel->SetText(std::format("Clicked {} time{}", *clickCount, *clickCount == 1 ? "" : "s"));
-            ui.FitButtonToText(tintButton);
+        std::shared_ptr<Texture2D> princessTexture = appContext.assetManager->Get<Texture2D>("assets/images/princess.png");
+        UIImageComponent *princessImage = ui.CreateImage(bgEntity, princessTexture, "princess");
+        UI::Factory::Place(princessImage, UI::Anchor::TOP_LEFT, {860.0f, 650.0f}, {200.0f, 200.0f});
+        princessImage->SetShouldPreserveAspectRatio(true);
+        princessImage->SetOpacity(0.5f);
+
+        UITextComponent *titleText = ui.CreateText(bgEntity, "BLOOD\nPRINCESS", 100.0f, "title");
+        UI::Factory::Place(titleText, UI::Anchor::TOP_LEFT, {35.0f, 80.0f});
+        titleText->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
+        titleText->SetColour(UI::RGBA{25, 17, 6, 255});
+        titleText->SetLineSpacing(0.8f);
+        titleText->SetOutline(7.0f, UI::RGBA{103, 44, 32, 255});
+        titleText->SetShadow({8.0f, 8.0f}, UI::RGBA{0, 0, 0, 136});
+
+        ui.style.fontSizeRegular = 42.0f;
+        UIButtonComponent *btnStart = ui.CreateButton(bgEntity, "START", nullptr, "btn_start");
+        UI::Factory::Place(btnStart, UI::Anchor::TOP_LEFT, {50.0f, 380.0f});
+
+        ui.style.fontSizeRegular = 28.0f;
+        UIButtonComponent *btnSettings = ui.CreateButton(bgEntity, "SETTINGS", nullptr, "btn_settings");
+        UI::Factory::Place(btnSettings, UI::Anchor::TOP_LEFT, {50.0f, 500.0f});
+        btnSettings->SetInteractable(false);
+
+        UIButtonComponent *btnCredits = ui.CreateButton(bgEntity, "CREDITS", nullptr, "btn_credits");
+        UI::Factory::Place(btnCredits, UI::Anchor::TOP_LEFT, {50.0f, 600.0f});
+        btnCredits->SetInteractable(false);
+
+        UIButtonComponent *btnQuit = ui.CreateButton(bgEntity, "QUIT", nullptr, "btn_quit");
+        UI::Factory::Place(btnQuit, UI::Anchor::TOP_LEFT, {50.0f, 700.0f});
+
+        SceneManager *sceneManager = appContext.sceneManager;
+        btnStart->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+            loadingEntity->SetLocallyActive(true);
+            sceneManager->RequestSceneChange("gameplay");
         });
 
-        UIButtonComponent *swapButton = UI::Factory::Place(ui.CreateButton(column, "Sprite swap", nullptr, "swap_button"), UI::Anchor::TOP, {0.0f, 100.0f});
-        UITextComponent *swapLabel = UI::Factory::FindLabel(swapButton->GetOwner());
-        swapButton->GetTargetImage()->SetTexture(appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_panel.png"));
-        swapButton->SetTinted(false);
-        swapButton->SetHoveredTexture(appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_button_hovered.png"));
-        swapButton->SetPressedTexture(appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_button_pressed.png"));
-        swapButton->SetDisabledTexture(appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_button_disabled.png"));
-        swapButton->GetOnStateChanged().Connect([ui, swapButton, swapLabel](UI::ButtonState state) {
-            swapLabel->SetText(state == UI::ButtonState::DISABLED ? "Sprite swap (disabled)" : "Sprite swap");
-            ui.FitButtonToText(swapButton);
-        });
-
-        UIButtonComponent *toggleButton = UI::Factory::Place(ui.CreateButton(column, "Disable the one above", nullptr, "toggle_button"), UI::Anchor::TOP, {0.0f, 200.0f});
-        UITextComponent *toggleLabel = UI::Factory::FindLabel(toggleButton->GetOwner());
-        toggleButton->GetOnClick().Connect([swapButton, toggleLabel]() {
-            swapButton->SetInteractable(!swapButton->IsInteractable());
-            toggleLabel->SetText(swapButton->IsInteractable() ? "Disable the one above" : "Enable the one above");
-        });
-
-        UIButtonComponent *multilineButton = UI::Factory::Place(ui.CreateButton(column, "Buttons can have\nmultiple lines as well", nullptr, "multiline_button"), UI::Anchor::TOP, {-390.0f, 0.0f});
-
-        ui.style.textOutlineThickness = 2.0f;
-        ui.style.textOutlineColour = {0.0f, 0.0f, 0.0f, 0.8f};
-
-        UICheckboxComponent *checkbox = ui.CreateCheckbox(column, "Sliders enabled", true, nullptr, "checkbox_row");
-        UI::Factory::Place(checkbox, UI::Anchor::TOP_LEFT, {0.0f, 320.0f}, {440.0f, 56.0f});
-
-        ui.style.sliderSize = {440.0f, 28.0f};
-        ui.style.sliderHandleSize = {28.0f, 44.0f};
-
-        UITextComponent *volumeLabel = UI::Factory::Place(ui.CreateText(column, "Volume: 50%", 0.0f, "volume_label"), UI::Anchor::TOP_LEFT, {0.0f, 390.0f}, {440.0f, 40.0f});
-        volumeLabel->SetAlignment(UI::AlignHorizontal::LEFT, UI::AlignVertical::CENTRE);
-        UISliderComponent *volumeSlider = ui.CreateSlider(column, 0.0f, 100.0f, 50.0f, [volumeLabel](float value) {
-            volumeLabel->SetText(std::format("Volume: {:.0f}%", std::round(value)));
-        }, "volume_slider");
-        UI::Factory::Place(volumeSlider, UI::Anchor::TOP_LEFT, {0.0f, 438.0f});
-
-        UITextComponent *difficultyLabel = UI::Factory::Place(ui.CreateText(column, "Increments: 5 / 10", 0.0f, "increment_label"), UI::Anchor::TOP_LEFT, {0.0f, 490.0f}, {440.0f, 40.0f});
-        difficultyLabel->SetAlignment(UI::AlignHorizontal::LEFT, UI::AlignVertical::CENTRE);
-        UISliderComponent *difficultySlider = ui.CreateSlider(column, 0.0f, 10.0f, 5.0f, [difficultyLabel](float value) {
-            difficultyLabel->SetText(std::format("Increment: {:.0f} / 10", std::round(value)));
-        }, "increment_slider");
-        difficultySlider->SetRange(0.0f, 10.0f, 1.0f);
-        UI::Factory::Place(difficultySlider, UI::Anchor::TOP_LEFT, {0.0f, 538.0f});
-
-        UIBarComponent *healthBar = ui.CreateBar(column, 25.0f, 100.0f, "health_bar");
-        UI::Factory::Place(healthBar, UI::Anchor::TOP_LEFT, {0.0f, 638.0f});
-
-        ui.style.sliderHandleSize = {44.0f, 28.0f};
-
-        UISliderComponent *verticalSlider = ui.CreateSlider(hud, 0.0f, 1.0f, 0.25f, nullptr, "vertical_slider");
-        UI::Factory::Place(verticalSlider, UI::Anchor::TOP_RIGHT, {-110.0f, 300.0f}, {28.0f, 284.0f});
-        verticalSlider->SetDirection(UI::FillDirection::BOTTOM_TO_TOP);
-
-        UITextComponent *verticalLabel = ui.CreateText(hud, "25%", 0.0f, "vertical_label");
-        UI::Factory::Place(verticalLabel, UI::Anchor::TOP_RIGHT, {-82.0f, 592.0f}, {84.0f, 36.0f});
-        verticalLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
-        verticalSlider->GetOnValueChanged().Connect([verticalLabel, healthBar](float value) {
-            verticalLabel->SetText(std::format("{:.0f}%", std::round(value * 100.0f)));
-            healthBar->SetValue(std::round(value * 100.0f));
-        });
-
-        checkbox->GetOnValueChanged().Connect([volumeSlider, difficultySlider, verticalSlider](bool isOn) {
-            volumeSlider->SetInteractable(isOn);
-            difficultySlider->SetInteractable(isOn);
-            verticalSlider->SetInteractable(isOn);
+        Application *app = appContext.application;
+        btnQuit->GetOnClick().Connect([app]() {
+            app->Stop();
         });
     }
 }
