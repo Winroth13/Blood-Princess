@@ -2,7 +2,9 @@
 
 #include "scene/component.hpp"
 #include "ai/ai_manager.hpp"
+
 #include <DirectXMath.h>
+#include <string>
 
 class TransformComponent;
 class AnimatorComponent;
@@ -30,7 +32,11 @@ struct EnemyStats
 	float stopDistance;
 	float knockbackMultiplier;
 	float scale;
+	std::string attackAnimation;
+	std::string walkAnimation;
 };
+
+// TODO: Maybe these should be allocated at all times. In like a EnemyStats.hpp
 inline EnemyStats GetEnemyStats(EnemyType type)
 {
 	switch (type)
@@ -45,7 +51,9 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.25f,
 			/*stopDistance*/       1.0f,
 			/*knockbackMult*/      4.0f,
-			/*scale*/              0.9f
+			/*scale*/              0.9f,
+			/* attack anim */	   "Shank",
+			/* walk anim */		   "Jog"
 		};
 	case EnemyType::Ogre:
 		return {
@@ -57,7 +65,9 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.45f,
 			/*stopDistance*/       1.7f,
 			/*knockbackMult*/      0.0f,
-			/*scale*/              1.25f
+			/*scale*/              1.25f,
+			/* attack anim */	   "attack",
+			/* walk anim */		   "Walk"
 		};
 	case EnemyType::Archer:
 		return {
@@ -69,7 +79,9 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.15f,
 			/*stopDistance*/       8.0f,
 			/*knockbackMult*/      3.0f,
-			/*scale*/              0.9f
+			/*scale*/              0.9f,
+			/* attack anim */	   "Shank",
+			/* walk anim */		   "Walk"
 		};
 	}
 	return {};

@@ -291,6 +291,8 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
     }
 
+    EnemyStats stats = GetEnemyStats(this->enemyType);
+
     if (this->isAttacking)
     {
         this->attackElapsed += deltaTime;
@@ -304,12 +306,12 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
         if (!this->animator || this->animator->IsFinished())
         {
-            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation("Shank"))
+            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation(stats.attackAnimation))
             {
                 // restart the swing
                 this->attackElapsed = 0.0f;
                 this->hitboxActivated = false;
-                this->animator->CrossFade("Shank", 0.1f, false);
+                this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
             }
             else
             {
@@ -319,8 +321,8 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
                 if (this->hitbox)
                     this->hitbox->Deactivate();
 
-                if (this->animator && this->animator->HasAnimation("Jog"))
-                    this->animator->CrossFade("Jog", 0.15f, true);
+                if (this->animator && this->animator->HasAnimation(stats.walkAnimation))
+                    this->animator->CrossFade(stats.walkAnimation, 0.15f, true);
             }
         }
     }
@@ -330,8 +332,8 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         this->attackElapsed = 0.0f;
         this->hitboxActivated = false;
 
-        if (this->animator && this->animator->HasAnimation("Shank"))
-            this->animator->CrossFade("Shank", 0.1f, false);
+        if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
+            this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
     }
 
     XMVECTOR steer = XMVectorZero();
