@@ -369,7 +369,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
     animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
-    animator->Play("Jog", true);
+    animator->Play("Walk", true);
     animator->SetTime(static_cast<float>(rand() % 100));
 
 
@@ -772,8 +772,8 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 
 	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 
-    this->ogreModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
     this->skeletonModel = context.assetManager->Get<Model>("assets/models/skeleton.glb");
+    this->ogreModel = context.assetManager->Get<Model>("assets/models/ogre.glb");
 
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());

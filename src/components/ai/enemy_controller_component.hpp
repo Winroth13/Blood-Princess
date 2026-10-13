@@ -58,7 +58,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackHitboxDur*/    0.45f,
 			/*stopDistance*/       1.7f,
 			/*knockbackMult*/      0.0f,
-			/*scale*/              2.0f
+			/*scale*/              1.25f
 		};
 	case EnemyType::Archer:
 		return {

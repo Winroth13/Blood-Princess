@@ -118,7 +118,7 @@ namespace UI {
     }
 
     UIImageComponent *Factory::CreateImage(Entity *parent, std::shared_ptr<Texture2D> texture, const std::string &name) {
-        const XMFLOAT2 size = texture ? XMFLOAT2(texture->GetWidth(), texture->GetHeight()) : XMFLOAT2(100.0f, 100.0f);
+        const XMFLOAT2 size = texture ? XMFLOAT2(static_cast<float>(texture->GetWidth()), static_cast<float>(texture->GetHeight())) : XMFLOAT2(100.0f, 100.0f);
         UIImageComponent *image = this->CreateEntity(parent, name, size)->AddComponent<UIImageComponent>();
         image->SetTexture(texture);
         return image;
