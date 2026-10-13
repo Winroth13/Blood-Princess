@@ -195,7 +195,9 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 
 // Not final!!!!!
 static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player) {
-    UI::Factory ui(outScene, *appContext.assetManager);
+    std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
+
+    UI::Factory ui(outScene, font);
     SetDefaultStyle(ui.style, *appContext.assetManager);
 
     ui.style.panelTexture = appContext.assetManager->Get<Texture2D>("assets/images/test_9_slice.png");
@@ -207,6 +209,11 @@ static void CreateHUD(Scene &outScene, const AppContext &appContext, Entity *pla
     Entity *hud = ui.CreateCanvas("hud");
 
     Health *health = player->GetComponent<Health>();
+
+    SceneManager *sceneManager = appContext.sceneManager;
+    health->GetOnDeath().Connect([sceneManager]() {
+        sceneManager->RequestSceneChange("main_menu");
+    });
 
     UIBarComponent *healthBar = ui.CreateBar(hud, health->GetCurrentHealth(), health->GetMaxHealth(), "health_bar");
     UI::Factory::Place(healthBar, UI::Anchor::TOP_LEFT, {40.0f, 40.0f});

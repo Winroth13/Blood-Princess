@@ -244,6 +244,8 @@ void Scene::Clear() {
 
     this->entities.clear();
 
+    this->entityGroup.clear();
+
     this->name.clear();
 }
 

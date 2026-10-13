@@ -203,6 +203,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\sound.cpp" />
     <ClCompile Include="src\components\audio\sound_component.cpp" />
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
+    <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
     <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
     <ClCompile Include="src\components\gameplay\projectile_component.cpp" />
@@ -369,6 +370,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\sound.hpp" />
     <ClInclude Include="src\components\audio\sound_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />
+    <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
     <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
     <ClInclude Include="src\components\gameplay\projectile_component.hpp" />
@@ -481,9 +483,11 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
     <ClInclude Include="src\scene\scenes\scene_headers.hpp" />
     <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />
     <ClInclude Include="src\scene\scene_manager.hpp" />
