@@ -4,6 +4,8 @@
 
 #include "scene/scenes/scene_main_menu.hpp"
 #include "scene/scenes/scene_gameplay.hpp"
+#include "scene/scenes/scene_death_screen.hpp"
+#include "scene/scenes/scene_win_screen.hpp"
 
 void SceneManager::ChangeScene(const std::string &name) {
     if (!this->loader.Load(name, this->scene)) {
@@ -20,6 +22,8 @@ void SceneManager::ChangeScene(const std::string &name) {
 void SceneManager::RegisterScenes() {
     this->registry.AddScene("main_menu", Scenes::MainMenu);
     this->registry.AddScene("gameplay", Scenes::Gameplay);
+    this->registry.AddScene("death_screen", Scenes::DeathScreen);
+    this->registry.AddScene("win_screen", Scenes::WinScreen);
 }
 
 bool SceneManager::Initialize(const AppContext &context, const std::string &startSceneName) {

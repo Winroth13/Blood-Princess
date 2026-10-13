@@ -73,3 +73,18 @@ void UIImageComponent::UIRender(UI::DrawList &drawList) {
         this->texture ? this->texture->GetShaderResourceView() : nullptr
     );
 }
+
+XMFLOAT2 UIImageComponent::GetSpriteSize() const {
+    if (!this->texture)
+        return {0.0f, 0.0f};
+
+    return {
+        this->texture->GetWidth() * std::abs(this->uvBottomRight.x - this->uvTopLeft.x),
+        this->texture->GetHeight() * std::abs(this->uvBottomRight.y - this->uvTopLeft.y)
+    };
+}
+
+float UIImageComponent::GetAspectRatio() const {
+    const XMFLOAT2 spriteSize = this->GetSpriteSize();
+    return (spriteSize.x > 0.0f && spriteSize.y > 0.0f) ? (spriteSize.x / spriteSize.y) : 0.0f;
+}

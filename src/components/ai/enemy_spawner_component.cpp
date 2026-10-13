@@ -369,7 +369,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
     animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
-    animator->Play("Walk", true);
+    animator->Play(ogreStats.walkAnimation, true);
     animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
 
 
@@ -377,6 +377,10 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     ogreHealth->SetMaxHealth(ogreStats.health);
     ogreHealth->SetCurrentHealth(ogreStats.health);
     ogreTransform->SetWorldScale(ogreStats.scale);
+
+    ogreHealth->GetOnDeath().Connect([this]() {
+        this->ogresAlive--;
+        });
 
     BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
     ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
@@ -778,13 +782,21 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
 	this->InitializeGibPool(context, this->GetOwner()->GetScene());
     this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
 
-    this->BeginWave();
+    if (this->autoStartWave)
+    {
+        this->BeginWave();
+    }
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
     this->CleanupDeadEnemies(context);
     this->CleanGibs();
+
+    if (!this->isWaveActive)
+    {
+        return;
+    }
 
     // ---------- Goblins ----------
     if (this->goblinElapsed < this->enemySpawnDuration
@@ -833,6 +845,13 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
                 this->skeletonsSpawned++;
         }
     }
+
+    if (this->goblinsSpawned == this->maxEnemiesAlive
+        && this->ogresSpawned == this->maxOgreEnemies
+        && this->skeletonsSpawned == this->maxSkeletonEnemies
+        && this->currentEnemies == 0
+        && this->ogresAlive == 0)
+        this->onWaveComplete.Emit();
 }
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)
@@ -848,6 +867,8 @@ void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 
 void EnemySpawnerComponent::BeginWave()
 {
+    this->isWaveActive = true;
+
     this->goblinTimer = (this->maxEnemiesAlive > 0)
         ? this->enemySpawnDuration / this->maxEnemiesAlive
         : 0.0f;

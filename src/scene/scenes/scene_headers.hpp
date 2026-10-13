@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/app_context.hpp"
+#include "core/application.hpp"
 #include "core/logging.hpp"
 
 #include "scene/scene_loader.hpp"
@@ -19,6 +20,9 @@
 
 #include "components/ai/enemy_controller_component.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
+
+#include "components/traps/trap_component.hpp"
+#include "components/traps/trap_spawner_component.hpp"
 
 #include "components/audio/audio_component.hpp"
 #include "components/audio/character_audio_component.hpp"
@@ -39,11 +43,14 @@
 
 #include "components/gameplay/health_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
+#include "components/gameplay/end_screen_component.hpp"
 #include "components/gameplay/paintable_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
 #include "components/gameplay/projectile_component.hpp"
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
+#include "components/gameplay/game_controller_component.hpp"
+#include "components/gameplay/tutorial_component.hpp"
 
 #include "components/lights/ambient_light_component.hpp"
 #include "components/lights/directional_light_component.hpp"
@@ -67,6 +74,7 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <vector>
 
 inline void SetDefaultStyle(UI::Style &style, AssetManager &assetManager) {
     style.fontSizeRegular = 28.0f;
@@ -92,4 +100,28 @@ inline void SetDefaultStyle(UI::Style &style, AssetManager &assetManager) {
     style.sliderFillColour = {0.75f, 0.08f, 0.12f, 1.0f};
     style.barColourFill = {0.75f, 0.08f, 0.12f, 1.0f};
     style.barColourTrail = {1.0f, 0.85f, 0.55f, 1.0f};
+}
+
+inline void SetDefaultSounds(Scene &outScene, const AppContext &appContext, std::vector<UIButtonComponent *> btnVect)
+{
+    // Button sounds
+    std::shared_ptr<AudioClip> hoveredClip = appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_swing_1.ogg");
+    std::shared_ptr<AudioClip> pressedClip = appContext.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_parry_1.ogg");
+
+    AudioManager *audioManager = appContext.audioManager;
+    auto btnSoundFunc = [audioManager, pressedClip, hoveredClip](UI::ButtonState state) {
+        if (state == UI::ButtonState::HOVERED)
+            audioManager->PlaySoundEffect(hoveredClip, false);
+        else if (state == UI::ButtonState::PRESSED)
+            audioManager->PlaySoundEffect(pressedClip, false, 0.4f);
+        };
+
+    for (UIButtonComponent * btn : btnVect)
+        btn->GetOnStateChanged().Connect(btnSoundFunc);
+
+    // Ambient sound
+    Entity *wind = outScene.AddEntity("wind");
+    wind->AddComponent<TransformComponent>();
+    MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg"));
+    musicComponent->SetVolume(0.2f);
 }

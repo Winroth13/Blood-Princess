@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "assets/types/audio_clip.hpp"
+#include "events/signal.hpp"
 class Entity;
 
 class EnemySpawnerComponent : public Component
@@ -11,12 +12,13 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(int, maxOgreEnemies, 3);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
+	int ogresAlive = maxOgreEnemies;
 
-	ExportProperty(int, maxSkeletonEnemies, 5);
+	ExportProperty(int, maxSkeletonEnemies, 0);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
 
-	ExportProperty(int, maxEnemiesAlive, 40);
-	ExportProperty(float, enemySpawnDuration, 10.0f);
+	ExportProperty(int, maxEnemiesAlive, 120);
+	ExportProperty(float, enemySpawnDuration, 20.0f);
 	ExportProperty(int, currentEnemies, 1);
 
 	ExportProperty(float, spawnOuterRadius, 20.0f);
@@ -27,6 +29,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
+	ExportProperty(bool, autoStartWave, true);
 
 	std::shared_ptr<Model> gibModel[4];
 	std::shared_ptr<Texture2D> atlasTexture;
@@ -52,6 +55,10 @@ private:
 	float skeletonTimer = 0.0f;
 	float skeletonElapsed = 0.0f;
 	int   skeletonsSpawned = 0;
+
+	bool isWaveActive = false;
+
+	Signal<> onWaveComplete;
 
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
@@ -99,6 +106,9 @@ public:
 
 	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
 	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
+	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
 
 	void BeginWave();
+
+	Signal<> &GetOnWaveComplete() { return this->onWaveComplete; }
 };

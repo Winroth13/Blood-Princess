@@ -10,6 +10,7 @@ class HitboxComponent;
 class CameraComponent;
 class Sound;
 class Health;
+class HurtboxComponent;
 
 struct AttackData
 {
@@ -57,7 +58,9 @@ class PlayerControllerComponent : public Component
 	TransformComponent *rootTransform = nullptr;
 	// health
 	Health* health = nullptr;
+	HurtboxComponent* hurtbox = nullptr;
 	bool isDead = false;
+	bool isParrying = false;
 
 	/*
 	*	Sounds
@@ -146,6 +149,7 @@ public:
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 
 	void PerformParry();
+	bool IsParrying() const { return this->isParrying; }
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
