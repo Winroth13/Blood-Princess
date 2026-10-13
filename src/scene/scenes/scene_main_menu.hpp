@@ -92,8 +92,8 @@ namespace Scenes {
         MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg"));
         musicComponent->SetVolume(0.2f);
 
-        std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nBlock: F\nDash: Shift/Space";
-        UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");
-        UI::Factory::Place(controls, UI::Anchor::TOP_RIGHT, { -100.0f, 380.0f });
+        //std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nParry: F\nDash: Shift/Space";
+        //UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");
+        //UI::Factory::Place(controls, UI::Anchor::TOP_RIGHT, { -100.0f, 380.0f });
     }
 }
