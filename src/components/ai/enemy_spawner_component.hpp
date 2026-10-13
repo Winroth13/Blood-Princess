@@ -9,15 +9,11 @@ class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
-	// ogre start
 	ExportProperty(int, maxOgreEnemies, 3);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
-	// ogre end
 
-	// skeleton start
 	ExportProperty(int, maxSkeletonEnemies, 5);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
-	// skeleton end
 
 	ExportProperty(int, maxEnemiesAlive, 40);
 	ExportProperty(float, enemySpawnDuration, 10.0f);

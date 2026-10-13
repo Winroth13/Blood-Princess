@@ -261,14 +261,6 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 			this->lingeringDashTimer = this->lingeringDashDuration;
 
 			this->camera->SetFov(this->dashFov);
-			
-			auto dashSound = GetOwner()->GetComponent<AudioComponent>();
-			dashSound->SetAudio3D(false);
-			dashSound->SetLooping(false);
-			float genNumber = RNG::Float(0.95f, 1.05f);
-			LogInfo("Pitch %f: ", genNumber);
-			dashSound->SetPitch(genNumber);
-			dashSound->Play();
 		}
 	}
 }
@@ -452,6 +444,15 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 void PlayerControllerComponent::PerformParry()
 {
 	this->viewmodelAnimator->Play("parry");
+
+	if (auto parrySound = GetOwner()->GetComponent<AudioComponent>())
+	{
+		parrySound->SetAudio3D(false);
+		parrySound->SetLooping(false);
+		float genNumber = RNG::Float(0.95f, 1.05f);
+		parrySound->SetPitch(genNumber);
+		parrySound->Play();
+	}
 }
 
 void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)

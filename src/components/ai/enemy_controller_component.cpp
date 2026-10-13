@@ -26,7 +26,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
-
+    this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
 
     this->SetEnemyType(this->enemyType);
 
@@ -84,6 +84,7 @@ void EnemyControllerComponent::ResetKnockback()
 {
     this->knockbackVelocity = { 0.0f, 0.0f, 0.0f };
     this->knockbackStunTimer = 0.0f;
+    this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
     this->isAttacking = false;
 
@@ -321,7 +322,9 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
                 if (this->hitbox)
                     this->hitbox->Deactivate();
 
-                if (this->animator && this->animator->HasAnimation("Jog"))
+                if (this->animator && this->animator->HasAnimation("Walk"))
+                    this->animator->CrossFade("Walk", 0.15f, true);
+                else if (this->animator && this->animator->HasAnimation("Jog"))
                     this->animator->CrossFade("Jog", 0.15f, true);
                 else if (this->animator && this->animator->HasAnimation("Bow_Shot"))
                     this->animator->CrossFade("Bow_Shot", 0.15f, true);
@@ -370,19 +373,49 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
             XMVectorScale(steer,
                 this->moveSpeed * deltaTime));
 
-        if (this->footstepSound && this->footstepIntervalMeters > 0.0f)
+        if (this->footstepSound)
         {
-            this->movementDistanceAccumulator += distMoved;
-            if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+            if (this->animator && (this->animator->IsPlaying("Walk") || this->animator->IsPlaying("Jog")))
             {
-                this->movementDistanceAccumulator = 0.0f;
-                if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                const float currAnimTime = this->animator->GetTime();
+                if (this->lastFootstepAnimTime >= 0.0f)
                 {
-                    soundComponent->SetSound(this->footstepSound);
-                    soundComponent->Play();
+                    const float prevAnimTime = this->lastFootstepAnimTime;
+                    auto crossedTime = [prevAnimTime, currAnimTime](float targetTime) {
+                        if (currAnimTime >= prevAnimTime)
+                            return prevAnimTime < targetTime && currAnimTime >= targetTime;
+                        return prevAnimTime < targetTime || currAnimTime >= targetTime;
+                    };
+
+                    if (crossedTime(0.1f) || crossedTime(0.85f))
+                    {
+                        if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                        {
+                            soundComponent->SetSound(this->footstepSound);
+                            soundComponent->Play();
+                        }
+                    }
+                }
+                this->lastFootstepAnimTime = currAnimTime;
+            }
+            else if (this->footstepIntervalMeters > 0.0f)
+            {
+                this->movementDistanceAccumulator += distMoved;
+                if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+                {
+                    this->movementDistanceAccumulator = 0.0f;
+                    if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                    {
+                        soundComponent->SetSound(this->footstepSound);
+                        soundComponent->Play();
+                    }
                 }
             }
         }
+    }
+    else
+    {
+        this->lastFootstepAnimTime = -1.0f;
     }
 
     if (steerLen > 1e-4f || hasKnockback)

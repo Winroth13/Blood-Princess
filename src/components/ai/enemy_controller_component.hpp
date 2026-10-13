@@ -125,6 +125,7 @@ private:
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
 	float movementDistanceAccumulator = 0.0f;
+	float lastFootstepAnimTime = -1.0f;
 	float randomSoundTimer = 0.0f;
 	bool isAttacking = false;
 

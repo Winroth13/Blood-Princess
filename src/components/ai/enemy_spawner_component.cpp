@@ -316,7 +316,7 @@ bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
 
     AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
     animator->Play("Jog", true);
-    animator->SetTime(static_cast<float>(rand() % 100));
+    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
 
     enemy->SetLocallyActive(true);
     activeEnemy.push_back(enemy);
@@ -370,7 +370,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
     animator->AddAnimations(ogreModel->GetAnimations());
     animator->SetSkeletonVisible(true);
     animator->Play("Walk", true);
-    animator->SetTime(static_cast<float>(rand() % 100));
+    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
 
 
     Health* ogreHealth = ogre->AddComponent<Health>();
@@ -475,7 +475,7 @@ bool EnemySpawnerComponent::SpawnOneSkeleton(const AppContext& context)
         animator->Play("Jog", true);
     else if (animator->HasAnimation("Bow_Shot"))
         animator->Play("Bow_Shot", true);
-    animator->SetTime(static_cast<float>(rand() % 100));
+    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
 
     Health* skeletonHealth = skeleton->AddComponent<Health>();
     skeletonHealth->SetMaxHealth(skeletonStats.health);
