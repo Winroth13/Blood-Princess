@@ -1,5 +1,6 @@
 #include "../shared_resources.hlsli"
 #include "speed_lines.hlsli"
+#include "damage_flash.hlsli"
 
 #define ENABLE_TONEMAP 1
 
@@ -148,7 +149,10 @@ void main(uint3 id : SV_DispatchThreadID)
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
     
-    float4 speedLineColour = speedLines(noiseTexture, uv);
+    float4 damageFlashColour = DamageFlash(uv);
+    afterFogColour = lerp(afterFogColour, damageFlashColour.rgb, damageFlashColour.a);
+    
+    float4 speedLineColour = SpeedLines(noiseTexture, uv);
     afterFogColour = lerp(afterFogColour, speedLineColour.rgb, speedLineColour.a);
     
     float ditherSize = 2.0f;

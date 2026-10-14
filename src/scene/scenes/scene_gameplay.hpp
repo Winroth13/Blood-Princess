@@ -210,6 +210,10 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     Health *health = player->GetComponent<Health>();
 
+    health->GetOnChangedHealth().Connect([](float currentHealth, float maxHealth) {
+        Debug::SetSetting("damageFlash.intensity", 1.0f);
+        });
+
     UIBarComponent *healthBar = ui.CreateBar(hud, health->GetCurrentHealth(), health->GetMaxHealth(), "health_bar");
     UI::Factory::Place(healthBar, UI::Anchor::TOP_LEFT, {40.0f, 40.0f});
 

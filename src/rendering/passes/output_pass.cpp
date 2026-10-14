@@ -78,6 +78,11 @@ void OutputPass::Render(
     postProcessingData.speedLineMaskSize = Debug::GetSetting("speedLines.maskSize", 0.01f);
     postProcessingData.speedLineMaskEdge = Debug::GetSetting("speedLines.maskEdge", 0.55f);
     postProcessingData.speedLineAnimationSpeed = Debug::GetSetting("speedLines.animationSpeed", 10.0f);
+    postProcessingData.damageFlashIntensity = Debug::GetSetting("damageFlash.intensity", 0.0f);
+    postProcessingData.damageFlashEdgePower = Debug::GetSetting("damageFlash.edgePower", 2.5f);
+    postProcessingData.damageFlashColour = Debug::GetSetting("damageFlash.colour", DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f });
+    postProcessingData.damageFlashInnerRatio = Debug::GetSetting("damageFlash.innerRatio", 0.75f);
+    postProcessingData.damageFlashFeather = Debug::GetSetting("damageFlash.Feather", 0.4f);
 
     RenderUtils::UploadConstantBuffer(deviceContext, this->postProcessingCB, postProcessingData);
 

@@ -645,6 +645,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
   <ItemGroup>
     <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
     <None Include="src\shaders\deferred\pbr.hlsli" />
+    <None Include="src\shaders\output\damage_flash.hlsli" />
     <None Include="src\shaders\output\speed_lines.hlsli" />
     <None Include="src\shaders\shadow\shadows.hlsli" />
     <None Include="src\shaders\shared_resources.hlsli" />
