@@ -38,10 +38,13 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
 
         PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
         pool->SetSize(this->enemyPoolSize[i]);
+
         pool->SetCreateEntityCallback([this, enemy, scene](){
             return this->CreateEnemyEntity(enemy, scene);
         });
     }
+
+    this->CreateEnemyEntity(this->enemies[OGRE], scene);
 }
 
 void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* scene)
