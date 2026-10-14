@@ -363,7 +363,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	if (Action::IsActionDown("LightAttack"))
 		this->PerformLightAttack();
 
-	if (Action::IsActionPressed("Parry") || Input::IsKeyPressed(Key::F))
+	if (Action::IsActionPressed("Parry"))
 		this->PerformParry();
 
 	if (this->isParrying)

@@ -61,7 +61,7 @@ void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* 
         }
         else {
             model = gibModel[3];
-            gibTransform->SetWorldScale(RNG::Float(0.35f, 0.40f));
+            gibTransform->SetWorldScale(RNG::Float(1.0f, 1.2f));
         }
         modelComponent->SetModel(model);
 
