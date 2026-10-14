@@ -12,7 +12,7 @@ Entity *PoolComponent::Grab()
 {
 	if (this->inactive.size() == 0)
 	{
-		LogWarn("Pool has no inactive entities");
+		LogWarn("Pool is empty, consider increasing it's size!");
 		return nullptr;
 	}
 
@@ -41,7 +41,7 @@ void PoolComponent::Resize()
 	if (!this->createEntityCallback)
 		return;
 
-	size_t totalSize = this->size > this->inactive.size() + this->active.size();
+	size_t totalSize = this->inactive.size() + this->active.size();
 
 	if (this->size > totalSize)
 	{
@@ -56,6 +56,7 @@ void PoolComponent::Resize()
 			}
 
 			entity->SetLocallyActive(false);
+			entity->SetParent(this->GetOwner());
 			this->inactive.push(entity);
 		}
 	}

@@ -410,7 +410,7 @@ void Editor::RenderSelectionBoundingBoxes(const AppContext &appContext)
 		{
 			ModelComponent *modelComp = entity->GetComponent<ModelComponent>();
 
-			if (modelComp)
+			if (modelComp && modelComp->GetModel())
 			{
 				std::vector<LineVertex> vertices{};
 

@@ -13,6 +13,8 @@ hit_sound: assets/sounds/goblin_hit_sound.sound
 death_sound: assets/sounds/goblin_death_sounds.sound
 bark_sound: assets/sounds/goblin_random_sounds.sound
 
+gib_type: goblin
+
 attacks:
   - name: Shank
     type: Melee

@@ -5,7 +5,6 @@
 
 void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
-    if (this->projectileAliveTime <= 0.0f) return;
     this->projectileAliveTime -= deltaTime;
 
     if (this->isGrounded) return;

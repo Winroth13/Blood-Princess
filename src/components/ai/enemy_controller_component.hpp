@@ -9,8 +9,11 @@
 class TransformComponent;
 class AnimatorComponent;
 class HitboxComponent;
+class GibsComponent;
+
 class SpatialGrid;
 class Sound;
+
 struct AttackHitEvent;
 
 enum class EnemyType
@@ -131,6 +134,7 @@ private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
 	HitboxComponent* hitbox = nullptr;
+	GibsComponent *gibs = nullptr;
 	AIManager* aiManager = nullptr;
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
@@ -195,6 +199,8 @@ public:
 
 	void SetAttackHitbox(HitboxComponent* hb) { this->hitbox = hb; }
 	HitboxComponent* GetAttackHitbox() const { return this->hitbox; }
+
+	void SetGibs(GibsComponent *gibs) { this->gibs = gibs; }
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
 

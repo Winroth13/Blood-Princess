@@ -9,6 +9,7 @@
 
 class Entity;
 class Enemy;
+class GibsComponent;
 
 class EnemySpawnerComponent : public Component
 {
@@ -84,12 +85,13 @@ private:
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
 
+	GibsComponent *gibs = nullptr;
+
 	void InitializePools(const AppContext &context, Scene *scene);
 
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
 
-	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count = 3);
 	bool SpawnOneEnemyFromPool(const AppContext& context);
 	bool SpawnOneOgre(const AppContext& context);
 	bool SpawnOneSkeleton(const AppContext& context);
@@ -111,6 +113,7 @@ public:
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
 
+	void SetGibsComponent(GibsComponent *gibs) { this->gibs = gibs; }
 
 	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
 	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }

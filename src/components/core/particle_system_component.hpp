@@ -69,4 +69,6 @@ public:
     void SetIsGlobal(const bool isGlobal) { this->isGlobal = isGlobal; }
     void SetIsBurst(const bool isBurst) { this->isBurst = isBurst; }
     void SetIsSpread(const bool isSpread) { this->isSpread = isSpread; }
+
+    void Reset() { this->shouldReset = true; }
 };

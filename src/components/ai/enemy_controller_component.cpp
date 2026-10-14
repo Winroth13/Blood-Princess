@@ -14,6 +14,8 @@
 #include "components/skeletal/animator_component.hpp"
 #include "core/rng.hpp"
 #include "components/collisions/hit_box_component.hpp"
+#include "components/gameplay/gibs_component.hpp"
+
 #include <algorithm>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
@@ -48,6 +50,14 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->attackHitConnection = EventBus::Subscribe<AttackHitEvent>(
         this, &EnemyControllerComponent::OnAttackHit
     );
+
+    this->GetOwner()->GetComponent<Health>()->GetOnDeath().Connect([this]() {
+        this->gibs->SpawnGibs(
+            this->GetPosition(),
+            RNG::Int(3, 6),
+            GibType::GOBLIN
+        );
+    });
 
     this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 }

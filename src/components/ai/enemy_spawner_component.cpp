@@ -20,6 +20,7 @@
 #include "components/gameplay/splatter_component.hpp"
 #include "components/core/lifetime_component.hpp"
 #include "components/audio/sound_component.hpp"
+#include "components/gameplay/gibs_component.hpp"
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
 
@@ -37,14 +38,15 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
         std::shared_ptr<Enemy> enemy = this->enemies[i];
 
         PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
-        pool->SetSize(this->enemyPoolSize[i]);
 
-        pool->SetCreateEntityCallback([this, enemy, scene](){
+        pool->SetCreateEntityCallback([this, enemy, scene]() {
             return this->CreateEnemyEntity(enemy, scene);
         });
-    }
 
-    this->CreateEnemyEntity(this->enemies[OGRE], scene);
+        pool->SetSize(this->enemyPoolSize[i]);
+
+        this->enemyPools[i] = pool;
+    }
 }
 
 void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* scene)
@@ -146,87 +148,6 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
     auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
-}
-
-void EnemySpawnerComponent::SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count)
-{
-    int numberOfGibs = 0;
-    if (count == 3) {
-        numberOfGibs = RNG::Int(3, 5);
-    }
-    else
-    {
-        numberOfGibs = RNG::Int(6, 10);
-    }
-    pos.y += 2.0f;
-
-    bool hasSpawnedRib = false;
-    bool hasSpawnedHead = false;
-
-    for (int i = 0; i < numberOfGibs; ++i)
-    {
-        int roll = RNG::Int(1, 100);
-        int type = 0;
-        if (roll <= 40) type = 0;
-        else if (roll <= 70) type = 1;
-        else if (roll <= 85 && !hasSpawnedRib) { type = 2; hasSpawnedRib = true; }
-        else if (!hasSpawnedHead) { type = 3; hasSpawnedHead = true; }
-
-        Entity* gib = nullptr;
-        for (auto it = this->gibPool.begin(); it != this->gibPool.end(); ++it) {
-            if ((*it)->GetComponent<ModelComponent>()->GetModel() == this->gibModel[type]) {
-                gib = *it;
-                this->gibPool.erase(it);
-                break;
-            }
-        }
-
-        if (!gib) {
-            if (this->gibPool.empty()) {
-                if (this->activeGibs.empty()) break;
-                gib = this->activeGibs.front();
-                this->activeGibs.erase(this->activeGibs.begin());
-            }
-            else {
-                gib = this->gibPool.back();
-                this->gibPool.pop_back();
-            }
-        }
-
-
-        TransformComponent* gibTransform = gib->GetComponent<TransformComponent>();
-        gibTransform->SetWorldPosition(pos);
-        gib->SetLocallyActive(true);
-
-
-        ProjectileComponent* projectileGib = gib->GetComponent<ProjectileComponent>();
-        projectileGib->SetAliveTime(RNG::Float(4.0f, 8.0f));
-
-
-        const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float horizontalSpeed = RNG::Float(1.5f, 4.5f);
-        const float upwardSpeed = RNG::Float(4.0f, 6.0f);
-
-        DirectX::XMFLOAT3 velocity = {
-            cosf(gAngle) * horizontalSpeed,
-            upwardSpeed,
-            sinf(gAngle) * horizontalSpeed
-        };
-
-        DirectX::XMFLOAT3 angularVelocity = {
-            RNG::Float(-360.0f, 360.0f),
-            RNG::Float(-360.0f, 360.0f),
-            RNG::Float(-360.0f, 360.0f)
-        };
-
-
-        projectileGib->Launch(velocity, angularVelocity);
-        if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
-            splatter->Reset();
-        }
-
-        this->activeGibs.push_back(gib);
-    }
 }
 
 bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
@@ -520,7 +441,6 @@ void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
 Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
 {
     Entity *entity = scene->AddEntity(std::format("{}_{}", enemy->name, RNG::Int(0, INT_MAX)));
-    entity->SetParent(this->GetOwner());
 
     auto *enemyTransform = entity->AddComponent<TransformComponent>();
     enemyTransform->SetLocalPosition(0.0f, -0.5f, 0.0f);
@@ -547,7 +467,8 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     enemyController->SetHitSound(enemy->hitSound);
     enemyController->SetDeathSound(enemy->deathSound);
     enemyController->SetRandomSound(enemy->barkSound);
-    
+    enemyController->SetGibs(this->gibs);
+
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
     auto *enemySoundComponent = entity->AddComponent<SoundComponent>();
@@ -641,7 +562,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
                     }
                 }
 
-                SpawnGibsFromPool(context, enemyPos);
+                
 
                 XMFLOAT3 position = enemyPos;
                 position.y += 1.4f;
@@ -700,7 +621,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
                     }
                 }
 
-                SpawnGibsFromPool(context, ogrePos, 6);
+                
 
                 XMFLOAT3 position = ogrePos;
                 position.y += 2.5f;
@@ -757,7 +678,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
                     }
                 }
 
-                SpawnGibsFromPool(context, skeletonPos);
+                
 
                 XMFLOAT3 position = skeletonPos;
                 position.y += 1.4f;
@@ -779,6 +700,9 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
+    if (!this->gibs)
+        LogError("Must have a gibs component");
+
 	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
 	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
 	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
@@ -797,6 +721,8 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
     this->BeginWave();
 
     this->InitializePools(context, context.sceneManager->GetCurrentScene());
+
+    Entity *entity = this->enemyPools[GOBLIN]->Grab();
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)

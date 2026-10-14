@@ -1,6 +1,9 @@
 #pragma once
 
 #include "scene_headers.hpp"
+#include "core/rng.hpp"
+
+#include <format>
 
 static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
@@ -456,6 +459,63 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     }
 }
 
+static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
+{
+    Entity *gibsEntity = outScene.AddEntity("gibs");
+    gibsEntity->AddComponent<GibsComponent>();
+    auto *gibPool = gibsEntity->AddComponent<PoolComponent>();
+
+    gibPool->SetCreateEntityCallback([&outScene, &appContext]()
+    {
+        Entity *gib = outScene.AddEntity(std::format("{}_{}", "gib", RNG::Int(0, INT_MAX)));
+        auto *gibTransform = gib->AddComponent<TransformComponent>();
+        auto *modelComponent = gib->AddComponent<ModelComponent>();
+        auto *gibParticle = gib->AddComponent<ParticleSystemComponent>();
+        auto *projectileGib = gib->AddComponent<ProjectileComponent>();
+        auto *sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
+        auto *splatterGib = gib->AddComponent<SplatterComponent>();
+        auto *lifeTimeGib = gib->AddComponent<LifeTimeComponent>();
+
+        gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
+        gibParticle->SetCount(RNG::Int(8, 16));
+        gibParticle->SetIsAnimate(true);
+        gibParticle->SetIsGlobal(true);
+        gibParticle->SetIsAdditive(false);
+        gibParticle->SetStartTint({ 0.35f, 0.03f, 0.03f });
+        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
+        gibParticle->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png"));
+        gibParticle->SetAtlasSize({ 8.0f, 8.0f });
+
+        const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+        const float pSpeed = RNG::Float(1.0f, 2.0f);
+        gibParticle->SetVelocity({
+            cosf(pAngle) * pSpeed,
+            RNG::Float(0.1f, 0.3f),
+            sinf(pAngle) * pSpeed
+            });
+        gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+        const float pScale = RNG::Float(0.3f, 0.65f);
+        gibParticle->SetStartScale(pScale);
+        gibParticle->SetEndScale(pScale);
+
+        projectileGib->SetGravity(9.82f);
+        projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
+
+        sphereCollisionGib->SetRadius(RNG::Float(0.19f, 0.39f));
+        sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
+        sphereCollisionGib->SetActive(true);
+        sphereCollisionGib->SetStatic(false);
+        sphereCollisionGib->SetTrigger(true);
+        
+        splatterGib->SetPaintSpacing(RNG::Float(0.4f, 1.0f));
+
+        return gib;
+    });
+
+    return gibsEntity;
+}
+
 namespace Scenes 
 {
     void Gameplay(Scene& outScene, const AppContext& appContext) 
@@ -468,10 +528,13 @@ namespace Scenes
         Entity *playerEntity = CreatePlayer(outScene, appContext);
         CreateHUD(outScene, appContext, playerEntity);
 
+        // Gibs
+        Entity *gibsEntity = CreateGibs(outScene, appContext);
+
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("Spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
-        spawnerEntity->AddComponent<EnemySpawnerComponent>();
+        spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
