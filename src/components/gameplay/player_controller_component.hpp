@@ -49,7 +49,7 @@ class PlayerControllerComponent : public Component
 	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
 	// health
-	ExportProperty(float, maxHealth, 200.0f);
+	ExportProperty(float, maxHealth, 200);
 
 
 	XMVECTOR dashDirection = {};

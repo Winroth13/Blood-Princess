@@ -62,7 +62,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*health*/             500.0f,
 			/*attackDamage*/       40.0f,
 			/*attackKnockback*/    0.0f,
-			/*attackHitboxDelay*/  1.0f,
+			/*attackHitboxDelay*/  1.4f,
 			/*attackHitboxDur*/    0.45f,
 			/*stopDistance*/       1.7f,
 			/*knockbackMult*/      0.0f,

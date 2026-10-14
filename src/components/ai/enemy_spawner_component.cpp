@@ -20,6 +20,7 @@
 #include "components/gameplay/splatter_component.hpp"
 #include "components/core/lifetime_component.hpp"
 #include "components/audio/sound_component.hpp"
+#include "components/skeletal/socket_component.hpp"
 #include "assets/types/sound.hpp"
 
 
@@ -427,6 +428,18 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
     ogreController->SetAttackHitbox(fistHitbox);
     // end ogre attack collider
+
+    Entity *clubEntity = mainScene->AddEntity("club");
+    clubEntity->AddComponent<TransformComponent>();
+    clubEntity->AddComponent<ModelComponent>()->SetModel(context.assetManager->Get<Model>("assets/models/club.glb"));
+
+    SocketComponent *socket = clubEntity->AddComponent<SocketComponent>();
+    socket->SetJointName("Hand_R");
+    socket->SetOffsetPosition({ 0.05f, 0.2f, 0.0f });
+    socket->SetOffsetRotation({ 100.0f, 0.0f, 0.0f });
+    socket->SetOffsetScale({ 4.0f, 4.0f, 4.0f });
+
+    clubEntity->SetParent(ogre);
 
     activeOgre.push_back(ogre);
     return true;
