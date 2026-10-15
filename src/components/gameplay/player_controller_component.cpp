@@ -41,6 +41,8 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	);
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
+	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
+	this->deathSound = context.assetManager->Get<Sound>("assets/sounds/player_death.sound");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
@@ -48,6 +50,14 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 
 	health->GetOnChangedHealth().Connect([this](float currentHealth, float maxHealth) {
 		this->damageFlashLingeringTimer = this->damageFlashDuration;
+
+		if (this->damageSoundReminingTime == -1.0f)
+		{
+			SoundComponent *soundComp = this->GetOwner()->GetComponent<SoundComponent>();
+			soundComp->SetSound(this->hurtSound);
+			soundComp->Play();
+			this->damageSoundReminingTime = this->damageSoundDuration;
+		}
 		});
 
 	Input::SetMouseMode(MouseMode::CAPTURED);
@@ -122,6 +132,11 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		this->damageFlashLingeringTimer = -1.0f;
 		Debug::SetSetting("damageFlash.intensity", 0.0f);
 	}
+
+	if (this->damageSoundReminingTime >= 0)
+		this->damageSoundReminingTime -= deltaTime;
+	else
+		this->damageSoundReminingTime = -1.0f;
 
 	HandleCameraLook(deltaTime);
 
@@ -556,6 +571,9 @@ void PlayerControllerComponent::OnDeath()
 	this->isDead = true;
 	this->isParrying = false;
 	Debug::SetSetting("damageFlash.intensity", 0.0f);
+	SoundComponent *soundComp = this->GetOwner()->GetComponent<SoundComponent>();
+	soundComp->SetSound(this->deathSound);
+	soundComp->Play();
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();

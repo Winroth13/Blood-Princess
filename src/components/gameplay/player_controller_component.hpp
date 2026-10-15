@@ -51,6 +51,8 @@ class PlayerControllerComponent : public Component
 
 	ExportProperty(float, damageFlashDuration, 0.5f);
 	ExportProperty(float, damageFlashLingeringTimer, -1.0f);
+	ExportProperty(float, damageSoundDuration, 0.8f);
+	ExportProperty(float, damageSoundReminingTime, -1.0f);
 
 	// health
 	ExportProperty(float, maxHealth, 200);
@@ -70,6 +72,8 @@ class PlayerControllerComponent : public Component
 	*	Sounds
 	*/
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
+	std::shared_ptr<Sound> hurtSound = nullptr;
+	std::shared_ptr<Sound> deathSound = nullptr;
 
 	/*
 	*	Attacks

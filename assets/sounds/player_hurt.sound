@@ -1,0 +1,108 @@
+sound:
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_01.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_02.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_03.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_04.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_05.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_06.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_07.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_08.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_09.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_10.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_11.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_12.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_13.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_14.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_15.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_16.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_17.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/female_a/voice_female_a_hurt_pain_18.ogg
+      min_volume: 1.1
+      max_volume: 1.3
+      min_pitch: 0.95
+      max_pitch: 1.05
