@@ -164,6 +164,8 @@ bool Application::Initialize()
 
     LogInfo("Bindings path: %s", configPath.c_str());
 
+    this->window.SetIcon("assets/images/test_crown.png");
+
     LogUnindent();
     return true;
 }
