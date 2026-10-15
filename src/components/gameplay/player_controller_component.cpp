@@ -237,10 +237,17 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 		float distMoved = XMVectorGetX(XMVector3Length(newVel));
 		this->GetOwner()->GetComponent<CharacterAudioComponent>()->AddMovementDistance(distMoved);
 
+		// Save the player velocity for arrow prediction (units per second)
+		XMVECTOR actualVelocity = XMVectorScale(moveDir, this->moveSpeed);
+		XMStoreFloat3(&this->velcoity, actualVelocity);
+
 		XMFLOAT3 newPos;
 		XMStoreFloat3(&newPos, newPosV);
 
 		transform->SetLocalPosition(newPos);
+	}
+	else {
+		this->velcoity = { 0.0f, 0.0f, 0.0f };
 	}
 }
 
@@ -468,6 +475,7 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 	if (this->dashTimer >= dashDuration) {
 		this->isDashing = false;
+		this->velcoity = { 0.0f, 0.0f, 0.0f };
 		return;
 	}
 
@@ -479,6 +487,9 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 	XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
 
 	float dashSpeed = dashDistance / dashDuration;
+
+	XMVECTOR actualVel = XMVectorScale(moveDir, dashSpeed);
+	XMStoreFloat3(&this->velcoity, actualVel);
 
 	XMVECTOR newVel = XMVectorScale(moveDir, dashSpeed * deltaTime);
 	XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);

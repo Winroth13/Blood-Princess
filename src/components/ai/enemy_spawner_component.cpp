@@ -773,6 +773,7 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
             this->GetOwner()->GetScene()->DestroyEntity(e);
 
             it = activeSkeleton.erase(it);
+            this->skeletonsAlive--;
         }
         else
         {
@@ -908,4 +909,5 @@ void EnemySpawnerComponent::BeginWave()
         : 0.0f;
     this->skeletonElapsed = 0.0f;
     this->skeletonsSpawned = 0;
+    this->skeletonsAlive = this->maxSkeletonEnemies;
 }
