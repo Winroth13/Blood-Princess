@@ -200,7 +200,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     UI::Factory ui(outScene, font);
     SetDefaultStyle(ui.style, *appContext.assetManager);
 
-    ui.style.panelTexture = appContext.assetManager->Get<Texture2D>("assets/images/test_9_slice.png");
+    ui.style.panelTexture = appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_button_hovered.png");
     ui.style.panelSliceBorder = 20.0f;
     ui.style.panelColour = {1.0f, 1.0f, 1.0f, 1.0f};
     ui.style.barColourFill = {0.75f, 0.08f, 0.12f, 1.0f};
@@ -225,6 +225,9 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     showHealthFunc(health->GetCurrentHealth(), health->GetMaxHealth());
     health->GetOnChangedHealth().Connect(showHealthFunc);
+
+    ui.style.barSize.y = 15.0f;
+    ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
     int killed, total;
     enemySpawner->GetKillCount(killed, total);
