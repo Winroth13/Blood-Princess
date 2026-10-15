@@ -231,11 +231,11 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     int killed, total;
     enemySpawner->GetKillCount(killed, total);
-    UIBarComponent *progressBar = ui.CreateBar(hud, killed, total, "progress_bar");
+    UIBarComponent *progressBar = ui.CreateBar(hud, static_cast<float>(killed), static_cast<float>(total), "progress_bar");
     UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
 
     enemySpawner->GetOnEnemyKilled().Connect([progressBar](int killed, int total) {
-        progressBar->SetValue(killed);
+        progressBar->SetValue(static_cast<float>(killed));
     });
 
     // Tutorial Popup
