@@ -14,7 +14,13 @@
 #include "components/skeletal/animator_component.hpp"
 #include "core/rng.hpp"
 #include "components/collisions/hit_box_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "components/core/model_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/gameplay/player_controller_component.hpp"
 #include <algorithm>
+
+uint32_t s_arrowCounter = 0;
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
@@ -50,7 +56,11 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     );
 
     this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
+
+    this->thisScene = this->GetOwner()->GetScene();
+    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
 }
+
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
@@ -115,6 +125,66 @@ void EnemyControllerComponent::SetEnemyType(EnemyType type)
         this->hitbox->SetKnockbackForce(s.attackKnockback);
     }
 }
+
+void EnemyControllerComponent::ShootAnArrow(XMFLOAT3 position)
+{
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+
+
+    Entity* arrowEnt = this->thisScene->AddEntity("Arrow_" + std::to_string(s_arrowCounter++));
+
+    TransformComponent* transform = arrowEnt->AddComponent<TransformComponent>();
+    transform->SetWorldPosition(this->arrowPosition);
+
+    ModelComponent* model = arrowEnt->AddComponent<ModelComponent>();
+    model->SetModel(this->arrowModel);
+
+    BoxCollisionComponent* boxCollision = arrowEnt->AddComponent<BoxCollisionComponent>();
+    boxCollision->SetExtents({ 0.1f,0.2f,0.2f });
+    boxCollision->SetLayer(CollisionLayer::PROJECTILE);
+    boxCollision->SetActive(true);
+    boxCollision->SetStatic(false);
+    boxCollision->SetTrigger(true);
+
+    HitboxComponent* hitbox = arrowEnt->AddComponent<HitboxComponent>();
+    hitbox->SetKnockbackForce(3.0f);
+    hitbox->ActivateForEver(true);
+    hitbox->SetDamage(this->arrowDamage);
+
+    ProjectileComponent* arrowProj = arrowEnt->AddComponent<ProjectileComponent>();
+    arrowProj->SetGravity(this->arrowGravity);
+    arrowProj->SetRestitution(0.0f);
+
+    // Get player future position to shoot an arrow there
+    XMFLOAT3 arrowStartPosF = this->arrowPosition;
+    XMVECTOR arrowStartPosV = XMLoadFloat3(&arrowStartPosF);
+
+    XMFLOAT3 playerPositionF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
+    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
+
+    XMFLOAT3 playerVelocityF = playerEnt->GetComponent<PlayerControllerComponent>()->GetVelocity();
+    XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
+
+    float timeToTarget = 1.0f;
+
+    XMVECTOR futurePositionV = XMVectorAdd(playerPositionV, XMVectorScale(playerVelocityV, timeToTarget));
+
+    XMVECTOR displacementV = XMVectorSubtract(futurePositionV, arrowStartPosV);
+    XMFLOAT3 displacement;
+    XMStoreFloat3(&displacement, displacementV);
+
+    XMFLOAT3 launchVelocity;
+
+    launchVelocity.x = displacement.x / timeToTarget;
+    launchVelocity.z = displacement.z / timeToTarget;
+
+    float g = this->arrowGravity;
+    launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
+
+    arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
+}
+
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
@@ -296,6 +366,18 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     if (this->isAttacking)
     {
+        if (this->enemyType == EnemyType::Skeleton && inAttackRange && this->knockbackStunTimer <= 0.0f)
+        {
+            static float shootTimer = 0.0f;
+            shootTimer -= deltaTime;
+            if (shootTimer <= 0.0f)
+            {
+                this->arrowPosition = this->transform->GetWorldPosition();
+                this->ShootAnArrow(this->arrowPosition);
+                shootTimer = this->cooldown;
+            }
+        }
+
         this->attackElapsed += deltaTime;
 
         if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)

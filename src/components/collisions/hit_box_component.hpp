@@ -11,6 +11,7 @@ class HitboxComponent : public Component
     ExportProperty(float, knockbackForce, 2.0f);
     ExportProperty(float, activeDuration, 0.0f);
 
+    ExportProperty(bool, activeForEver, false);
     ExportProperty(float, retriggerCooldown, 0.0f);
 
     float activeTimer = 0.0f;
@@ -23,6 +24,7 @@ private:
 public:
     HitboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
     void Activate(float duration = 0.0f);
+    void ActivateForEver(bool state) { this->activeForEver = state; }
     void Deactivate();
 
     bool CanHit(Entity* target) const;

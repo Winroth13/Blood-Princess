@@ -4,7 +4,7 @@
 
 void HitboxComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (this->activeDuration > 0.0f && this->IsActive()) {
+	if (this->activeDuration > 0.0f && this->IsActive() || this->activeForEver) {
 		this->activeTimer += deltaTime;
 		if (this->activeTimer >= this->activeDuration) {
 			this->Deactivate();
@@ -30,6 +30,7 @@ void HitboxComponent::Activate(float duration)
 
 void HitboxComponent::Deactivate()
 {
+	this->activeForEver = false;
 	this->SetActive(false);
 	this->hitEntities.clear();
 }

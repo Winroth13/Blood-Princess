@@ -18,7 +18,6 @@ enum class EnemyType
 {
 	Goblin,
 	Ogre,
-	Archer,
 	Skeleton
 };
 
@@ -68,20 +67,6 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*knockbackMult*/      0.0f,
 			/*scale*/              1.25f,
 			/* attack anim */	   "attack",
-			/* walk anim */		   "Walk"
-		};
-	case EnemyType::Archer:
-		return {
-			/*moveSpeed*/          4.0f,
-			/*health*/             60.0f,
-			/*attackDamage*/       10.0f,
-			/*attackKnockback*/    0.0f,
-			/*attackHitboxDelay*/  0.60f,
-			/*attackHitboxDur*/    0.15f,
-			/*stopDistance*/       8.0f,
-			/*knockbackMult*/      3.0f,
-			/*scale*/              0.9f,
-			/* attack anim */	   "Shank",
 			/* walk anim */		   "Walk"
 		};
 	case EnemyType::Skeleton:
@@ -147,6 +132,16 @@ private:
 	// enemy type
 	EnemyType enemyType = EnemyType::Goblin;
 
+	// arrow for Skeleton
+	ExportPropertyCategory("Arrow");
+	ExportProperty(float, arrowDamage, 1.0f);
+	ExportProperty(XMFLOAT3, arrowPosition, { 0,0,0 });
+	ExportProperty(float, arrowGravity, 8.6f);
+	ExportProperty(float, cooldown, 6.0f);
+	Entity* arrow = nullptr;
+	std::shared_ptr<Model> arrowModel;
+	Scene* thisScene = nullptr;
+
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
 	void OnAttackHit(const AttackHitEvent& event);
@@ -202,4 +197,6 @@ public:
 	void SetEnemyType(EnemyType type);
 	EnemyType GetEnemyType() const { return this->enemyType; }
 
+	void ShootAnArrow(XMFLOAT3 position);
+	void UpdateTheArrow();
 };
