@@ -41,7 +41,8 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	);
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
-	this->hurtSounds = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
+	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
+	this->deathSound = context.assetManager->Get<Sound>("assets/sounds/player_death.sound");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
@@ -53,7 +54,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 		if (this->damageSoundReminingTime == -1.0f)
 		{
 			SoundComponent *soundComp = this->GetOwner()->GetComponent<SoundComponent>();
-			soundComp->SetSound(this->hurtSounds);
+			soundComp->SetSound(this->hurtSound);
 			soundComp->Play();
 			this->damageSoundReminingTime = this->damageSoundDuration;
 		}
@@ -566,6 +567,9 @@ void PlayerControllerComponent::OnDeath()
 	this->isDead = true;
 	this->isParrying = false;
 	Debug::SetSetting("damageFlash.intensity", 0.0f);
+	SoundComponent *soundComp = this->GetOwner()->GetComponent<SoundComponent>();
+	soundComp->SetSound(this->deathSound);
+	soundComp->Play();
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();

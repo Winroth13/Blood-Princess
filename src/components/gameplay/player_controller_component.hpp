@@ -71,7 +71,8 @@ class PlayerControllerComponent : public Component
 	*	Sounds
 	*/
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
-	std::shared_ptr<Sound> hurtSounds = nullptr;
+	std::shared_ptr<Sound> hurtSound = nullptr;
+	std::shared_ptr<Sound> deathSound = nullptr;
 
 	/*
 	*	Attacks
