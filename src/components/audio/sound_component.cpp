@@ -7,9 +7,16 @@
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
 
+void SoundComponent::OnDestroy(const AppContext &context)
+{
+    this->StopPlaying();
+}
+
 void SoundComponent::OnStart(const AppContext &context)
 {
 	this->audioManager = context.audioManager;
+    if (this->autoPlay)
+        this->Play();
 }
 
 void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, float pitch)
@@ -17,9 +24,10 @@ void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, flo
     if (!this->audioManager)
         return;
 
-    if (TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>())
+    TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
+    if (transform != nullptr && this->is3d)
     {
-        this->audioManager->PlaySoundAt(
+        this->currentSoundId = this->audioManager->PlaySoundAt(
             clip,
             false,
             transform->GetWorldPosition(),
@@ -31,13 +39,34 @@ void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, flo
     }
     else
     {
-        this->audioManager->PlaySoundEffect(
+        this->currentSoundId = this->audioManager->PlaySoundEffect(
             clip, 
             false, 
             volume, 
             pitch
         );
     }
+}
+
+bool SoundComponent::StopPlaying()
+{
+    if (this->sound == nullptr)
+    {
+        LogWarn("No sound is assigned.");
+        return false;
+    }
+
+    if (this->sound->GetLayerCount() == 0)
+    {
+        LogWarn("Cannot to stop sound with no layers: %s", this->sound->GetPath().c_str());
+        return false;
+    }
+
+    if (this->currentSoundId != 0 && this->audioManager) {
+        this->audioManager->StopSound(this->currentSoundId);
+        this->currentSoundId = 0;
+    }
+    return true;
 }
 
 void SoundComponent::Play(float volume)
