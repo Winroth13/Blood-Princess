@@ -203,7 +203,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     ui.style.panelTexture = appContext.assetManager->Get<Texture2D>("assets/images/ui/placeholder_button_hovered.png");
     ui.style.panelSliceBorder = 20.0f;
     ui.style.panelColour = {1.0f, 1.0f, 1.0f, 1.0f};
-    ui.style.barColourFill = {0.75f, 0.08f, 0.12f, 1.0f};
+    ui.style.barColourFill = UI::RGBA{172, 47, 32, 255};
     ui.style.barColourTrail = {1.0f, 0.85f, 0.55f, 1.0f};
 
     Entity *hud = ui.CreateCanvas("hud");
@@ -226,7 +226,22 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     showHealthFunc(health->GetCurrentHealth(), health->GetMaxHealth());
     health->GetOnChangedHealth().Connect(showHealthFunc);
 
-    ui.style.barSize.y = 15.0f;
+    PlayerControllerComponent *controller = player->GetComponent<PlayerControllerComponent>();
+
+    ui.style.barSize = {210.0f, 20.0f};
+    ui.style.barColourFill = UI::RGBA{15, 202, 119, 255};
+    ui.style.barColourTrail = {0.0f, 0.0f, 0.0f, 0.0f};
+
+    const float dashCooldownDuration = controller->GetDashCooldownDuration();
+
+    UIBarComponent *dashBar = ui.CreateBar(hud, dashCooldownDuration, dashCooldownDuration, "dash_bar");
+    UI::Factory::Place(dashBar, UI::Anchor::TOP_LEFT, {40.0f, 85.0f});
+
+    controller->GetOnDashCooldownChanged().Connect([dashBar](float timer) {
+        dashBar->SetValue(dashBar->GetMaxValue() - timer);
+    });
+
+    ui.style.barSize = {420.0f, 15.0f};
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
     int killed, total;
@@ -243,7 +258,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
-    UI::Factory::Place(tutorialText, UI::Anchor::STRETCH, { 20.0f, 15.0f }, { -40.0f, -30.0f });
+    UI::Factory::Place(tutorialText, UI::Anchor::STRETCH, { 0.0f, 0.0f});
     tutorialText->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
     tutorialText->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
 

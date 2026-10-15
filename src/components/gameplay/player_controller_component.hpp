@@ -38,6 +38,7 @@ class PlayerControllerComponent : public Component
 	ExportProperty(bool, canUseDash, true);
 	ExportProperty(bool, isDashing, false);
 	ExportProperty(float, dashCooldownTimer, .01f);
+    ExportProperty(float, dashCooldownDuration, 1.5f);
 	ExportProperty(float, dashTimer, 0.0f);
 	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
@@ -115,6 +116,8 @@ class PlayerControllerComponent : public Component
 		)
 	};
 
+    Signal<float> onDashCooldownChanged;
+
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
 
@@ -123,7 +126,6 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
-
 
 	ConnectionId attackHitConnection = 0;
 	ConnectionId damageTakenConnection = 0;
@@ -168,4 +170,8 @@ public:
 
 	float GetDashCooldownTimer() const { return this->dashCooldownTimer; };
 	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
+
+    float GetDashCooldownDuration() const { return this->dashCooldownDuration; }
+
+    Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 };

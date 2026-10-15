@@ -51,6 +51,8 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 		});
 
 	Input::SetMouseMode(MouseMode::CAPTURED);
+
+    this->dashCooldownTimer = this->dashCooldownDuration;
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -61,10 +63,12 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
+        this->onDashCooldownChanged.Emit(this->dashCooldownTimer);
+
 		if (this->dashCooldownTimer <= 0)
 		{
 			this->canUseDash = true;
-			this->dashCooldownTimer = 1.5f;
+			this->dashCooldownTimer = this->dashCooldownDuration;
 		}
 	}
 
