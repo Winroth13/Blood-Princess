@@ -51,7 +51,6 @@ namespace Scenes {
         ui.style.fontSizeRegular = 28.0f;
         UIButtonComponent *btnSettings = ui.CreateButton(bgEntity, "SETTINGS", nullptr, "btn_settings");
         UI::Factory::Place(btnSettings, UI::Anchor::TOP_LEFT, {50.0f, 500.0f});
-        btnSettings->SetInteractable(false);
 
         UIButtonComponent *btnCredits = ui.CreateButton(bgEntity, "CREDITS", nullptr, "btn_credits");
         UI::Factory::Place(btnCredits, UI::Anchor::TOP_LEFT, {50.0f, 600.0f});
@@ -64,6 +63,10 @@ namespace Scenes {
         btnStart->GetOnClick().Connect([loadingEntity, sceneManager]() {  
             loadingEntity->SetLocallyActive(true);
             sceneManager->RequestSceneChange("gameplay");
+        });
+
+        btnSettings->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+            sceneManager->RequestSceneChange("settings");
         });
 
         Application *app = appContext.application;

@@ -491,6 +491,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
     <ClInclude Include="src\scene\scenes\scene_headers.hpp" />
     <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_settings.hpp" />
     <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
     <ClInclude Include="src\scene\scene_culler.hpp" />
     <ClInclude Include="src\scene\scene_loader.hpp" />

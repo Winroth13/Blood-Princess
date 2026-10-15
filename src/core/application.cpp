@@ -186,11 +186,7 @@ void Application::Run()
         }
 
         if (Input::IsKeyPressed(Key::F11))
-        {
-            static bool isFullscreen = false;
-            isFullscreen = !isFullscreen;
-            SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
-        }
+            this->ToggleFullscreen();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
@@ -230,4 +226,13 @@ void Application::Shutdown()
     this->aiManager.Shutdown();
 
     LogUnindent();
+}
+
+void Application::SetFullscreen(bool isFullscreen) {
+    this->isFullscreen = isFullscreen;
+    SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
+}
+
+void Application::ToggleFullscreen() {
+    this->SetFullscreen(!this->isFullscreen);
 }
