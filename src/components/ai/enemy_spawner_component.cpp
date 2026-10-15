@@ -383,7 +383,7 @@ bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
 
     ogreHealth->GetOnDeath().Connect([this]() {
         this->ogresAlive--;
-        });
+    });
 
     BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
     ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
@@ -654,6 +654,10 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
             this->enemyPool.push_back(e);
 
             it = activeEnemy.erase(it);
+
+            ++this->killCount;
+            int total = this->maxEnemiesAlive + this->maxOgreEnemies + this->maxSkeletonEnemies;
+            this->onEnemyKilled.Emit(this->killCount, total);
         }
         else
         {
@@ -824,8 +828,9 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
         {
             this->goblinTimer += (this->enemySpawnDuration / this->maxEnemiesAlive);
 
-            if (this->SpawnOneEnemyFromPool(context))
+            if (this->SpawnOneEnemyFromPool(context)) {
                 this->goblinsSpawned++;
+            }
         }
     }
 
@@ -865,8 +870,10 @@ void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
         && this->ogresSpawned == this->maxOgreEnemies
         && this->skeletonsSpawned == this->maxSkeletonEnemies
         && this->currentEnemies == 0
-        && this->ogresAlive == 0)
+        && this->ogresAlive == 0
+    ) {
         this->onWaveComplete.Emit();
+    }
 }
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)

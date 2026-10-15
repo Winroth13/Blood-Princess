@@ -58,7 +58,11 @@ private:
 
 	bool isWaveActive = false;
 
+    int killCount = 0;
+
 	Signal<> onWaveComplete;
+    // killed, total
+    Signal<int, int> onEnemyKilled;
 
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
@@ -71,7 +75,6 @@ private:
 
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
-
 
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
@@ -91,12 +94,9 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 
-
 public:
-
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
-
 
 	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
 	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }
@@ -106,9 +106,14 @@ public:
 
 	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
 	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
+
 	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
 
 	void BeginWave();
 
+    int GetTotalEnemies() const { return this->maxEnemiesAlive + this->maxOgreEnemies + this->maxSkeletonEnemies; }
+    void GetKillCount(int &killed, int &total) const { killed = this->killCount; total = GetTotalEnemies(); }
+
 	Signal<> &GetOnWaveComplete() { return this->onWaveComplete; }
+    Signal<int, int> &GetOnEnemyKilled() { return this->onEnemyKilled; }
 };

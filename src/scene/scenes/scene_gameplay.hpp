@@ -194,7 +194,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 // Not final!!!!!
-static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, EnemySpawnerComponent *enemySpawner = nullptr) {
+static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, EnemySpawnerComponent *enemySpawner) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -225,6 +225,15 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     showHealthFunc(health->GetCurrentHealth(), health->GetMaxHealth());
     health->GetOnChangedHealth().Connect(showHealthFunc);
+
+    int killed, total;
+    enemySpawner->GetKillCount(killed, total);
+    UIBarComponent *progressBar = ui.CreateBar(hud, killed, total, "progress_bar");
+    UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
+
+    enemySpawner->GetOnEnemyKilled().Connect([progressBar](int killed, int total) {
+        progressBar->SetValue(killed);
+    });
 
     // Tutorial Popup
     Entity *popupPanel = ui.CreatePanel(hud, { 700.0f, 130.0f }, "tutorial_popup");
