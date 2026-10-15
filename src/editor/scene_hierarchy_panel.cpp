@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <inttypes.h>
+#include <format>
 
 bool SceneHierarchyPanel::Initialize(SceneManager &sceneManager)
 {
@@ -78,7 +79,9 @@ void SceneHierarchyPanel::DrawEntityNode(Entity *entity)
 		ImGui::PushStyleColor(ImGuiCol_Text, { 0.5f, 0.5f, 0.5f, 0.5f });
 	}
 
-	bool open = ImGui::TreeNodeEx(entity->GetName().c_str(), flags);
+	std::string name = std::format("{}##{}", entity->GetName(), (uint64_t)entity);
+
+	bool open = ImGui::TreeNodeEx(name.c_str(), flags);
 
 	if (ImGui::IsItemClicked())
 	{

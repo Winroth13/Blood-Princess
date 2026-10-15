@@ -39,8 +39,14 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
 
         PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
 
-        pool->SetCreateEntityCallback([this, enemy, scene]() {
-            return this->CreateEnemyEntity(enemy, scene);
+        pool->SetCreateEntityCallback([this, enemy, scene, pool]() {
+            Entity *enemyEntity = this->CreateEnemyEntity(enemy, scene);
+
+            auto health = enemyEntity->GetComponent<Health>()->GetOnDeath().Connect([pool, enemyEntity]() {
+                pool->Put(enemyEntity);
+            });
+
+            return enemyEntity;
         });
 
         pool->SetSize(this->enemyPoolSize[i]);
@@ -412,38 +418,11 @@ bool EnemySpawnerComponent::SpawnOneSkeleton(const AppContext& context)
     return true;
 }
 
-void EnemySpawnerComponent::SpawnBloodExplosion(Scene *scene, XMFLOAT3 position)
-{
-    Entity *bloodExplosionEntity = scene->AddEntity("BloodExplosion");
-    bloodExplosionEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
-
-    ParticleSystemComponent *ps = bloodExplosionEntity->AddComponent<ParticleSystemComponent>();
-    ps->SetSpawnRadius(RNG::Float(0.1f, 0.4f));
-    ps->SetIsBurst(true);
-    ps->SetIsSpread(true);
-    ps->SetCount(20);
-    ps->SetStartTint({ 0.35f, 0.03f, 0.03f });
-    ps->SetEndTint({ 0.15f, 0.02f, 0.02f });
-    ps->SetStartScale(0.8f);
-    ps->SetEndScale(0.8f);
-    ps->SetLifeTime(2.0f);
-
-    ps->SetVelocity({ 4.0f, 4.0f, 4.0f });
-    ps->SetAcceleration({ 0.0f, -9.82f, 0.0f });
-
-    ps->SetIsAnimate(true);
-    ps->SetAtlasTexture(this->atlasTexture);
-    ps->SetAtlasSize({ 8.0f, 8.0f });
-
-    bloodExplosionEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(2.0f);
-}
-
 Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
 {
-    Entity *entity = scene->AddEntity(std::format("{}_{}", enemy->name, RNG::Int(0, INT_MAX)));
+    Entity *entity = scene->AddEntity(enemy->name);
 
     auto *enemyTransform = entity->AddComponent<TransformComponent>();
-    enemyTransform->SetLocalPosition(0.0f, -0.5f, 0.0f);
     enemyTransform->SetWorldScale(enemy->scale);
     
     auto *modelComponent = entity->AddComponent<ModelComponent>();
@@ -468,6 +447,7 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     enemyController->SetDeathSound(enemy->deathSound);
     enemyController->SetRandomSound(enemy->barkSound);
     enemyController->SetGibs(this->gibs);
+    enemyController->SetEnemy(enemy);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
@@ -566,7 +546,6 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
                 XMFLOAT3 position = enemyPos;
                 position.y += 1.4f;
-                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }
             
             e->SetLocallyActive(false);
@@ -625,7 +604,6 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
                 XMFLOAT3 position = ogrePos;
                 position.y += 2.5f;
-                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }
 
             this->GetOwner()->GetScene()->DestroyEntity(e);
@@ -682,7 +660,6 @@ void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
 
                 XMFLOAT3 position = skeletonPos;
                 position.y += 1.4f;
-                SpawnBloodExplosion(context.sceneManager->GetCurrentScene(), position);
             }
 
             this->GetOwner()->GetScene()->DestroyEntity(e);

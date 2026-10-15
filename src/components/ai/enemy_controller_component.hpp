@@ -13,6 +13,7 @@ class GibsComponent;
 
 class SpatialGrid;
 class Sound;
+class Enemy;
 
 struct AttackHitEvent;
 
@@ -144,6 +145,8 @@ private:
 	float randomSoundTimer = 0.0f;
 	bool isAttacking = false;
 
+	std::shared_ptr<Enemy> enemy = nullptr;
+
 	// attack
 	float attackElapsed = 0.0f;
 	bool hitboxActivated = false;
@@ -201,6 +204,8 @@ public:
 	HitboxComponent* GetAttackHitbox() const { return this->hitbox; }
 
 	void SetGibs(GibsComponent *gibs) { this->gibs = gibs; }
+
+	void SetEnemy(std::shared_ptr<Enemy> enemy) { this->enemy = enemy; }
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
 

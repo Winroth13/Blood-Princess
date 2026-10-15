@@ -11,7 +11,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     playerEntity->AddComponent<TransformComponent>();
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
-    transform->SetWorldPosition({-17.0f, -1.0f, -8.0f});
+    transform->SetWorldPosition({-17.0f, 1.6f, -8.0f});
     playerEntity->AddComponent<ListenerComponent>();
     PointLightComponent *pointLight = playerEntity->AddComponent<PointLightComponent>();
     pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
@@ -395,7 +395,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     const float tileSize = 10.0f;
     const float halfTile = tileSize * 0.5f;
     // Floor top surface is flush with the bottom of the lower walls (Y = center.y - 2.5f)
-    const float floorY = center.y - 3.0f;
+    const float floorY = center.y - 0.5f;
     // Ceiling bottom surface is flush with the top of the upper walls (Y = center.y + 7.5f)
     const float ceilingY = center.y + 8.0f;
 
@@ -467,7 +467,7 @@ static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
 
     gibPool->SetCreateEntityCallback([&outScene, &appContext]()
     {
-        Entity *gib = outScene.AddEntity(std::format("{}_{}", "gib", RNG::Int(0, INT_MAX)));
+        Entity *gib = outScene.AddEntity("gib");
         auto *gibTransform = gib->AddComponent<TransformComponent>();
         auto *modelComponent = gib->AddComponent<ModelComponent>();
         auto *gibParticle = gib->AddComponent<ParticleSystemComponent>();
@@ -533,7 +533,7 @@ namespace Scenes
 
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("Spawner");
-        spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
+        spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
 
         // Trap Spawner

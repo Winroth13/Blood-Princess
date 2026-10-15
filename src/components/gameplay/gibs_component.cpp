@@ -3,6 +3,7 @@
 
 #include "core/rng.hpp"
 #include "core/logging.hpp"
+#include "scene/scene.hpp"
 
 #include "components/core/pool_component.hpp"
 #include "components/core/transform_component.hpp"
@@ -10,6 +11,7 @@
 #include "components/gameplay/splatter_component.hpp"
 #include "components/core/model_component.hpp"
 #include "components/core/lifetime_component.hpp"
+#include "components/core/particle_system_component.hpp"
 
 #include "assets/asset_manager.hpp"
 #include "assets/types/model.hpp"
@@ -81,6 +83,8 @@ void GibsComponent::OnStart(const AppContext &context)
         context.assetManager->Get<Model>("assets/models/gib3.glb"),
         context.assetManager->Get<Model>("assets/models/gib4.glb"),
     };
+
+    this->bloodSpriteSheet = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
 }
 
 void GibsComponent::SpawnGibs(XMFLOAT3 position, uint32_t count, GibType type)
@@ -126,4 +130,30 @@ void GibsComponent::SpawnGibs(XMFLOAT3 position, uint32_t count, GibType type)
         projectileGib->Launch(velocity, angularVelocity);
         gibEntity->GetComponent<SplatterComponent>()->Reset();
     }
+}
+
+void GibsComponent::SpawnBlood(Scene *scene, XMFLOAT3 position, float scale)
+{
+    Entity *bloodExplosionEntity = scene->AddEntity("");
+    bloodExplosionEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
+
+    ParticleSystemComponent *ps = bloodExplosionEntity->AddComponent<ParticleSystemComponent>();
+    ps->SetSpawnRadius(RNG::Float(0.1f, 0.4f));
+    ps->SetIsBurst(true);
+    ps->SetIsSpread(true);
+    ps->SetCount(20 * scale);
+    ps->SetStartTint({ 0.35f, 0.03f, 0.03f });
+    ps->SetEndTint({ 0.15f, 0.02f, 0.02f });
+    ps->SetStartScale(0.8f * scale);
+    ps->SetEndScale(0.8f * scale);
+    ps->SetLifeTime(2.0f);
+
+    ps->SetVelocity({ 4.0f * scale, 4.0f * scale, 4.0f * scale });
+    ps->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+    ps->SetIsAnimate(true);
+    ps->SetAtlasTexture(this->bloodSpriteSheet);
+    ps->SetAtlasSize({ 8.0f, 8.0f });
+
+    bloodExplosionEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(2.0f);
 }

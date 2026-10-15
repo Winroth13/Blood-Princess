@@ -96,9 +96,6 @@ private:
 	bool SpawnOneOgre(const AppContext& context);
 	bool SpawnOneSkeleton(const AppContext& context);
 
-
-	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
-
 	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene);
 
 	void CleanGibs();

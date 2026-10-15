@@ -6,6 +6,7 @@
 #include <DirectXMath.h>
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
+
 class HurtboxComponent : public Component
 {
 public:
@@ -14,6 +15,8 @@ public:
     ExportProperty(float, damageMultiplier, 1.0f);
     ExportProperty(bool, isInvulnerable, false);
     ExportProperty(float, invulnerabilityTimer, 0.0f);
+
+    Signal<> onHurt;
 
     Health* cachedHealth = nullptr;
     ConnectionId collisionEventConn = 0;
@@ -33,4 +36,6 @@ public:
 
     float GetDamageMultiplier() const { return this->damageMultiplier; }
     void SetDamageMultiplier(float mult) { this->damageMultiplier = mult; }
+
+    Signal<> &GetOnHurt() { return this->onHurt; }
 };

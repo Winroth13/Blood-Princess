@@ -111,6 +111,8 @@ bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOA
         hitNormal
         });
 
+    this->onHurt.Emit();
+
     return true;
 }
 

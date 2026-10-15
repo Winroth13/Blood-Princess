@@ -15,6 +15,11 @@
 #include "core/rng.hpp"
 #include "components/collisions/hit_box_component.hpp"
 #include "components/gameplay/gibs_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
+
+#include "scene/scene_manager.hpp"
+
+#include "assets/types/enemy.hpp"
 
 #include <algorithm>
 
@@ -51,11 +56,33 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         this, &EnemyControllerComponent::OnAttackHit
     );
 
-    this->GetOwner()->GetComponent<Health>()->GetOnDeath().Connect([this]() {
+    this->GetOwner()->GetComponent<Health>()->GetOnDeath().Connect([this, context]() {
+
+        XMFLOAT3 position = this->GetPosition();
+        position.y += this->enemy->extends.y;
+
         this->gibs->SpawnGibs(
-            this->GetPosition(),
+            position,
             RNG::Int(3, 6),
             GibType::GOBLIN
+        );
+
+        this->gibs->SpawnBlood(
+            context.sceneManager->GetCurrentScene(), 
+            position,
+            1.0f
+        );
+    });
+
+    this->GetOwner()->GetComponent<Health>()->GetOnChangedHealth().Connect([this, context](float currentHealth, float maxHealth) {
+
+        XMFLOAT3 position = this->GetPosition();
+        position.y += this->enemy->extends.y;
+
+        this->gibs->SpawnBlood(
+            context.sceneManager->GetCurrentScene(),
+            position,
+            0.25f
         );
     });
 
