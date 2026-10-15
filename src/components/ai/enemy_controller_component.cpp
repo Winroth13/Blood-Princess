@@ -126,7 +126,7 @@ void EnemyControllerComponent::SetEnemyType(EnemyType type)
     }
 }
 
-void EnemyControllerComponent::ShootAnArrow(const XMFLOAT3& customStartPos, bool useCustomPos)
+void EnemyControllerComponent::ShootAnArrow()
 {
     Entity* playerEnt =
         this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
@@ -136,45 +136,41 @@ void EnemyControllerComponent::ShootAnArrow(const XMFLOAT3& customStartPos, bool
     PlayerControllerComponent* playerController = playerEnt->GetComponent<PlayerControllerComponent>();
     if (!playerTransform || !playerController) return;
 
-    // 1. Calculate spawn start position at bow/chest height and in front of skeleton
     XMFLOAT3 arrowStartPos;
-    if (useCustomPos)
-    {
-        arrowStartPos = customStartPos;
-    }
-    else
-    {
-        XMFLOAT3 skelPos = this->transform->GetWorldPosition();
-        XMVECTOR skelPosV = XMLoadFloat3(&skelPos);
 
-        XMFLOAT3 playerPos = playerTransform->GetWorldPosition();
-        XMVECTOR playerPosV = XMLoadFloat3(&playerPos);
+    XMFLOAT3 skelPos = this->transform->GetWorldPosition();
+    XMVECTOR skelPosV = XMLoadFloat3(&skelPos);
 
-        XMVECTOR toPlayer = XMVectorSubtract(playerPosV, skelPosV);
-        XMVECTOR toPlayerHorizontal = XMVectorSetY(toPlayer, 0.0f);
-        XMVECTOR forwardDir = XMVector3Normalize(toPlayerHorizontal);
+    XMFLOAT3 playerPos = playerTransform->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPos);
 
-        // Spawn 0.6m in front of skeleton and up at bow height (arrowOffset.y)
-        XMVECTOR startPosV = XMVectorAdd(skelPosV, XMLoadFloat3(&this->arrowOffset));
-        startPosV = XMVectorAdd(startPosV, XMVectorScale(forwardDir, 0.6f));
-        XMStoreFloat3(&arrowStartPos, startPosV);
-    }
+    XMVECTOR toPlayer = XMVectorSubtract(playerPosV, skelPosV);
+    XMVECTOR toPlayerHorizontal = XMVectorSetY(toPlayer, 0.0f);
+    XMVECTOR forwardDir = XMVector3Normalize(toPlayerHorizontal);
+
+    XMVECTOR startPosV = XMVectorAdd(skelPosV, XMLoadFloat3(&this->arrowOffset));
+    startPosV = XMVectorAdd(startPosV, XMVectorScale(forwardDir, 0.6f));
+    XMStoreFloat3(&arrowStartPos, startPosV);
+
     XMVECTOR arrowStartPosV = XMLoadFloat3(&arrowStartPos);
 
-    // 2. Predict future player position (lead targeting)
-    // Aim at player's center of mass (playerPos.y + 0.5f)
+    // Predict future player position
     XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
-    playerPositionF.y += 0.5f;
+    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.5f)
     XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
 
     XMFLOAT3 playerVelocityF = playerController->GetVelocity();
     XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
 
-    // Calculate timeToTarget based on distance and arrow speed
+    // Calculate timeToTarget
     XMVECTOR diffV = XMVectorSubtract(playerPositionV, arrowStartPosV);
     float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
     float speed = this->arrowSpeed > 1.0f ? this->arrowSpeed : 20.0f;
+
     float timeToTarget = distToPlayer / speed;
+    float arcModifier = 1.5f;
+    timeToTarget *= arcModifier;
+
     if (timeToTarget < 0.1f) timeToTarget = 0.1f;
 
     // Future position = current position + velocity * timeToTarget
@@ -193,13 +189,13 @@ void EnemyControllerComponent::ShootAnArrow(const XMFLOAT3& customStartPos, bool
     float g = this->arrowGravity;
     launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
 
-    // 3. Create arrow entity
+    // Create arrow entity
     Entity* arrowEnt = this->thisScene->AddEntity("Arrow_" + std::to_string(s_arrowCounter++));
 
     TransformComponent* transform = arrowEnt->AddComponent<TransformComponent>();
     transform->SetWorldPosition(arrowStartPos);
 
-    // Initial rotation facing launch direction (model tip points along local -X)
+    // Initial rotation facing launch direction
     DirectX::XMVECTOR launchVelVec = DirectX::XMLoadFloat3(&launchVelocity);
     DirectX::XMVECTOR f = DirectX::XMVector3Normalize(launchVelVec);
 
@@ -224,6 +220,7 @@ void EnemyControllerComponent::ShootAnArrow(const XMFLOAT3& customStartPos, bool
     DirectX::XMFLOAT4 quat;
     DirectX::XMStoreFloat4(&quat, q);
     transform->SetWorldRotationQuaternion(quat);
+    // end rotation
 
     ModelComponent* model = arrowEnt->AddComponent<ModelComponent>();
     model->SetModel(this->arrowModel);

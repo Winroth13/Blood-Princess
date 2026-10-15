@@ -14,7 +14,7 @@ void HitboxComponent::Update(const AppContext& context, float deltaTime)
 
 	for (auto it = this->hitEntities.begin(); it != this->hitEntities.end(); )
 	{
-		if (it->second < 0.0f) { ++it; continue; } // permanent until Deactivate/Activate
+		if (it->second < 0.0f) { ++it; continue; }
 		it->second -= deltaTime;
 		if (it->second <= 0.0f) it = this->hitEntities.erase(it);
 		else ++it;
