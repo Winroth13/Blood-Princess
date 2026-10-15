@@ -5,7 +5,7 @@ sound:
       min_pitch: 1.05
       max_pitch: 1.25
 
-    - file: assets/audio/sfx/Other/540076__magnuswaker__meat-slap-2.wav
+    - file: assets/audio/sfx/Other/540076__magnuswaker__meat-slap-2.ogg
       min_volume: 0.7
       max_volume: 0.95
       min_pitch: 1.05

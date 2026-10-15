@@ -125,6 +125,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
     auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
     auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
+    auto goblinAttackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
 
     for (int i = 0; i < maxEnemyPool; ++i)
     {
@@ -157,6 +158,7 @@ void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene
         enemyController->SetHitSound(goblinHitSound);
         enemyController->SetDeathSound(goblinDeathSound);
         enemyController->SetRandomSound(goblinRandomSound);
+        enemyController->SetAttackHitSound(goblinAttackHitSound);
         enemySoundComponent->SetSound(goblinHitSound);
         // goblin attack collider
 

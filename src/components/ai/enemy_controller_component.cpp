@@ -21,6 +21,9 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     if (!this->hitSound && context.assetManager) {
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     }
+    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyType::Goblin) {
+        this->attackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
+    }
 
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 
@@ -118,6 +121,19 @@ void EnemyControllerComponent::SetEnemyType(EnemyType type)
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
+    if (this->hitbox && event.attacker == this->hitbox->GetOwner())
+    {
+        if (this->attackHitSound)
+        {
+            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->attackHitSound);
+                soundComponent->Play();
+            }
+        }
+        return;
+    }
+
     if (event.victim != this->GetOwner() || event.knockbackForce <= 0.0f)
     {
         return;
