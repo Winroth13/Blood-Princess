@@ -431,7 +431,26 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
     const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-    const bool inAttackRange = distSq <= (this->stopDistance * this->stopDistance);
+    const float dist = sqrtf(distSq);
+
+    const bool isRanged = (this->enemyType == EnemyType::Skeleton);
+    const float meleeRange = this->stopDistance;
+
+    // Zone flags
+    bool tooClose = false;
+    bool inShootBand = false;
+    bool tooFar = false;
+
+    if (isRanged)
+    {
+        tooClose = dist < this->minShootRadius;
+        inShootBand = dist >= this->minShootRadius && dist <= this->maxShootRadius;
+        tooFar = dist > this->maxShootRadius;
+    }
+    else
+    {
+        inShootBand = dist <= meleeRange;
+    }
 
     if (distSq > 1e-4f)
     {
@@ -443,9 +462,15 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     EnemyStats stats = GetEnemyStats(this->enemyType);
 
-    if (this->isAttacking)
+    // Attack 
+
+    if (isRanged)
     {
-        if (this->enemyType == EnemyType::Skeleton && inAttackRange && this->knockbackStunTimer <= 0.0f)
+        const bool canShoot = inShootBand
+            && this->knockbackStunTimer <= 0.0f
+            && !hasKnockback;
+
+        if (canShoot)
         {
             this->shootTimer -= deltaTime;
             if (this->shootTimer <= 0.0f)
@@ -454,65 +479,103 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
                 this->shootTimer = this->cooldown;
             }
         }
-
-        this->attackElapsed += deltaTime;
-
-        if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+        else if (this->shootTimer > 0.0f)
         {
-            this->hitboxActivated = true;
-            if (this->hitbox)
-                this->hitbox->Activate(this->attackHitboxDuration);
+            this->shootTimer -= deltaTime;
         }
-
-        if (!this->animator || this->animator->IsFinished())
-        {
-            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation(stats.attackAnimation))
-            {
-                // restart the swing
-                this->attackElapsed = 0.0f;
-                this->hitboxActivated = false;
-                this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
-            }
-            else
-            {
-                this->isAttacking = false;
-                this->attackElapsed = 0.0f;
-                this->hitboxActivated = false;
-                if (this->hitbox)
-                    this->hitbox->Deactivate();
-
-                if (this->animator && this->animator->HasAnimation(stats.walkAnimation))
-                    this->animator->CrossFade(stats.walkAnimation, 0.15f, true);
-            }
-        }
+        this->isAttacking = false;
+        if (this->hitbox) this->hitbox->Deactivate();
     }
-    else if (inAttackRange && this->knockbackStunTimer <= 0.0f)
+    else
     {
-        this->isAttacking = true;
-        this->attackElapsed = 0.0f;
-        this->hitboxActivated = false;
+        // melee logic
+        if (this->isAttacking)
+        {
+            this->attackElapsed += deltaTime;
 
-        if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
-            this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+            if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+            {
+                this->hitboxActivated = true;
+                if (this->hitbox)
+                    this->hitbox->Activate(this->attackHitboxDuration);
+            }
+
+            if (!this->animator || this->animator->IsFinished())
+            {
+                if (inShootBand && this->knockbackStunTimer <= 0.0f
+                    && this->animator && this->animator->HasAnimation(stats.attackAnimation))
+                {
+                    this->attackElapsed = 0.0f;
+                    this->hitboxActivated = false;
+                    this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+                }
+                else
+                {
+                    this->isAttacking = false;
+                    this->attackElapsed = 0.0f;
+                    this->hitboxActivated = false;
+                    if (this->hitbox) this->hitbox->Deactivate();
+
+                    if (this->animator && this->animator->HasAnimation(stats.walkAnimation))
+                        this->animator->CrossFade(stats.walkAnimation, 0.15f, true);
+                }
+            }
+        }
+        else if (inShootBand && this->knockbackStunTimer <= 0.0f)
+        {
+            this->isAttacking = true;
+            this->attackElapsed = 0.0f;
+            this->hitboxActivated = false;
+
+            if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
+                this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+        }
     }
+
+    // Steering
 
     XMVECTOR steer = XMVectorZero();
+    bool shouldMove = false;
 
-    if (!this->isAttacking && !inAttackRange)
+    if (this->knockbackStunTimer <= 0.0f)
     {
-        XMVECTOR seek = XMVectorZero();
-        if (distSq > 1e-4f && this->knockbackStunTimer <= 0.0f)
+        if (isRanged)
         {
-            seek = XMVector3Normalize(toPlayer);
+            if (tooClose && distSq > 1e-4f)
+            {
+                XMVECTOR away = XMVector3Normalize(XMVectorNegate(toPlayer));
+                steer = away;
+                shouldMove = true;
+            }
+            else if (tooFar && distSq > 1e-4f)
+            {
+                XMVECTOR seek = XMVector3Normalize(toPlayer);
+                steer = seek;
+                shouldMove = true;
+            }
+        }
+        else
+        {
+            // Melee
+            if (!this->isAttacking && !inShootBand && distSq > 1e-4f)
+            {
+                steer = XMVector3Normalize(toPlayer);
+                shouldMove = true;
+            }
         }
 
-        XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
-            this->avoidanceRadius),
-            0.0f);
+        if (shouldMove)
+        {
+            // Add avoidance on top of seek/flee
+            XMVECTOR avoid = XMVectorSetY(
+                grid.ComputeAvoidance(myGridIndex, this->avoidanceRadius), 0.0f);
 
-        steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
+            steer = XMVectorSetY(XMVectorAdd(steer, avoid), 0.0f);
+        }
     }
 
+
+    // Apply movement
     const float steerLen = XMVectorGetX(XMVector3Length(steer));
     if (steerLen > 1e-4f)
     {
@@ -523,10 +586,14 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
             effectiveSteerLen = 1.0f;
         }
 
-        const float distMoved = effectiveSteerLen * this->moveSpeed * deltaTime;
-        myPos = XMVectorAdd(myPos,
-            XMVectorScale(steer,
-                this->moveSpeed * deltaTime));
+        float speedScale = 1.0f;
+        if (isRanged && tooClose)
+            speedScale = this->fleeSpeedMultiplier;
+
+        const float speed = this->moveSpeed * speedScale;
+        const float distMoved = effectiveSteerLen * speed * deltaTime;
+
+        myPos = XMVectorAdd(myPos, XMVectorScale(steer, speed * deltaTime));
 
         if (this->footstepSound)
         {
@@ -540,7 +607,7 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
                         if (currAnimTime >= prevAnimTime)
                             return prevAnimTime < targetTime && currAnimTime >= targetTime;
                         return prevAnimTime < targetTime || currAnimTime >= targetTime;
-                    };
+                        };
 
                     if (crossedTime(0.1f) || crossedTime(0.85f))
                     {
@@ -576,7 +643,6 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     if (steerLen > 1e-4f || hasKnockback)
     {
         myPos = XMVectorSetY(myPos, myPosF.y);
-
         XMFLOAT3 outPos;
         XMStoreFloat3(&outPos, myPos);
         this->transform->SetWorldPosition(outPos);

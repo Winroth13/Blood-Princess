@@ -140,6 +140,10 @@ private:
 	ExportProperty(float, arrowGravity, 8.6f);
 	ExportProperty(float, arrowSpeed, 10.0f);
 	ExportProperty(float, cooldown, 4.0f);
+	ExportProperty(float, minShootRadius, 6.0f);
+	ExportProperty(float, maxShootRadius, 14.0f);
+	ExportProperty(float, fleeSpeedMultiplier, 0.8f);
+
 	float shootTimer = 0.0f;
 	Entity* arrow = nullptr;
 	std::shared_ptr<Model> arrowModel;
