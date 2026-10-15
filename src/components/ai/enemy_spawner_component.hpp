@@ -16,6 +16,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(int, maxSkeletonEnemies, 10);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
+	int skeletonsAlive = maxSkeletonEnemies;
 
 	ExportProperty(int, maxEnemiesAlive, 0);
 	ExportProperty(float, enemySpawnDuration, 20.0f);

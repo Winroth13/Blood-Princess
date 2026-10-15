@@ -135,9 +135,11 @@ private:
 	// arrow for Skeleton
 	ExportPropertyCategory("Arrow");
 	ExportProperty(float, arrowDamage, 1.0f);
-	ExportProperty(XMFLOAT3, arrowPosition, { 0,0,0 });
+	ExportProperty(XMFLOAT3, arrowOffset, { 0.0f, 1.4f, 0.0f });
 	ExportProperty(float, arrowGravity, 8.6f);
-	ExportProperty(float, cooldown, 6.0f);
+	ExportProperty(float, arrowSpeed, 20.0f);
+	ExportProperty(float, cooldown, 4.0f);
+	float shootTimer = 0.0f;
 	Entity* arrow = nullptr;
 	std::shared_ptr<Model> arrowModel;
 	Scene* thisScene = nullptr;
@@ -197,6 +199,6 @@ public:
 	void SetEnemyType(EnemyType type);
 	EnemyType GetEnemyType() const { return this->enemyType; }
 
-	void ShootAnArrow(XMFLOAT3 position);
+	void ShootAnArrow(const XMFLOAT3& customStartPos = { 0.0f, 0.0f, 0.0f }, bool useCustomPos = false);
 	void UpdateTheArrow();
 };

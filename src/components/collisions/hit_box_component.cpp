@@ -1,10 +1,11 @@
 #include "hit_box_component.hpp"
 #include "events/event_bus.hpp"
+#include "scene/scene.hpp"
 
 
 void HitboxComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (this->activeDuration > 0.0f && this->IsActive() || this->activeForEver) {
+	if (!this->activeForEver && this->activeDuration > 0.0f && this->IsActive()) {
 		this->activeTimer += deltaTime;
 		if (this->activeTimer >= this->activeDuration) {
 			this->Deactivate();
@@ -62,5 +63,13 @@ void HitboxComponent::OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& h
 		this->knockbackForce,
 		hitPoint
 		});
+
+	if (this->destroyOnHit)
+	{
+		auto scene = this->GetOwner()->GetScene();
+		if (scene) {
+			scene->DestroyEntity(this->GetOwner());
+		}
+	}
 }
 
