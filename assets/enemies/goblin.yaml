@@ -6,7 +6,7 @@ knockback_factor: 4.0
 model: assets/models/goblin.glb
 walk_animation: Jog
 
-extends: [1.0, 1.0, 1.0]
+extends: [1.0, 1.0, 0.7]
 extends_offset: [0.0, 1.05, 0.0]
 
 hit_sound: assets/sounds/goblin_hit_sound.sound

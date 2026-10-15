@@ -76,13 +76,4 @@ void ProjectileComponent::Launch(const DirectX::XMFLOAT3& vel, const DirectX::XM
 	this->angularVelocity = angVel;
 
     this->isGrounded = false;
-
-
-    TransformComponent* transform = this->GetOwner()->GetComponent<TransformComponent>();
-    if (transform) {
-        this->groundY = transform->GetWorldPosition().y - 2.0f;
-    }
-    else {
-        this->groundY = -2.0f;
-    }
 }

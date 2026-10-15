@@ -141,7 +141,7 @@ void GibsComponent::SpawnBlood(Scene *scene, XMFLOAT3 position, float scale)
     ps->SetSpawnRadius(RNG::Float(0.1f, 0.4f));
     ps->SetIsBurst(true);
     ps->SetIsSpread(true);
-    ps->SetCount(20 * scale);
+    ps->SetCount(static_cast<uint32_t>(20 * scale));
     ps->SetStartTint({ 0.35f, 0.03f, 0.03f });
     ps->SetEndTint({ 0.15f, 0.02f, 0.02f });
     ps->SetStartScale(0.8f * scale);

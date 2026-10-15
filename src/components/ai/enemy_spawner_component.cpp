@@ -23,6 +23,8 @@
 #include "components/gameplay/gibs_component.hpp"
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
+#include "core/rng.hpp"
+#include "ai/ai_manager.hpp"
 
 #include <format>
 
@@ -53,369 +55,6 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
 
         this->enemyPools[i] = pool;
     }
-}
-
-void EnemySpawnerComponent::InitializeGibPool(const AppContext& context, Scene* scene)
-{
-    gibPool.reserve(maxGibsPool);
-    activeGibs.reserve(maxGibsPool);
-
-
-    Entity *gibs = scene->AddEntity("Gibs");
-
-    for (int i = 0; i < maxGibsPool; ++i)
-    {
-        Entity* gib = scene->AddEntity("Pooled_Gib_" + std::to_string(s_gibCounter++));
-        gib->SetParent(gibs);
-
-        auto* gibTransform = gib->AddComponent<TransformComponent>();
-        auto* modelComponent = gib->AddComponent<ModelComponent>();
-        auto* gibParticle = gib->AddComponent<ParticleSystemComponent>();
-        auto* projectileGib = gib->AddComponent<ProjectileComponent>();
-        auto* sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
-        auto* splatterGib = gib->AddComponent<SplatterComponent>();
-
-        std::shared_ptr<Model> model;
-        if (i < 40) {
-            model = gibModel[0];
-            gibTransform->SetWorldScale(RNG::Float(0.455f, 0.78f));
-        }
-        else if (i < 70) {
-            model = gibModel[1];
-            gibTransform->SetWorldScale(RNG::Float(0.195f, 0.325f));
-        }
-        else if (i < 85) {
-            model = gibModel[2];
-            gibTransform->SetWorldScale(RNG::Float(0.91f, 1.17f));
-        }
-        else {
-            model = gibModel[3];
-            gibTransform->SetWorldScale(RNG::Float(0.35f, 0.40f));
-        }
-        modelComponent->SetModel(model);
-
-
-        if (model == gibModel[2]) {
-            gibParticle->SetLifeTime(0.0f);
-        }
-        else {
-            gibParticle->SetLifeTime(RNG::Float(0.3f, 0.8f));
-        }
-
-        gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
-        gibParticle->SetCount(RNG::Int(8, 16));
-        gibParticle->SetIsAnimate(true);
-        gibParticle->SetIsGlobal(true);
-        gibParticle->SetIsAdditive(false);
-        gibParticle->SetStartTint({ 0.35f, 0.03f, 0.03f });
-        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
-        gibParticle->SetAtlasTexture(this->atlasTexture);
-        gibParticle->SetAtlasSize({ 8.0f, 8.0f });
-
-        const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-        const float pSpeed = RNG::Float(1.0f, 2.0f);
-        gibParticle->SetVelocity({
-            cosf(pAngle) * pSpeed,
-            RNG::Float(0.1f, 0.3f),
-            sinf(pAngle) * pSpeed
-            });
-        gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
-
-        const float pScale = RNG::Float(0.3f, 0.65f);
-        gibParticle->SetStartScale(pScale);
-        gibParticle->SetEndScale(pScale);
-
-
-        projectileGib->SetGravity(9.82f);
-        projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
-
-
-        sphereCollisionGib->SetRadius(RNG::Float(0.19f, 0.39f));
-        sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
-        sphereCollisionGib->SetActive(true);
-        sphereCollisionGib->SetStatic(false);
-        sphereCollisionGib->SetTrigger(true);
-
-        splatterGib->SetPaintSpacing(RNG::Float(0.4f, 1.0f));
-
-
-        gib->SetLocallyActive(false);
-        gibPool.push_back(gib);
-    }
-}
-
-void EnemySpawnerComponent::InitializeEnemyPool(const AppContext& context, Scene* scene)
-{
-    enemyPool.reserve(maxEnemyPool);
-    activeEnemy.reserve(maxEnemyPool);
-
-    Entity *enemies = scene->AddEntity("Entities");
-
-    auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
-    auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
-    auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
-}
-
-bool EnemySpawnerComponent::SpawnOneEnemyFromPool(const AppContext& context)
-{
-    Entity* playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    TransformComponent* player = nullptr;
-    if (playerEntity) {
-        player = playerEntity->GetComponent<TransformComponent>();
-    }
-    if (!player)       return false;
-
-    DirectX::XMFLOAT3 origin =
-        player ?
-        DirectX::XMFLOAT3{ player->GetWorldPosition().x, player->GetWorldPosition().y - 1.5f, player->GetWorldPosition().z } :
-        DirectX::XMFLOAT3{ 0.0f, -2.0f, 0.0f };
-
-    if (this->enemyPool.empty()) return false;
-
-    Entity* enemy = this->enemyPool.back();
-    this->enemyPool.pop_back();
-
-    DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
-    do
-    {
-        float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-        float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
-
-        position = {
-            origin.x + cosf(angle) * dist,
-            origin.y,
-            origin.z + sinf(angle) * dist
-        };
-
-    } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
-
-
-    TransformComponent* enemyTransform = enemy->GetComponent<TransformComponent>();
-    enemyTransform->SetWorldPosition(position);
-
-
-    Health* enemyHealth = enemy->GetComponent<Health>();
-    const EnemyStats goblinStats = GetEnemyStats(EnemyType::Goblin);
-    enemyHealth->SetMaxHealth(goblinStats.health);
-    enemyHealth->SetCurrentHealth(goblinStats.health);
-
-    if (EnemyControllerComponent* enemyController = enemy->GetComponent<EnemyControllerComponent>())
-    {
-        enemyController->ResetKnockback();
-    }
-
-    AnimatorComponent* animator = enemy->GetComponent<AnimatorComponent>();
-    animator->Play("Jog", true);
-    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
-
-    enemy->SetLocallyActive(true);
-    activeEnemy.push_back(enemy);
-    return true;
-}
-
-bool EnemySpawnerComponent::SpawnOneOgre(const AppContext& context)
-{
-    const EnemyStats ogreStats = GetEnemyStats(EnemyType::Ogre);
-
-    Entity* playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    TransformComponent* player = nullptr;
-    if (playerEntity) {
-        player = playerEntity->GetComponent<TransformComponent>();
-    }
-    if (!player)       return false;
-
-    Scene* mainScene = this->GetOwner()->GetScene();
-    DirectX::XMFLOAT3 origin =
-        player ?
-        DirectX::XMFLOAT3{ player->GetWorldPosition().x , player->GetWorldPosition().y - 1.5f  ,player->GetWorldPosition().z } :
-        DirectX::XMFLOAT3{ 0.0f,-2.0f,0.0f };
-
-    Entity* ogre = mainScene->AddEntity("Enemy_Ogre_" + std::to_string(rand()));
-    float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-    float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnOuterRadius) + this->spawnOuterRadius;
-
-    DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
-    do
-    {
-        float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-        float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
-
-        position = {
-            origin.x + cosf(angle) * dist,
-            origin.y,
-            origin.z + sinf(angle) * dist
-        };
-
-    } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
-
-    TransformComponent* ogreTransform = ogre->AddComponent< TransformComponent>();;
-    ogreTransform->SetWorldPosition(position);
-    ogreTransform->SetWorldScale(ogreStats.scale);
-
-
-    ModelComponent* modelComponent = ogre->AddComponent<ModelComponent>();
-    modelComponent->SetModel(this->ogreModel);
-
-    AnimatorComponent* animator = ogre->AddComponent<AnimatorComponent>();
-    animator->AddAnimations(ogreModel->GetAnimations());
-    animator->SetSkeletonVisible(true);
-    animator->Play(ogreStats.walkAnimation, true);
-    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
-
-
-    Health* ogreHealth = ogre->AddComponent<Health>();
-    ogreHealth->SetMaxHealth(ogreStats.health);
-    ogreHealth->SetCurrentHealth(ogreStats.health);
-    ogreTransform->SetWorldScale(ogreStats.scale);
-
-    BoxCollisionComponent* ogreBC = ogre->AddComponent<BoxCollisionComponent>();
-    ogreBC->SetExtents({ 1.7f, 1.7f, 0.4f }); // here
-    ogreBC->SetLayer(CollisionLayer::ENEMY);
-    ogreBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
-
-    HurtboxComponent* ogreHurtbox = ogre->AddComponent<HurtboxComponent>();
-
-    EnemyControllerComponent* ogreController = ogre->AddComponent<EnemyControllerComponent>();
-    ogreController->SetEnemyType(EnemyType::Ogre);
-
-    if (ogreController)
-    {
-        ogreController->ResetKnockback();
-    }
-
-
-    auto* ogreSplatter = ogre->AddComponent<SplatterComponent>();
-    auto* ogreSoundComponent = ogre->AddComponent<SoundComponent>();
-    auto ogreHitSound = context.assetManager->Get<Sound>("assets/sounds/troll_hit_sound.sound");
-    auto ogreFootstepSound = context.assetManager->Get<Sound>("assets/sounds/troll_footstep_sound.sound");
-    if (ogreController)
-    {
-        ogreController->SetHitSound(ogreHitSound);
-        ogreController->SetFootstepSound(ogreFootstepSound);
-    }
-    ogreSoundComponent->SetSound(ogreHitSound);
-
-    // ogre attack collider
-    Entity* fist = mainScene->AddEntity(ogre->GetName() + "_Fist");
-    fist->SetParent(ogre);
-
-    auto* fistTransform = fist->AddComponent<TransformComponent>();
-    fistTransform->SetLocalPosition({ 0.0f, 1.6f, 1.4f });
-
-    auto* fistCol = fist->AddComponent<BoxCollisionComponent>();
-    fistCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
-    fistCol->SetTrigger(true);
-    fistCol->SetStatic(false);
-    fistCol->SetExtents({ 1.0f, 1.0f, 1.0f });
-
-    auto* fistHitbox = fist->AddComponent<HitboxComponent>();
-    fistHitbox->SetActive(false);
-
-    ogreController->SetAttackHitbox(fistHitbox);
-    // end ogre attack collider
-
-    activeOgre.push_back(ogre);
-    return true;
-}
-
-bool EnemySpawnerComponent::SpawnOneSkeleton(const AppContext& context)
-{
-    const EnemyStats skeletonStats = GetEnemyStats(EnemyType::Skeleton);
-
-    Entity* playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    TransformComponent* player = nullptr;
-    if (playerEntity) {
-        player = playerEntity->GetComponent<TransformComponent>();
-    }
-    if (!player)       return false;
-
-    Scene* mainScene = this->GetOwner()->GetScene();
-    DirectX::XMFLOAT3 origin =
-        player ?
-        DirectX::XMFLOAT3{ player->GetWorldPosition().x, player->GetWorldPosition().y - 1.5f, player->GetWorldPosition().z } :
-        DirectX::XMFLOAT3{ 0.0f, -2.0f, 0.0f };
-
-    Entity* skeleton = mainScene->AddEntity("Enemy_Skeleton_" + std::to_string(rand()));
-
-    DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
-    do
-    {
-        float angle = ((float)rand() / RAND_MAX) * DirectX::XM_2PI;
-        float dist = ((float)rand() / RAND_MAX) * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
-
-        position = {
-            origin.x + cosf(angle) * dist,
-            origin.y,
-            origin.z + sinf(angle) * dist
-        };
-
-    } while (!context.aiManager->GetGrid().IsAreaClear(position, 1.0f));
-
-    TransformComponent* skeletonTransform = skeleton->AddComponent<TransformComponent>();
-    skeletonTransform->SetWorldPosition(position);
-    skeletonTransform->SetWorldScale(skeletonStats.scale);
-
-    ModelComponent* modelComponent = skeleton->AddComponent<ModelComponent>();
-    modelComponent->SetModel(this->skeletonModel);
-
-    AnimatorComponent* animator = skeleton->AddComponent<AnimatorComponent>();
-    animator->AddAnimations(this->skeletonModel->GetAnimations());
-    animator->SetSkeletonVisible(true);
-    if (animator->HasAnimation("Jog"))
-        animator->Play("Jog", true);
-    else if (animator->HasAnimation("Bow_Shot"))
-        animator->Play("Bow_Shot", true);
-    animator->SetTime(RNG::Float(0.0f, animator->GetDuration()));
-
-    Health* skeletonHealth = skeleton->AddComponent<Health>();
-    skeletonHealth->SetMaxHealth(skeletonStats.health);
-    skeletonHealth->SetCurrentHealth(skeletonStats.health);
-
-    BoxCollisionComponent* skeletonBC = skeleton->AddComponent<BoxCollisionComponent>();
-    skeletonBC->SetExtents({ 1.2f, 1.7f, 0.45f });
-    skeletonBC->SetCenterOffset({ 0.0f, 1.8f, 0.0f });
-    skeletonBC->SetLayer(CollisionLayer::ENEMY);
-
-    HurtboxComponent* skeletonHurtbox = skeleton->AddComponent<HurtboxComponent>();
-
-    EnemyControllerComponent* skeletonController = skeleton->AddComponent<EnemyControllerComponent>();
-    skeletonController->SetEnemyType(EnemyType::Skeleton);
-    skeletonController->ResetKnockback();
-
-    auto* skeletonSplatter = skeleton->AddComponent<SplatterComponent>();
-    auto* skeletonSoundComponent = skeleton->AddComponent<SoundComponent>();
-    auto goblinHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
-    auto goblinDeathSound = context.assetManager->Get<Sound>("assets/sounds/goblin_death_sounds.sound");
-    auto goblinRandomSound = context.assetManager->Get<Sound>("assets/sounds/goblin_random_sounds.sound");
-
-    skeletonController->SetHitSound(goblinHitSound);
-    skeletonController->SetDeathSound(goblinDeathSound);
-    skeletonController->SetRandomSound(goblinRandomSound);
-    skeletonSoundComponent->SetSound(goblinHitSound);
-
-    // skeleton attack collider
-    Entity* claw = mainScene->AddEntity(skeleton->GetName() + "_Claw");
-    claw->SetParent(skeleton);
-
-    auto* clawTransform = claw->AddComponent<TransformComponent>();
-    clawTransform->SetLocalPosition({ 0.0f, 1.3f, 0.8f });
-
-    auto* clawCol = claw->AddComponent<BoxCollisionComponent>();
-    clawCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
-    clawCol->SetTrigger(true);
-    clawCol->SetStatic(false);
-    clawCol->SetExtents({ 0.6f, 0.6f, 0.7f });
-
-    auto* clawHitbox = claw->AddComponent<HitboxComponent>();
-    clawHitbox->SetActive(false);
-    clawHitbox->SetDamage(skeletonStats.attackDamage);
-    clawHitbox->SetKnockbackForce(skeletonStats.attackKnockback);
-
-    skeletonController->SetAttackHitbox(clawHitbox);
-    // end skeleton attack collider
-
-    activeSkeleton.push_back(skeleton);
-    return true;
 }
 
 Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
@@ -472,318 +111,66 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     return entity;
 }
 
-void EnemySpawnerComponent::CleanGibs()
-{
-    for (auto it = activeGibs.begin(); it != activeGibs.end(); )
-    {
-        Entity* gib = *it;
-        if (!gib) {
-            it = activeGibs.erase(it);
-            continue;
-        }
-
-        auto* projectile = gib->GetComponent<ProjectileComponent>();
-        if (projectile && projectile->GetAliveTime() <= 0.0f)
-        {
-            gib->SetLocallyActive(false);
-            if (auto* splatter = gib->GetComponent<SplatterComponent>()) {
-                splatter->Reset();
-            }
-            this->gibPool.push_back(gib);
-
-            it = activeGibs.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-void EnemySpawnerComponent::CleanupDeadEnemies(const AppContext& context)
-{
-    for (auto it = activeEnemy.begin(); it != activeEnemy.end(); )
-    {
-        Entity* e = *it;
-        if (!e) {
-            it = activeEnemy.erase(it);
-            continue;
-        }
-
-        auto* hp = e->GetComponent<Health>();
-        if (hp && hp->IsDead())
-        {
-            if (auto* transform = e->GetComponent<TransformComponent>())
-            {
-                DirectX::XMFLOAT3 enemyPos = transform->GetWorldPosition();
-
-                if (auto* splatter = e->GetComponent<SplatterComponent>())
-                {
-                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
-                        this->deathBloodRadiusMax);
-
-                    splatter->PaintFloorAtPosition(enemyPos, bloodRadius);
-
-                    const int extraSplats = RNG::Int(1, 2);
-                    for (int s = 0; s < extraSplats; ++s)
-                    {
-                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
-
-                        DirectX::XMFLOAT3 splatPos = {
-                            enemyPos.x + cosf(offsetAngle) * offsetDist,
-                            enemyPos.y,
-                            enemyPos.z + sinf(offsetAngle) * offsetDist
-                        };
-
-                        splatter->PaintFloorAtPosition(
-                            splatPos,
-                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
-                    }
-                }
-
-                
-
-                XMFLOAT3 position = enemyPos;
-                position.y += 1.4f;
-            }
-            
-            e->SetLocallyActive(false);
-            this->enemyPool.push_back(e);
-
-            it = activeEnemy.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-
-    for (auto it = activeOgre.begin(); it != activeOgre.end(); )
-    {
-        Entity* e = *it;
-        if (!e) {
-            it = activeOgre.erase(it);
-            continue;
-        }
-
-        auto* hp = e->GetComponent<Health>();
-        if (hp && hp->IsDead())
-        {
-            if (auto* transform = e->GetComponent<TransformComponent>())
-            {
-                DirectX::XMFLOAT3 ogrePos = transform->GetWorldPosition();
-
-                if (auto* splatter = e->GetComponent<SplatterComponent>())
-                {
-                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
-                        this->deathBloodRadiusMax);
-
-                    splatter->PaintFloorAtPosition(ogrePos, bloodRadius + 1.4f);
-
-                    const int extraSplats = RNG::Int(1, 2);
-                    for (int s = 0; s < extraSplats; ++s)
-                    {
-                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
-
-                        DirectX::XMFLOAT3 splatPos = {
-                            ogrePos.x + cosf(offsetAngle) * offsetDist,
-                            ogrePos.y,
-                            ogrePos.z + sinf(offsetAngle) * offsetDist
-                        };
-
-                        splatter->PaintFloorAtPosition(
-                            splatPos,
-                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
-                    }
-                }
-
-                
-
-                XMFLOAT3 position = ogrePos;
-                position.y += 2.5f;
-            }
-
-            this->GetOwner()->GetScene()->DestroyEntity(e);
-
-            it = activeOgre.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    for (auto it = activeSkeleton.begin(); it != activeSkeleton.end(); )
-    {
-        Entity* e = *it;
-        if (!e) {
-            it = activeSkeleton.erase(it);
-            continue;
-        }
-
-        auto* hp = e->GetComponent<Health>();
-        if (hp && hp->IsDead())
-        {
-            if (auto* transform = e->GetComponent<TransformComponent>())
-            {
-                DirectX::XMFLOAT3 skeletonPos = transform->GetWorldPosition();
-
-                if (auto* splatter = e->GetComponent<SplatterComponent>())
-                {
-                    float bloodRadius = RNG::Float(this->deathBloodRadiusMin,
-                        this->deathBloodRadiusMax);
-
-                    splatter->PaintFloorAtPosition(skeletonPos, bloodRadius);
-
-                    const int extraSplats = RNG::Int(1, 2);
-                    for (int s = 0; s < extraSplats; ++s)
-                    {
-                        float offsetAngle = RNG::Float(0.0f, DirectX::XM_2PI);
-                        float offsetDist = RNG::Float(0.3f, bloodRadius * 0.4f);
-
-                        DirectX::XMFLOAT3 splatPos = {
-                            skeletonPos.x + cosf(offsetAngle) * offsetDist,
-                            skeletonPos.y,
-                            skeletonPos.z + sinf(offsetAngle) * offsetDist
-                        };
-
-                        splatter->PaintFloorAtPosition(
-                            splatPos,
-                            RNG::Float(bloodRadius * 0.5f, bloodRadius * 0.8f));
-                    }
-                }
-
-                
-
-                XMFLOAT3 position = skeletonPos;
-                position.y += 1.4f;
-            }
-
-            this->GetOwner()->GetScene()->DestroyEntity(e);
-
-            it = activeSkeleton.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    
-    this->currentEnemies = static_cast<int>(this->activeEnemy.size());
-}
-
 void EnemySpawnerComponent::OnStart(const AppContext& context)
 {
     if (!this->gibs)
         LogError("Must have a gibs component");
 
-	this->gibModel[0] = context.assetManager->Get<Model>("assets/models/gib1.glb");
-	this->gibModel[1] = context.assetManager->Get<Model>("assets/models/gib2.glb");
-	this->gibModel[2] = context.assetManager->Get<Model>("assets/models/gib3.glb");
-	this->gibModel[3] = context.assetManager->Get<Model>("assets/models/gib4.glb");
-
-	this->enemyModel = context.assetManager->Get<Model>("assets/models/goblin.glb");
-
-	this->atlasTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
-
-    this->skeletonModel = context.assetManager->Get<Model>("assets/models/skeleton.glb");
-    this->ogreModel = context.assetManager->Get<Model>("assets/models/ogre.glb");
-
-	this->InitializeGibPool(context, this->GetOwner()->GetScene());
-    this->InitializeEnemyPool(context, this->GetOwner()->GetScene());
-
-    this->BeginWave();
+    this->aiManager = context.aiManager;
 
     this->InitializePools(context, context.sceneManager->GetCurrentScene());
 
-    Entity *entity = this->enemyPools[GOBLIN]->Grab();
+    this->SpawnEnemy(GOBLIN);
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
 {
-    this->CleanupDeadEnemies(context);
-    this->CleanGibs();
 
-    // ---------- Goblins ----------
-    if (this->goblinElapsed < this->enemySpawnDuration
-        && this->goblinsSpawned < this->maxEnemiesAlive)
-    {
-        this->goblinElapsed += deltaTime;
-        this->goblinTimer -= deltaTime;
-
-        if (this->goblinTimer <= 0.0f)
-        {
-            this->goblinTimer += (this->enemySpawnDuration / this->maxEnemiesAlive);
-
-            if (this->SpawnOneEnemyFromPool(context))
-                this->goblinsSpawned++;
-        }
-    }
-
-    // ---------- Ogres ----------
-    if (this->ogreElapsed < this->ogreSpawnDuration
-        && this->ogresSpawned < this->maxOgreEnemies)
-    {
-        this->ogreElapsed += deltaTime;
-        this->ogreTimer -= deltaTime;
-
-        if (this->ogreTimer <= 0.0f)
-        {
-            this->ogreTimer += (this->ogreSpawnDuration / this->maxOgreEnemies);
-
-            if (this->SpawnOneOgre(context))
-                this->ogresSpawned++;
-        }
-    }
-
-    // ---------- Skeletons ----------
-    if (this->skeletonElapsed < this->skeletonSpawnDuration
-        && this->skeletonsSpawned < this->maxSkeletonEnemies)
-    {
-        this->skeletonElapsed += deltaTime;
-        this->skeletonTimer -= deltaTime;
-
-        if (this->skeletonTimer <= 0.0f)
-        {
-            this->skeletonTimer += (this->skeletonSpawnDuration / this->maxSkeletonEnemies);
-
-            if (this->SpawnOneSkeleton(context))
-                this->skeletonsSpawned++;
-        }
-    }
 }
 
 void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 {
-	for (size_t i = 0; i < 4; i++)
-	{
-		gibModel[i].reset();
-	}
 
-	this->enemyModel.reset();
-	this->skeletonModel.reset();
 }
 
-void EnemySpawnerComponent::BeginWave()
+bool EnemySpawnerComponent::SpawnEnemy(size_t type)
 {
-    this->goblinTimer = (this->maxEnemiesAlive > 0)
-        ? this->enemySpawnDuration / this->maxEnemiesAlive
-        : 0.0f;
-    this->goblinElapsed = 0.0f;
-    this->goblinsSpawned = 0;
+    Entity *entity = this->enemyPools[type]->Grab();
 
-    this->ogreTimer = (this->maxOgreEnemies > 0)
-        ? this->ogreSpawnDuration / this->maxOgreEnemies
-        : 0.0f;
-    this->ogreElapsed = 0.0f;
-    this->ogresSpawned = 0;
+    // make sure there was any enemy to grab from the pool
+    if (!entity)
+        return false;
 
-    this->skeletonTimer = (this->maxSkeletonEnemies > 0)
-        ? this->skeletonSpawnDuration / this->maxSkeletonEnemies
-        : 0.0f;
-    this->skeletonElapsed = 0.0f;
-    this->skeletonsSpawned = 0;
+    Entity *playerEntity = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
+
+    XMFLOAT3 origin = transform->GetWorldPosition();
+    origin.y = 0.0f;
+
+    uint32_t tries = 0;
+
+    XMFLOAT3 wishPosition = { 0.0f, 0.0f, 0.0f };
+    do
+    {
+        float angle = RNG::Float() * DirectX::XM_2PI;
+        float distance = RNG::Float() * (this->spawnOuterRadius - this->spawnInnerRadius) + this->spawnInnerRadius;
+
+        wishPosition = {
+            origin.x + std::cos(angle) * distance,
+            origin.y,
+            origin.z + std::sin(angle) * distance
+        };
+
+        // at some point we just have to give up!
+        if (tries++ > 30)
+        {
+            this->enemyPools[type]->Put(entity);
+            return false;
+        }
+
+    } while (!this->aiManager->GetGrid().IsAreaClear(wishPosition, 1.0f));
+
+    entity->GetComponent<TransformComponent>()->SetWorldPosition(wishPosition);
+
+    return true;
 }

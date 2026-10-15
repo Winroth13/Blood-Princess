@@ -266,7 +266,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     {
         float theta = static_cast<float>(i) * deltaAngle;
         float posX = center.x + wallRadius * cosf(theta);
-        float posY = center.y;
+        float posY = center.y + 2.5f;
         float posZ = center.z + wallRadius * sinf(theta);
 
         // Yaw in degrees such that local +X points inwards toward the center of the room
@@ -397,7 +397,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     // Floor top surface is flush with the bottom of the lower walls (Y = center.y - 2.5f)
     const float floorY = center.y - 0.5f;
     // Ceiling bottom surface is flush with the top of the upper walls (Y = center.y + 7.5f)
-    const float ceilingY = center.y + 8.0f;
+    const float ceilingY = center.y + 10.5f;
 
     Entity *floorRoot = outScene.AddEntity("Floor");
     floorRoot->AddComponent<TransformComponent>()->SetWorldPosition(center.x, floorY, center.z);
@@ -532,7 +532,7 @@ namespace Scenes
         Entity *gibsEntity = CreateGibs(outScene, appContext);
 
         // Enemy Spawner
-        Entity* spawnerEntity = outScene.AddEntity("Spawner");
+        Entity* spawnerEntity = outScene.AddEntity("enemy_spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
 

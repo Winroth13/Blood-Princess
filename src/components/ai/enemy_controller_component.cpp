@@ -2,7 +2,6 @@
 #include "components/core/transform_component.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
-#include <DirectXMath.h>
 #include "components/ai/target_component.hpp"
 #include "scene/scene.hpp"
 #include "events/event_bus.hpp"
@@ -16,12 +15,11 @@
 #include "components/collisions/hit_box_component.hpp"
 #include "components/gameplay/gibs_component.hpp"
 #include "components/collisions/hurt_box_component.hpp"
-
 #include "scene/scene_manager.hpp"
-
 #include "assets/types/enemy.hpp"
 
 #include <algorithm>
+#include <DirectXMath.h>
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
@@ -36,7 +34,6 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
 
     this->SetEnemyType(this->enemyType);
-
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -82,7 +79,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         this->gibs->SpawnBlood(
             context.sceneManager->GetCurrentScene(),
             position,
-            0.25f
+            0.4f
         );
     });
 

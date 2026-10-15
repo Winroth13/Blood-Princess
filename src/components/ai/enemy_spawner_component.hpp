@@ -6,30 +6,17 @@
 #include <DirectXMath.h>
 #include <vector>
 
-
 class Entity;
 class Enemy;
 class GibsComponent;
+class AIManager;
 
 class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
-	ExportProperty(int, maxOgreEnemies, 0);
-	ExportProperty(float, ogreSpawnDuration, 10.0f);
-
-	ExportProperty(int, maxSkeletonEnemies, 0);
-	ExportProperty(float, skeletonSpawnDuration, 10.0f);
-
-	ExportProperty(int, maxEnemiesAlive, 0);
-	ExportProperty(float, enemySpawnDuration, 10.0f);
-	ExportProperty(int, currentEnemies, 1);
-
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
-
-	ExportProperty(int, maxGibsPool, 100);
-	ExportProperty(int, maxEnemyPool, 250);
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
@@ -38,68 +25,22 @@ class EnemySpawnerComponent : public Component
 	const size_t OGRE = 1;
 	const size_t SKELETON = 2;
 
-	std::array<std::shared_ptr<Enemy>, 2> enemies = {};
+	std::array<std::shared_ptr<Enemy>, 2> enemies = { nullptr };
+	std::array<PoolComponent *, 2> enemyPools = { nullptr };
 
 	std::array<int, 2> enemyPoolSize = 
 	{
-		128,
+		256,
 		8
 	};
 
-	std::array<PoolComponent *, 2> enemyPools = {};
-
-	std::shared_ptr<Model> gibModel[4];
-	std::shared_ptr<Texture2D> atlasTexture;
-	
-	std::shared_ptr<Model> enemyModel;
-
-	// ogre
-	std::shared_ptr<Model> ogreModel;
-
-	// skeleton
-	std::shared_ptr<Model> skeletonModel;
-
 private:
-
-	float goblinTimer = 0.0f;   // countdown to next goblin
-	float goblinElapsed = 0.0f;   // seconds since goblin wave started
-	int   goblinsSpawned = 0;
-
-	float ogreTimer = 0.0f;
-	float ogreElapsed = 0.0f;
-	int   ogresSpawned = 0;
-
-	float skeletonTimer = 0.0f;
-	float skeletonElapsed = 0.0f;
-	int   skeletonsSpawned = 0;
-
-	float gibTimer = 0.0f;
-	float timer = 0.0f;
-
-	std::vector<Entity*> enemyPool;
-	std::vector<Entity*> activeEnemy;
-
-	std::vector<Entity*> activeOgre;
-	std::vector<Entity*> activeSkeleton;
-
-	std::vector<Entity*> gibPool;
-	std::vector<Entity*> activeGibs;
-
 	GibsComponent *gibs = nullptr;
+	AIManager *aiManager = nullptr;
 
 	void InitializePools(const AppContext &context, Scene *scene);
 
-	void InitializeGibPool(const AppContext& context, Scene* scene);
-	void InitializeEnemyPool(const AppContext& context, Scene* scene);
-
-	bool SpawnOneEnemyFromPool(const AppContext& context);
-	bool SpawnOneOgre(const AppContext& context);
-	bool SpawnOneSkeleton(const AppContext& context);
-
 	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene);
-
-	void CleanGibs();
-	void CleanupDeadEnemies(const AppContext& context);
 
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
@@ -110,16 +51,11 @@ public:
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
 
+	/*
+	*	Tries to spawn an enemy at a suitable location somewhere around the player.
+	*	Returns whether it successful in spawning the enemy.
+	*/
+	bool SpawnEnemy(size_t type);
+
 	void SetGibsComponent(GibsComponent *gibs) { this->gibs = gibs; }
-
-	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
-	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }
-
-	void SetOgreMaxAlive(int amount) { this->maxOgreEnemies = amount; }
-	void SetOgreSpawnDuration(float amount) { this->ogreSpawnDuration = amount; }
-
-	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
-	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
-
-	void BeginWave();
 };
