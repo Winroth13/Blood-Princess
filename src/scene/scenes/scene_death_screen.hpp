@@ -12,6 +12,12 @@ namespace Scenes {
         hud->AddComponent<TransformComponent>();
         hud->AddComponent<CameraComponent>();
         hud->AddComponent<EndScreenComponent>();
+        SoundComponent *soundComp = hud->AddComponent<SoundComponent>();
+
+        soundComp->SetIs3d(false);
+        soundComp->SetAutoPlay(true);
+        std::shared_ptr<Sound> deathSound = appContext.assetManager->Get<Sound>("assets/sounds/player_death.sound");
+        soundComp->SetSound(deathSound);
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
