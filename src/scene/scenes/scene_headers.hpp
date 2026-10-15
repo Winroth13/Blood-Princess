@@ -71,6 +71,8 @@
 #include "components/ui/ui_slider_component.hpp"
 #include "components/ui/ui_text_component.hpp"
 
+#include "events/signal.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <format>

@@ -85,6 +85,11 @@ cbuffer PostProcessing : register(b6)
     float speedLineMaskSize;
     float speedLineMaskEdge;
     float speedLineAnimationSpeed;
+    float damageFlashIntensity;
+    float damageFlashEdgePower;
+    float4 damageFlashColour;
+    float damageFlashInnerRatio;
+    float damageFlashFeather;
     float2 pad5;
 }
 

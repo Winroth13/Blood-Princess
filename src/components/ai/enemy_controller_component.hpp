@@ -18,7 +18,6 @@ enum class EnemyType
 {
 	Goblin,
 	Ogre,
-	Archer,
 	Skeleton
 };
 
@@ -70,20 +69,6 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/* attack anim */	   "attack",
 			/* walk anim */		   "Walk"
 		};
-	case EnemyType::Archer:
-		return {
-			/*moveSpeed*/          4.0f,
-			/*health*/             60.0f,
-			/*attackDamage*/       10.0f,
-			/*attackKnockback*/    0.0f,
-			/*attackHitboxDelay*/  0.60f,
-			/*attackHitboxDur*/    0.15f,
-			/*stopDistance*/       8.0f,
-			/*knockbackMult*/      3.0f,
-			/*scale*/              0.9f,
-			/* attack anim */	   "Shank",
-			/* walk anim */		   "Walk"
-		};
 	case EnemyType::Skeleton:
 		return {
 			/*moveSpeed*/          3.5f,
@@ -92,7 +77,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*attackKnockback*/    2.0f,
 			/*attackHitboxDelay*/  0.30f,
 			/*attackHitboxDur*/    0.25f,
-			/*stopDistance*/       15.0f,
+			/*stopDistance*/       10.0f,
 			/*knockbackMult*/      4.0f,
 			/*scale*/              0.9f
 		};
@@ -116,6 +101,7 @@ class EnemyControllerComponent : public Component
 
 	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, deathSound, nullptr);
+	ExportProperty(std::shared_ptr<Sound>, attackHitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
 	ExportProperty(float, footstepIntervalMeters, 2.5f);
 	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
@@ -146,6 +132,18 @@ private:
 	bool hitboxActivated = false;
 	// enemy type
 	EnemyType enemyType = EnemyType::Goblin;
+
+	// arrow for Skeleton
+	ExportPropertyCategory("Arrow");
+	ExportProperty(float, arrowDamage,50.0f);
+	ExportProperty(XMFLOAT3, arrowOffset, { 0.0f, 1.4f, 0.0f });
+	ExportProperty(float, arrowGravity, 8.6f);
+	ExportProperty(float, arrowSpeed, 10.0f);
+	ExportProperty(float, cooldown, 4.0f);
+	float shootTimer = 0.0f;
+	Entity* arrow = nullptr;
+	std::shared_ptr<Model> arrowModel;
+	Scene* thisScene = nullptr;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -185,6 +183,9 @@ public:
 	std::shared_ptr<Sound> GetDeathSound() const { return this->deathSound; }
 	void SetDeathSound(std::shared_ptr<Sound> sound) { this->deathSound = sound; }
 
+	std::shared_ptr<Sound> GetAttackHitSound() const { return this->attackHitSound; }
+	void SetAttackHitSound(std::shared_ptr<Sound> sound) { this->attackHitSound = sound; }
+
 	std::shared_ptr<Sound> GetFootstepSound() const { return this->footstepSound; }
 	void SetFootstepSound(std::shared_ptr<Sound> sound) { this->footstepSound = sound; }
 
@@ -202,4 +203,5 @@ public:
 	void SetEnemyType(EnemyType type);
 	EnemyType GetEnemyType() const { return this->enemyType; }
 
+	void ShootAnArrow();
 };

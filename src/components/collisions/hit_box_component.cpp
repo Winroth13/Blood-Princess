@@ -1,10 +1,11 @@
 #include "hit_box_component.hpp"
 #include "events/event_bus.hpp"
+#include "scene/scene.hpp"
 
 
 void HitboxComponent::Update(const AppContext& context, float deltaTime)
 {
-	if (this->activeDuration > 0.0f && this->IsActive()) {
+	if (!this->activeForEver && this->activeDuration > 0.0f && this->IsActive()) {
 		this->activeTimer += deltaTime;
 		if (this->activeTimer >= this->activeDuration) {
 			this->Deactivate();
@@ -13,7 +14,7 @@ void HitboxComponent::Update(const AppContext& context, float deltaTime)
 
 	for (auto it = this->hitEntities.begin(); it != this->hitEntities.end(); )
 	{
-		if (it->second < 0.0f) { ++it; continue; } // permanent until Deactivate/Activate
+		if (it->second < 0.0f) { ++it; continue; }
 		it->second -= deltaTime;
 		if (it->second <= 0.0f) it = this->hitEntities.erase(it);
 		else ++it;
@@ -30,6 +31,7 @@ void HitboxComponent::Activate(float duration)
 
 void HitboxComponent::Deactivate()
 {
+	this->activeForEver = false;
 	this->SetActive(false);
 	this->hitEntities.clear();
 }
@@ -61,5 +63,13 @@ void HitboxComponent::OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& h
 		this->knockbackForce,
 		hitPoint
 		});
+
+	if (this->destroyOnHit)
+	{
+		auto scene = this->GetOwner()->GetScene();
+		if (scene) {
+			scene->DestroyEntity(this->GetOwner());
+		}
+	}
 }
 

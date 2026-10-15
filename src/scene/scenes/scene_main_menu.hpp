@@ -30,11 +30,11 @@ namespace Scenes {
         loadingEntity->SetLocallyActive(false);
         UITextComponent *loadingText = UI::Factory::Place(ui.CreateTitle(loadingEntity, "Loading..."), UI::Anchor::CENTRE, {0.0f, 0.0f}, {0.0f, 0.0f});
 
-        std::shared_ptr<Texture2D> princessTexture = appContext.assetManager->Get<Texture2D>("assets/images/princess.png");
+        std::shared_ptr<Texture2D> princessTexture = appContext.assetManager->Get<Texture2D>("assets/images/princess_trans.png");
         UIImageComponent *princessImage = ui.CreateImage(bgEntity, princessTexture, "princess");
         UI::Factory::Place(princessImage, UI::Anchor::TOP_LEFT, {860.0f, 650.0f}, {200.0f, 200.0f});
         princessImage->SetShouldPreserveAspectRatio(true);
-        princessImage->SetOpacity(0.5f);
+        princessImage->SetColour(UI::RGBA{165, 116, 99, 255});
 
         UITextComponent *titleText = ui.CreateText(bgEntity, "BLOOD\nPRINCESS", 100.0f, "title");
         UI::Factory::Place(titleText, UI::Anchor::TOP_LEFT, {35.0f, 80.0f});
@@ -51,7 +51,6 @@ namespace Scenes {
         ui.style.fontSizeRegular = 28.0f;
         UIButtonComponent *btnSettings = ui.CreateButton(bgEntity, "SETTINGS", nullptr, "btn_settings");
         UI::Factory::Place(btnSettings, UI::Anchor::TOP_LEFT, {50.0f, 500.0f});
-        btnSettings->SetInteractable(false);
 
         UIButtonComponent *btnCredits = ui.CreateButton(bgEntity, "CREDITS", nullptr, "btn_credits");
         UI::Factory::Place(btnCredits, UI::Anchor::TOP_LEFT, {50.0f, 600.0f});
@@ -64,6 +63,10 @@ namespace Scenes {
         btnStart->GetOnClick().Connect([loadingEntity, sceneManager]() {  
             loadingEntity->SetLocallyActive(true);
             sceneManager->RequestSceneChange("gameplay");
+        });
+
+        btnSettings->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+            sceneManager->RequestSceneChange("settings");
         });
 
         Application *app = appContext.application;

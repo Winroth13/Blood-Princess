@@ -3,6 +3,7 @@
 #include "rendering/shared_resources.hpp"
 #include "rendering/resources/backbuffer.hpp"
 #include "rendering/passes/deferred_pass.hpp"
+#include "core/debug.hpp"
 
 #include "d3d11.h"
 
@@ -25,8 +26,15 @@ struct PostProcessingData {
     float speedLineMaskSize;
     float speedLineMaskEdge;
     float speedLineAnimationSpeed;
+    float damageFlashIntensity;
+    float damageFlashEdgePower;
+    XMFLOAT4 damageFlashColour;
+    float damageFlashInnerRatio;
+    float damageFlashFeather;
     float pad0[2];
 };
+
+
 
 enum class DebugView : int {
     DEFAULT,

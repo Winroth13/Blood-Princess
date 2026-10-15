@@ -14,10 +14,11 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 	int ogresAlive = maxOgreEnemies;
 
-	ExportProperty(int, maxSkeletonEnemies, 0);
+	ExportProperty(int, maxSkeletonEnemies, 4);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
+	int skeletonsAlive = maxSkeletonEnemies;
 
-	ExportProperty(int, maxEnemiesAlive, 120);
+	ExportProperty(int, maxEnemiesAlive, 100);
 	ExportProperty(float, enemySpawnDuration, 20.0f);
 	ExportProperty(int, currentEnemies, 1);
 
@@ -25,7 +26,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, spawnInnerRadius, 14.0f);
 
 	ExportProperty(int, maxGibsPool, 100);
-	ExportProperty(int, maxEnemyPool, 250);
+	ExportProperty(int, maxEnemyPool, 1);
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
@@ -58,7 +59,11 @@ private:
 
 	bool isWaveActive = false;
 
+    int killCount = 0;
+
 	Signal<> onWaveComplete;
+    // killed, total
+    Signal<int, int> onEnemyKilled;
 
 	float gibTimer = 0.0f;
 	float timer = 0.0f;
@@ -71,7 +76,6 @@ private:
 
 	std::vector<Entity*> gibPool;
 	std::vector<Entity*> activeGibs;
-
 
 	void InitializeGibPool(const AppContext& context, Scene* scene);
 	void InitializeEnemyPool(const AppContext& context, Scene* scene);
@@ -91,12 +95,9 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 
-
 public:
-
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
-
 
 	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
 	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }
@@ -106,9 +107,14 @@ public:
 
 	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
 	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
+
 	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
 
 	void BeginWave();
 
+    int GetTotalEnemies() const { return this->maxEnemiesAlive + this->maxOgreEnemies + this->maxSkeletonEnemies; }
+    void GetKillCount(int &killed, int &total) const { killed = this->killCount; total = GetTotalEnemies(); }
+
 	Signal<> &GetOnWaveComplete() { return this->onWaveComplete; }
+    Signal<int, int> &GetOnEnemyKilled() { return this->onEnemyKilled; }
 };

@@ -3,20 +3,12 @@
 
 #include "../shared_resources.hlsli"
 
-//#define SPEEL_LINE_COLOUR float4(1.0f, 1.0f, 1.0f, 1.0f)
-//#define SPEED_LINE_COUNT  2.0f // 0.0 - 2.0
-//#define SPEED_LINE_DENSITY 0.4f // 0.0 - 1.0
-//#define SPEED_LINE_FALLOFF 0.25f //0.0 - 1.0
-//#define SPEED_MASK_SIZE 0.1f // 0.0 - 1.0
-//#define SPEED_MASK_EDGE 0.5f // 0.0 - 1.0
-//#define SPEED_ANIMATION_SPEED 10.0f // 1.0 - 20.0
-
-float invLerp(float from, float to, float value)
+float InvLerp(float from, float to, float value)
 {
     return (value - from) / (to - from);
 }
 
-float2 polarCoordinates(float2 uv, float2 center, float zoom, float repeat)
+float2 PolarCoordinates(float2 uv, float2 center, float zoom, float repeat)
 {
     float2 dir = uv - center;
     float radius = length(dir) * 2.0f;
@@ -24,7 +16,7 @@ float2 polarCoordinates(float2 uv, float2 center, float zoom, float repeat)
     return float2(radius * zoom, angle * repeat) % 1.0f;
 }
 
-float2 rotateUv(float2 uv, float2 pivot, float rotation)
+float2 RotateUv(float2 uv, float2 pivot, float rotation)
 {
     float cosa = cos(rotation);
     float sina = sin(rotation);
@@ -35,13 +27,13 @@ float2 rotateUv(float2 uv, float2 pivot, float rotation)
     ) + pivot;
 }
 
-float4 speedLines(Texture2D<float4> noiseTexture, float2 uv)
+float4 SpeedLines(Texture2D<float4> noiseTexture, float2 uv)
 {
-    float2 polarUv = polarCoordinates(rotateUv(uv, float2(0.5f, 0.5f), floor(frac(totalTime) * speedLineAnimationSpeed)), float2(0.5f, 0.5f), 0.01, speedLineCount);
+    float2 polarUv = PolarCoordinates(RotateUv(uv, float2(0.5f, 0.5f), floor(frac(totalTime) * speedLineAnimationSpeed)), float2(0.5f, 0.5f), 0.01, speedLineCount);
     float3 lines = noiseTexture.SampleLevel(samplerLinearWrap, polarUv, 0).rgb;
 	
     float maskValue = length(uv - float2(0.5f, 0.5f));
-    float mask = invLerp(speedLineMaskSize, speedLineMaskEdge, maskValue);
+    float mask = InvLerp(speedLineMaskSize, speedLineMaskEdge, maskValue);
     float result = 1.0 - (mask * speedLineDensity);
 	
     result = smoothstep(result, result + speedLineFaloff, lines.r);

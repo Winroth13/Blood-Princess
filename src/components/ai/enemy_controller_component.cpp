@@ -14,12 +14,21 @@
 #include "components/skeletal/animator_component.hpp"
 #include "core/rng.hpp"
 #include "components/collisions/hit_box_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "components/core/model_component.hpp"
+#include "components/collisions/box_collision_component.hpp"
+#include "components/gameplay/player_controller_component.hpp"
 #include <algorithm>
+
+uint32_t s_arrowCounter = 0;
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
     if (!this->hitSound && context.assetManager) {
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
+    }
+    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyType::Goblin) {
+        this->attackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
     }
 
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
@@ -50,7 +59,11 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     );
 
     this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
+
+    this->thisScene = this->GetOwner()->GetScene();
+    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
 }
+
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
@@ -116,8 +129,144 @@ void EnemyControllerComponent::SetEnemyType(EnemyType type)
     }
 }
 
+void EnemyControllerComponent::ShootAnArrow()
+{
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    if (!playerEnt) return;
+
+    TransformComponent* playerTransform = playerEnt->GetComponent<TransformComponent>();
+    PlayerControllerComponent* playerController = playerEnt->GetComponent<PlayerControllerComponent>();
+    if (!playerTransform || !playerController) return;
+
+    XMFLOAT3 arrowStartPos;
+
+    XMFLOAT3 skelPos = this->transform->GetWorldPosition();
+    XMVECTOR skelPosV = XMLoadFloat3(&skelPos);
+
+    XMFLOAT3 playerPos = playerTransform->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPos);
+
+    XMVECTOR toPlayer = XMVectorSubtract(playerPosV, skelPosV);
+    XMVECTOR toPlayerHorizontal = XMVectorSetY(toPlayer, 0.0f);
+    XMVECTOR forwardDir = XMVector3Normalize(toPlayerHorizontal);
+
+    XMVECTOR startPosV = XMVectorAdd(skelPosV, XMLoadFloat3(&this->arrowOffset));
+    startPosV = XMVectorAdd(startPosV, XMVectorScale(forwardDir, 0.6f));
+    XMStoreFloat3(&arrowStartPos, startPosV);
+
+    XMVECTOR arrowStartPosV = XMLoadFloat3(&arrowStartPos);
+
+    // Predict future player position
+    XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
+    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.5f)
+    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
+
+    XMFLOAT3 playerVelocityF = playerController->GetVelocity();
+    XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
+
+    // Calculate timeToTarget
+    XMVECTOR diffV = XMVectorSubtract(playerPositionV, arrowStartPosV);
+    float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
+    float speed = this->arrowSpeed > 1.0f ? this->arrowSpeed : 20.0f;
+
+    float timeToTarget = distToPlayer / speed;
+    float arcModifier = 1.5f;
+    timeToTarget *= arcModifier;
+
+    if (timeToTarget < 0.1f) timeToTarget = 0.1f;
+
+    // Future position = current position + velocity * timeToTarget
+    XMVECTOR futurePositionV = XMVectorAdd(playerPositionV, XMVectorScale(playerVelocityV, timeToTarget));
+
+    // Ballistic trajectory:
+    // displacement = futurePosition - arrowStartPos
+    XMVECTOR displacementV = XMVectorSubtract(futurePositionV, arrowStartPosV);
+    XMFLOAT3 displacement;
+    XMStoreFloat3(&displacement, displacementV);
+
+    XMFLOAT3 launchVelocity;
+    launchVelocity.x = displacement.x / timeToTarget;
+    launchVelocity.z = displacement.z / timeToTarget;
+
+    float g = this->arrowGravity;
+    launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
+
+    // Create arrow entity
+    Entity* arrowEnt = this->thisScene->AddEntity("Arrow_" + std::to_string(s_arrowCounter++));
+
+    TransformComponent* transform = arrowEnt->AddComponent<TransformComponent>();
+    transform->SetWorldPosition(arrowStartPos);
+
+    // Initial rotation facing launch direction
+    DirectX::XMVECTOR launchVelVec = DirectX::XMLoadFloat3(&launchVelocity);
+    DirectX::XMVECTOR f = DirectX::XMVector3Normalize(launchVelVec);
+
+    DirectX::XMVECTOR row0 = DirectX::XMVectorNegate(f);
+
+    DirectX::XMVECTOR worldUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    if (std::abs(DirectX::XMVectorGetY(f)) > 0.99f)
+    {
+        worldUp = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+    }
+
+    DirectX::XMVECTOR row2 = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(row0, worldUp));
+    DirectX::XMVECTOR row1 = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(row2, row0));
+
+    DirectX::XMMATRIX rotMat;
+    rotMat.r[0] = row0;
+    rotMat.r[1] = row1;
+    rotMat.r[2] = row2;
+    rotMat.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+    DirectX::XMVECTOR q = DirectX::XMQuaternionRotationMatrix(rotMat);
+    DirectX::XMFLOAT4 quat;
+    DirectX::XMStoreFloat4(&quat, q);
+    transform->SetWorldRotationQuaternion(quat);
+    // end rotation
+
+    ModelComponent* model = arrowEnt->AddComponent<ModelComponent>();
+    model->SetModel(this->arrowModel);
+
+    BoxCollisionComponent* boxCollision = arrowEnt->AddComponent<BoxCollisionComponent>();
+    boxCollision->SetExtents({ 0.5f, 0.25f, 0.25f });
+    boxCollision->SetLayer(CollisionLayer::PROJECTILE);
+    boxCollision->SetActive(true);
+    boxCollision->SetStatic(false);
+    boxCollision->SetTrigger(true);
+
+    HitboxComponent* hitbox = arrowEnt->AddComponent<HitboxComponent>();
+    hitbox->SetKnockbackForce(3.0f);
+    hitbox->SetDamage(this->arrowDamage);
+    hitbox->ActivateForEver(true);
+    hitbox->SetDestroyOnHit(true);
+    hitbox->IgnoreEntity(this->GetOwner());
+
+    ProjectileComponent* arrowProj = arrowEnt->AddComponent<ProjectileComponent>();
+    arrowProj->SetGravity(this->arrowGravity);
+    arrowProj->SetRestitution(0.0f);
+    arrowProj->SetGroundY(-2.5f);
+    arrowProj->SetDestroyOnGrounded(true);
+    arrowProj->SetAliveTime(5.0f);
+    arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
+}
+
+
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
+    if (this->hitbox && event.attacker == this->hitbox->GetOwner())
+    {
+        if (this->attackHitSound)
+        {
+            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->attackHitSound);
+                soundComponent->Play();
+            }
+        }
+        return;
+    }
+
     if (event.victim != this->GetOwner() || event.knockbackForce <= 0.0f)
     {
         return;
@@ -296,6 +445,16 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     if (this->isAttacking)
     {
+        if (this->enemyType == EnemyType::Skeleton && inAttackRange && this->knockbackStunTimer <= 0.0f)
+        {
+            this->shootTimer -= deltaTime;
+            if (this->shootTimer <= 0.0f)
+            {
+                this->ShootAnArrow();
+                this->shootTimer = this->cooldown;
+            }
+        }
+
         this->attackElapsed += deltaTime;
 
         if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
