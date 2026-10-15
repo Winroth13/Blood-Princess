@@ -57,6 +57,8 @@ class PlayerControllerComponent : public Component
 	// health
 	ExportProperty(float, maxHealth, 200);
 
+	// movement
+	XMFLOAT3 velcoity = { 0.0f,0.0f,0.0f };
 
 	XMVECTOR dashDirection = {};
 	CollisionManager* collisionRef = nullptr;
@@ -73,7 +75,6 @@ class PlayerControllerComponent : public Component
 	*/
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
 	std::shared_ptr<Sound> hurtSound = nullptr;
-	std::shared_ptr<Sound> deathSound = nullptr;
 
 	/*
 	*	Attacks
@@ -162,6 +163,8 @@ public:
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
+
+	XMFLOAT3 GetVelocity() const { return this->velcoity; }
 
 	XMFLOAT2 GetMouseSensitivity() const { return this->mouseSensitivity; };
 	void SetMouseSensitivity(XMFLOAT2 sensitivity) { this->mouseSensitivity = sensitivity; };

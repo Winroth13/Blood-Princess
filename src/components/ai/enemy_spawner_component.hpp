@@ -10,14 +10,15 @@ class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
-	ExportProperty(int, maxOgreEnemies, 3);
+	ExportProperty(int, maxOgreEnemies, 0);
 	ExportProperty(float, ogreSpawnDuration, 10.0f);
 	int ogresAlive = maxOgreEnemies;
 
-	ExportProperty(int, maxSkeletonEnemies, 0);
+	ExportProperty(int, maxSkeletonEnemies, 10);
 	ExportProperty(float, skeletonSpawnDuration, 10.0f);
+	int skeletonsAlive = maxSkeletonEnemies;
 
-	ExportProperty(int, maxEnemiesAlive, 120);
+	ExportProperty(int, maxEnemiesAlive, 0);
 	ExportProperty(float, enemySpawnDuration, 20.0f);
 	ExportProperty(int, currentEnemies, 1);
 
@@ -25,7 +26,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, spawnInnerRadius, 14.0f);
 
 	ExportProperty(int, maxGibsPool, 100);
-	ExportProperty(int, maxEnemyPool, 250);
+	ExportProperty(int, maxEnemyPool, 1);
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
