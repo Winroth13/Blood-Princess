@@ -48,6 +48,9 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, minDashDensity, 0.4f);
 	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
+	ExportProperty(float, damageFlashDuration, 0.5f);
+	ExportProperty(float, damageFlashLingeringTimer, -1.0f);
+
 	// health
 	ExportProperty(float, maxHealth, 200);
 

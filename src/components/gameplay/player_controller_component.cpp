@@ -46,7 +46,9 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 		this, &PlayerControllerComponent::OnDamageTaken
 	);
 
-
+	health->GetOnChangedHealth().Connect([this](float currentHealth, float maxHealth) {
+		this->damageFlashLingeringTimer = this->damageFlashDuration;
+		});
 
 	Input::SetMouseMode(MouseMode::CAPTURED);
 }
@@ -103,6 +105,18 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 
 		HandleMovement(deltaTime);
 		HandleCombat(deltaTime); 
+	}
+
+	if (this->damageFlashLingeringTimer >= 0.0f)
+	{
+		float lingeringFactor = this->damageFlashLingeringTimer / this->damageFlashDuration;
+		Debug::SetSetting("damageFlash.intensity", lingeringFactor);
+		this->damageFlashLingeringTimer -= deltaTime;
+	}
+	else
+	{
+		this->damageFlashLingeringTimer = -1.0f;
+		Debug::SetSetting("damageFlash.intensity", 0.0f);
 	}
 
 	HandleCameraLook(deltaTime);
@@ -537,6 +551,7 @@ void PlayerControllerComponent::OnDeath()
 
 	this->isDead = true;
 	this->isParrying = false;
+	Debug::SetSetting("damageFlash.intensity", 0.0f);
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();

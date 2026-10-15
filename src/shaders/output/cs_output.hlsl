@@ -149,7 +149,7 @@ void main(uint3 id : SV_DispatchThreadID)
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
     
-    float4 damageFlashColour = DamageFlash(uv);
+    float4 damageFlashColour = DamageFlash(noiseTexture, uv);
     afterFogColour = lerp(afterFogColour, damageFlashColour.rgb, damageFlashColour.a);
     
     float4 speedLineColour = SpeedLines(noiseTexture, uv);
