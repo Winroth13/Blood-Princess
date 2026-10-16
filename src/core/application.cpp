@@ -222,11 +222,10 @@ void Application::Shutdown()
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
-    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
     this->aiManager.Shutdown();
-
+    this->assetManager.Shutdown();
     LogUnindent();
 }
 

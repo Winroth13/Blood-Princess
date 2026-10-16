@@ -62,6 +62,18 @@ void AssetManager::Shutdown()
 {
 	LogInfo("Shutting down Asset Manager...");
 
+    // Log Leaked Assets
+    for (auto &typeIndexPair : this->assets)
+    {
+        for (auto &assetPair : typeIndexPair.second)
+        {
+            if (assetPair.second.use_count() > 1)
+            {
+                LogWarn("%s leaked", assetPair.first.c_str());
+            }
+        }
+    }
+
     for (std::shared_ptr<Texture2D> &texture : this->defaultTextures)
         texture.reset();
 }
