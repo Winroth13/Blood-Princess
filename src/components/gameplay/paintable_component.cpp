@@ -176,3 +176,13 @@ void PaintableComponent::PaintAtPosition(const DirectX::XMFLOAT3& position, floa
 	this->paintThisFrame.push_back({ position , radius });
 	this->shouldPaintThisFrame = true;
 }
+
+PaintableComponent::~PaintableComponent()
+{
+	for (ID3D11Texture2D *maskTextures : this->maskTextures)
+		SafeRelease(maskTextures);
+	for (ID3D11ShaderResourceView *maskSRV : this->maskSRVs)
+		SafeRelease(maskSRV);
+	for (ID3D11RenderTargetView *maskRTV : this->maskRTVs)
+		SafeRelease(maskRTV);
+}

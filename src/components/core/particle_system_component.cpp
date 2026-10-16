@@ -141,3 +141,10 @@ bool ParticleSystemComponent::CreateParticleBuffer(ID3D11Device *device)
 
     return true;
 }
+
+ParticleSystemComponent::~ParticleSystemComponent()
+{
+    SafeRelease(this->particleSystemSB);
+    SafeRelease(this->particleSystemSRV);
+    SafeRelease(this->particleSystemUAV);
+}
