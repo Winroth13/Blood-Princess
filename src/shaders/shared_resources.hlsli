@@ -35,12 +35,15 @@ cbuffer PerObject : register(b2)
     float4x4 worldInvTransposeMatrix;
 };
 
+#define MATERIAL_FLAG_HSV_ADJUSTED 1 << 0
+
 cbuffer PerMaterial : register(b3)
 {
     float3 materialTint;
     float materialSpecular;
     float materialSpecularExponent;
-    float3 pad2;
+    uint materialFlags;
+    float2 pad2;
 }
 
 cbuffer Light : register(b4)

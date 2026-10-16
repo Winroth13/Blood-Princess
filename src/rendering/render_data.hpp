@@ -53,7 +53,8 @@ struct PerMaterialData
     XMFLOAT3 materialTint;
     float    materialSpecular;
     float    materialSpecularExponent;
-    float	 pad0[3];
+    uint32_t materialFlags;
+    float	 pad0[2];
 };
 AssertCBufferSize(PerMaterialData);
 

@@ -322,6 +322,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
         ModelComponent *wallModelComponent = wallEntity->AddComponent<ModelComponent>();
         wallModelComponent->SetModel(wallModel);
         wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+        wallModelComponent->SetIsHsvAdjusted(true);
 
         PaintableComponent* wallPaintable = wallEntity->AddComponent<PaintableComponent>();
         wallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
@@ -345,6 +346,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
         upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+        upperWallModelComponent->SetIsHsvAdjusted(true);
 
         PaintableComponent* upperWallPaintable = upperWallEntity->AddComponent<PaintableComponent>();
         upperWallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
@@ -365,6 +367,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
         ModelComponent *torchModelComponent = torchEntity->AddComponent<ModelComponent>();
         torchModelComponent->SetModel(torchModel);
+        torchModelComponent->SetIsHsvAdjusted(true);
 
         // Fire particle entity attached to the torch
         std::string fireName = "FireParticle_" + std::to_string(i);
@@ -459,6 +462,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
+                floorComp->SetIsHsvAdjusted(true);
 
                 BoxCollisionComponent *floorCollision = floorTile->AddComponent<BoxCollisionComponent>();
                 floorCollision->SetStatic(true);
@@ -485,6 +489,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
                 ModelComponent *ceilingComp = ceilingTile->AddComponent<ModelComponent>();
                 ceilingComp->SetModel(ceilingModel);
+                ceilingComp->SetIsHsvAdjusted(true);
 
                 tileIndex++;
             }

@@ -7,6 +7,7 @@
 #include "components/gameplay/paintable_component.hpp"
 #include "core/logging.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "rendering/shared_resources.hpp"
 
 void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (!this->model)
@@ -64,6 +65,13 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 
             if (material.metallicRoughnessTextureIndex != -1)
                 command.metallicRoughnessSRV = this->model->GetTexture(material.metallicRoughnessTextureIndex)->GetShaderResourceView();
+
+            uint32_t materialFlags = 0;
+            if (this->isHsvAdjusted)
+            {
+                materialFlags |= +MaterialFlags::HSV_ADJUSTED;
+            }
+            command.materialFlags = materialFlags;
 
             command.paintMaskSRV = paintMaskSRV;
 

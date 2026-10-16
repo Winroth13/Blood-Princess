@@ -276,6 +276,7 @@ void DeferredPass::RenderGeometryPass(
 		perMaterialData.materialTint = tint;
 		perMaterialData.materialSpecular = 0.8f;
 		perMaterialData.materialSpecularExponent = 80.0f;
+		perMaterialData.materialFlags = command.materialFlags;
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 

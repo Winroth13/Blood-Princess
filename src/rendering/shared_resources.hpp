@@ -59,6 +59,15 @@ constexpr uint32_t operator+(ParticleFlags slot) noexcept {
 	return static_cast<uint32_t>(slot);
 }
 
+enum class MaterialFlags : uint32_t
+{
+	HSV_ADJUSTED = 1 << 0
+};
+
+constexpr uint32_t operator+(MaterialFlags slot) noexcept {
+	return static_cast<uint32_t>(slot);
+}
+
 class SharedResources
 {
 	ID3D11Buffer *perFrameCB = nullptr;
