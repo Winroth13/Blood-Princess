@@ -18,6 +18,7 @@
 #include "components/core/model_component.hpp"
 #include "components/collisions/box_collision_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
+#include "components/core/particle_system_component.hpp"
 #include <algorithm>
 
 uint32_t s_arrowCounter = 0;
@@ -62,6 +63,9 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->thisScene = this->GetOwner()->GetScene();
     this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
+
+    this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
+    this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
 }
 
 
@@ -159,12 +163,19 @@ void EnemyControllerComponent::ShootAnArrow()
 
     // Predict future player position
     XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
-    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.5f)
-    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
-
+    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.3f)
+    
     XMFLOAT3 playerVelocityF = playerController->GetVelocity();
     XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
 
+    XMVECTOR vectorZero = XMVectorZero();
+    if (!XMVector3Equal(playerVelocityV, vectorZero)) {
+
+        playerPositionF.x += RNG::Float(-0.1f, 0.1f);
+        playerPositionF.z += RNG::Float(-0.1f, 0.1f);
+    }
+
+    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
     // Calculate timeToTarget
     XMVECTOR diffV = XMVectorSubtract(playerPositionV, arrowStartPosV);
     float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
@@ -178,6 +189,7 @@ void EnemyControllerComponent::ShootAnArrow()
 
     // Future position = current position + velocity * timeToTarget
     XMVECTOR futurePositionV = XMVectorAdd(playerPositionV, XMVectorScale(playerVelocityV, timeToTarget));
+
 
     // Ballistic trajectory:
     // displacement = futurePosition - arrowStartPos
@@ -193,7 +205,7 @@ void EnemyControllerComponent::ShootAnArrow()
     launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
 
     // Create arrow entity
-    Entity* arrowEnt = this->thisScene->AddEntity("Arrow_" + std::to_string(s_arrowCounter++));
+    Entity* arrowEnt = this->thisScene->AddEntity("Arrow");
 
     TransformComponent* transform = arrowEnt->AddComponent<TransformComponent>();
     transform->SetWorldPosition(arrowStartPos);
@@ -247,8 +259,53 @@ void EnemyControllerComponent::ShootAnArrow()
     arrowProj->SetRestitution(0.0f);
     arrowProj->SetGroundY(-2.5f);
     arrowProj->SetDestroyOnGrounded(true);
-    arrowProj->SetAliveTime(5.0f);
+    arrowProj->SetAliveTime(50.0f);
     arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
+
+    // fire entity
+    Entity* fireEnt = this->thisScene->AddEntity("flame");
+    fireEnt->SetParent(arrowEnt);
+
+
+    TransformComponent* fireTransform = fireEnt->AddComponent<TransformComponent>();
+    XMFLOAT3 arrowLengthOffset = {-0.25f, 0.1f, 0.0f};
+
+    fireTransform->SetLocalPosition(arrowLengthOffset);
+    fireTransform->SetLocalRotationQuaternion({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+    // Flame particle system
+    ParticleSystemComponent* flame = fireEnt->AddComponent<ParticleSystemComponent>();
+    flame->SetAtlasTexture(this->flameTexture);
+    flame->SetAtlasSize({ 12.0f, 6.0f });
+    flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
+    flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    flame->SetLifeTime(timeToTarget+50);
+    flame->SetStartScale(0.4f);
+    flame->SetEndScale(0.4f);
+    flame->SetIsAnimate(true);
+    flame->SetIsAdditive(true);
+    flame->SetSpawnRadius(0.0f);
+    flame->SetAnimationSpeed(1.2f);
+    flame->SetCount(3);
+
+    // Smoke particle system
+    ParticleSystemComponent* smoke = fireEnt->AddComponent<ParticleSystemComponent>();
+    smoke->SetAtlasTexture(this->smokeTexture);
+    smoke->SetAtlasSize({ 13.0f, 1.0f });
+    smoke->SetVelocity({ 0.0f, 0.4f, 0.0f });
+    smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    smoke->SetLifeTime(timeToTarget);
+    smoke->SetStartScale(0.1f);
+    smoke->SetEndScale(0.6f);
+    smoke->SetIsAnimate(true);
+    smoke->SetIsGlobal(true);
+    smoke->SetIsAdditive(false);
+    smoke->SetSpawnRadius(0.05f);
+    smoke->SetCount(25);
+
+    smoke->SetStartTint({ 0.6f, 0.6f, 0.6f }); // Ljusgrå start
+    smoke->SetEndTint({ 0.2f, 0.2f, 0.2f }); // Mörkgrå slut 
+
 }
 
 

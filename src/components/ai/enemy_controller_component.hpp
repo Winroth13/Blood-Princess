@@ -147,6 +147,9 @@ private:
 	float shootTimer = 0.0f;
 	Entity* arrow = nullptr;
 	std::shared_ptr<Model> arrowModel;
+	std::shared_ptr<Texture2D> flameTexture;
+	std::shared_ptr<Texture2D> smokeTexture;
+
 	Scene* thisScene = nullptr;
 
 	void OnStart(const AppContext &context) override;
