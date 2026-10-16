@@ -124,6 +124,8 @@
     <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
     <ClCompile Include="src\components\gameplay\tutorial_component.cpp" />
     <ClCompile Include="src\components\gameplay\end_screen_component.cpp" />
+    <ClCompile Include="src\components\gameplay\environment_component.cpp" />
+    <ClCompile Include="src\assets\types\texture_cube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -322,6 +324,9 @@
     <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
     <ClInclude Include="src\components\gameplay\tutorial_component.hpp" />
     <ClInclude Include="src\components\gameplay\end_screen_component.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_settings.hpp" />
+    <ClInclude Include="src\components\gameplay\environment_component.hpp" />
+    <ClInclude Include="src\assets\types\texture_cube.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
@@ -352,5 +357,6 @@
     <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
     <None Include="src\shaders\output\speed_lines.hlsli" />
     <None Include="src\shaders\output\damage_flash.hlsli" />
+    <None Include="src\shaders\deferred\hsv.hlsli" />
   </ItemGroup>
 </Project>

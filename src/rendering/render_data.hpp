@@ -142,6 +142,12 @@ struct ParticleData
     float lifeTime;
 };
 
+struct EnvironmentData
+{
+    XMFLOAT4 hsvShift;
+};
+AssertCBufferSize(EnvironmentData);
+
 struct PaintData
 {
     XMFLOAT3 paintPosition;

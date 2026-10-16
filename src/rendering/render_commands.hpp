@@ -81,7 +81,12 @@ struct SpotLightCommand
 
 struct SkyboxCommand 
 {
-	
+    ID3D11ShaderResourceView *skyboxSRV;
+};
+
+struct EnvironmentCommand
+{
+    XMFLOAT4 hsvShift;
 };
 
 struct ParticleSystemCommand

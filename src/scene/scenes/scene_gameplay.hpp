@@ -527,6 +527,7 @@ namespace Scenes {
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
         ambientLight->SetIntensity(0.2f);
+        lightEntity->AddComponent<EnvironmentComponent>();
         /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
         TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
         transform->SetWorldPosition(0.0f, 0.0f, 0.0f);

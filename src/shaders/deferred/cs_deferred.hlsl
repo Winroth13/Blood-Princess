@@ -16,6 +16,8 @@ Texture2DArray<float> directionalLightShadowMaps : register(t6);
 Texture2DArray<float> spotLightShadowMaps : register(t7);
 TextureCubeArray<float> pointLightShadowMaps : register(t8);
 
+TextureCube<float4> skyboxTexture : register(t9);
+
 float3 ReconstructWorldPosition(float2 uv, float depth)
 {
     float2 ndc = float2(2.0f * uv.x - 1.0f, -2.0f * uv.y + 1.0f);
