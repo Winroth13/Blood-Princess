@@ -171,7 +171,7 @@ void EnemyControllerComponent::ShootAnArrow()
 
     // Predict future player position
     XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
-    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.3f)
+    playerPositionF.y += 0.1f; // Aim at player's center of mass (playerPos.y + 0.3f)
     
     XMFLOAT3 playerVelocityF = playerController->GetVelocity();
     XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
@@ -190,7 +190,7 @@ void EnemyControllerComponent::ShootAnArrow()
     float speed = this->arrowSpeed > 1.0f ? this->arrowSpeed : 20.0f;
 
     float timeToTarget = distToPlayer / speed;
-    float arcModifier = 1.0f;
+    float arcModifier = 1.5f;
     timeToTarget *= arcModifier;
 
     if (timeToTarget < 0.1f) timeToTarget = 0.1f;
