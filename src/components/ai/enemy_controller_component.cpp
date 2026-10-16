@@ -19,6 +19,8 @@
 #include "components/collisions/box_collision_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
 #include "components/core/particle_system_component.hpp"
+#include "audio/audio_manager.hpp"
+#include "assets/types/audio_clip.hpp"
 #include <algorithm>
 
 uint32_t s_arrowCounter = 0;
@@ -66,6 +68,12 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
+
+    this->audioManager = context.audioManager;
+    if (this->enemyType == EnemyType::Skeleton && context.assetManager) {
+        this->bowDrawClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_draw.ogg");
+        this->bowFireClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_fire.ogg");
+    }
 }
 
 
@@ -182,7 +190,7 @@ void EnemyControllerComponent::ShootAnArrow()
     float speed = this->arrowSpeed > 1.0f ? this->arrowSpeed : 20.0f;
 
     float timeToTarget = distToPlayer / speed;
-    float arcModifier = 1.5f;
+    float arcModifier = 1.0f;
     timeToTarget *= arcModifier;
 
     if (timeToTarget < 0.1f) timeToTarget = 0.1f;
@@ -527,20 +535,60 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
             && this->knockbackStunTimer <= 0.0f
             && !hasKnockback;
 
-        if (canShoot)
+        if (this->knockbackStunTimer > 0.0f || hasKnockback)
+        {
+            this->isAttacking = false;
+            this->attackElapsed = 0.0f;
+            this->hitboxActivated = false;
+        }
+
+        if (this->isAttacking)
+        {
+            this->attackElapsed += deltaTime;
+
+            if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+            {
+                this->hitboxActivated = true;
+                this->ShootAnArrow();
+                if (this->audioManager && this->bowFireClip && this->transform)
+                {
+                    this->audioManager->PlaySoundAt(
+                        this->bowFireClip, false, this->transform->GetWorldPosition(), 1.0f, 1.0f, 1.0f, 25.0f);
+                }
+            }
+
+            if (!this->animator || this->animator->IsFinished())
+            {
+                this->isAttacking = false;
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
+                this->shootTimer = this->cooldown;
+            }
+        }
+        else if (canShoot)
         {
             this->shootTimer -= deltaTime;
             if (this->shootTimer <= 0.0f)
             {
-                this->ShootAnArrow();
-                this->shootTimer = this->cooldown;
+                this->isAttacking = true;
+                this->attackElapsed = 0.0f;
+                this->hitboxActivated = false;
+
+                if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
+                    this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+
+                if (this->audioManager && this->bowDrawClip && this->transform)
+                {
+                    this->audioManager->PlaySoundAt(
+                        this->bowDrawClip, false, this->transform->GetWorldPosition(), 2.0f, 1.0f, 25.0f, 25.0f);
+                }
             }
         }
         else if (this->shootTimer > 0.0f)
         {
             this->shootTimer -= deltaTime;
         }
-        this->isAttacking = false;
+
         if (this->hitbox) this->hitbox->Deactivate();
     }
     else
@@ -598,17 +646,20 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     {
         if (isRanged)
         {
-            if (tooClose && distSq > 1e-4f)
+            if (!this->isAttacking)
             {
-                XMVECTOR away = XMVector3Normalize(XMVectorNegate(toPlayer));
-                steer = away;
-                shouldMove = true;
-            }
-            else if (tooFar && distSq > 1e-4f)
-            {
-                XMVECTOR seek = XMVector3Normalize(toPlayer);
-                steer = seek;
-                shouldMove = true;
+                if (tooClose && distSq > 1e-4f)
+                {
+                    XMVECTOR away = XMVector3Normalize(XMVectorNegate(toPlayer));
+                    steer = away;
+                    shouldMove = true;
+                }
+                else if (tooFar && distSq > 1e-4f)
+                {
+                    XMVECTOR seek = XMVector3Normalize(toPlayer);
+                    steer = seek;
+                    shouldMove = true;
+                }
             }
         }
         else

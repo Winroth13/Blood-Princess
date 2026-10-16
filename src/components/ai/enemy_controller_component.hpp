@@ -11,6 +11,8 @@ class AnimatorComponent;
 class HitboxComponent;
 class SpatialGrid;
 class Sound;
+class AudioClip;
+class AudioManager;
 struct AttackHitEvent;
 
 
@@ -75,11 +77,13 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/*health*/             100.0f,
 			/*attackDamage*/       15.0f,
 			/*attackKnockback*/    2.0f,
-			/*attackHitboxDelay*/  0.30f,
+			/*attackHitboxDelay*/  2.5f,
 			/*attackHitboxDur*/    0.25f,
 			/*stopDistance*/       10.0f,
 			/*knockbackMult*/      4.0f,
-			/*scale*/              0.9f
+			/*scale*/              0.9f,
+			/* attack anim */      "Bow_Shot",
+			/* walk anim */        ""
 		};
 	}
 	return {};
@@ -119,6 +123,9 @@ private:
 	AnimatorComponent *animator = nullptr;
 	HitboxComponent* hitbox = nullptr;
 	AIManager* aiManager = nullptr;
+	AudioManager* audioManager = nullptr;
+	std::shared_ptr<AudioClip> bowDrawClip;
+	std::shared_ptr<AudioClip> bowFireClip;
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
