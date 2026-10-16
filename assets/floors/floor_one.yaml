@@ -1,4 +1,4 @@
-hue: 0.0
+hue: 180.0
 saturation: 0.0
 value: 0.0
 
@@ -7,4 +7,8 @@ waves:
     enemies:
       - type: goblin
         amount: 120
+        time: 45
+    
+      - type: ogre
+        amount: 3
         time: 45

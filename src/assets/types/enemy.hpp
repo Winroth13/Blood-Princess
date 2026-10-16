@@ -13,8 +13,13 @@ enum class EnemyType
 {
 	GOBLIN,
 	OGRE,
-	SKELETON
+	SKELETON,
+	COUNT
 };
+
+constexpr int operator+(EnemyType slot) noexcept {
+	return static_cast<int>(slot);
+}
 
 enum class AttackType
 {

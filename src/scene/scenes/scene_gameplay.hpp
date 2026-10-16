@@ -2,8 +2,6 @@
 
 #include "scene_headers.hpp"
 #include "core/rng.hpp"
-
-#include "assets/types/floor.hpp"
 #include "assets/asset_manager.hpp"
 
 #include <format>
@@ -538,9 +536,9 @@ namespace Scenes
         Entity* spawnerEntity = outScene.AddEntity("enemy_spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
-        spawnerEntity->AddComponent<WaveController>();
-        
-        std::shared_ptr<Floor> floor = appContext.assetManager->Get<Floor>("assets/floors/floor_one.yaml");
+
+        auto waveController = spawnerEntity->AddComponent<WaveController>();
+        waveController->SetFloor(appContext.assetManager->Get<Floor>("assets/floors/floor_one.yaml"));
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");

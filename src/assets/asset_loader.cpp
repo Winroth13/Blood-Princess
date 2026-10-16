@@ -554,7 +554,7 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 				Wave wave = {};
 				wave.completion = waveNode["completion"].as<float>(0.75f);
 
-				for (YAML::Node enemiesNode : waveNode["enemies"])
+				if (YAML::Node enemiesNode = waveNode["enemies"])
 				{
 					for (auto enemyNode : enemiesNode)
 					{
@@ -566,6 +566,8 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 						wave.enemies.push_back(enemy);
 					}
 				}
+
+				waves.push_back(wave);
 			}
 		}
 
