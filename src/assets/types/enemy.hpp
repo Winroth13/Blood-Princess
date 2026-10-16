@@ -9,6 +9,13 @@ using namespace DirectX;
 class Sound;
 class Model;
 
+enum class EnemyType
+{
+	GOBLIN,
+	OGRE,
+	SKELETON
+};
+
 enum class AttackType
 {
 	Melee,

@@ -535,12 +535,12 @@ namespace Scenes
         Entity* spawnerEntity = outScene.AddEntity("enemy_spawner");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
-
+        spawnerEntity->AddComponent<WaveController>();
+        
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
         trapSpawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, -2, 0 });
         trapSpawnerEntity->AddComponent<TrapSpawnerComponent>();
-
 
         Entity *lightEntity = outScene.AddEntity("light");
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();

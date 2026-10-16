@@ -17,6 +17,7 @@
 #include "assets/types/font.hpp"
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
+#include "assets/types/floor.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -422,17 +423,17 @@ std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path)
 		sound->Create(volumeRange, pitchRange, layers);
 		return sound;
 	}
-	catch (const YAML::BadFile &e)
+	catch (const YAML::BadFile e)
 	{
 		LogWarn("Failed to open file: %s", path.c_str());
 		return sound;
 	}
-	catch (const YAML::ParserException &e)
+	catch (const YAML::ParserException e)
 	{
 		LogWarn("Failed to parse YAML syntax: %s", e.what());
 		return sound;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception e)
 	{
 		LogError("An error occurred: %s", e.what());
 		return sound;
@@ -509,21 +510,69 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 
 		enemy->attacks = attacks;
 	}
-	catch (const YAML::BadFile &e)
+	catch (const YAML::BadFile e)
 	{
 		LogWarn("Failed to open file: %s", path.c_str());
 		return enemy;
 	}
-	catch (const YAML::ParserException &e)
+	catch (const YAML::ParserException e)
 	{
 		LogWarn("Failed to parse YAML syntax: %s", e.what());
 		return enemy;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception e)
 	{
 		LogError("An error occurred: %s", e.what());
 		return enemy;
 	}
 
 	return enemy;
+}
+
+template<>
+std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
+{
+	std::shared_ptr<Floor> floor = std::make_shared<Floor>();
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		XMFLOAT3 hsv = { 0.0f, 0.0f, 0.0f };
+		hsv.x = file["hue"].as<float>(0.0f);
+		hsv.y = file["saturation"].as<float>(0.0f);
+		hsv.z = file["value"].as<float>(0.0f);
+
+		floor->SetHSV(hsv);
+
+		std::vector<Wave> waves = {};
+
+		if (YAML::Node wavesNode = file["waves"])
+		{
+			for (YAML::Node waveNode : wavesNode)
+			{
+				Wave wave = {};
+				wave.
+			}
+		}
+
+		floor->SetWaves(waves);
+	}
+	catch (const YAML::BadFile e)
+	{
+		LogWarn("Failed to open file: %s", path.c_str());
+		return floor;
+	}
+	catch (const YAML::ParserException e)
+	{
+		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		return floor;
+	}
+	catch (const std::exception e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return floor;
+	}
+
+	return floor;
 }
