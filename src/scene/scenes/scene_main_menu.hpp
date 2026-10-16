@@ -41,7 +41,7 @@ namespace Scenes {
         titleText->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
         titleText->SetColour(UI::RGBA{25, 17, 6, 255});
         titleText->SetLineSpacing(0.8f);
-        titleText->SetOutline(7.0f, UI::RGBA{103, 44, 32, 255});
+        titleText->SetOutline(7.0f, UI::RGBA{ 186, 80, 52, 255});
         titleText->SetShadow({8.0f, 8.0f}, UI::RGBA{0, 0, 0, 136});
 
         ui.style.fontSizeRegular = 42.0f;
