@@ -164,6 +164,8 @@ bool Application::Initialize()
 
     LogInfo("Bindings path: %s", configPath.c_str());
 
+    this->window.SetIcon("assets/images/test_crown.png");
+
     LogUnindent();
     return true;
 }
@@ -220,11 +222,10 @@ void Application::Shutdown()
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
-    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
     this->aiManager.Shutdown();
-
+    this->assetManager.Shutdown();
     LogUnindent();
 }
 

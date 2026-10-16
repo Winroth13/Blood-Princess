@@ -42,6 +42,7 @@ class ParticleSystemComponent : public Component
 
 public:
     ParticleSystemComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
+    ~ParticleSystemComponent();
 
 private:
     void OnStart(const AppContext &context) override;

@@ -35,6 +35,7 @@ void OutputPass::Shutdown() {
     LogInfo("Shutting down Output Pass");
 
     SafeRelease(this->debugCB);
+    SafeRelease(this->postProcessingCB);
 }
 
 bool OutputPass::Resize(

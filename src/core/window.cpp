@@ -3,6 +3,8 @@
 #include "input/input.hpp"
 #include "core/application.hpp"
 
+#include "stb_image/stb_image.h"
+
 bool Window::Initialize(
     const std::string& title,
     uint32_t width,
@@ -33,6 +35,9 @@ void Window::Shutdown()
 {
     LogInfo("Shutting down window...");
     LogIndent();
+
+    SDL_free(this->iconSurface);
+    delete this->iconData;
 
     LogInfo("Destroying SDL Window");
     SDL_DestroyWindow(this->sdlWindow);
@@ -67,6 +72,26 @@ void Window::PollEvents()
         }
 
         Input::HandleEvent(event);
+    }
+}
+
+void Window::SetIcon(const std::string &path) {
+    int width, height, channels;
+    this->iconData = (char *)stbi_load(path.c_str(), &width, &height, &channels, 4);
+    if (!this->iconData) {
+        LogWarn("Failed to load icon image");
+        return;
+    }
+    
+    this->iconSurface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_ABGR8888, this->iconData, width * 4);
+    if (!this->iconSurface) {
+        LogWarn("Failed to create icon surface");
+        return;
+    }
+
+    if (!SDL_SetWindowIcon(this->sdlWindow, this->iconSurface)) {
+        LogWarn("Failed to set window icon");
+        return;
     }
 }
 
