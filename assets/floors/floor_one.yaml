@@ -6,9 +6,11 @@ waves:
   - completion: 0.75
     enemies:
       - type: goblin
-        amount: 120
-        time: 45
+        amount: 2
+        time: 5
     
+  - completion: 0.75
+    enemies:
       - type: ogre
-        amount: 3
-        time: 45
+        amount: 1
+        time: 10

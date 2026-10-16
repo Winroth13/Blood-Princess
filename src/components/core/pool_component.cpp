@@ -26,7 +26,7 @@ Entity *PoolComponent::Grab()
 void PoolComponent::Put(Entity *entity)
 {
 	entity->SetLocallyActive(false);
-	this->active.push(entity);
+	this->inactive.push(entity);
 }
 
 void PoolComponent::OnStart(const AppContext &context)

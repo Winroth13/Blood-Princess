@@ -575,12 +575,12 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 	}
 	catch (const YAML::BadFile e)
 	{
-		LogWarn("Failed to open file: %s", path.c_str());
+		LogError("Failed to open file: %s", path.c_str());
 		return floor;
 	}
 	catch (const YAML::ParserException e)
 	{
-		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		LogError("Failed to parse YAML syntax: %s", e.what());
 		return floor;
 	}
 	catch (const std::exception e)

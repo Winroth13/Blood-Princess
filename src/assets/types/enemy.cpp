@@ -22,3 +22,18 @@ EnemyType Enemy::GetEnemyTypeFromString(const std::string &str)
     }
 }
 
+const std::string Enemy::GetStringFromEnemyType(EnemyType type)
+{
+    switch (type)
+    {
+    case EnemyType::GOBLIN:
+        return "Goblin";
+    case EnemyType::OGRE:
+        return "Ogre";
+    case EnemyType::SKELETON:
+        return "Skeleton";
+    default:
+        return "?";
+    }
+}
+

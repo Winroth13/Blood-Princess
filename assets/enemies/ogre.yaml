@@ -1,5 +1,5 @@
 name: ogre
-health: 100
+health: 350
 scale: 1.25
 knockback_factor: 0.0
 

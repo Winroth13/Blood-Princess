@@ -41,11 +41,18 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
 
         PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
 
-        pool->SetCreateEntityCallback([this, enemy, scene, pool]() {
-            Entity *enemyEntity = this->CreateEnemyEntity(enemy, scene);
+        pool->SetCreateEntityCallback([this, enemy, scene, pool, i]() {
+            EnemyType type = static_cast<EnemyType>(i);
 
-            auto health = enemyEntity->GetComponent<Health>()->GetOnDeath().Connect([pool, enemyEntity]() {
+            Entity *enemyEntity = this->CreateEnemyEntity(enemy, type, scene);
+
+            auto health = enemyEntity->GetComponent<Health>()->GetOnDeath().Connect([this, pool, enemyEntity, type]() 
+            {
                 pool->Put(enemyEntity);
+
+                EnemyControllerComponent *controller = enemyEntity->GetComponent<EnemyControllerComponent>();
+
+                this->GetOnEnemyKilled().Emit(type, controller->GetWave());
             });
 
             return enemyEntity;
@@ -57,7 +64,7 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
     }
 }
 
-Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
+Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, EnemyType type, Scene *scene)
 {
     Entity *entity = scene->AddEntity(enemy->name);
 
@@ -73,6 +80,7 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     animator->Play(enemy->walkAnimation, true);
 
     auto *enemyHealth = entity->AddComponent<Health>();
+    enemyHealth->SetMaxHealth(enemy->health);
 
     auto *enemyBC = entity->AddComponent<BoxCollisionComponent>();
     enemyBC->SetExtents(enemy->extends);
@@ -87,6 +95,7 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     enemyController->SetRandomSound(enemy->barkSound);
     enemyController->SetGibs(this->gibs);
     enemyController->SetEnemy(enemy);
+    enemyController->SetType(type);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
@@ -119,8 +128,6 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
     this->aiManager = context.aiManager;
 
     this->InitializePools(context, context.sceneManager->GetCurrentScene());
-
-    this->SpawnEnemy(GOBLIN);
 }
 
 void EnemySpawnerComponent::Update(const AppContext& context, float deltaTime)
@@ -133,7 +140,7 @@ void EnemySpawnerComponent::OnDestroy(const AppContext& context)
 
 }
 
-bool EnemySpawnerComponent::SpawnEnemy(size_t type)
+bool EnemySpawnerComponent::SpawnEnemy(size_t type, uint32_t wave)
 {
     Entity *entity = this->enemyPools[type]->Grab();
 
@@ -171,6 +178,11 @@ bool EnemySpawnerComponent::SpawnEnemy(size_t type)
     } while (!this->aiManager->GetGrid().IsAreaClear(wishPosition, 1.0f));
 
     entity->GetComponent<TransformComponent>()->SetWorldPosition(wishPosition);
+
+    auto health = entity->GetComponent<Health>();
+    health->SetCurrentHealth(health->GetMaxHealth());
+
+    entity->GetComponent<EnemyControllerComponent>()->SetWave(wave);
 
     return true;
 }

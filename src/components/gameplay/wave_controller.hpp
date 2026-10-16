@@ -1,11 +1,15 @@
 #pragma once
 #include "scene/component.hpp"
-
-class Floor;
+#include "assets/types/floor.hpp"
 
 struct ActiveWave
 {
-	std::array<>
+	float completionProgress = 0.0f;
+	std::array<int32_t, +EnemyType::COUNT> toKill = { 0 };
+	std::array<int32_t, +EnemyType::COUNT> killed = { 0 };
+	std::array<int32_t, +EnemyType::COUNT> toSpawn = { 0 };
+	std::array<float, +EnemyType::COUNT> spawnDuration = { 0.0f };
+	std::array<float, +EnemyType::COUNT> spawnTimer = { 0.0f };
 };
 
 class WaveController : public Component
@@ -14,17 +18,21 @@ class WaveController : public Component
 
 private:
 	std::shared_ptr<Floor> floor = nullptr;
+	std::vector<ActiveWave> activeWaves = {};
 
-	int32_t currentWave = -1;
-	uint32_t enemiesLeft = 0;
+	int32_t nextWave = 0;
 
 	void NextWave();
+	bool IsWaveCompleted(ActiveWave &wave);
+	void CompleteWave(uint32_t waveIndex);
+	float GetWaveProgress(ActiveWave &wave);
 
 	void OnStart(const AppContext &context) override;
 	void Update(const AppContext &context, float deltaTime) override;
+	void Render(const RenderView &view, RenderQueue &queue) override;
 
 public:
-	WaveController(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
+	WaveController(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); UsesRender(); };
 	~WaveController() = default;
 
 	void SetFloor(std::shared_ptr<Floor> floor) { this->floor = floor; }

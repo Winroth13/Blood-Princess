@@ -2,6 +2,7 @@
 
 #include "scene/component.hpp"
 #include "ai/ai_manager.hpp"
+#include "assets/types/enemy.hpp"
 
 #include <DirectXMath.h>
 #include <string>
@@ -152,6 +153,8 @@ private:
 	bool hitboxActivated = false;
 	// enemy type
 	EnemyTypeOld enemyType = EnemyTypeOld::Goblin;
+	EnemyType type = EnemyType::GOBLIN;
+	uint32_t wave = 0;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -212,4 +215,9 @@ public:
 	void SetEnemyType(EnemyTypeOld type);
 	EnemyTypeOld GetEnemyType() const { return this->enemyType; }
 
+	void SetType(EnemyType type) { this->type = type; }
+	EnemyType GetType() const { return this->type; }
+
+	void SetWave(uint32_t wave) { this->wave = wave; }
+	uint32_t GetWave() const { return this->wave; }
 };

@@ -35,6 +35,6 @@ public:
 	XMFLOAT3 GetHSV() const { return this->hsv; }
 	void SetHSV(XMFLOAT3 hsv) { this->hsv = hsv; }
 
-	const std::vector<Wave> &GetWaves() const { this->waves; }
+	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }
 };

@@ -10,10 +10,11 @@ void LifeTimeComponent::Update(const AppContext &context, float deltaTime)
 
 	if (this->lifeTime <= 0.0f)
 	{
-		auto poolComp = this->GetOwner()->GetComponent<PoolComponent>();
+		Entity *parent = this->GetOwner()->GetParent();
 
-		if (poolComp)
+		if (parent)
 		{
+			auto poolComp = parent->GetComponent<PoolComponent>();
 			poolComp->Put(this->GetOwner());
 		}
 		else

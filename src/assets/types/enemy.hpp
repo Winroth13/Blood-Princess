@@ -68,4 +68,5 @@ public:
 	std::vector<EnemyAttack> attacks = {};
 
 	static EnemyType GetEnemyTypeFromString(const std::string &str);
+	static const std::string GetStringFromEnemyType(EnemyType type);
 };
