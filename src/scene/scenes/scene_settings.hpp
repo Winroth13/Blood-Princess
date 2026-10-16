@@ -12,6 +12,7 @@ namespace Scenes {
         Entity *canvas = ui.CreateCanvas();
         canvas->AddComponent<TransformComponent>();
         canvas->AddComponent<CameraComponent>();
+        canvas->AddComponent<EndScreenComponent>();
 
         UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(canvas, nullptr, "black"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
         blackImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
