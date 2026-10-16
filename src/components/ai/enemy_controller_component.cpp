@@ -129,7 +129,7 @@ void EnemyControllerComponent::ResetKnockback()
         this->hitbox->Deactivate();
 }
 
-void EnemyControllerComponent::SetEnemyType(EnemyType type)
+void EnemyControllerComponent::SetEnemyType(EnemyTypeOld type)
 {
     this->enemyType = type;
 

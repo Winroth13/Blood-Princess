@@ -125,6 +125,8 @@
     <ClCompile Include="src\components\core\pool_component.cpp" />
     <ClCompile Include="src\components\gameplay\gibs_component.cpp" />
     <ClCompile Include="src\components\gameplay\wave_controller.cpp" />
+    <ClCompile Include="src\assets\types\floor.cpp" />
+    <ClCompile Include="src\assets\types\enemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />

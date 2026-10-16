@@ -2,7 +2,7 @@
 #include "assets/asset.hpp"
 
 #include <vector>
-
+#include <memory>
 #include <DirectXMath.h>
 using namespace DirectX;
 
@@ -61,4 +61,6 @@ public:
 	std::shared_ptr<Sound> barkSound = nullptr;
 
 	std::vector<EnemyAttack> attacks = {};
+
+	static EnemyType GetEnemyTypeFromString(const std::string &str);
 };

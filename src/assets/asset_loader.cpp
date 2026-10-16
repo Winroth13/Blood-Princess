@@ -552,7 +552,20 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 			for (YAML::Node waveNode : wavesNode)
 			{
 				Wave wave = {};
-				wave.
+				wave.completion = waveNode["completion"].as<float>(0.75f);
+
+				for (YAML::Node enemiesNode : waveNode["enemies"])
+				{
+					for (auto enemyNode : enemiesNode)
+					{
+						WaveEnemy enemy = {};
+						enemy.type = Enemy::GetEnemyTypeFromString(enemyNode["type"].as<std::string>(""));
+						enemy.amount = static_cast<uint32_t>(enemyNode["amount"].as<int>(0));
+						enemy.time = enemyNode["time"].as<float>(30.0f);
+
+						wave.enemies.push_back(enemy);
+					}
+				}
 			}
 		}
 

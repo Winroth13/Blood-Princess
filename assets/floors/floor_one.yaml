@@ -3,9 +3,8 @@ saturation: 0.0
 value: 0.0
 
 waves:
-    - 1:
-        completion: 75
-        -enemies:
-        - goblin:
-            amount: 120
-            time: 45
+  - completion: 0.75
+    enemies:
+      - type: goblin
+        amount: 120
+        time: 45

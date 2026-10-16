@@ -22,10 +22,10 @@ struct Wave
 	std::vector<WaveEnemy> enemies;
 };
 
-class Floor : Asset
+class Floor : public Asset
 {
 private:
-	XMFLOAT3 hsv;
+	XMFLOAT3 hsv = { 0.0f, 0.0f, 0.0f };
 	std::vector<Wave> waves = {};
 
 public:

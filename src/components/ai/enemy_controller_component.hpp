@@ -17,7 +17,7 @@ class Enemy;
 
 struct AttackHitEvent;
 
-enum class EnemyType
+enum class EnemyTypeOld
 {
 	Goblin,
 	Ogre,
@@ -41,11 +41,11 @@ struct EnemyStats
 };
 
 // TODO: Maybe these should be allocated at all times. In like a EnemyStats.hpp
-inline EnemyStats GetEnemyStats(EnemyType type)
+inline EnemyStats GetEnemyStats(EnemyTypeOld type)
 {
 	switch (type)
 	{
-	case EnemyType::Goblin:
+	case EnemyTypeOld::Goblin:
 		return {
 			/*moveSpeed*/          3.5f,
 			/*health*/             100.0f,
@@ -59,7 +59,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/* attack anim */	   "Shank",
 			/* walk anim */		   "Jog"
 		};
-	case EnemyType::Ogre:
+	case EnemyTypeOld::Ogre:
 		return {
 			/*moveSpeed*/          2.0f,
 			/*health*/             500.0f,
@@ -73,7 +73,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/* attack anim */	   "attack",
 			/* walk anim */		   "Walk"
 		};
-	case EnemyType::Archer:
+	case EnemyTypeOld::Archer:
 		return {
 			/*moveSpeed*/          4.0f,
 			/*health*/             60.0f,
@@ -87,7 +87,7 @@ inline EnemyStats GetEnemyStats(EnemyType type)
 			/* attack anim */	   "Shank",
 			/* walk anim */		   "Walk"
 		};
-	case EnemyType::Skeleton:
+	case EnemyTypeOld::Skeleton:
 		return {
 			/*moveSpeed*/          3.5f,
 			/*health*/             100.0f,
@@ -151,7 +151,7 @@ private:
 	float attackElapsed = 0.0f;
 	bool hitboxActivated = false;
 	// enemy type
-	EnemyType enemyType = EnemyType::Goblin;
+	EnemyTypeOld enemyType = EnemyTypeOld::Goblin;
 
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
@@ -209,7 +209,7 @@ public:
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
 
-	void SetEnemyType(EnemyType type);
-	EnemyType GetEnemyType() const { return this->enemyType; }
+	void SetEnemyType(EnemyTypeOld type);
+	EnemyTypeOld GetEnemyType() const { return this->enemyType; }
 
 };

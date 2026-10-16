@@ -200,6 +200,8 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\types\enemy.cpp" />
+    <ClCompile Include="src\assets\types\floor.cpp" />
     <ClCompile Include="src\assets\types\sound.cpp" />
     <ClCompile Include="src\components\audio\sound_component.cpp" />
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
