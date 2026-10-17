@@ -1,0 +1,18 @@
+name: ogre
+health: 350
+score: 20
+scale: 1.25
+knockback_factor: 0.0
+
+model: assets/models/ogre.glb
+walk_animation: Walk
+
+extends: [1.0, 1.0, 1.0]
+extends_offset: [0.0, 1.05, 0.0]
+
+# sounds
+hit_sound: assets/sounds/goblin_hit_sound.sound
+death_sound: assets/sounds/goblin_death_sounds.sound
+bark_sound: assets/sounds/goblin_random_sounds.sound
+
+gib_type: ogre

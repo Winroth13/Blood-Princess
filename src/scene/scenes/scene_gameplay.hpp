@@ -533,8 +533,10 @@ namespace Scenes
         Entity *gibsEntity = CreateGibs(outScene, appContext);
 
         // Enemy Spawner
-        Entity* spawnerEntity = outScene.AddEntity("enemy_spawner");
+        Entity* spawnerEntity = outScene.AddEntity("level_entity");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
+        spawnerEntity->AddComponent<LevelComponent>();
+        spawnerEntity->AddComponent<EnemyDatabaseComponent>();
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
 
         auto waveController = spawnerEntity->AddComponent<WaveController>();

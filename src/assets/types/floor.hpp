@@ -7,8 +7,6 @@ using namespace DirectX;
 
 #include <vector>
 
-
-
 struct WaveEnemy
 {
 	EnemyType type;

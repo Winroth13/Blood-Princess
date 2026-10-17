@@ -459,6 +459,7 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 
 		enemy->name = file["name"].as<std::string>("unknown");
 		enemy->health = file["health"].as<float>(100.0f);
+		enemy->score = file["score"].as<int>(1);
 		enemy->scale = file["scale"].as<float>(1.0f);
 		enemy->knockbackFactor = file["knockback_factor"].as<float>(1.0f);
 
@@ -512,12 +513,12 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 	}
 	catch (const YAML::BadFile e)
 	{
-		LogWarn("Failed to open file: %s", path.c_str());
+		LogError("Failed to open file: %s", path.c_str());
 		return enemy;
 	}
 	catch (const YAML::ParserException e)
 	{
-		LogWarn("Failed to parse YAML syntax: %s", e.what());
+		LogError("Failed to parse YAML syntax: %s", e.what());
 		return enemy;
 	}
 	catch (const std::exception e)

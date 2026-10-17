@@ -1,6 +1,11 @@
 #include "enemy.hpp"
 #include "core/logging.hpp"
 
+/*
+*  Since C++ is a great language that doesn't have any native ability to 
+*  convert enums to strings and vice versa these two wonderful functions exists.
+*/
+
 EnemyType Enemy::GetEnemyTypeFromString(const std::string &str)
 {
     if (str == "goblin")
@@ -27,11 +32,11 @@ const std::string Enemy::GetStringFromEnemyType(EnemyType type)
     switch (type)
     {
     case EnemyType::GOBLIN:
-        return "Goblin";
+        return "goblin";
     case EnemyType::OGRE:
-        return "Ogre";
+        return "ogre";
     case EnemyType::SKELETON:
-        return "Skeleton";
+        return "skeleton";
     default:
         return "?";
     }

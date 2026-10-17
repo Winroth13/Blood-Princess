@@ -3,6 +3,7 @@
 #include "assets/types/floor.hpp"
 #include "core/logging.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
+#include "components/gameplay/enemy_database_component.hpp"
 #include "assets/types/enemy.hpp"
 
 #include "imgui/imgui.h"
@@ -16,52 +17,41 @@ void WaveController::NextWave()
 	if (this->nextWave >= this->floor->GetWaves().size())
 		return;
 
+	auto *database = this->GetOwner()->GetComponent<EnemyDatabaseComponent>();
+
 	LogInfo("Starting Wave %d", this->nextWave);
 
 	Wave wave = waves[this->nextWave++];
 
 	ActiveWave activeWave = {};
-	activeWave.completionProgress = wave.completion;
+	activeWave.currentScore = 0;
+	activeWave.completionScore = 0;
 
 	for (auto waveEnemy : wave.enemies)
 	{
 		activeWave.toSpawn[+waveEnemy.type] = waveEnemy.amount;
-		activeWave.toKill[+waveEnemy.type] = waveEnemy.amount;
 		activeWave.spawnDuration[+waveEnemy.type] = waveEnemy.time / waveEnemy.amount;
 		activeWave.spawnTimer[+waveEnemy.type] = activeWave.spawnDuration[+waveEnemy.type];
+
+		int score = database->GetEnemy(waveEnemy.type)->score;
+
+		activeWave.completionScore += static_cast<uint32_t>(
+			wave.completion * score * waveEnemy.amount
+		);
 	}
 
 	this->activeWaves.push_back(activeWave);
 }
 
-bool WaveController::IsWaveCompleted(ActiveWave &wave)
-{
-	float progress = this->GetWaveProgress(wave);
-	return progress >= wave.completionProgress;
-}
-
 void WaveController::CompleteWave(uint32_t waveIndex)
 {
-	this->activeWaves.erase(this->activeWaves.begin() + waveIndex);
-	this->NextWave();
+	this->activeWaves[waveIndex].completed = true;
+	this->onWaveCompleted.Emit();
 }
 
 float WaveController::GetWaveProgress(ActiveWave &wave)
 {
-	float totalProgress = 0.0f;
-	uint32_t count = 0;
-
-	for (size_t i = 0; i < +EnemyType::COUNT; ++i)
-	{
-		if (wave.toKill[i] == 0)
-			continue;
-
-		float progress = wave.killed[i] / static_cast<float>(wave.toKill[i]);
-
-		totalProgress += progress;
-		count++;
-	}
-	return totalProgress / count;
+	return wave.currentScore / static_cast<float>(wave.completionScore);
 }
 
 void WaveController::OnStart(const AppContext &context)
@@ -74,15 +64,27 @@ void WaveController::OnStart(const AppContext &context)
 		return;
 	}
 
-	spawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave) 
+	auto *database = this->GetOwner()->GetComponent<EnemyDatabaseComponent>();
+
+	if (!database)
+	{
+		LogError("Must have an enemy database component");
+		return;
+	}
+
+	spawner->GetOnEnemyKilled().Connect([this, database](EnemyType type, uint32_t wave) 
 	{
 		ActiveWave &activeWave = this->activeWaves[wave];
+		
+		auto enemy = database->GetEnemy(type);
+		activeWave.currentScore += enemy->score;
 
-		activeWave.killed[+type]++;
-
-		if (this->IsWaveCompleted(activeWave))
+		if (!activeWave.completed)
 		{
-			this->CompleteWave(wave);
+			if (activeWave.currentScore >= activeWave.completionScore)
+			{
+				this->CompleteWave(wave);
+			}
 		}
 	});
 
@@ -133,6 +135,7 @@ void WaveController::Render(const RenderView &view, RenderQueue &queue)
 		ActiveWave &activeWave = this->activeWaves[i];
 
 		ImGui::SeparatorText(std::format("Wave {} ({}%)", i, this->GetWaveProgress(activeWave) * 100).c_str());
+		ImGui::Text("Score: %u / %u", activeWave.currentScore, activeWave.completionScore);
 
 		ImGui::SeparatorText("Spawn");
 
@@ -143,18 +146,6 @@ void WaveController::Render(const RenderView &view, RenderQueue &queue)
 				Enemy::GetStringFromEnemyType(static_cast<EnemyType>(j)).c_str(),
 				activeWave.toSpawn[j],
 				activeWave.spawnTimer[j]
-			);
-		}
-
-		ImGui::SeparatorText("Killed");
-
-		for (size_t j = 0; j < +EnemyType::COUNT; ++j)
-		{
-			ImGui::Text(
-				"%s: %d / %d",
-				Enemy::GetStringFromEnemyType(static_cast<EnemyType>(j)).c_str(),
-				activeWave.killed[j],
-				activeWave.toKill[j]
 			);
 		}
 	}

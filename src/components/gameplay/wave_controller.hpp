@@ -1,12 +1,15 @@
 #pragma once
 #include "scene/component.hpp"
 #include "assets/types/floor.hpp"
+#include "events/signal.hpp"
 
 struct ActiveWave
 {
-	float completionProgress = 0.0f;
-	std::array<int32_t, +EnemyType::COUNT> toKill = { 0 };
-	std::array<int32_t, +EnemyType::COUNT> killed = { 0 };
+	bool completed = false;
+
+	uint32_t completionScore = 0;
+	uint32_t currentScore = 0;
+
 	std::array<int32_t, +EnemyType::COUNT> toSpawn = { 0 };
 	std::array<float, +EnemyType::COUNT> spawnDuration = { 0.0f };
 	std::array<float, +EnemyType::COUNT> spawnTimer = { 0.0f };
@@ -16,14 +19,15 @@ class WaveController : public Component
 {
 	RegisterComponent(WaveController);
 
+	Signal<> onWaveCompleted;
+	Signal<> onFloorCompleted;
+
 private:
 	std::shared_ptr<Floor> floor = nullptr;
 	std::vector<ActiveWave> activeWaves = {};
 
 	int32_t nextWave = 0;
 
-	void NextWave();
-	bool IsWaveCompleted(ActiveWave &wave);
 	void CompleteWave(uint32_t waveIndex);
 	float GetWaveProgress(ActiveWave &wave);
 
@@ -35,5 +39,10 @@ public:
 	WaveController(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); UsesRender(); };
 	~WaveController() = default;
 
+	void NextWave();
+
 	void SetFloor(std::shared_ptr<Floor> floor) { this->floor = floor; }
+
+	Signal<> &GetOnWaveCompleted() { return this->onWaveCompleted; }
+	Signal<> &GetOnFloorCompleted() { return this->onFloorCompleted; }
 };
