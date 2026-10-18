@@ -33,11 +33,10 @@ void WaveController::NextWave()
 		activeWave.spawnDuration[+waveEnemy.type] = waveEnemy.time / waveEnemy.amount;
 		activeWave.spawnTimer[+waveEnemy.type] = activeWave.spawnDuration[+waveEnemy.type];
 
-		int score = database->GetEnemy(waveEnemy.type)->score;
+		int score = database->GetEnemy(waveEnemy.type)->score * waveEnemy.amount;
 
-		activeWave.completionScore += static_cast<uint32_t>(
-			wave.completion * score * waveEnemy.amount
-		);
+		activeWave.totalScore += static_cast<uint32_t>(score);
+		activeWave.completionScore += static_cast<uint32_t>(score * wave.completion);
 	}
 
 	this->activeWaves.push_back(activeWave);
@@ -52,6 +51,24 @@ void WaveController::CompleteWave(uint32_t waveIndex)
 float WaveController::GetWaveProgress(ActiveWave &wave)
 {
 	return wave.currentScore / static_cast<float>(wave.completionScore);
+}
+
+bool WaveController::IsFloorCompleted()
+{
+	// we haven't started all waves yet
+	if (this->nextWave != this->floor->GetWaves().size())
+		return false;
+
+	// check if we have killed all enemies in all waves
+	for (size_t i = 0; i < this->activeWaves.size(); ++i)
+	{
+		if (activeWaves[i].currentScore != activeWaves[i].totalScore)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void WaveController::OnStart(const AppContext &context)
@@ -85,6 +102,11 @@ void WaveController::OnStart(const AppContext &context)
 			{
 				this->CompleteWave(wave);
 			}
+		}
+
+		if (this->IsFloorCompleted())
+		{
+			this->onFloorCompleted.Emit();
 		}
 	});
 
@@ -136,6 +158,7 @@ void WaveController::Render(const RenderView &view, RenderQueue &queue)
 
 		ImGui::SeparatorText(std::format("Wave {} ({}%)", i, this->GetWaveProgress(activeWave) * 100).c_str());
 		ImGui::Text("Score: %u / %u", activeWave.currentScore, activeWave.completionScore);
+		ImGui::Text("Total Score: %u / %u", activeWave.currentScore, activeWave.totalScore);
 
 		ImGui::SeparatorText("Spawn");
 

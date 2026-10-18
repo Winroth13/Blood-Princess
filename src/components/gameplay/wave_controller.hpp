@@ -7,6 +7,7 @@ struct ActiveWave
 {
 	bool completed = false;
 
+	uint32_t totalScore = 0;
 	uint32_t completionScore = 0;
 	uint32_t currentScore = 0;
 
@@ -30,6 +31,8 @@ private:
 
 	void CompleteWave(uint32_t waveIndex);
 	float GetWaveProgress(ActiveWave &wave);
+
+	bool IsFloorCompleted();
 
 	void OnStart(const AppContext &context) override;
 	void Update(const AppContext &context, float deltaTime) override;
