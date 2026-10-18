@@ -35,12 +35,15 @@ cbuffer PerObject : register(b2)
     float4x4 worldInvTransposeMatrix;
 };
 
+#define MATERIAL_FLAG_HSV_ADJUSTED 1 << 0
+
 cbuffer PerMaterial : register(b3)
 {
     float3 materialTint;
     float materialSpecular;
     float materialSpecularExponent;
-    float3 pad2;
+    uint materialFlags;
+    float2 pad2;
 }
 
 cbuffer Light : register(b4)
@@ -85,6 +88,11 @@ cbuffer PostProcessing : register(b6)
     float speedLineMaskSize;
     float speedLineMaskEdge;
     float speedLineAnimationSpeed;
+    float damageFlashIntensity;
+    float damageFlashEdgePower;
+    float4 damageFlashColour;
+    float damageFlashInnerRatio;
+    float damageFlashFeather;
     float2 pad5;
 }
 

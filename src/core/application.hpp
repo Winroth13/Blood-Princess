@@ -46,6 +46,8 @@ class Application
         &this->aiManager
     };
 
+    bool isFullscreen = false;
+
     void Update(float deltaTime);
     void PreRender(float deltaTime);
     void Render(float deltaTime);
@@ -62,4 +64,8 @@ public:
 	void Shutdown();
 
     void Stop() { this->isRunning = false; }
+
+    bool IsFullscreen() const { return this->isFullscreen; }
+    void SetFullscreen(bool isFullscreen);
+    void ToggleFullscreen();
 };

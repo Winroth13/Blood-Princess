@@ -11,6 +11,8 @@ class HitboxComponent : public Component
     ExportProperty(float, knockbackForce, 2.0f);
     ExportProperty(float, activeDuration, 0.0f);
 
+    ExportProperty(bool, activeForEver, false);
+    ExportProperty(bool, destroyOnHit, false);
     ExportProperty(float, retriggerCooldown, 0.0f);
 
     float activeTimer = 0.0f;
@@ -23,7 +25,17 @@ private:
 public:
     HitboxComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
     void Activate(float duration = 0.0f);
+    void ActivateForEver(bool state) {
+        this->activeForEver = state;
+        if (state) {
+            this->SetActive(true);
+            this->activeTimer = 0.0f;
+        }
+    }
     void Deactivate();
+
+    void SetDestroyOnHit(bool destroy) { this->destroyOnHit = destroy; }
+    void IgnoreEntity(Entity* target) { if (target) this->hitEntities[target] = -1.0f; }
 
     bool CanHit(Entity* target) const;
     void OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& hitPoint);

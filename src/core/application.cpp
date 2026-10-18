@@ -164,6 +164,8 @@ bool Application::Initialize()
 
     LogInfo("Bindings path: %s", configPath.c_str());
 
+    this->window.SetIcon("assets/images/test_crown.png");
+
     LogUnindent();
     return true;
 }
@@ -186,11 +188,7 @@ void Application::Run()
         }
 
         if (Input::IsKeyPressed(Key::F11))
-        {
-            static bool isFullscreen = false;
-            isFullscreen = !isFullscreen;
-            SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
-        }
+            this->ToggleFullscreen();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = currentTime - prevTime;
@@ -224,10 +222,18 @@ void Application::Shutdown()
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
-    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
     this->aiManager.Shutdown();
-
+    this->assetManager.Shutdown();
     LogUnindent();
+}
+
+void Application::SetFullscreen(bool isFullscreen) {
+    this->isFullscreen = isFullscreen;
+    SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
+}
+
+void Application::ToggleFullscreen() {
+    this->SetFullscreen(!this->isFullscreen);
 }

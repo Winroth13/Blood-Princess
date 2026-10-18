@@ -19,6 +19,8 @@ public:
     float settleSpeedSq = 0.05f;  // on ground contact, stop when total speed below this
 
     bool isGrounded = false;
+    bool destroyOnGrounded = false;
+    bool hasCustomGroundY = false;
 
 private:
     void Update(const AppContext& context, float deltaTime) override;
@@ -34,6 +36,7 @@ public:
     void SetGravity(float strength) { this->gravity = strength; }
     void SetRestitution(float r) { this->restitution = r; }
     void SetFriction(float f) { this->friction = f; }
-    void SetGroundY(float y) { this->groundY = y; }
+    void SetGroundY(float y) { this->groundY = y; this->hasCustomGroundY = true; }
+    void SetDestroyOnGrounded(bool destroy) { this->destroyOnGrounded = destroy; }
 };
 

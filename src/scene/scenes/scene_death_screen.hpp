@@ -11,15 +11,30 @@ namespace Scenes {
         hud->AddComponent<UICanvasComponent>();
         hud->AddComponent<TransformComponent>();
         hud->AddComponent<CameraComponent>();
+        hud->AddComponent<EndScreenComponent>();
+        SoundComponent *soundComp = hud->AddComponent<SoundComponent>();
+        hud->AddComponent<EnvironmentComponent>();
+
+        soundComp->SetIs3d(false);
+        soundComp->SetAutoPlay(true);
+        std::shared_ptr<Sound> deathSound = appContext.assetManager->Get<Sound>("assets/sounds/player_death.sound");
+        soundComp->SetSound(deathSound);
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
-        UI::Factory::Place(ui.CreateText(hud, "YOU ARE DEAD", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
+        UI::Factory::Place(ui.CreateText(hud, "YOU DIED", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
 
-        UIButtonComponent *menu_button = UI::Factory::Place(ui.CreateButton(hud, "Main Menu", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
-        menu_button->GetOnClick().Connect([appContext]() {
+        UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
+        restartButton->GetOnClick().Connect([appContext]() {
+            appContext.sceneManager->RequestSceneChange("gameplay");
+            });
+
+        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 300.0f });
+        menuButton->GetOnClick().Connect([appContext]() {
             appContext.sceneManager->RequestSceneChange("main_menu");
             });
+
+        SetDefaultSounds(outScene, appContext, { restartButton, menuButton });
     }
 }

@@ -10,6 +10,7 @@ class HitboxComponent;
 class CameraComponent;
 class Sound;
 class Health;
+class HurtboxComponent;
 
 struct AttackData
 {
@@ -37,6 +38,7 @@ class PlayerControllerComponent : public Component
 	ExportProperty(bool, canUseDash, true);
 	ExportProperty(bool, isDashing, false);
 	ExportProperty(float, dashCooldownTimer, .01f);
+    ExportProperty(float, dashCooldownDuration, 1.5f);
 	ExportProperty(float, dashTimer, 0.0f);
 	ExportProperty(float, dashDistance, 3.0f);
 	ExportProperty(float, dashDuration, 0.2f);
@@ -47,9 +49,16 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, minDashDensity, 0.4f);
 	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
-	// health
-	ExportProperty(float, maxHealth, 200.0f);
+	ExportProperty(float, damageFlashDuration, 0.5f);
+	ExportProperty(float, damageFlashLingeringTimer, -1.0f);
+	ExportProperty(float, damageSoundDuration, 0.8f);
+	ExportProperty(float, damageSoundReminingTime, -1.0f);
 
+	// health
+	ExportProperty(float, maxHealth, 200);
+
+	// movement
+	XMFLOAT3 velcoity = { 0.0f,0.0f,0.0f };
 
 	XMVECTOR dashDirection = {};
 	CollisionManager* collisionRef = nullptr;
@@ -57,12 +66,15 @@ class PlayerControllerComponent : public Component
 	TransformComponent *rootTransform = nullptr;
 	// health
 	Health* health = nullptr;
+	HurtboxComponent* hurtbox = nullptr;
 	bool isDead = false;
+	bool isParrying = false;
 
 	/*
 	*	Sounds
 	*/
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
+	std::shared_ptr<Sound> hurtSound = nullptr;
 
 	/*
 	*	Attacks
@@ -109,6 +121,8 @@ class PlayerControllerComponent : public Component
 		)
 	};
 
+    Signal<float> onDashCooldownChanged;
+
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
 
@@ -117,7 +131,6 @@ private:
 	void Update(const AppContext& context, float deltaTime) override;
 	void OnDestroy(const AppContext& context) override;
 	void GetDashDirection(XMVECTOR &direction);
-
 
 	ConnectionId attackHitConnection = 0;
 	ConnectionId damageTakenConnection = 0;
@@ -146,9 +159,12 @@ public:
 	void PerformDash(float deltaTime, float dashDistance, float dashDuration);
 
 	void PerformParry();
+	bool IsParrying() const { return this->isParrying; }
 
 	float GetMoveSpeed() const { return moveSpeed; };
 	void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; };
+
+	XMFLOAT3 GetVelocity() const { return this->velcoity; }
 
 	XMFLOAT2 GetMouseSensitivity() const { return this->mouseSensitivity; };
 	void SetMouseSensitivity(XMFLOAT2 sensitivity) { this->mouseSensitivity = sensitivity; };
@@ -161,4 +177,8 @@ public:
 
 	float GetDashCooldownTimer() const { return this->dashCooldownTimer; };
 	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
+
+    float GetDashCooldownDuration() const { return this->dashCooldownDuration; }
+
+    Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 };

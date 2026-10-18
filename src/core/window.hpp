@@ -17,6 +17,9 @@ class Window
 	uint32_t width = 0;
 	uint32_t height = 0;
 
+    char *iconData = nullptr;
+    SDL_Surface *iconSurface = nullptr;
+
 public:
     Window() = default;
 	~Window() = default;
@@ -29,6 +32,8 @@ public:
 	void Shutdown();
 
 	void PollEvents();
+
+    void SetIcon(const std::string &path);
 
     bool WasResized() const { return this->wasResized; }
     void ClearResizeFlag() { this->wasResized = false; }

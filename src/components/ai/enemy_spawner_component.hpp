@@ -7,7 +7,6 @@
 
 #include <DirectXMath.h>
 #include <vector>
-
 class Entity;
 class GibsComponent;
 class AIManager;
@@ -23,6 +22,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
+	ExportProperty(bool, autoStartWave, true);
 
 	const size_t GOBLIN = 0;
 	const size_t OGRE = 1;
@@ -50,7 +50,6 @@ private:
 	void OnDestroy(const AppContext& context) override;
 
 public:
-
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
 

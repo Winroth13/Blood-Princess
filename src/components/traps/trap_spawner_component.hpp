@@ -15,7 +15,7 @@ class TrapSpawnerComponent : public Component
     RegisterComponent(TrapSpawnerComponent);
 
     // Spike traps
-    ExportProperty(int, maxSpikeTraps, 10);
+    ExportProperty(int, maxSpikeTraps, 0);
     ExportProperty(float, spikeSpawnDuration, 12.0f);
     ExportProperty(float, spikeTelegraph, 1.2f);
     ExportProperty(float, spikeArmedDuration, 4.0f);
@@ -24,7 +24,7 @@ class TrapSpawnerComponent : public Component
     ExportProperty(int, maxSpikePool, 12);
 
     // Fire traps
-    ExportProperty(int, maxFireTraps, 5);
+    ExportProperty(int, maxFireTraps, 0);
     ExportProperty(float, fireSpawnDuration, 20.0f);
     ExportProperty(float, fireTelegraph, 2.0f);
     ExportProperty(float, fireArmedDuration, 8.0f);

@@ -450,6 +450,9 @@ bool SharedResources::Initialize(ID3D11Device* device, uint32_t shadowSize, uint
     if (!RenderUtils::CreateConstantBuffer(device, sizeof(LightData), &this->lightBufferCB, "Light Buffer"))
         return false;
 
+    if (!RenderUtils::CreateConstantBuffer(device, sizeof(EnvironmentData), &this->environmentBufferCB, "Environment Buffer"))
+        return false;
+
     if (!RenderUtils::CreateStructuredBuffer(
         device,
         sizeof(DirectionalLightData),
@@ -510,6 +513,7 @@ void SharedResources::Shutdown()
 	SafeRelease(this->perObjectCB);
 	SafeRelease(this->perMaterialCB);
     SafeRelease(this->skinningCB);
+    SafeRelease(this->environmentBufferCB);
 
     SafeRelease(this->directionalLightShaderResourceView);
     SafeRelease(this->spotLightShaderResourceView);
@@ -610,4 +614,13 @@ void SharedResources::UploadSkinMatrices(ID3D11DeviceContext *deviceContext, con
         XMStoreFloat4x4(&destination[i], XMMatrixTranspose(XMLoadFloat4x4(&skinMatrices[i])));
 
     deviceContext->Unmap(this->skinningCB, 0);
+}
+
+void SharedResources::UploadEnvironmentData(ID3D11DeviceContext *deviceContext, EnvironmentCommand environment)
+{
+    EnvironmentData data{};
+
+    data.hsvShift = environment.hsvShift;
+
+    RenderUtils::UploadConstantBuffer(deviceContext, this->environmentBufferCB, data);
 }

@@ -28,6 +28,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
+	this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
 
 	if (this->health)
 	{
@@ -40,14 +41,27 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	);
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
+	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
 	);
 
+	health->GetOnChangedHealth().Connect([this](float currentHealth, float maxHealth) {
+		this->damageFlashLingeringTimer = this->damageFlashDuration;
 
+		if (this->damageSoundReminingTime == -1.0f)
+		{
+			SoundComponent *soundComp = this->GetOwner()->GetComponent<SoundComponent>();
+			soundComp->SetSound(this->hurtSound);
+			soundComp->Play();
+			this->damageSoundReminingTime = this->damageSoundDuration;
+		}
+		});
 
 	Input::SetMouseMode(MouseMode::CAPTURED);
+
+    this->dashCooldownTimer = this->dashCooldownDuration;
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -58,10 +72,12 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
+        this->onDashCooldownChanged.Emit(this->dashCooldownTimer);
+
 		if (this->dashCooldownTimer <= 0)
 		{
 			this->canUseDash = true;
-			this->dashCooldownTimer = 1.5f;
+			this->dashCooldownTimer = this->dashCooldownDuration;
 		}
 	}
 
@@ -103,6 +119,23 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		HandleMovement(deltaTime);
 		HandleCombat(deltaTime); 
 	}
+
+	if (this->damageFlashLingeringTimer >= 0.0f)
+	{
+		float lingeringFactor = this->damageFlashLingeringTimer / this->damageFlashDuration;
+		Debug::SetSetting("damageFlash.intensity", lingeringFactor);
+		this->damageFlashLingeringTimer -= deltaTime;
+	}
+	else
+	{
+		this->damageFlashLingeringTimer = -1.0f;
+		Debug::SetSetting("damageFlash.intensity", 0.0f);
+	}
+
+	if (this->damageSoundReminingTime >= 0)
+		this->damageSoundReminingTime -= deltaTime;
+	else
+		this->damageSoundReminingTime = -1.0f;
 
 	HandleCameraLook(deltaTime);
 
@@ -203,10 +236,17 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 		float distMoved = XMVectorGetX(XMVector3Length(newVel));
 		this->GetOwner()->GetComponent<CharacterAudioComponent>()->AddMovementDistance(distMoved);
 
+		// Save the player velocity for arrow prediction (units per second)
+		XMVECTOR actualVelocity = XMVectorScale(moveDir, this->moveSpeed);
+		XMStoreFloat3(&this->velcoity, actualVelocity);
+
 		XMFLOAT3 newPos;
 		XMStoreFloat3(&newPos, newPosV);
 
 		transform->SetLocalPosition(newPos);
+	}
+	else {
+		this->velcoity = { 0.0f, 0.0f, 0.0f };
 	}
 }
 
@@ -336,6 +376,11 @@ void PlayerControllerComponent::PerformAttack(AttackData &attackData)
 
 bool PlayerControllerComponent::CanAttack()
 {
+	if (this->isParrying)
+	{
+		return false;
+	}
+
 	if (this->currentAttack == -1)
 	{
 		return true;
@@ -359,6 +404,15 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 
 	if (Action::IsActionPressed("Parry"))
 		this->PerformParry();
+
+	if (this->isParrying)
+	{
+		if (this->viewmodelAnimator && this->viewmodelAnimator->IsFinished())
+		{
+			this->isParrying = false;
+			this->viewmodelAnimator->CrossFade("idle", 0.2f);
+		}
+	}
 
 	if (this->attackCounterTimer > 0.0f)
 	{
@@ -420,6 +474,7 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 	if (this->dashTimer >= dashDuration) {
 		this->isDashing = false;
+		this->velcoity = { 0.0f, 0.0f, 0.0f };
 		return;
 	}
 
@@ -432,6 +487,9 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 	float dashSpeed = dashDistance / dashDuration;
 
+	XMVECTOR actualVel = XMVectorScale(moveDir, dashSpeed);
+	XMStoreFloat3(&this->velcoity, actualVel);
+
 	XMVECTOR newVel = XMVectorScale(moveDir, dashSpeed * deltaTime);
 	XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
 
@@ -443,7 +501,32 @@ void PlayerControllerComponent::PerformDash(float deltaTime, float dashDistance,
 
 void PlayerControllerComponent::PerformParry()
 {
-	this->viewmodelAnimator->Play("parry");
+	if (this->isParrying)
+		return;
+
+	this->isParrying = true;
+	this->currentAttack = -1;
+	this->combo = 0;
+	this->hasActivatedHitboxThisAttack = false;
+	if (this->hitbox)
+	{
+		this->hitbox->Deactivate();
+	}
+
+	if (this->viewmodelAnimator)
+	{
+		this->viewmodelAnimator->Play("parry", false);
+	}
+
+	if (!this->hurtbox)
+	{
+		this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
+	}
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GrantInvulnerability(1.0f);
+	}
 
 	if (auto parrySound = GetOwner()->GetComponent<AudioComponent>())
 	{
@@ -496,6 +579,8 @@ void PlayerControllerComponent::OnDeath()
 		return;
 
 	this->isDead = true;
+	this->isParrying = false;
+	Debug::SetSetting("damageFlash.intensity", 0.0f);
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();
