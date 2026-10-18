@@ -42,9 +42,8 @@ public:
 	WaveController(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); UsesRender(); };
 	~WaveController() = default;
 
+	void StartFloor(std::shared_ptr<Floor> floor);
 	void NextWave();
-
-	void SetFloor(std::shared_ptr<Floor> floor) { this->floor = floor; }
 
 	Signal<> &GetOnWaveCompleted() { return this->onWaveCompleted; }
 	Signal<> &GetOnFloorCompleted() { return this->onFloorCompleted; }

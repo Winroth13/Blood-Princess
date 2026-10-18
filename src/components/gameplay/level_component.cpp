@@ -2,8 +2,9 @@
 
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
-
+#include "assets/asset_manager.hpp"
 #include "components/gameplay/wave_controller.hpp"
+#include "assets/types/floor.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
 {
@@ -22,4 +23,6 @@ void LevelComponent::OnStart(const AppContext &context)
 	waveController->GetOnFloorCompleted().Connect([]() {
 		LogInfo("Floor Completed!");
 	});
+
+	waveController->StartFloor(context.assetManager->Get<Floor>("assets/floors/floor_one.yaml"));
 }

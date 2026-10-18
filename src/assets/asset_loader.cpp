@@ -539,10 +539,11 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 	{
 		YAML::Node file = YAML::LoadFile(path);
 
-		XMFLOAT3 hsv = { 0.0f, 0.0f, 0.0f };
+		XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
 		hsv.x = file["hue"].as<float>(0.0f);
-		hsv.y = file["saturation"].as<float>(0.0f);
-		hsv.z = file["value"].as<float>(0.0f);
+		hsv.y = file["saturation"].as<float>(1.0f);
+		hsv.z = file["value"].as<float>(1.0f);
+		hsv.w = file["intensity"].as<float>(0.0f);
 
 		floor->SetHSV(hsv);
 

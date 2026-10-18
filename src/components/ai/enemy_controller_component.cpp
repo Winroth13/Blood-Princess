@@ -35,7 +35,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     if (!this->hitSound && context.assetManager) {
         this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
     }
-    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyType::Goblin) {
+    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyTypeOld::Goblin) {
         this->attackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
     }
 
@@ -104,7 +104,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
 
     this->audioManager = context.audioManager;
-    if (this->enemyType == EnemyType::Skeleton && context.assetManager) {
+    if (this->enemyType == EnemyTypeOld::Skeleton && context.assetManager) {
         this->bowDrawClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_draw.ogg");
         this->bowFireClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_fire.ogg");
     }
@@ -532,7 +532,7 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
     const float dist = sqrtf(distSq);
 
-    const bool isRanged = (this->enemyType == EnemyType::Skeleton);
+    const bool isRanged = (this->enemyType == EnemyTypeOld::Skeleton);
     const float meleeRange = this->stopDistance;
 
     // Zone flags

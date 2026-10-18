@@ -118,6 +118,6 @@ void TutorialComponent::CompleteTutorial()
 	if (this->enemySpawner)
 	{
 		LogInfo("Tutorial completed! Starting enemy wave...");
-		this->enemySpawner->BeginWave();
+		//this->enemySpawner->BeginWave();
 	}
 }

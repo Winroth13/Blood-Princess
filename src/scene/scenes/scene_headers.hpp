@@ -54,7 +54,6 @@
 #include "components/gameplay/wave_controller.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
 #include "components/gameplay/level_component.hpp"
-#include "components/gameplay/game_controller_component.hpp"
 #include "components/gameplay/tutorial_component.hpp"
 #include "components/gameplay/environment_component.hpp"
 

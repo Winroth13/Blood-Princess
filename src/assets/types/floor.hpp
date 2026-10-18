@@ -23,15 +23,15 @@ struct Wave
 class Floor : public Asset
 {
 private:
-	XMFLOAT3 hsv = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
 	std::vector<Wave> waves = {};
 
 public:
 	Floor() = default;
 	~Floor() = default;
 
-	XMFLOAT3 GetHSV() const { return this->hsv; }
-	void SetHSV(XMFLOAT3 hsv) { this->hsv = hsv; }
+	XMFLOAT4 GetHSV() const { return this->hsv; }
+	void SetHSV(XMFLOAT4 hsv) { this->hsv = hsv; }
 
 	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }

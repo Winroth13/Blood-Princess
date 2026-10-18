@@ -4,11 +4,26 @@
 #include "core/logging.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
+#include "components/gameplay/environment_component.hpp"
 #include "assets/types/enemy.hpp"
 
 #include "imgui/imgui.h"
 
 #include <format>
+
+void WaveController::StartFloor(std::shared_ptr<Floor> floor)
+{
+	this->floor = floor;
+
+	auto *environment = this->GetOwner()->GetComponent<EnvironmentComponent>();
+
+	if (environment)
+	{
+		environment->SetHSVShift(floor->GetHSV());
+	}
+
+	this->NextWave();
+}
 
 void WaveController::NextWave()
 {
@@ -109,8 +124,6 @@ void WaveController::OnStart(const AppContext &context)
 			this->onFloorCompleted.Emit();
 		}
 	});
-
-	this->NextWave();
 }
 
 void WaveController::Update(const AppContext &context, float deltaTime)

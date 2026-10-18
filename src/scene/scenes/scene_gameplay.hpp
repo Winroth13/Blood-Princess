@@ -248,17 +248,17 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     ui.style.barSize = {420.0f, 15.0f};
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
-    int killed, total;
+    /*int killed, total;
     enemySpawner->GetKillCount(killed, total);
     UIBarComponent *progressBar = ui.CreateBar(hud, static_cast<float>(killed), static_cast<float>(total), "progress_bar");
     UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
 
     enemySpawner->GetOnEnemyKilled().Connect([progressBar](int killed, int total) {
         progressBar->SetValue(static_cast<float>(killed));
-    });
+    });*/
 
     // Tutorial Popup
-    Entity *popupPanel = ui.CreatePanel(hud, { 700.0f, 130.0f }, "tutorial_popup");
+    /*Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
@@ -267,7 +267,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     tutorialText->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
 
     TutorialComponent *tutorialComp = hud->AddComponent<TutorialComponent>();
-    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);
+    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);*/
 
     return hud;
 }
@@ -570,7 +570,6 @@ namespace Scenes
         Entity *playerEntity = CreatePlayer(outScene, appContext);
 
         Health *health = playerEntity->GetComponent<Health>();
-        gameController->SetPlayerHealthComponent(appContext, health);
 
         // Gibs
         Entity *gibsEntity = CreateGibs(outScene, appContext);
@@ -578,12 +577,11 @@ namespace Scenes
         // Enemy Spawner
         Entity* spawnerEntity = outScene.AddEntity("level_entity");
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
-        spawnerEntity->AddComponent<LevelComponent>();
+        spawnerEntity->AddComponent<EnvironmentComponent>();
         spawnerEntity->AddComponent<EnemyDatabaseComponent>();
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
-
         auto waveController = spawnerEntity->AddComponent<WaveController>();
-        waveController->SetFloor(appContext.assetManager->Get<Floor>("assets/floors/floor_one.yaml"));
+        spawnerEntity->AddComponent<LevelComponent>();
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
@@ -594,7 +592,6 @@ namespace Scenes
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
         ambientLight->SetIntensity(0.2f);
-        lightEntity->AddComponent<EnvironmentComponent>();
         /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
         TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
         transform->SetWorldPosition(0.0f, 0.0f, 0.0f);
