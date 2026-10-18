@@ -198,7 +198,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 // Not final!!!!!
-static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, EnemySpawnerComponent *enemySpawner) {
+static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -248,14 +248,12 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     ui.style.barSize = {420.0f, 15.0f};
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
-    /*int killed, total;
-    enemySpawner->GetKillCount(killed, total);
-    UIBarComponent *progressBar = ui.CreateBar(hud, static_cast<float>(killed), static_cast<float>(total), "progress_bar");
+    UIBarComponent *progressBar = ui.CreateBar(hud, 0.0f, 1.0f, "progress_bar");
     UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
 
-    enemySpawner->GetOnEnemyKilled().Connect([progressBar](int killed, int total) {
-        progressBar->SetValue(static_cast<float>(killed));
-    });*/
+    waveController->GetOnFloorProgressChanged().Connect([progressBar] (float progress) {
+        progressBar->SetValue(static_cast<float>(progress));
+    });
 
     // Tutorial Popup
     /*Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
@@ -582,6 +580,8 @@ namespace Scenes
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
         auto waveController = spawnerEntity->AddComponent<WaveController>();
         spawnerEntity->AddComponent<LevelComponent>();
+
+        CreateHUD(outScene, appContext, playerEntity, waveController);
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");

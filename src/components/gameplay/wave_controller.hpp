@@ -22,6 +22,7 @@ class WaveController : public Component
 
 	Signal<> onWaveCompleted;
 	Signal<> onFloorCompleted;
+	Signal<float> onFloorProgressChanged;
 
 private:
 	std::shared_ptr<Floor> floor = nullptr;
@@ -31,6 +32,7 @@ private:
 
 	void CompleteWave(uint32_t waveIndex);
 	float GetWaveProgress(ActiveWave &wave);
+	float GetFloorProgress();
 
 	bool IsFloorCompleted();
 
@@ -47,4 +49,5 @@ public:
 
 	Signal<> &GetOnWaveCompleted() { return this->onWaveCompleted; }
 	Signal<> &GetOnFloorCompleted() { return this->onFloorCompleted; }
+	Signal<float> &GetOnFloorProgressChanged() { return this->onFloorProgressChanged; }
 };

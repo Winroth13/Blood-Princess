@@ -68,6 +68,22 @@ float WaveController::GetWaveProgress(ActiveWave &wave)
 	return wave.currentScore / static_cast<float>(wave.completionScore);
 }
 
+float WaveController::GetFloorProgress()
+{
+	float totalProgress = 0.0f;
+
+	for (size_t i = 0; i < floor->GetWaves().size(); ++i)
+	{
+		if (i < this->activeWaves.size())
+		{
+			ActiveWave &wave = this->activeWaves[i];
+			totalProgress += wave.currentScore / static_cast<float>(wave.totalScore);
+		}
+	}
+
+	return totalProgress / floor->GetWaves().size();
+}
+
 bool WaveController::IsFloorCompleted()
 {
 	// we haven't started all waves yet
@@ -118,6 +134,8 @@ void WaveController::OnStart(const AppContext &context)
 				this->CompleteWave(wave);
 			}
 		}
+
+		this->onFloorProgressChanged.Emit(this->GetFloorProgress());
 
 		if (this->IsFloorCompleted())
 		{
