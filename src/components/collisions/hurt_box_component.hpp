@@ -6,6 +6,8 @@
 #include <DirectXMath.h>
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
+
+
 class HurtboxComponent : public Component
 {
 public:
@@ -18,6 +20,7 @@ public:
     Health* cachedHealth = nullptr;
     ConnectionId collisionEventConn = 0;
 
+    Signal<HitboxComponent*> onHitBlocked;
 private:
     void OnStart(const AppContext& context) override;
     void Update(const AppContext& context, float deltaTime) override;
@@ -33,4 +36,6 @@ public:
 
     float GetDamageMultiplier() const { return this->damageMultiplier; }
     void SetDamageMultiplier(float mult) { this->damageMultiplier = mult; }
+
+    Signal<HitboxComponent*>& GetOnHitBlocked() { return this->onHitBlocked; }
 };

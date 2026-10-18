@@ -21,7 +21,9 @@
 #include "core/debug.hpp"
 #include "components/gameplay/health_component.hpp"
 #include "components/collisions/hurt_box_component.hpp"
+#include "components/gameplay/shake_component.hpp"
 #include <cmath>
+
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
@@ -29,6 +31,12 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
 	this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GetOnHitBlocked().Connect(
+			this, &PlayerControllerComponent::OnHitBlocked);
+	}
 
 	if (this->health)
 	{
@@ -156,6 +164,11 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 	}
 
 	this->GetOwner()->GetScene()->RemoveEntityFromGroup(this->groupName, this->GetOwner());
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GetOnHitBlocked().DisconnectObject(this);
+	}
 }
 
 void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
@@ -505,6 +518,7 @@ void PlayerControllerComponent::PerformParry()
 		return;
 
 	this->isParrying = true;
+	this->hasParriedThisParry = false;
 	this->currentAttack = -1;
 	this->combo = 0;
 	this->hasActivatedHitboxThisAttack = false;
@@ -526,15 +540,6 @@ void PlayerControllerComponent::PerformParry()
 	if (this->hurtbox)
 	{
 		this->hurtbox->GrantInvulnerability(1.0f);
-	}
-
-	if (auto parrySound = GetOwner()->GetComponent<AudioComponent>())
-	{
-		parrySound->SetAudio3D(false);
-		parrySound->SetLooping(false);
-		float genNumber = RNG::Float(0.95f, 1.05f);
-		parrySound->SetPitch(genNumber);
-		parrySound->Play();
 	}
 }
 
@@ -572,6 +577,29 @@ void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
 		this->OnDeath();
 	}
 }
+
+void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
+{
+	if (!this->isParrying || this->hasParriedThisParry)
+		return;
+
+	this->hasParriedThisParry = true;
+
+	if (auto* parrySound = this->GetOwner()->GetComponent<AudioComponent>())
+	{
+		parrySound->SetAudio3D(false);
+		parrySound->SetLooping(false);
+		parrySound->SetPitch(RNG::Float(0.95f, 1.05f));
+		parrySound->Play();
+	}
+
+	if (this->camera)
+	{
+		if (auto* shake = this->camera->GetOwner()->GetComponent<ShakeComponent>())
+			shake->AddTrauma(1.3f);
+	}
+}
+
 
 void PlayerControllerComponent::OnDeath()
 {

@@ -3,6 +3,7 @@
 #include "scene/entity.hpp"
 #include <unordered_set>
 #include "DirectXMath.h"
+
 class HitboxComponent : public Component
 {
     RegisterComponent(HitboxComponent);
@@ -17,7 +18,6 @@ class HitboxComponent : public Component
 
     float activeTimer = 0.0f;
     std::unordered_map<Entity*, float> hitEntities;
-
 
 private:
     void Update(const AppContext& context, float deltaTime) override;
