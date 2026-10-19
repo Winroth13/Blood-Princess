@@ -20,99 +20,19 @@ class AudioClip;
 class AudioManager;
 struct AttackHitEvent;
 
-enum class EnemyTypeOld
-{
-	Goblin,
-	Ogre,
-	Skeleton
-};
-
-struct EnemyStats
-{
-	float moveSpeed;
-	float health;
-	float attackDamage;
-	float attackKnockback;
-	float attackHitboxDelay;
-	float attackHitboxDuration;
-	float stopDistance;
-	float knockbackMultiplier;
-	float scale;
-	std::string attackAnimation;
-	std::string walkAnimation;
-};
-
-// TODO: Maybe these should be allocated at all times. In like a EnemyStats.hpp
-inline EnemyStats GetEnemyStats(EnemyTypeOld type)
-{
-	switch (type)
-	{
-	case EnemyTypeOld::Goblin:
-		return {
-			/*moveSpeed*/          3.5f,
-			/*health*/             100.0f,
-			/*attackDamage*/       15.0f,
-			/*attackKnockback*/    2.0f,
-			/*attackHitboxDelay*/  0.30f,
-			/*attackHitboxDur*/    0.25f,
-			/*stopDistance*/       1.0f,
-			/*knockbackMult*/      4.0f,
-			/*scale*/              0.9f,
-			/* attack anim */	   "Shank",
-			/* walk anim */		   "Jog"
-		};
-	case EnemyTypeOld::Ogre:
-		return {
-			/*moveSpeed*/          6.0f,
-			/*health*/             500.0f,
-			/*attackDamage*/       40.0f,
-			/*attackKnockback*/    0.0f,
-			/*attackHitboxDelay*/  1.4f,
-			/*attackHitboxDur*/    0.45f,
-			/*stopDistance*/       1.7f,
-			/*knockbackMult*/      0.0f,
-			/*scale*/              1.25f,
-			/* attack anim */	   "attack",
-			/* walk anim */		   "Walk"
-		};
-	case EnemyTypeOld::Skeleton:
-		return {
-			/*moveSpeed*/          3.5f,
-			/*health*/             100.0f,
-			/*attackDamage*/       15.0f,
-			/*attackKnockback*/    2.0f,
-			/*attackHitboxDelay*/  2.5f,
-			/*attackHitboxDur*/    0.25f,
-			/*stopDistance*/       10.0f,
-			/*knockbackMult*/      4.0f,
-			/*scale*/              0.9f,
-			/* attack anim */      "Bow_Shot",
-			/* walk anim */        ""
-		};
-	}
-	return {};
-}
-
 class EnemyControllerComponent : public Component
 {
 	RegisterComponent(EnemyControllerComponent);
 
 	ExportProperty(std::string, groupName, "Enemy");
 
-	ExportProperty(float, moveSpeed, 3.5f);
-	ExportProperty(float, avoidanceRadius, 1.5f);
 	ExportProperty(float, stopDistance, 1.0f);
-
-	ExportProperty(float, knockbackMultiplier, 4.0f);
-	ExportProperty(float, knockbackDecay, 12.0f);
-	ExportProperty(float, knockbackStunDuration, 0.2f);
 
 	ExportProperty(std::shared_ptr<Sound>, hitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, deathSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, attackHitSound, nullptr);
 	ExportProperty(std::shared_ptr<Sound>, footstepSound, nullptr);
 	ExportProperty(float, footstepIntervalMeters, 2.5f);
-	ExportProperty(std::shared_ptr<Sound>, randomSound, nullptr);
 	ExportProperty(float, randomSoundMinInterval, 5.0f);
 	ExportProperty(float, randomSoundMaxInterval, 50.0f);
 	// attack
@@ -121,7 +41,6 @@ class EnemyControllerComponent : public Component
 	ExportProperty(float, attackHitboxDelay, 0.3f);
 	ExportProperty(float, attackHitboxDuration, 0.3f);
 
-
 private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
@@ -129,6 +48,9 @@ private:
 	GibsComponent *gibs = nullptr;
 	AIManager* aiManager = nullptr;
 	AudioManager* audioManager = nullptr;
+
+	XMFLOAT3 velocity = {0.0f, 0.0f, 0.0f};
+
 	std::shared_ptr<AudioClip> bowDrawClip;
 	std::shared_ptr<AudioClip> bowFireClip;
 	uint64_t attackHitConnection = 0;
@@ -145,8 +67,6 @@ private:
 	float attackElapsed = 0.0f;
 	bool hitboxActivated = false;
 	// enemy type
-	EnemyTypeOld enemyType = EnemyTypeOld::Goblin;
-	EnemyType type = EnemyType::GOBLIN;
 	uint32_t wave = 0;
 
 	// arrow for Skeleton
@@ -172,6 +92,15 @@ private:
 	void OnDestroy(const AppContext &context) override;
 	void OnAttackHit(const AttackHitEvent& event);
 
+	void Move(float deltaTime);
+
+	void OnDeath(const AppContext &context);
+
+	bool CanAttack(float distanceSq);
+
+	void UpdateBark(float deltaTime);
+	void UpdateKnockback(float deltaTime);
+
 public:
 	EnemyControllerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
 	~EnemyControllerComponent() = default;
@@ -182,23 +111,8 @@ public:
 	void ApplyKnockback(const DirectX::XMFLOAT3& direction, float force);
 	void ResetKnockback();
 
-	float GetMoveSpeed() const { return this->moveSpeed; }
-	void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
-
-	float GetAvoidanceRadius() const { return this->avoidanceRadius; }
-	void SetAvoidanceRadius(float radius) { this->avoidanceRadius = radius; }
-
 	float GetStopDistance() const { return this->stopDistance; }
 	void SetStopDistance(float distance) { this->stopDistance = distance; }
-
-	float GetKnockbackMultiplier() const { return this->knockbackMultiplier; }
-	void SetKnockbackMultiplier(float multiplier) { this->knockbackMultiplier = multiplier; }
-
-	float GetKnockbackDecay() const { return this->knockbackDecay; }
-	void SetKnockbackDecay(float decay) { this->knockbackDecay = decay; }
-
-	float GetKnockbackStunDuration() const { return this->knockbackStunDuration; }
-	void SetKnockbackStunDuration(float duration) { this->knockbackStunDuration = duration; }
 
 	std::shared_ptr<Sound> GetHitSound() const { return this->hitSound; }
 	void SetHitSound(std::shared_ptr<Sound> sound) { this->hitSound = sound; }
@@ -215,9 +129,6 @@ public:
 	float GetFootstepInterval() const { return this->footstepIntervalMeters; }
 	void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
 
-	std::shared_ptr<Sound> GetRandomSound() const { return this->randomSound; }
-	void SetRandomSound(std::shared_ptr<Sound> sound) { this->randomSound = sound; }
-
 	void SetAttackHitbox(HitboxComponent* hb) { this->hitbox = hb; }
 	HitboxComponent* GetAttackHitbox() const { return this->hitbox; }
 
@@ -226,12 +137,6 @@ public:
 	void SetEnemy(std::shared_ptr<Enemy> enemy) { this->enemy = enemy; }
 
 	bool IsKnockedBack() const { return (this->knockbackVelocity.x * this->knockbackVelocity.x + this->knockbackVelocity.z * this->knockbackVelocity.z) > 0.001f; }
-
-	void SetEnemyType(EnemyTypeOld type);
-	EnemyTypeOld GetEnemyType() const { return this->enemyType; }
-
-	void SetType(EnemyType type) { this->type = type; }
-	EnemyType GetType() const { return this->type; }
 
 	void SetWave(uint32_t wave) { this->wave = wave; }
 	uint32_t GetWave() const { return this->wave; }

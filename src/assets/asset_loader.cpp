@@ -457,11 +457,20 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 			return enemy;
 		}
 
-		enemy->name = file["name"].as<std::string>("unknown");
+		enemy->type = Enemy::GetEnemyTypeFromString(file["type"].as<std::string>(""));
 		enemy->health = file["health"].as<float>(100.0f);
 		enemy->score = file["score"].as<int>(1);
 		enemy->scale = file["scale"].as<float>(1.0f);
+
+		enemy->avoidanceRadius = file["avoidance_radius"].as<float>(1.0f);
+		enemy->moveSpeed = file["move_speed"].as<float>(1.0f);
+
 		enemy->knockbackFactor = file["knockback_factor"].as<float>(1.0f);
+		enemy->knockbackDecay = file["knockback_decay"].as<float>(1.0f);
+		enemy->knockbackStunDuration = file["knockback_stun_duration"].as<float>(0.0f);
+
+		enemy->minRange = file["min_range"].as<float>(0.0f);
+		enemy->maxRange = file["max_range"].as<float>(0.5f);
 
 		enemy->model = this->assetManager->Get<Model>(file["model"].as<std::string>(""));
 		enemy->walkAnimation = file["walk_animation"].as<std::string>("");

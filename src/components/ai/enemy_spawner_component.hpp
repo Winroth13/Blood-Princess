@@ -24,18 +24,7 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
 	ExportProperty(bool, autoStartWave, true);
 
-	const size_t GOBLIN = 0;
-	const size_t OGRE = 1;
-	const size_t SKELETON = 2;
-
-	std::array<std::shared_ptr<Enemy>, 2> enemies = { nullptr };
-	std::array<PoolComponent *, 2> enemyPools = { nullptr };
-
-	std::array<int, 2> enemyPoolSize = 
-	{
-		256,
-		8
-	};
+	std::array<PoolComponent *, 3> enemyPools = { nullptr };
 
 private:
 	GibsComponent *gibs = nullptr;
@@ -43,7 +32,7 @@ private:
 
 	void InitializePools(const AppContext &context, Scene *scene);
 
-	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, EnemyType type, Scene *scene);
+	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene);
 
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;

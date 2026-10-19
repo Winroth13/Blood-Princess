@@ -21,6 +21,7 @@
 #include "components/core/lifetime_component.hpp"
 #include "components/audio/sound_component.hpp"
 #include "components/gameplay/gibs_component.hpp"
+#include "components/gameplay/enemy_database_component.hpp"
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
 #include "core/rng.hpp"
@@ -32,19 +33,18 @@ uint32_t s_gibCounter = 0;
 
 void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *scene)
 {
-    this->enemies[GOBLIN] = context.assetManager->Get<Enemy>("assets/enemies/goblin.yaml");
-    this->enemies[OGRE] = context.assetManager->Get<Enemy>("assets/enemies/ogre.yaml");
-
-    for (size_t i = 0; i < this->enemies.size(); ++i)
+    for (size_t i = 0; i < +EnemyType::COUNT; ++i)
     {
-        std::shared_ptr<Enemy> enemy = this->enemies[i];
+        auto *database = this->GetOwner()->GetComponent<EnemyDatabaseComponent>();
+
+        std::shared_ptr<Enemy> enemy = database->GetEnemy(static_cast<EnemyType>(i));
 
         PoolComponent *pool = this->GetOwner()->AddComponent<PoolComponent>();
 
         pool->SetCreateEntityCallback([this, enemy, scene, pool, i]() {
             EnemyType type = static_cast<EnemyType>(i);
 
-            Entity *enemyEntity = this->CreateEnemyEntity(enemy, type, scene);
+            Entity *enemyEntity = this->CreateEnemyEntity(enemy, scene);
 
             auto health = enemyEntity->GetComponent<Health>()->GetOnDeath().Connect([this, pool, enemyEntity, type]() 
             {
@@ -58,15 +58,19 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
             return enemyEntity;
         });
 
-        pool->SetSize(this->enemyPoolSize[i]);
+        int poolSize = i == 0 ? 256 : 32;
+
+        // TODO: CHANGE TO WIZARD LATER
+        if (i == +EnemyType::COUNT) poolSize = 1;
+        pool->SetSize(poolSize);
 
         this->enemyPools[i] = pool;
     }
 }
 
-Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, EnemyType type, Scene *scene)
+Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene)
 {
-    Entity *entity = scene->AddEntity(enemy->name);
+    Entity *entity = scene->AddEntity(Enemy::GetStringFromEnemyType(enemy->type));
 
     auto *enemyTransform = entity->AddComponent<TransformComponent>();
     enemyTransform->SetWorldScale(enemy->scale);
@@ -90,12 +94,8 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, E
     auto *enemyHurtbox = entity->AddComponent<HurtboxComponent>();
 
     auto *enemyController = entity->AddComponent<EnemyControllerComponent>();
-    enemyController->SetHitSound(enemy->hitSound);
-    enemyController->SetDeathSound(enemy->deathSound);
-    enemyController->SetRandomSound(enemy->barkSound);
     enemyController->SetGibs(this->gibs);
     enemyController->SetEnemy(enemy);
-    enemyController->SetType(type);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 

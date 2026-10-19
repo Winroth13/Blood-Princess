@@ -50,11 +50,20 @@ public:
 	Enemy() = default;
 	~Enemy() = default;
 
-	std::string name;
+	EnemyType type;
 	float health = 100.0f;						// the health of the enemy
 	int score = 1;								// the score given by the enemy upon death
 	float scale = 1.0f;							// the scale of the enemies model
+	
+	float avoidanceRadius = 1.0f;
+	float moveSpeed = 0.0f;
+
 	float knockbackFactor = 1.0f;				// how knockback the enemy takes, 0 is none
+	float knockbackDecay = 0.0f;
+	float knockbackStunDuration = 0.0f;
+
+	float minRange = 0.0f;
+	float maxRange = 0.0f;
 
 	std::shared_ptr<Model> model = nullptr;
 	std::string walkAnimation = "";

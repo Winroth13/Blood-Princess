@@ -1,8 +1,16 @@
-name: goblin
+type: goblin
 health: 100
 score: 1
 scale: 0.9
+
+avoidance_radius: 1.5
+move_speed: 3.5
+
 knockback_factor: 4.0
+knockback_decay: 12.0
+knockback_stun_duration: 0.2
+
+max_range: 0.5
 
 model: assets/models/goblin.glb
 walk_animation: Jog
@@ -14,5 +22,3 @@ extends_offset: [0.0, 1.05, 0.0]
 hit_sound: assets/sounds/goblin_hit_sound.sound
 death_sound: assets/sounds/goblin_death_sounds.sound
 bark_sound: assets/sounds/goblin_random_sounds.sound
-
-gib_type: goblin

@@ -1,7 +1,7 @@
-hue: 180.0
+hue: 0.0
 saturation: 1.0
 value: 1.0
-intensity: 0.2
+intensity: 0.0
 
 waves:
   - completion: 0.75

@@ -32,20 +32,11 @@ uint32_t s_arrowCounter = 0;
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
-    if (!this->hitSound && context.assetManager) {
-        this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
-    }
-    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyTypeOld::Goblin) {
-        this->attackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
-    }
-
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
-
-    this->SetEnemyType(this->enemyType);
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -66,23 +57,10 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     );
 
     this->GetOwner()->GetComponent<Health>()->GetOnDeath().Connect([this, context]() {
-
-        XMFLOAT3 position = this->GetPosition();
-        position.y += this->enemy->extends.y;
-
-        this->gibs->SpawnGibs(
-            position,
-            RNG::Int(3, 6),
-            GibType::GOBLIN
-        );
-
-        this->gibs->SpawnBlood(
-            context.sceneManager->GetCurrentScene(), 
-            position,
-            1.0f
-        );
+        this->OnDeath(context);
     });
 
+    // TODO: Fix later so that this doesn't spawn blood when the enemy is healed (respawned)
     this->GetOwner()->GetComponent<Health>()->GetOnChangedHealth().Connect([this, context](float currentHealth, float maxHealth) {
 
         XMFLOAT3 position = this->GetPosition();
@@ -98,18 +76,11 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 
     this->thisScene = this->GetOwner()->GetScene();
-    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
 
+    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
-
-    this->audioManager = context.audioManager;
-    if (this->enemyType == EnemyTypeOld::Skeleton && context.assetManager) {
-        this->bowDrawClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_draw.ogg");
-        this->bowFireClip = context.assetManager->Get<AudioClip>("assets/audio/sfx/Skeleton/bow_fire.ogg");
-    }
 }
-
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
@@ -128,7 +99,7 @@ void EnemyControllerComponent::OnDestroy(const AppContext & context)
 
 void EnemyControllerComponent::ApplyKnockback(const DirectX::XMFLOAT3& direction, float force)
 {
-    const float totalForce = force * this->knockbackMultiplier;
+    const float totalForce = force * this->enemy->knockbackFactor;
     if (totalForce <= 0.0f)
     {
         return;
@@ -136,7 +107,7 @@ void EnemyControllerComponent::ApplyKnockback(const DirectX::XMFLOAT3& direction
     this->knockbackVelocity.x = direction.x * totalForce;
     this->knockbackVelocity.y = 0.0f;
     this->knockbackVelocity.z = direction.z * totalForce;
-    this->knockbackStunTimer = this->knockbackStunDuration;
+    this->knockbackStunTimer = this->enemy->knockbackStunDuration;
 }
 
 void EnemyControllerComponent::ResetKnockback()
@@ -152,27 +123,6 @@ void EnemyControllerComponent::ResetKnockback()
 
     if (this->hitbox)
         this->hitbox->Deactivate();
-}
-
-void EnemyControllerComponent::SetEnemyType(EnemyTypeOld type)
-{
-    this->enemyType = type;
-
-    const EnemyStats s = GetEnemyStats(type);
-
-    this->moveSpeed = s.moveSpeed;
-    this->stopDistance = s.stopDistance;
-    this->knockbackMultiplier = s.knockbackMultiplier;
-    this->attackDamage = s.attackDamage;
-    this->attackKnockback = s.attackKnockback;
-    this->attackHitboxDelay = s.attackHitboxDelay;
-    this->attackHitboxDuration = s.attackHitboxDuration;
-
-    if (this->hitbox)
-    {
-        this->hitbox->SetDamage(s.attackDamage);
-        this->hitbox->SetKnockbackForce(s.attackKnockback);
-    }
 }
 
 void EnemyControllerComponent::ShootAnArrow()
@@ -350,7 +300,6 @@ void EnemyControllerComponent::ShootAnArrow()
 
 }
 
-
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
     if (this->hitbox && event.attacker == this->hitbox->GetOwner())
@@ -445,6 +394,73 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     this->ApplyKnockback(dir, event.knockbackForce);
 }
 
+void EnemyControllerComponent::Move(float deltaTime)
+{
+    XMVECTOR velocityV = XMLoadFloat3(&this->velocity);
+    XMFLOAT3 position = this->GetPosition();
+    XMVECTOR positionV = XMLoadFloat3(&position);
+    XMVECTOR newPositionV = XMVectorAdd(positionV, velocityV * deltaTime);
+
+    XMFLOAT3 newPosition = {};
+    XMStoreFloat3(&newPosition, newPositionV);
+
+    this->transform->SetWorldPosition(newPosition);
+}
+
+void EnemyControllerComponent::OnDeath(const AppContext &context)
+{
+    XMFLOAT3 position = this->GetPosition();
+    position.y += this->enemy->extends.y;
+
+    switch (this->enemy->type)
+    {
+        case EnemyType::GOBLIN:
+        case EnemyType::OGRE:
+        {
+            this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::GOBLIN);
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position,1.0f);
+        } break;
+
+        case EnemyType::SKELETON:
+            break;
+    }
+}
+
+bool EnemyControllerComponent::CanAttack(float distanceSq)
+{
+    float minRangeSq = this->enemy->minRange * this->enemy->minRange;
+    float maxRangeSq = this->enemy->maxRange * this->enemy->maxRange;
+
+    if (!(distanceSq >= minRangeSq && distanceSq <= maxRangeSq))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
+void EnemyControllerComponent::UpdateBark(float deltaTime)
+{
+    if (this->enemy->barkSound)
+    {
+        this->randomSoundTimer -= deltaTime;
+        if (this->randomSoundTimer <= 0.0f)
+        {
+            this->randomSoundTimer = RNG::Float(
+                this->randomSoundMinInterval, 
+                this->randomSoundMaxInterval
+            );
+
+            if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+            {
+                soundComponent->SetSound(this->enemy->barkSound);
+                soundComponent->Play();
+            }
+        }
+    }
+}
+
 DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
 {
     if (!this->transform)
@@ -453,27 +469,14 @@ DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
     return this->transform->GetWorldPosition();
 }
 
-void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
-    const SpatialGrid& grid)
+void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, const SpatialGrid& grid)
 {
     if (!this->transform) return;
 
-    if (this->randomSound)
-    {
-        this->randomSoundTimer -= deltaTime;
-        if (this->randomSoundTimer <= 0.0f)
-        {
-            this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
-            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
-            {
-                soundComponent->SetSound(this->randomSound);
-                soundComponent->Play();
-            }
-        }
-    }
+    this->UpdateBark(deltaTime);
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
-    XMVECTOR myPos = XMLoadFloat3(&myPosF);
+    XMVECTOR positionV = XMLoadFloat3(&myPosF);
 
     XMVECTOR kbVel = XMLoadFloat3(&this->knockbackVelocity);
     const float kbSpeedSq = XMVectorGetX(XMVector3LengthSq(kbVel));
@@ -486,53 +489,53 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     if (hasKnockback)
     {
-        myPos = XMVectorAdd(myPos, XMVectorScale(kbVel, deltaTime));
+        positionV = XMVectorAdd(positionV, XMVectorScale(kbVel, deltaTime));
 
-        const float decay = (std::max)(0.0f, 1.0f - this->knockbackDecay * deltaTime);
+        const float decay = (std::max)(0.0f, 1.0f - this->enemy->knockbackDecay * deltaTime);
         kbVel = XMVectorScale(kbVel, decay);
         XMStoreFloat3(&this->knockbackVelocity, kbVel);
     }
 
-    Entity* playerEnt =
-        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    if (!playerEnt)
-    {
-        if (hasKnockback)
-        {
-            myPos = XMVectorSetY(myPos, myPosF.y);
-            XMFLOAT3 outPos;
-            XMStoreFloat3(&outPos, myPos);
-            this->transform->SetWorldPosition(outPos);
-        }
-        return;
-    }
-
-    TransformComponent* playerT = playerEnt->GetComponent<TransformComponent>();
-    if (!playerT)
-    {
-        if (hasKnockback)
-        {
-            myPos = XMVectorSetY(myPos, myPosF.y);
-            XMFLOAT3 outPos;
-            XMStoreFloat3(&outPos, myPos);
-            this->transform->SetWorldPosition(outPos);
-        }
-        return;
-    }
+    Entity* playerEnt = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    TransformComponent* playerTransform = playerEnt->GetComponent<TransformComponent>();
 
     if (!this->animator)
     {
         this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     }
 
-    XMFLOAT3 playerPosF = playerT->GetWorldPosition();
-    XMVECTOR player = XMLoadFloat3(&playerPosF);
+    XMFLOAT3 playerPosF = playerTransform->GetWorldPosition();
+    XMVECTOR playerPos = XMLoadFloat3(&playerPosF);
+    XMVECTOR toPlayerV = XMVectorSetY(XMVectorSubtract(playerPos, positionV), 0.0f);
 
-    XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
-    const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-    const float dist = sqrtf(distSq);
+    const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayerV));
+    
+    XMVECTOR velocityV = {};
 
-    const bool isRanged = (this->enemyType == EnemyTypeOld::Skeleton);
+    if (this->CanAttack(distSq))
+    {
+
+    }
+    else
+    {
+        // enemy should always move towards the player
+        velocityV = XMVector3Normalize(toPlayerV) * this->enemy->moveSpeed;
+
+        // enemy should avoid other enemies
+        XMVECTOR avoidV = XMVectorSetY(grid.ComputeAvoidance(myGridIndex, this->enemy->avoidanceRadius), 0.0f);
+        velocityV = XMVectorAdd(velocityV, avoidV);
+        
+        // rotate enemy towards player
+        if (distSq > 1e-4f)
+        {
+            XMFLOAT3 dir;
+            XMStoreFloat3(&dir, toPlayerV);
+            const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
+            this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+        }
+    }
+
+    /*const bool isRanged = (this->enemyType == EnemyTypeOld::Skeleton);
     const float meleeRange = this->stopDistance;
 
     // Zone flags
@@ -549,14 +552,6 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
     else
     {
         inShootBand = dist <= meleeRange;
-    }
-
-    if (distSq > 1e-4f)
-    {
-        XMFLOAT3 dir;
-        XMStoreFloat3(&dir, toPlayer);
-        const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
-        this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
     }
 
     EnemyStats stats = GetEnemyStats(this->enemyType);
@@ -788,5 +783,8 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
         XMFLOAT3 outPos;
         XMStoreFloat3(&outPos, myPos);
         this->transform->SetWorldPosition(outPos);
-    }
+    }*/
+    
+    XMStoreFloat3(&this->velocity, velocityV);
+    this->Move(deltaTime);
 }
