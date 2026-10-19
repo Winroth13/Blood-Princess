@@ -200,6 +200,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\texture.cpp" />
     <ClCompile Include="src\assets\types\sound.cpp" />
     <ClCompile Include="src\assets\types\texture_cube.cpp" />
     <ClCompile Include="src\components\audio\sound_component.cpp" />
@@ -371,6 +372,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="src\assets\texture.hpp" />
     <ClInclude Include="src\assets\types\sound.hpp" />
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
     <ClInclude Include="src\components\audio\sound_component.hpp" />

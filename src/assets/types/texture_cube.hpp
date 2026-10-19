@@ -1,19 +1,18 @@
 #pragma once
-#include "assets/asset.hpp"
-#include "texture_2d.hpp"
 
-struct ID3D11Device;
+#include "assets/texture.hpp"
 
-class TextureCube : public Asset
+class TextureCube : public Texture
 {
-
-	ID3D11ShaderResourceView *shaderResourceView = nullptr;
-
 public:
-	TextureCube();
-	~TextureCube();
-
-	//bool Create(ID3D11Device *device);
-
-	ID3D11ShaderResourceView *GetShaderResourceView() const { return this->shaderResourceView; }
+	bool Create(
+		char **data,
+		const uint32_t width,
+		const uint32_t height,
+		const uint32_t channels,
+		const std::string &name,
+		bool isRGB,
+		ID3D11Device *device,
+		ID3D11DeviceContext *deviceContext
+	);
 };

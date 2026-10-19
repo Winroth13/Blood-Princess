@@ -10,6 +10,7 @@ struct ID3D11DeviceContext;
 
 class AssetManager;
 class Texture2D;
+class TextureCube;
 class Model;
 class AudioClip;
 class Sound;
@@ -46,6 +47,9 @@ public:
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path);
+
+template<>
+std::shared_ptr<TextureCube> AssetLoader::Load<TextureCube>(const std::string &path);
 
 template<>
 std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path);

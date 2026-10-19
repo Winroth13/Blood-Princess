@@ -126,6 +126,7 @@
     <ClCompile Include="src\components\gameplay\end_screen_component.cpp" />
     <ClCompile Include="src\components\gameplay\environment_component.cpp" />
     <ClCompile Include="src\assets\types\texture_cube.cpp" />
+    <ClCompile Include="src\assets\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -327,6 +328,7 @@
     <ClInclude Include="src\scene\scenes\scene_settings.hpp" />
     <ClInclude Include="src\components\gameplay\environment_component.hpp" />
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
+    <ClInclude Include="src\assets\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
