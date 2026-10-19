@@ -77,6 +77,7 @@ public:
 	
 	std::shared_ptr<Sound> startAttackSound = nullptr;
 	std::shared_ptr<Sound> attackSound = nullptr;
+	std::shared_ptr<Sound> footstepSound = nullptr;
 	std::shared_ptr<Sound> hitSound = nullptr;
 	std::shared_ptr<Sound> deathSound = nullptr;
 	std::shared_ptr<Sound> barkSound = nullptr;

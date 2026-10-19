@@ -483,6 +483,7 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 
 		enemy->startAttackSound = this->assetManager->Get<Sound>(file["start_attack_sound"].as<std::string>(""));
 		enemy->attackSound = this->assetManager->Get<Sound>(file["attack_sound"].as<std::string>(""));
+		enemy->footstepSound = this->assetManager->Get<Sound>(file["footstep_sound"].as<std::string>(""));
 		enemy->hitSound = this->assetManager->Get<Sound>(file["hit_sound"].as<std::string>(""));
 		enemy->deathSound = this->assetManager->Get<Sound>(file["death_sound"].as<std::string>(""));
 		enemy->barkSound = this->assetManager->Get<Sound>(file["bark_sound"].as<std::string>(""));
