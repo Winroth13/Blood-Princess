@@ -470,6 +470,7 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
 
     auto *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
+    this->animator->SetSpeed(1.0f);
 
     if (this->enemy->type == EnemyType::SKELETON)
     {

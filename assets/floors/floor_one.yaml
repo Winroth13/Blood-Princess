@@ -6,7 +6,7 @@ intensity: 0.0
 waves:
   - completion: 0.75
     enemies:
-      - type: ogre
+      - type: skeleton
         amount: 1
         time: 0
 

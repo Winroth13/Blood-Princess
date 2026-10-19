@@ -22,6 +22,8 @@
 #include "components/gameplay/health_component.hpp"
 #include "components/collisions/hurt_box_component.hpp"
 #include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+
 #include <cmath>
 
 
@@ -539,7 +541,7 @@ void PlayerControllerComponent::PerformParry()
 
 	if (this->hurtbox)
 	{
-		this->hurtbox->GrantInvulnerability(1.0f);
+		this->hurtbox->GrantInvulnerability(0.3f);
 	}
 }
 
@@ -597,6 +599,11 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	{
 		if (auto* shake = this->camera->GetOwner()->GetComponent<ShakeComponent>())
 			shake->AddTrauma(1.3f);
+	}
+
+	if (hitbox->GetOwner()->HasComponent<ProjectileComponent>())
+	{
+		this->GetOwner()->GetScene()->DestroyEntity(hitbox->GetOwner());
 	}
 }
 

@@ -56,6 +56,8 @@ private:
 
 	std::shared_ptr<AudioClip> bowDrawClip;
 	std::shared_ptr<AudioClip> bowFireClip;
+	std::shared_ptr<AudioClip> arrowFlying;
+
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
