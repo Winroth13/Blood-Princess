@@ -23,6 +23,9 @@
 #include "components/collisions/box_collision_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
 #include "components/core/particle_system_component.hpp"
+#include "components/lights/point_light_component.hpp"
+#include "components/collisions/area_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "assets/types/audio_clip.hpp"
 #include <algorithm>
@@ -80,7 +83,8 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
-    this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
+    this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
+    this->arrowPassbySound = context.assetManager->Get<Sound>("assets/sounds/arrow_passby.sound");
 
     // Some dumb assumptions are made here but it's fine.
     auto &children = this->GetOwner()->GetChildren();
@@ -263,10 +267,32 @@ void EnemyControllerComponent::ShootAnArrow()
     arrowProj->SetAliveTime(50.0f);
     arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
 
+    SoundComponent *arrowSound = arrowEnt->AddComponent<SoundComponent>();
+    arrowSound->SetSound(this->arrowPassbySound);
+    arrowSound->SetIs3d(true);
+    arrowSound->SetMaxDistance(12.0f);
+    arrowSound->SetVolume(5.0f);
+
     // fire entity
     Entity* fireEnt = this->thisScene->AddEntity("flame");
     fireEnt->SetParent(arrowEnt);
 
+    // we attach the audio to fire ent so that it can have it's own collision
+    SphereCollisionComponent *sphereCol = fireEnt->AddComponent<SphereCollisionComponent>();
+    sphereCol->SetRadius(8.0f);
+    sphereCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    sphereCol->SetTrigger(true);
+
+    AreaComponent *area = fireEnt->AddComponent<AreaComponent>();
+    area->GetOnAreaEntered().Connect([area, arrowSound](CollisionComponent* other) {
+        area->SetEnabled(false);
+        arrowSound->Play();
+    });
+
+    PointLightComponent *pointLight = fireEnt->AddComponent<PointLightComponent>();
+    pointLight->SetColour({0.88f, 0.34f, 0.13f});
+    pointLight->SetIntensity(75.0f);
+    pointLight->SetRadius(8.0f);
 
     TransformComponent* fireTransform = fireEnt->AddComponent<TransformComponent>();
     XMFLOAT3 arrowLengthOffset = {-0.25f, 0.1f, 0.0f};
@@ -292,7 +318,7 @@ void EnemyControllerComponent::ShootAnArrow()
     // Smoke particle system
     ParticleSystemComponent* smoke = fireEnt->AddComponent<ParticleSystemComponent>();
     smoke->SetAtlasTexture(this->smokeTexture);
-    smoke->SetAtlasSize({ 13.0f, 1.0f });
+    smoke->SetAtlasSize({ 8.0f, 8.0f });
     smoke->SetVelocity({ 0.0f, 0.4f, 0.0f });
     smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
     smoke->SetLifeTime(timeToTarget);
@@ -304,8 +330,8 @@ void EnemyControllerComponent::ShootAnArrow()
     smoke->SetSpawnRadius(0.05f);
     smoke->SetCount(25);
 
-    smoke->SetStartTint({ 0.6f, 0.6f, 0.6f }); // Ljusgrå start
-    smoke->SetEndTint({ 0.2f, 0.2f, 0.2f }); // Mörkgrå slut 
+    smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
+    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
 
 }
 

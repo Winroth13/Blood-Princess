@@ -121,7 +121,6 @@
     <ClCompile Include="src\ui\ui_style.cpp" />
     <ClCompile Include="src\components\traps\trap_component.cpp" />
     <ClCompile Include="src\components\traps\trap_spawner_component.cpp" />
-    <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
     <ClCompile Include="src\components\core\pool_component.cpp" />
     <ClCompile Include="src\components\gameplay\gibs_component.cpp" />
     <ClCompile Include="src\components\gameplay\wave_controller.cpp" />
@@ -134,6 +133,7 @@
     <ClCompile Include="src\components\gameplay\environment_component.cpp" />
     <ClCompile Include="src\assets\types\texture_cube.cpp" />
     <ClCompile Include="src\assets\texture.cpp" />
+    <ClCompile Include="src\components\collisions\area_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -329,7 +329,6 @@
     <ClInclude Include="src\components\traps\trap_spawner_component.hpp" />
     <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
-    <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
     <ClInclude Include="src\assets\types\enemy.hpp" />
     <ClInclude Include="src\components\core\pool_component.hpp" />
     <ClInclude Include="src\components\gameplay\gibs_component.hpp" />
@@ -343,6 +342,7 @@
     <ClInclude Include="src\components\gameplay\environment_component.hpp" />
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
     <ClInclude Include="src\assets\texture.hpp" />
+    <ClInclude Include="src\components\collisions\area_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

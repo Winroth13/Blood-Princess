@@ -206,6 +206,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\assets\types\sound.cpp" />
     <ClCompile Include="src\assets\types\texture_cube.cpp" />
     <ClCompile Include="src\components\audio\sound_component.cpp" />
+    <ClCompile Include="src\components\collisions\area_component.cpp" />
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
     <ClCompile Include="src\components\core\pool_component.cpp" />
     <ClCompile Include="src\components\gameplay\enemy_database_component.cpp" />
@@ -384,6 +385,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\sound.hpp" />
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
     <ClInclude Include="src\components\audio\sound_component.hpp" />
+    <ClInclude Include="src\components\collisions\area_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />
     <ClInclude Include="src\components\core\pool_component.hpp" />
     <ClInclude Include="src\components\gameplay\end_screen_component.hpp" />

@@ -10,6 +10,7 @@ class SoundComponent : public Component
 	RegisterComponent(SoundComponent)
 
 	ExportProperty(std::shared_ptr<Sound>, sound, nullptr);
+	ExportProperty(float, volume, 1.0f);
 	ExportPropertyRanged(float, minDistance, "m", 0.0f, 0.0f, 0.1f, 1.0f);
 	ExportPropertyRanged(float, maxDistance, "m", 0.0f, 0.0f, 0.1f, 15.0f);
 
@@ -24,6 +25,7 @@ class SoundComponent : public Component
 public:
 	SoundComponent(Entity *owner, bool isActive = true) : Component(owner, isActive) { WantsUpdate(); }
 	~SoundComponent() override = default;
+
 	void OnDestroy(const AppContext &context) override;
 
 	void Play(float volume = 1.0f);
@@ -36,8 +38,12 @@ public:
 	void SetMinDistance(float distance) { this->minDistance = distance; }
 	void SetMaxDistance(float distance) { this->maxDistance = distance; }
 
+	float GetVolume() const { return this->volume; }
+	void SetVolume(float volume) { this->volume = volume; }
+
 private:
 	void OnStart(const AppContext &context) override;
+	void Update(const AppContext &context, float deltaTime) override;
 
 	void PlayClip(std::shared_ptr<AudioClip> clip, float volume, float pitch);
 	bool StopPlaying();

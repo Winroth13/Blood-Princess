@@ -19,6 +19,26 @@ void SoundComponent::OnStart(const AppContext &context)
         this->Play();
 }
 
+void SoundComponent::Update(const AppContext &context, float deltaTime)
+{
+    if (!this->is3d)
+        return;
+
+    if (auto transform = GetOwner()->GetComponent<TransformComponent>()) {
+        if (this->currentSoundId != 0 && this->audioManager) {
+            this->audioManager->UpdateSoundPosition(this->currentSoundId, transform->GetWorldPosition());
+            this->audioManager->UpdateAudio(
+                this->currentSoundId, 
+                this->minDistance, 
+                this->maxDistance, 
+                false, 
+                this->is3d, 
+                this->volume
+            );
+        }
+    }
+}
+
 void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, float pitch)
 {
     if (!this->audioManager)
@@ -31,7 +51,7 @@ void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, flo
             clip,
             false,
             transform->GetWorldPosition(),
-            volume,
+            volume * this->volume,
             pitch,
             this->minDistance,
             this->maxDistance
@@ -42,7 +62,7 @@ void SoundComponent::PlayClip(std::shared_ptr<AudioClip> clip, float volume, flo
         this->currentSoundId = this->audioManager->PlaySoundEffect(
             clip, 
             false, 
-            volume, 
+            volume * this->volume, 
             pitch
         );
     }

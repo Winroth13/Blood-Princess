@@ -35,7 +35,6 @@ void HurtboxComponent::OnDestroy(const AppContext& context)
 
 void HurtboxComponent::OnCollision(const CollisionEvent& e)
 {
-
     if (!e.selfCollider || e.selfCollider->GetOwner() != this->GetOwner())
         return;
 
@@ -81,13 +80,8 @@ void HurtboxComponent::OnCollision(const CollisionEvent& e)
         finalDamage,
         hitPos,
         e.normal
-        });
-
-
-
-    LogInfo("The HurtBox is lossing Hp, Max: %f, Current: %f", this->cachedHealth->GetMaxHealth(), this->cachedHealth->GetCurrentHealth());
+    });
 }
-
 
 bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOAT3& hitPoint, const DirectX::XMFLOAT3& hitNormal)
 {
@@ -123,7 +117,7 @@ bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOA
         finalDamage,
         hitPoint,
         hitNormal
-        });
+    });
 
     this->onHurt.Emit();
 
