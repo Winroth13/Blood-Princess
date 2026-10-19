@@ -1,0 +1,21 @@
+hue: 0.0
+saturation: 1.0
+value: 1.0
+intensity: 0.0
+
+waves:
+  - completion: 0.75
+    enemies:
+      - type: skeleton
+        amount: 1
+        time: 0
+
+      - type: goblin
+        amount: 0
+        time: 80
+    
+  - completion: 0.75
+    enemies:
+      - type: ogre
+        amount: 1
+        time: 10

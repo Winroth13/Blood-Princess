@@ -12,6 +12,8 @@ class EnvironmentComponent : public Component {
 public:
 	EnvironmentComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 
+	void SetHSVShift(DirectX::XMFLOAT4 hsvShift) { this->hsvShift = hsvShift; }
+
 	void Render(const RenderView &view, RenderQueue &queue) override;
 
 	void SetHsvShift(DirectX::XMFLOAT4 hsvShift) { this->hsvShift = hsvShift; }

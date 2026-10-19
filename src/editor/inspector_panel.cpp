@@ -9,6 +9,7 @@
 
 #include "assets/types/audio_clip.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/texture_cube.hpp"
 #include "assets/types/font.hpp"
 #include "assets/types/sound.hpp"
 
@@ -223,6 +224,15 @@ void InspectorPanel::DrawComponentMemberNode(
 
             if (DrawAsset(name, texture2d))
                 this->assetViewerPanel->SetViewingAsset(texture2d);
+
+        } break;
+
+        case GetTypeHash<std::shared_ptr<TextureCube>>():
+        {
+            std::shared_ptr<TextureCube> textureCube = GetMemberByOffset<std::shared_ptr<TextureCube>>(component, member.Offset);
+
+            if (DrawAsset(name, textureCube))
+                this->assetViewerPanel->SetViewingAsset(textureCube);
 
         } break;
 

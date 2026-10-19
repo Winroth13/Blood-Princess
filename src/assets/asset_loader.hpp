@@ -23,6 +23,9 @@ class GeometryShader;
 class HullShader;
 class DomainShader;
 
+class Enemy;
+class Floor;
+
 class AssetLoader
 {
 	ID3D11Device *device;
@@ -81,3 +84,9 @@ std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string 
 
 template<>
 std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path);
+
+template<>
+std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path);
+
+template<>
+std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path);

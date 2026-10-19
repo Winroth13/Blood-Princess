@@ -32,6 +32,10 @@ public:
 
 	void SetIs3d(bool is3d) { this->is3d = is3d; }
 	void SetAutoPlay(bool autoPlay) { this->autoPlay = autoPlay; }
+
+	void SetMinDistance(float distance) { this->minDistance = distance; }
+	void SetMaxDistance(float distance) { this->maxDistance = distance; }
+
 private:
 	void OnStart(const AppContext &context) override;
 

@@ -40,6 +40,7 @@
 #include "components/core/model_component.hpp"
 #include "components/core/particle_system_component.hpp"
 #include "components/core/transform_component.hpp"
+#include "components/core/pool_component.hpp"
 
 #include "components/gameplay/health_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
@@ -49,7 +50,10 @@
 #include "components/gameplay/projectile_component.hpp"
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/splatter_component.hpp"
-#include "components/gameplay/game_controller_component.hpp"
+#include "components/gameplay/gibs_component.hpp"
+#include "components/gameplay/wave_controller.hpp"
+#include "components/gameplay/enemy_database_component.hpp"
+#include "components/gameplay/level_component.hpp"
 #include "components/gameplay/tutorial_component.hpp"
 #include "components/gameplay/environment_component.hpp"
 

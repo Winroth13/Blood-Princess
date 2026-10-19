@@ -12,7 +12,7 @@ public:
     float friction = 50.0f;
     float restitution = 0.4f; // bounciness(0 = dead, 1 = lossless)
 
-    float groundY = -2.5f;
+    float groundY = 0.0f;
     float gravity = 9.82f;
     float projectileAliveTime = 8.0f;
 

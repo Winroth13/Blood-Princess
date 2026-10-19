@@ -1,0 +1,33 @@
+type: skeleton
+health: 100
+score: 20
+scale: 1.0
+
+avoidance_radius: 1.5
+move_speed: 3.5
+
+knockback_factor: 0.0
+knockback_decay: 12.0
+knockback_stun_duration: 0.2
+
+min_range: 5.0
+max_range: 25.0
+
+attack_time: 2.35
+
+model: assets/models/skeleton.glb
+
+walk_animation: Walk
+attack_animation: Bow_Shot
+
+extends: [1.0, 1.0, 1.0]
+extends_offset: [0.0, 1.05, 0.0]
+
+# sounds
+start_attack_sound: assets/sounds/skeleton_draw.sound
+attack_sound: assets/sounds/skeleton_shoot.sound
+hit_sound: assets/sounds/goblin_hit_sound.sound
+death_sound: assets/sounds/goblin_death_sounds.sound
+bark_sound: assets/sounds/goblin_random_sounds.sound
+
+gib_type: ogre

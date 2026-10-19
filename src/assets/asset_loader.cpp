@@ -17,6 +17,8 @@
 #include "assets/types/compute_shader.hpp"
 #include "assets/types/font.hpp"
 #include "assets/types/sound.hpp"
+#include "assets/types/enemy.hpp"
+#include "assets/types/floor.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -37,6 +39,9 @@
 
 #include "yaml-cpp/yaml.h"
 #include "serialization/custom_yaml_types.hpp"
+
+#include <DirectXMath.h>
+using namespace DirectX;
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
@@ -477,21 +482,188 @@ std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path)
 		sound->Create(volumeRange, pitchRange, layers);
 		return sound;
 	}
-	catch (const YAML::BadFile &e)
+	catch (const YAML::BadFile e)
 	{
 		LogWarn("Failed to open file: %s", path.c_str());
 		return sound;
 	}
-	catch (const YAML::ParserException &e)
+	catch (const YAML::ParserException e)
 	{
 		LogWarn("Failed to parse YAML syntax: %s", e.what());
 		return sound;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception e)
 	{
 		LogError("An error occurred: %s", e.what());
 		return sound;
 	}
 
 	return sound;
+}
+
+template<>
+std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
+{
+	std::shared_ptr<Enemy> enemy = std::make_shared<Enemy>();
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		if (!file.IsDefined() || file.IsNull())
+		{
+			LogWarn("File is empty: %s", path.c_str());
+			return enemy;
+		}
+
+		enemy->type = Enemy::GetEnemyTypeFromString(file["type"].as<std::string>(""));
+		enemy->health = file["health"].as<float>(100.0f);
+		enemy->score = file["score"].as<int>(1);
+		enemy->scale = file["scale"].as<float>(1.0f);
+
+		enemy->avoidanceRadius = file["avoidance_radius"].as<float>(1.0f);
+		enemy->moveSpeed = file["move_speed"].as<float>(1.0f);
+
+		enemy->knockbackFactor = file["knockback_factor"].as<float>(1.0f);
+		enemy->knockbackDecay = file["knockback_decay"].as<float>(1.0f);
+		enemy->knockbackStunDuration = file["knockback_stun_duration"].as<float>(0.0f);
+
+		enemy->minRange = file["min_range"].as<float>(0.0f);
+		enemy->maxRange = file["max_range"].as<float>(0.5f);
+
+		enemy->attackTime = file["attack_time"].as<float>(1.0f);
+
+		enemy->model = this->assetManager->Get<Model>(file["model"].as<std::string>(""));
+		enemy->walkAnimation = file["walk_animation"].as<std::string>("");
+		enemy->attackAnimation = file["attack_animation"].as<std::string>("");
+
+		enemy->extends = file["extends"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
+		enemy->extendsOffset = file["extends_offset"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
+
+		enemy->startAttackSound = this->assetManager->Get<Sound>(file["start_attack_sound"].as<std::string>(""));
+		enemy->attackSound = this->assetManager->Get<Sound>(file["attack_sound"].as<std::string>(""));
+		enemy->footstepSound = this->assetManager->Get<Sound>(file["footstep_sound"].as<std::string>(""));
+		enemy->hitSound = this->assetManager->Get<Sound>(file["hit_sound"].as<std::string>(""));
+		enemy->deathSound = this->assetManager->Get<Sound>(file["death_sound"].as<std::string>(""));
+		enemy->barkSound = this->assetManager->Get<Sound>(file["bark_sound"].as<std::string>(""));
+
+		std::vector<EnemyAttack> attacks = {};
+
+		for (YAML::Node attackNode : file["attacks"])
+		{
+			EnemyAttack attack = {};
+			attack.name = attackNode["name"].as<std::string>("");
+			
+			std::string attackTypeStr = attackNode["type"].as<std::string>("");
+			if (attackTypeStr == "Melee")
+			{
+				attack.type = AttackType::Melee;
+			}
+			else if (attackTypeStr == "Projectile")
+			{
+				attack.type = AttackType::Projectile;
+			}
+			else
+			{
+				LogWarn("Invalid attack type: %s", attackTypeStr.c_str());
+			}
+
+			attack.animation = attackNode["animation"].as<std::string>("");
+			attack.sound = this->assetManager->Get<Sound>(file["sound"].as<std::string>(""));
+			attack.damage = attackNode["damage"].as<float>(1.0f);
+			attack.knockback = attackNode["knockback"].as<float>(1.0f);
+			attack.hitDelay = attackNode["hit_delay"].as<float>(1.0f);
+			attack.hitDuration = attackNode["hit_duration"].as<float>(1.0f);
+			attack.range = attackNode["range"].as<float>(1.0f);
+
+			attack.extends = attackNode["extends"].as<XMFLOAT3>(XMFLOAT3(0.5f, 0.5f, 0.5f));
+			attack.extendsOffset = attackNode["extends_offset"].as<XMFLOAT3>(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			attack.socket = attackNode["socket"].as<std::string>("");
+
+			attacks.push_back(attack);
+		}
+
+		enemy->attacks = attacks;
+	}
+	catch (const YAML::BadFile e)
+	{
+		LogError("Failed to open file: %s", path.c_str());
+		return enemy;
+	}
+	catch (const YAML::ParserException e)
+	{
+		LogError("Failed to parse YAML syntax: %s", e.what());
+		return enemy;
+	}
+	catch (const std::exception e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return enemy;
+	}
+
+	return enemy;
+}
+
+template<>
+std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
+{
+	std::shared_ptr<Floor> floor = std::make_shared<Floor>();
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile(path);
+
+		XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
+		hsv.x = file["hue"].as<float>(0.0f);
+		hsv.y = file["saturation"].as<float>(1.0f);
+		hsv.z = file["value"].as<float>(1.0f);
+		hsv.w = file["intensity"].as<float>(0.0f);
+
+		floor->SetHSV(hsv);
+
+		std::vector<Wave> waves = {};
+
+		if (YAML::Node wavesNode = file["waves"])
+		{
+			for (YAML::Node waveNode : wavesNode)
+			{
+				Wave wave = {};
+				wave.completion = waveNode["completion"].as<float>(0.75f);
+
+				if (YAML::Node enemiesNode = waveNode["enemies"])
+				{
+					for (auto enemyNode : enemiesNode)
+					{
+						WaveEnemy enemy = {};
+						enemy.type = Enemy::GetEnemyTypeFromString(enemyNode["type"].as<std::string>(""));
+						enemy.amount = static_cast<uint32_t>(enemyNode["amount"].as<int>(0));
+						enemy.time = enemyNode["time"].as<float>(30.0f);
+
+						wave.enemies.push_back(enemy);
+					}
+				}
+
+				waves.push_back(wave);
+			}
+		}
+
+		floor->SetWaves(waves);
+	}
+	catch (const YAML::BadFile e)
+	{
+		LogError("Failed to open file: %s", path.c_str());
+		return floor;
+	}
+	catch (const YAML::ParserException e)
+	{
+		LogError("Failed to parse YAML syntax: %s", e.what());
+		return floor;
+	}
+	catch (const std::exception e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return floor;
+	}
+
+	return floor;
 }

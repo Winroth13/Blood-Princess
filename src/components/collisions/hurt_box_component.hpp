@@ -17,6 +17,8 @@ public:
     ExportProperty(bool, isInvulnerable, false);
     ExportProperty(float, invulnerabilityTimer, 0.0f);
 
+    Signal<> onHurt;
+
     Health* cachedHealth = nullptr;
     ConnectionId collisionEventConn = 0;
 

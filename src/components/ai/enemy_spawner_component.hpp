@@ -1,95 +1,38 @@
 #pragma once
 #include "scene/component.hpp"
+#include "assets/types/audio_clip.hpp"
+#include "components/core/pool_component.hpp"
+#include "assets/types/enemy.hpp"
+#include "events/signal.hpp"
+
 #include <DirectXMath.h>
 #include <vector>
-#include "assets/types/audio_clip.hpp"
-#include "events/signal.hpp"
 class Entity;
+class GibsComponent;
+class AIManager;
 
 class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
-	ExportProperty(int, maxOgreEnemies, 3);
-	ExportProperty(float, ogreSpawnDuration, 10.0f);
-	int ogresAlive = maxOgreEnemies;
-
-	ExportProperty(int, maxSkeletonEnemies, 5);
-	ExportProperty(float, skeletonSpawnDuration, 10.0f);
-	int skeletonsAlive = maxSkeletonEnemies;
-
-	ExportProperty(int, maxEnemiesAlive, 100);
-	ExportProperty(float, enemySpawnDuration, 20.0f);
-	ExportProperty(int, currentEnemies, 1);
+	Signal<EnemyType, uint32_t> onEnemyKilled;
 
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
-
-	ExportProperty(int, maxGibsPool, 100);
-	ExportProperty(int, maxEnemyPool, 250);
 
 	ExportProperty(float, deathBloodRadiusMin, 1.5f);
 	ExportProperty(float, deathBloodRadiusMax, 2.5f);
 	ExportProperty(bool, autoStartWave, true);
 
-	std::shared_ptr<Model> gibModel[4];
-	std::shared_ptr<Texture2D> atlasTexture;
-	
-	std::shared_ptr<Model> enemyModel;
-
-	// ogre
-	std::shared_ptr<Model> ogreModel;
-
-	// skeleton
-	std::shared_ptr<Model> skeletonModel;
+	std::array<PoolComponent *, 3> enemyPools = { nullptr };
 
 private:
+	GibsComponent *gibs = nullptr;
+	AIManager *aiManager = nullptr;
 
-	float goblinTimer = 0.0f;   // countdown to next goblin
-	float goblinElapsed = 0.0f;   // seconds since goblin wave started
-	int   goblinsSpawned = 0;
+	void InitializePools(const AppContext &context, Scene *scene);
 
-	float ogreTimer = 0.0f;
-	float ogreElapsed = 0.0f;
-	int   ogresSpawned = 0;
-
-	float skeletonTimer = 0.0f;
-	float skeletonElapsed = 0.0f;
-	int   skeletonsSpawned = 0;
-
-	bool isWaveActive = false;
-
-    int killCount = 0;
-
-	Signal<> onWaveComplete;
-    // killed, total
-    Signal<int, int> onEnemyKilled;
-
-	float gibTimer = 0.0f;
-	float timer = 0.0f;
-
-	std::vector<Entity*> enemyPool;
-	std::vector<Entity*> activeEnemy;
-
-	std::vector<Entity*> activeOgre;
-	std::vector<Entity*> activeSkeleton;
-
-	std::vector<Entity*> gibPool;
-	std::vector<Entity*> activeGibs;
-
-	void InitializeGibPool(const AppContext& context, Scene* scene);
-	void InitializeEnemyPool(const AppContext& context, Scene* scene);
-
-	void SpawnGibsFromPool(const AppContext& context, DirectX::XMFLOAT3 pos, float count = 3);
-	bool SpawnOneEnemyFromPool(const AppContext& context);
-	bool SpawnOneOgre(const AppContext& context);
-	bool SpawnOneSkeleton(const AppContext& context);
-
-
-	void SpawnBloodExplosion(Scene *scene, XMFLOAT3 position);
-
-	void CleanGibs();
-	void CleanupDeadEnemies(const AppContext& context);
+	Entity *CreateEnemyEntity(std::shared_ptr<Enemy> enemy, Scene *scene);
 
 	void OnStart(const AppContext& context) override;
 	void Update(const AppContext& context, float deltaTime) override;
@@ -99,22 +42,13 @@ public:
 	EnemySpawnerComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemySpawnerComponent() = default;
 
-	void SetGoblinMaxAlive(int amount) { this->maxEnemiesAlive = amount; }
-	void SetGoblinSpawnDuration(float amount) { this->enemySpawnDuration = amount; }
+	/*
+	*	Tries to spawn an enemy at a suitable location somewhere around the player.
+	*	Returns whether it successful in spawning the enemy.
+	*/
+	bool SpawnEnemy(size_t type, uint32_t wave);
 
-	void SetOgreMaxAlive(int amount) { this->maxOgreEnemies = amount; }
-	void SetOgreSpawnDuration(float amount) { this->ogreSpawnDuration = amount; }
+	void SetGibsComponent(GibsComponent *gibs) { this->gibs = gibs; }
 
-	void SetSkeletonMaxAlive(int amount) { this->maxSkeletonEnemies = amount; }
-	void SetSkeletonSpawnDuration(float amount) { this->skeletonSpawnDuration = amount; }
-
-	void SetAutoStartWave(bool autoStart) { this->autoStartWave = autoStart; }
-
-	void BeginWave();
-
-    int GetTotalEnemies() const { return this->maxEnemiesAlive + this->maxOgreEnemies + this->maxSkeletonEnemies; }
-    void GetKillCount(int &killed, int &total) const { killed = this->killCount; total = GetTotalEnemies(); }
-
-	Signal<> &GetOnWaveComplete() { return this->onWaveComplete; }
-    Signal<int, int> &GetOnEnemyKilled() { return this->onEnemyKilled; }
+	Signal<EnemyType, uint32_t> &GetOnEnemyKilled() { return this->onEnemyKilled; }
 };
