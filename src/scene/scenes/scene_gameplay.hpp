@@ -533,8 +533,8 @@ namespace Scenes {
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
         ambientLight->SetIntensity(0.2f);
         EnvironmentComponent *environment = lightEntity->AddComponent<EnvironmentComponent>();
-        auto skybox = appContext.assetManager->Get<TextureCube>("assets/images/skybox/day.png");
-        environment->SetSkybox(skybox);
+        //auto skybox = appContext.assetManager->Get<TextureCube>("assets/images/skybox/day.png");
+        //environment->SetSkybox(skybox);
 
         /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
         TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();

@@ -150,7 +150,7 @@ void main(uint3 id : SV_DispatchThreadID)
     float fogStart = 0.0f;
     float fogEnd = 15.0f;
     // S-curve (smoothstep): slow in first 3m, linear between 3m-10m, and smoothly eases into 100% at 15m
-    float fogFactor = 0;
+    float fogFactor = smoothstep(fogStart, fogEnd, depth);
 
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);
