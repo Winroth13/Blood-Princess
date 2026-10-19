@@ -6,8 +6,8 @@ intensity: 0.0
 waves:
   - completion: 0.75
     enemies:
-      - type: goblin
-        amount: 2
+      - type: ogre
+        amount: 1
         time: 5
     
   - completion: 0.75

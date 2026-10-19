@@ -36,6 +36,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    this->sound = this->GetOwner()->GetComponent<SoundComponent>();
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
 
     if (!this->transform) {
@@ -80,6 +81,10 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
+
+    // Some dumb assumptions are made here but it's fine.
+    auto &children = this->GetOwner()->GetChildren();
+    this->hitboxEntity = children[0];
 }
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
@@ -121,8 +126,10 @@ void EnemyControllerComponent::ResetKnockback()
     this->attackElapsed = 0.0f;
     this->hitboxActivated = false;
 
-    if (this->hitbox)
-        this->hitbox->Deactivate();
+    auto *hitbox = this->hitboxEntity->GetComponent<HitboxComponent>();
+
+    if (hitbox)
+        hitbox->Deactivate();
 }
 
 void EnemyControllerComponent::ShootAnArrow()
@@ -302,7 +309,7 @@ void EnemyControllerComponent::ShootAnArrow()
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
-    if (this->hitbox && event.attacker == this->hitbox->GetOwner())
+    /*if (this->hitbox && event.attacker == this->hitbox->GetOwner())
     {
         if (this->attackHitSound)
         {
@@ -313,7 +320,7 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
             }
         }
         return;
-    }
+    }*/
 
     if (event.victim != this->GetOwner() || event.knockbackForce <= 0.0f)
     {
@@ -428,6 +435,19 @@ void EnemyControllerComponent::OnDeath(const AppContext &context)
 
 bool EnemyControllerComponent::CanAttack(float distanceSq)
 {
+    if (isAttacking)
+         return false;
+
+    const float kbSpeedSq = (this->knockbackVelocity.x * this->knockbackVelocity.x) +
+        (this->knockbackVelocity.z * this->knockbackVelocity.z);
+
+    const bool hasKnockback = kbSpeedSq > 0.001f;
+
+    if (this->knockbackStunTimer > 0.0f || hasKnockback)
+    {
+        return false;
+    }
+
     float minRangeSq = this->enemy->minRange * this->enemy->minRange;
     float maxRangeSq = this->enemy->maxRange * this->enemy->maxRange;
 
@@ -439,6 +459,199 @@ bool EnemyControllerComponent::CanAttack(float distanceSq)
     return true;
 }
 
+void EnemyControllerComponent::StartAttack(float deltaTime)
+{
+    this->isAttacking = true;
+    this->hasAttacked = false;
+    this->attackElapsed = 0.0f;
+
+    auto *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
+
+    this->sound->SetSound(this->enemy->startAttackSound);
+    this->sound->Play();
+
+    ///*switch (this->enemy->type)
+    //{
+    //case EnemyType::GOBLIN:
+    //case EnemyType::OGRE:
+    //{   
+    //    
+
+    //    // melee logic
+    //    this->attackElapsed += deltaTime;
+
+    //    if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+    //    {
+    //        this->hitboxActivated = true;
+    //        if (this->hitbox)
+    //            this->hitbox->Activate(this->attackHitboxDuration);
+    //    }
+
+    //    if (!this->animator || this->animator->IsFinished())
+    //    {
+    //        if (inShootBand && this->knockbackStunTimer <= 0.0f
+    //            && this->animator && this->animator->HasAnimation(stats.attackAnimation))
+    //        {
+    //            this->attackElapsed = 0.0f;
+    //            this->hitboxActivated = false;
+    //            this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+    //        }
+    //        else
+    //        {
+    //            this->isAttacking = false;
+    //            this->attackElapsed = 0.0f;
+    //            this->hitboxActivated = false;
+    //            if (this->hitbox) this->hitbox->Deactivate();
+
+    //            if (this->animator && this->animator->HasAnimation(stats.walkAnimation))
+    //                this->animator->CrossFade(stats.walkAnimation, 0.15f, true);
+    //        }
+    //    }
+    //    this->attackElapsed = 0.0f;
+    //    this->hitboxActivated = false;
+
+    //    if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
+    //        this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+
+    //}break;
+    //case EnemyType::SKELETON:
+    //{
+    //    bool tooClose = false;
+    //    bool inShootBand = false;
+    //    bool tooFar = false;
+
+    //    const bool canShoot = inShootBand
+    //        && this->knockbackStunTimer <= 0.0f
+    //        && !hasKnockback;
+
+    //    if (this->knockbackStunTimer > 0.0f || hasKnockback)
+    //    {
+    //        this->isAttacking = false;
+    //        this->attackElapsed = 0.0f;
+    //        this->hitboxActivated = false;
+    //    }
+
+    //    if (this->isAttacking)
+    //    {
+    //        this->attackElapsed += deltaTime;
+
+    //        if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+    //        {
+    //            this->hitboxActivated = true;
+    //            this->ShootAnArrow();
+    //            if (this->audioManager && this->bowFireClip && this->transform)
+    //            {
+    //                this->audioManager->PlaySoundAt(
+    //                    this->bowFireClip, false, this->transform->GetWorldPosition(), 1.0f, 1.0f, 1.0f, 25.0f);
+    //            }
+    //        }
+
+    //        if (!this->animator || this->animator->IsFinished())
+    //        {
+    //            this->isAttacking = false;
+    //            this->attackElapsed = 0.0f;
+    //            this->hitboxActivated = false;
+    //            this->shootTimer = this->cooldown;
+    //        }
+    //    }
+    //    else if (canShoot)
+    //    {
+    //        this->shootTimer -= deltaTime;
+    //        if (this->shootTimer <= 0.0f)
+    //        {
+    //            this->isAttacking = true;
+    //            this->attackElapsed = 0.0f;
+    //            this->hitboxActivated = false;
+
+    //            if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
+    //                this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
+
+    //            if (this->audioManager && this->bowDrawClip && this->transform)
+    //            {
+    //                this->audioManager->PlaySoundAt(
+    //                    this->bowDrawClip, false, this->transform->GetWorldPosition(), 2.0f, 1.0f, 25.0f, 25.0f);
+    //            }
+    //        }
+    //    }
+    //    else if (this->shootTimer > 0.0f)
+    //    {
+    //        this->shootTimer -= deltaTime;
+    //    }
+
+    //    if (this->hitbox) this->hitbox->Deactivate();
+    //}break;
+    //default:
+    //    break;
+    //}*/
+}
+
+void EnemyControllerComponent::EndAttack()
+{
+    this->isAttacking = false;
+    this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
+}
+
+void EnemyControllerComponent::UpdateAttack(float deltaTime)
+{
+    if (!this->isAttacking) 
+        return;
+
+    this->attackElapsed += deltaTime;
+
+    if (!hasAttacked && attackElapsed >= this->enemy->attackTime)
+    {
+        this->Attack();
+    }
+
+    if (this->animator->IsFinished())
+    {
+        this->EndAttack();
+    }
+}
+
+void EnemyControllerComponent::Attack()
+{
+    this->hasAttacked = true;
+    this->sound->SetSound(this->enemy->attackSound);
+    this->sound->Play();
+
+    switch (this->enemy->type)
+    {
+        case EnemyType::GOBLIN:
+        {
+            this->MeleeAttack(5.0, 0.5f, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+        } break;
+        case EnemyType::OGRE:
+        {
+            this->MeleeAttack(50, 1.4f, {0.0f, 0.73f, 1.45f}, {0.5f, 0.5f, 0.5f});
+
+        } break;
+        case EnemyType::SKELETON:
+        {
+            this->FireProjectile();
+        } break;
+    }
+}
+
+void EnemyControllerComponent::MeleeAttack(float damage, float duration, XMFLOAT3 hitPosition, XMFLOAT3 hitExtends)
+{
+    auto hitbox = this->hitboxEntity->GetComponent<HitboxComponent>();
+    auto transform = this->hitboxEntity->GetComponent<TransformComponent>();
+    auto collision = this->hitboxEntity->GetComponent<BoxCollisionComponent>();
+
+    transform->SetLocalPosition(hitPosition);
+
+    collision->SetExtents(hitExtends);
+
+    hitbox->SetDamage(damage);
+    hitbox->Activate(duration);
+}
+
+void EnemyControllerComponent::FireProjectile()
+{
+
+}
 
 void EnemyControllerComponent::UpdateBark(float deltaTime)
 {
@@ -452,11 +665,8 @@ void EnemyControllerComponent::UpdateBark(float deltaTime)
                 this->randomSoundMaxInterval
             );
 
-            if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
-            {
-                soundComponent->SetSound(this->enemy->barkSound);
-                soundComponent->Play();
-            }
+            this->sound->SetSound(this->enemy->barkSound);
+            this->sound->Play();
         }
     }
 }
@@ -510,32 +720,38 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
 
     const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayerV));
     
-    XMVECTOR velocityV = {};
+    LogInfo("Distance: %f", std::sqrt(distSq));
+
+    XMVECTOR velocityV = {0.0f, 0.0f, 0.0f, 0.0f};
 
     if (this->CanAttack(distSq))
     {
-
+        this->StartAttack(deltaTime);
     }
     else
     {
-        // enemy should always move towards the player
-        velocityV = XMVector3Normalize(toPlayerV) * this->enemy->moveSpeed;
-
-        // enemy should avoid other enemies
-        XMVECTOR avoidV = XMVectorSetY(grid.ComputeAvoidance(myGridIndex, this->enemy->avoidanceRadius), 0.0f);
-        velocityV = XMVectorAdd(velocityV, avoidV);
-        
-        // rotate enemy towards player
-        if (distSq > 1e-4f)
+        if (!this->isAttacking)
         {
-            XMFLOAT3 dir;
-            XMStoreFloat3(&dir, toPlayerV);
-            const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
-            this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+            // enemy should always move towards the player
+            velocityV = XMVector3Normalize(toPlayerV) * this->enemy->moveSpeed;
+
+            // enemy should avoid other enemies
+            XMVECTOR avoidV = XMVectorSetY(grid.ComputeAvoidance(myGridIndex, this->enemy->avoidanceRadius), 0.0f);
+            velocityV = XMVectorAdd(velocityV, avoidV);
+
+            // rotate enemy towards player
+            if (distSq > 1e-4f)
+            {
+                XMFLOAT3 dir;
+                XMStoreFloat3(&dir, toPlayerV);
+                const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
+                this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+            }
         }
     }
 
-    /*const bool isRanged = (this->enemyType == EnemyTypeOld::Skeleton);
+    /*
+    const bool isRanged = (this->enemyType == EnemyTypeOld::Skeleton);
     const float meleeRange = this->stopDistance;
 
     // Zone flags
@@ -787,4 +1003,6 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
     
     XMStoreFloat3(&this->velocity, velocityV);
     this->Move(deltaTime);
+
+    this->UpdateAttack(deltaTime);
 }

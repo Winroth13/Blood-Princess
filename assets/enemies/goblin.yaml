@@ -10,15 +10,21 @@ knockback_factor: 4.0
 knockback_decay: 12.0
 knockback_stun_duration: 0.2
 
-max_range: 0.5
+max_range: 1.2
+
+attack_time: 2.0
 
 model: assets/models/goblin.glb
+
 walk_animation: Jog
+attack_animation: Shank
 
 extends: [1.0, 1.0, 0.7]
 extends_offset: [0.0, 1.05, 0.0]
 
 # sounds
+start_attack_sound: assets/sounds/goblin_death_sounds.sound
+attack_sound: assets/sounds/goblin_death_sounds.sound
 hit_sound: assets/sounds/goblin_hit_sound.sound
 death_sound: assets/sounds/goblin_death_sounds.sound
 bark_sound: assets/sounds/goblin_random_sounds.sound

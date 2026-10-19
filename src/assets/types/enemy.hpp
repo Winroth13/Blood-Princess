@@ -65,12 +65,18 @@ public:
 	float minRange = 0.0f;
 	float maxRange = 0.0f;
 
+	float attackTime = 0.0f;
+
 	std::shared_ptr<Model> model = nullptr;
+
 	std::string walkAnimation = "";
+	std::string attackAnimation = "";
 
 	XMFLOAT3 extends = {};
 	XMFLOAT3 extendsOffset = {};
 	
+	std::shared_ptr<Sound> startAttackSound = nullptr;
+	std::shared_ptr<Sound> attackSound = nullptr;
 	std::shared_ptr<Sound> hitSound = nullptr;
 	std::shared_ptr<Sound> deathSound = nullptr;
 	std::shared_ptr<Sound> barkSound = nullptr;

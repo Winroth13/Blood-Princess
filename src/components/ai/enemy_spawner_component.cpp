@@ -115,8 +115,6 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     auto *hitbox = hitboxEntity->AddComponent<HitboxComponent>();
     hitbox->SetActive(false);
 
-    enemyController->SetAttackHitbox(hitbox);
-
     return entity;
 }
 

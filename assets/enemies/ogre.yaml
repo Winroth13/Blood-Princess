@@ -12,13 +12,19 @@ knockback_stun_duration: 0.2
 
 max_range: 2.0
 
+attack_time: 1.35
+
 model: assets/models/ogre.glb
+
 walk_animation: Walk
+attack_animation: attack
 
 extends: [1.0, 1.0, 1.0]
 extends_offset: [0.0, 1.05, 0.0]
 
 # sounds
+start_attack_sound: assets/sounds/goblin_death_sounds.sound
+attack_sound: assets/sounds/goblin_death_sounds.sound
 hit_sound: assets/sounds/goblin_hit_sound.sound
 death_sound: assets/sounds/goblin_death_sounds.sound
 bark_sound: assets/sounds/goblin_random_sounds.sound

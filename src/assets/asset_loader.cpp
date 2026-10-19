@@ -472,12 +472,17 @@ std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path)
 		enemy->minRange = file["min_range"].as<float>(0.0f);
 		enemy->maxRange = file["max_range"].as<float>(0.5f);
 
+		enemy->attackTime = file["attack_time"].as<float>(1.0f);
+
 		enemy->model = this->assetManager->Get<Model>(file["model"].as<std::string>(""));
 		enemy->walkAnimation = file["walk_animation"].as<std::string>("");
+		enemy->attackAnimation = file["attack_animation"].as<std::string>("");
 
 		enemy->extends = file["extends"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
 		enemy->extendsOffset = file["extends_offset"].as<XMFLOAT3>(XMFLOAT3(1.0f, 1.0f, 1.0f));
 
+		enemy->startAttackSound = this->assetManager->Get<Sound>(file["start_attack_sound"].as<std::string>(""));
+		enemy->attackSound = this->assetManager->Get<Sound>(file["attack_sound"].as<std::string>(""));
 		enemy->hitSound = this->assetManager->Get<Sound>(file["hit_sound"].as<std::string>(""));
 		enemy->deathSound = this->assetManager->Get<Sound>(file["death_sound"].as<std::string>(""));
 		enemy->barkSound = this->assetManager->Get<Sound>(file["bark_sound"].as<std::string>(""));

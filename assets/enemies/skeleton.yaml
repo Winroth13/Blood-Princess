@@ -13,8 +13,12 @@ knockback_stun_duration: 0.2
 min_range: 0.5
 max_range: 2.0
 
+attack_time: 0.5
+
 model: assets/models/ogre.glb
+
 walk_animation: Walk
+attack_animation: Shank
 
 extends: [1.0, 1.0, 1.0]
 extends_offset: [0.0, 1.05, 0.0]

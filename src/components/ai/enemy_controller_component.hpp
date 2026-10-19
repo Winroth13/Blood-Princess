@@ -11,6 +11,7 @@ class TransformComponent;
 class AnimatorComponent;
 class HitboxComponent;
 class GibsComponent;
+class SoundComponent;
 
 class SpatialGrid;
 class Sound;
@@ -44,10 +45,13 @@ class EnemyControllerComponent : public Component
 private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
-	HitboxComponent* hitbox = nullptr;
+
+	Entity *hitboxEntity = nullptr;
+
 	GibsComponent *gibs = nullptr;
 	AIManager* aiManager = nullptr;
 	AudioManager* audioManager = nullptr;
+	SoundComponent *sound = nullptr;
 
 	XMFLOAT3 velocity = {0.0f, 0.0f, 0.0f};
 
@@ -59,7 +63,9 @@ private:
 	float movementDistanceAccumulator = 0.0f;
 	float lastFootstepAnimTime = -1.0f;
 	float randomSoundTimer = 0.0f;
+
 	bool isAttacking = false;
+	bool hasAttacked = false;
 
 	std::shared_ptr<Enemy> enemy = nullptr;
 
@@ -98,6 +104,15 @@ private:
 
 	bool CanAttack(float distanceSq);
 
+	void StartAttack(float deltaTime);
+	void EndAttack();
+	void UpdateAttack(float deltaTime);
+
+	void Attack();
+	void MeleeAttack(float damage, float duration, XMFLOAT3 hitPosition, XMFLOAT3 hitExtends);
+
+	void FireProjectile();
+
 	void UpdateBark(float deltaTime);
 	void UpdateKnockback(float deltaTime);
 
@@ -128,9 +143,6 @@ public:
 
 	float GetFootstepInterval() const { return this->footstepIntervalMeters; }
 	void SetFootstepInterval(float meters) { this->footstepIntervalMeters = meters; }
-
-	void SetAttackHitbox(HitboxComponent* hb) { this->hitbox = hb; }
-	HitboxComponent* GetAttackHitbox() const { return this->hitbox; }
 
 	void SetGibs(GibsComponent *gibs) { this->gibs = gibs; }
 
