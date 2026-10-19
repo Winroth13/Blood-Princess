@@ -621,6 +621,7 @@ void SharedResources::UploadEnvironmentData(ID3D11DeviceContext *deviceContext, 
     EnvironmentData data{};
 
     data.hsvShift = environment.hsvShift;
+    data.environmentFlags = environment.environmentFlags;
 
     RenderUtils::UploadConstantBuffer(deviceContext, this->environmentBufferCB, data);
 }

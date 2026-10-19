@@ -13,4 +13,7 @@ public:
 	EnvironmentComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 
 	void Render(const RenderView &view, RenderQueue &queue) override;
+
+	void SetHsvShift(DirectX::XMFLOAT4 hsvShift) { this->hsvShift = hsvShift; }
+	void SetSkybox(std::shared_ptr<TextureCube> textureCube) { this->textureCube = textureCube;  }
 };

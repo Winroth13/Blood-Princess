@@ -88,6 +88,7 @@ struct SkyboxCommand
 struct EnvironmentCommand
 {
     XMFLOAT4 hsvShift;
+    uint32_t environmentFlags;
 };
 
 struct ParticleSystemCommand

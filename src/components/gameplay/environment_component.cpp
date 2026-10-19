@@ -1,4 +1,5 @@
 #include "environment_component.hpp"
+#include "rendering/shared_resources.hpp"
 
 void EnvironmentComponent::Render(const RenderView &view, RenderQueue &queue)
 {
@@ -6,7 +7,7 @@ void EnvironmentComponent::Render(const RenderView &view, RenderQueue &queue)
 
     environmentCommand.hsvShift = this->hsvShift;
 
-    queue.Submit(environmentCommand);
+    uint32_t flags = 0;
 
     if (this->textureCube)
     {
@@ -15,5 +16,11 @@ void EnvironmentComponent::Render(const RenderView &view, RenderQueue &queue)
         skyboxCommand.skyboxSRV = this->textureCube->GetShaderResourceView();
 
         queue.Submit(skyboxCommand);
+
+        flags |= +EnvironmentFlags::HAS_SKYBOX;
     }
+
+    environmentCommand.environmentFlags = flags;
+
+    queue.Submit(environmentCommand);
 }

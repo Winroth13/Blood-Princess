@@ -17,15 +17,14 @@ enum class ConstantBufferSlot : int
 	LIGHT = 4,
 	PARTICLE = 5,
 	POST_PROCESSING = 6,
-
-	// Unique
 	ENVIRONMENT = 7,
 
-	DEBUG = 7,
+	// Unique
+	DEBUG = 8,
 
-	PAINT = 7,
+	PAINT = 8,
 
-    SKINNING = 8
+    SKINNING = 9
 };
 
 constexpr int operator+(ConstantBufferSlot slot) noexcept {
@@ -65,6 +64,15 @@ enum class MaterialFlags : uint32_t
 };
 
 constexpr uint32_t operator+(MaterialFlags slot) noexcept {
+	return static_cast<uint32_t>(slot);
+}
+
+enum class EnvironmentFlags : uint32_t
+{
+	HAS_SKYBOX = 1 << 0
+};
+
+constexpr uint32_t operator+(EnvironmentFlags slot) noexcept {
 	return static_cast<uint32_t>(slot);
 }
 

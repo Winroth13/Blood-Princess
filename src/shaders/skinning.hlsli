@@ -3,7 +3,7 @@
 
 #define MAX_SKIN_JOINT_COUNT 256
 
-cbuffer Skinning : register(b8)
+cbuffer Skinning : register(b9)
 {
     float4x4 skinMatrices[MAX_SKIN_JOINT_COUNT];
 }

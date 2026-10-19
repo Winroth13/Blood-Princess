@@ -146,6 +146,8 @@ struct ParticleData
 struct EnvironmentData
 {
     XMFLOAT4 hsvShift;
+    uint32_t environmentFlags;
+    float pad0[3];
 };
 AssertCBufferSize(EnvironmentData);
 

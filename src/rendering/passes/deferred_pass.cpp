@@ -363,6 +363,15 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11Buffer *perView = sharedResources.GetPerView();
 	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 
+	 std::optional<EnvironmentCommand> environmentCommand = view->queue.environmentCommand;
+	 if (environmentCommand.has_value())
+		 sharedResources.UploadEnvironmentData(deviceContext, environmentCommand.value());
+	 else
+		 LogWarn("Environment Command not found in Deferred Light Pass");
+
+	 ID3D11Buffer *environment = sharedResources.GetEnvironment();
+	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::ENVIRONMENT, 1, &environment);
+
 	 const UINT groupsX = (this->width + 7) / 8;
 	 const UINT groupsY = (this->height + 7) / 8;
 	 deviceContext->Dispatch(groupsX, groupsY, 1);

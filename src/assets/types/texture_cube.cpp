@@ -14,6 +14,6 @@ bool TextureCube::Create(
 	return Texture::Create(
 		data, width, height,
 		channels, name, "Texture Cube",
-		6, isRGB, device, deviceContext
+		true, isRGB, device, deviceContext
 	);
 }

@@ -44,7 +44,7 @@ protected:
 		const uint32_t channels,
 		const std::string &name,
 		const std::string &type,
-		int numTexures,
+		bool isTextureCube,
 		bool isRGB,
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext

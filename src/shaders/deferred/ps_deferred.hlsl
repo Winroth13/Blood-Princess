@@ -6,11 +6,6 @@ Texture2D normalTexture : register(t1);
 Texture2D metallicRoughnessTexture : register(t2);
 Texture2D paintMaskTexture : register(t3);
 
-cbuffer Enviorment : register(b7)
-{
-    float4 hsvShift;
-}
-
 struct PixelShaderInput
 {
     float4 position         : SV_POSITION;

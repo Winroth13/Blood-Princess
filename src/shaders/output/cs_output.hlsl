@@ -12,10 +12,10 @@ Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
 Texture2D<float4> noiseTexture : register(t4);
 
-cbuffer DebugView : register(b7)
+cbuffer DebugView : register(b8)
 {
     int debugView;
-    float3 pad6;
+    float3 pad7;
 }
 
 float3 Tonemap(float3 hdr)
@@ -150,7 +150,7 @@ void main(uint3 id : SV_DispatchThreadID)
     float fogStart = 0.0f;
     float fogEnd = 15.0f;
     // S-curve (smoothstep): slow in first 3m, linear between 3m-10m, and smoothly eases into 100% at 15m
-    float fogFactor = smoothstep(fogStart, fogEnd, depth);
+    float fogFactor = 0;
 
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);

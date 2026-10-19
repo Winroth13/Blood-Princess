@@ -32,7 +32,7 @@ bool Texture::Create(
 	const uint32_t channels,
 	const std::string &name,
 	const std::string &type,
-	int numTexures,
+	bool isTextureCube,
 	bool isRGB,
 	ID3D11Device *device,
 	ID3D11DeviceContext *deviceContext
@@ -42,13 +42,15 @@ bool Texture::Create(
 	this->height = height;
 	this->channels = channels;
 
+	int numTextures = isTextureCube ? 6 : 1;
+
 	DXGI_FORMAT format = GetDXGITextureFormat(this->channels, isRGB);
 
 	/* Create D3D11 Texture */
 	D3D11_TEXTURE2D_DESC desc = {};
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.MipLevels = 0;
-	desc.ArraySize = numTexures;
+	desc.MipLevels = isTextureCube ? 1 : 0;
+	desc.ArraySize = numTextures;
 	desc.Format = format;
 	desc.Width = this->width;
 	desc.Height = this->height;
@@ -56,7 +58,7 @@ bool Texture::Create(
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.CPUAccessFlags = 0;
-	desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	desc.MiscFlags = isTextureCube ? D3D11_RESOURCE_MISC_GENERATE_MIPS | D3D11_RESOURCE_MISC_TEXTURECUBE : D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 	// To generate mips, the texture must be created empty
 	HRESULT hr = device->CreateTexture2D(&desc, nullptr, &this->texture);
@@ -73,7 +75,7 @@ bool Texture::Create(
 
 	UINT rowPitch;
 	UINT imageSize;
-	for (int i = 0; i < numTexures; i++)
+	for (int i = 0; i < numTextures; i++)
 	{
 		rowPitch = this->width * sizeof(char) * 4;
 		imageSize = rowPitch * this->height;
@@ -86,20 +88,30 @@ bool Texture::Create(
 	// Generate mips.
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = -1;
+	
+	if (isTextureCube)
+	{
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = 1;
+	}
+	else
+	{
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = -1;
+	}
 
 	hr = device->CreateShaderResourceView(this->texture, &srvDesc, &this->shaderResourceView);
 
 	if (FAILED(hr))
 	{
-		LogError("DirectX failed to shader resource view for texture: %s", name.c_str());
+		LogError("DirectX failed to create shader resource view for texture: %s", name.c_str());
 		return false;
 	}
 
 	LogInfo("Shader Resource View created");
 
-	deviceContext->GenerateMips(this->shaderResourceView);
+	if (!isTextureCube)
+		deviceContext->GenerateMips(this->shaderResourceView);
 
 	RenderUtils::SetDebugName(this->shaderResourceView, DebugCategory::TEXTURE, type, name, "SRV");
 

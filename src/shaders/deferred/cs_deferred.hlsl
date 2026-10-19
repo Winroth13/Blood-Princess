@@ -41,6 +41,18 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float depth = depthStencilTexture[pixel].r;
     
+    float3 positionWorld = ReconstructWorldPosition(uv, depth);
+    float3 viewV = normalize(cameraPosition - positionWorld);
+    
+    if (depth == 1)
+    {
+        if ((environmentFlags & ENVIRONMENT_FLAG_HAS_SKYBOX) == ENVIRONMENT_FLAG_HAS_SKYBOX)
+            backBufferUAV[pixel] = float4(skyboxTexture.SampleLevel(samplerLinearWrap, -viewV, 0).rgb, 1.0f);
+        else
+            backBufferUAV[pixel] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        return;
+    }
+    
     float4 albedoMetallicSample = albedoMetallicTexture[pixel];
     float3 albedoColour = albedoMetallicSample.rgb;
     float metallic = albedoMetallicSample.a;
@@ -48,9 +60,6 @@ void main(uint3 id : SV_DispatchThreadID)
     float4 normalRoughnessSample = normalRoughnessTexture[pixel];
     float3 normalV = normalize(normalRoughnessSample.rgb * 2.0f - 1.0f);
     float roughness = normalRoughnessSample.a;
-    
-    float3 positionWorld = ReconstructWorldPosition(uv, depth);
-    float3 viewV = normalize(cameraPosition - positionWorld);
     
     float3 baseReflectivity = float3(0.04f, 0.04f, 0.04f);
     baseReflectivity = lerp(baseReflectivity, albedoColour, metallic);

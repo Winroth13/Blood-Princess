@@ -96,6 +96,15 @@ cbuffer PostProcessing : register(b6)
     float2 pad5;
 }
 
+cbuffer Environment : register(b7)
+{
+    float4 hsvShift;
+    uint environmentFlags;
+    float3 pad6;
+}
+
+#define ENVIRONMENT_FLAG_HAS_SKYBOX 1 << 0
+
 struct DirectionalLight
 {
     float3 direction;

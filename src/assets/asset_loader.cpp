@@ -33,6 +33,7 @@
 #include <fstream>
 #include <d3d11.h>
 #include <vector>
+#include <filesystem>
 
 #include "yaml-cpp/yaml.h"
 #include "serialization/custom_yaml_types.hpp"
@@ -81,14 +82,28 @@ std::shared_ptr<TextureCube> AssetLoader::Load<TextureCube>(const std::string &p
 
 	std::array<char *, 6> data;
 
+	std::filesystem::path filePath = path;
+	std::string extention = filePath.extension().string();
+	std::string basePath = filePath.replace_extension("").string();
+
+	std::array<std::string, 6> paths =
+	{
+		basePath + "_px" + extention,
+		basePath + "_nx" + extention,
+		basePath + "_py" + extention,
+		basePath + "_ny" + extention,
+		basePath + "_pz" + extention,
+		basePath + "_nz" + extention
+	};
+
 	for (int i = 0; i < 6; i++)
 	{
 		// TODO: Maybe we shouldn't hardcode desired channels to be four (RGBA)
-		data[i] = (char *)stbi_load(path.c_str(), &width, &height, &channels, 4);
+		data[i] = (char *)stbi_load(paths[i].c_str(), &width, &height, &channels, 4);
 
 		if (data[i] == nullptr)
 		{
-			LogWarn("Failed to load image data from file: %s (using fallback)", path.c_str());
+			LogWarn("Failed to load image data from file: %s (using fallback)", paths[i].c_str());
 			// Use fallback texture instead
 			// TODO: Maybe not load from file
 			data[i] = (char *)stbi_load("assets/images/fallback.png", &width, &height, &channels, 4);
@@ -105,13 +120,13 @@ std::shared_ptr<TextureCube> AssetLoader::Load<TextureCube>(const std::string &p
 
 	bool result = texture->Create(
 		data.data(), width, height,
-		channels, path, false,
+		channels, basePath, false,
 		this->device, this->deviceContext
 	);
 
 	if (!result)
 	{
-		LogError("Failed to create Texture2D for: %s", path.c_str());
+		LogError("Failed to create Texture2D for: %s", basePath.c_str());
 	}
 
 	return texture;

@@ -14,6 +14,6 @@ bool Texture2D::Create(
 	return Texture::Create(
 		&data, width, height,
 		channels, name, "Texture",
-		1, isRGB, device, deviceContext
+		false, isRGB, device, deviceContext
 	);
 }
