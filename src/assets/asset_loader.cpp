@@ -1,5 +1,6 @@
 #include "assets/asset_loader.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/texture_cube.hpp"
 #include "assets/types/model.hpp"
 #include "core/logging.hpp"
 #include "core/app_context.hpp"
@@ -66,6 +67,49 @@ std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path)
 
 	bool result = texture->Create(
 		data, width, height,
+		channels, path, false,
+		this->device, this->deviceContext
+	);
+
+	if (!result)
+	{
+		LogError("Failed to create Texture2D for: %s", path.c_str());
+	}
+
+	return texture;
+}
+
+template<>
+std::shared_ptr<TextureCube> AssetLoader::Load<TextureCube>(const std::string &path)
+{
+	int width, height, channels;
+
+	std::array<char *, 6> data;
+
+	for (int i = 0; i < 6; i++)
+	{
+		// TODO: Maybe we shouldn't hardcode desired channels to be four (RGBA)
+		data[i] = (char *)stbi_load(path.c_str(), &width, &height, &channels, 4);
+
+		if (data[i] == nullptr)
+		{
+			LogWarn("Failed to load image data from file: %s (using fallback)", path.c_str());
+			// Use fallback texture instead
+			// TODO: Maybe not load from file
+			data[i] = (char *)stbi_load("assets/images/fallback.png", &width, &height, &channels, 4);
+
+			// TODO: Remove once fallback has a place to stay or is built
+			if (data[i] == nullptr)
+			{
+				LogError("Failed to load fallback texture");
+			}
+		}
+	}
+
+	auto texture = std::make_shared<TextureCube>();
+
+	bool result = texture->Create(
+		data.data(), width, height,
 		channels, path, false,
 		this->device, this->deviceContext
 	);

@@ -1,9 +1,11 @@
 #pragma once
 #include "assets/asset_loader.hpp"
+#include "assets/texture.hpp"
 #include "core/logging.hpp"
 
 #include "assets/types/model.hpp"
 #include "assets/types/texture_2d.hpp"
+#include "assets/types/texture_cube.hpp"
 #include "assets/types/audio_clip.hpp"
 
 #include "assets/types/vertex_shader.hpp"

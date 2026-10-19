@@ -69,7 +69,7 @@ class PlayerControllerComponent : public Component
 	HurtboxComponent* hurtbox = nullptr;
 	bool isDead = false;
 	bool isParrying = false;
-
+	bool hasParriedThisParry = false;
 	/*
 	*	Sounds
 	*/
@@ -138,6 +138,7 @@ private:
 	void OnDeath();
 	void OnAttackHit(const struct AttackHitEvent& event);
 	void OnDamageTaken(const DamageTakenEvent& event);
+	void OnHitBlocked(HitboxComponent* hitbox);
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;

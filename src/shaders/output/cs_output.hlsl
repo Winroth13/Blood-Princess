@@ -140,6 +140,12 @@ void main(uint3 id : SV_DispatchThreadID)
     else
         ldr = Tonemap(outputTexture.SampleLevel(samplerLinearWrap, uv, 0).rgb);
     
+    if (debugMode >= 1 && debugMode <= 6)
+    {
+        backBufferUAV[pixel] = float4(ldr, 1.0f);
+        return;
+    }
+    
     float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
     float fogStart = 0.0f;
     float fogEnd = 15.0f;
