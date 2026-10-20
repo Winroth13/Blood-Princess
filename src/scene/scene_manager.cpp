@@ -7,6 +7,7 @@
 #include "scene/scenes/scene_death_screen.hpp"
 #include "scene/scenes/scene_win_screen.hpp"
 #include "scene/scenes/scene_settings.hpp"
+#include "scene/scenes/scene_level_trasition.hpp"
 
 void SceneManager::ChangeScene(const std::string &name) {
     if (!this->loader.Load(name, this->scene)) {
@@ -23,6 +24,7 @@ void SceneManager::ChangeScene(const std::string &name) {
 void SceneManager::RegisterScenes() {
     this->registry.AddScene("main_menu", Scenes::MainMenu);
     this->registry.AddScene("gameplay", Scenes::Gameplay);
+    this->registry.AddScene("level_transition", Scenes::LevelTransition);
     this->registry.AddScene("death_screen", Scenes::DeathScreen);
     this->registry.AddScene("win_screen", Scenes::WinScreen);
     this->registry.AddScene("settings", Scenes::Settings);

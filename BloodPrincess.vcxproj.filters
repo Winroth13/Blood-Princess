@@ -343,6 +343,8 @@
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
     <ClInclude Include="src\assets\texture.hpp" />
     <ClInclude Include="src\components\collisions\area_component.hpp" />
+    <ClInclude Include="src\core\math.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_level_trasition.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
