@@ -29,6 +29,9 @@
 #include "components/lights/point_light_component.hpp"
 #include "components/ai/enemy_controller_component.hpp"
 #include "core/application.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
+#include "components/gameplay/enemy_database_component.hpp"
+#include "components/gameplay/wave_controller.hpp"
 
 #include "core/math.hpp"
 
@@ -85,6 +88,9 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	Input::SetMouseMode(MouseMode::CAPTURED);
 
     this->dashCooldownTimer = this->dashCooldownDuration;
+
+	if (!this->ConnectComboSignals())
+		return;
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -179,6 +185,21 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	else if (this->audioManager && this->audioManager->GetPitchModifier() != 1.0f)
 	{
 		this->audioManager->SetPitchModifier(1.0f);
+	}
+
+	if (this->comboRemainingTime != -1.0f)
+	{
+		if (this->comboRemainingTime < deltaTime)
+		{
+			this->comboRemainingTime = -1.0f;
+			this->onComboRemainingTimeChanged.Emit(0.0f);
+			this->onComboEnd.Emit(this->GetScore());
+		}
+		else
+		{
+			this->comboRemainingTime -= deltaTime;
+			this->onComboRemainingTimeChanged.Emit(this->comboRemainingTime);
+		}
 	}
 
 	/* Handle Parry Reset */
@@ -382,16 +403,16 @@ void PlayerControllerComponent::PerformLightAttack()
 
 	LogInfo("Attack with light attack.");
 
-	this->currentAttack = this->combo;
+	this->currentAttack = this->attackCombo;
 
 	this->PerformAttack(this->attacks[this->currentAttack]);
 
-	this->combo++;
+	this->attackCombo++;
 	this->attackTimer = 0.0f;
 
-	if (this->combo >= this->numLightAttacks)
+	if (this->attackCombo >= this->numLightAttacks)
 	{
-		this->combo = 0;
+		this->attackCombo = 0;
 	}
 
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
@@ -411,7 +432,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 	this->PerformAttack(this->attacks[2]); // Heavy attack is attack 2
 
-	this->combo = 0;
+	this->attackCombo = 0;
 	this->attackTimer = 0.0f;
 
 	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
@@ -450,11 +471,11 @@ bool PlayerControllerComponent::CanAttack()
 	{
 		AttackData &currentAttackData = this->attacks[this->currentAttack];
 
-		bool inComboWindow =
+		bool inAttackComboWindow =
 			this->attackTimer >= currentAttackData.beginCombo &&
 			this->attackTimer <= currentAttackData.endCombo;
 
-		return inComboWindow;
+		return inAttackComboWindow;
 	}
 }
 
@@ -516,7 +537,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		if (this->viewmodelAnimator->IsFinished())
 		{
 			this->currentAttack = -1;
-			this->combo = 0;
+			this->attackCombo = 0;
 			this->hasActivatedHitboxThisAttack = false;
 			if (this->hitbox)
 			{
@@ -567,7 +588,7 @@ void PlayerControllerComponent::PerformParry()
 
 	this->isParrying = true;
 	this->currentAttack = -1;
-	this->combo = 0;
+	this->attackCombo = 0;
 	this->hasActivatedHitboxThisAttack = false;
 	if (this->hitbox)
 	{
@@ -612,6 +633,8 @@ void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)
 	{
 		this->hitStopTimer = HIT_STOP_TIME;
 	}
+
+	IncrementCombo();
 }
 
 void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
@@ -639,7 +662,7 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	uint32_t parryAnimIndex = 0;
 	do
 	{
-		parryAnimIndex = static_cast<uint32_t>(RNG::Int(0, this->parryAnimations.size() - 1));
+		parryAnimIndex = static_cast<uint32_t>(RNG::Int(0, static_cast<int>(this->parryAnimations.size()) - 1));
 	} while (parryAnimIndex == this->lastParryAnim);
 	this->lastParryAnim = parryAnimIndex;
 
@@ -776,6 +799,7 @@ void PlayerControllerComponent::SpawnSpark(XMFLOAT3 position)
 		pointLight->SetRadius(5.0f);
 	}
 
+	IncrementCombo();
 }
 
 void PlayerControllerComponent::OnDeath()
@@ -803,3 +827,45 @@ void PlayerControllerComponent::OnDeath()
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
 
+bool PlayerControllerComponent::ConnectComboSignals()
+{
+	if (!this->enemySpawner)
+	{
+		LogError("Player Controller needs Enemy Spawner");
+		return false;
+	}
+
+	if (!this->enemyDatabase)
+	{
+		LogError("Player Controller needs Enemy Databse");
+		return false;
+	}
+
+	this->enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
+	{
+		auto enemy = this->enemyDatabase->GetEnemy(type);
+		this->score += enemy->score;
+		this->comboRemainingTime = this->comboDuration;
+		this->onScoreChanged.Emit(this->score);
+	});
+
+	return true;
+}
+
+void PlayerControllerComponent::IncrementCombo()
+{
+	this->combo++;
+	this->comboRemainingTime = this->comboDuration;
+	this->onComboChanged.Emit(this->combo);
+}
+
+uint32_t PlayerControllerComponent::ClaimScore()
+{
+	int resultScore = this->score * this->combo;
+	this->score = 0;
+	this->onScoreChanged.Emit(this->score);
+	this->combo = 0;
+	this->onComboChanged.Emit(this->combo);
+	this->comboRemainingTime = -1.0f;
+	return resultScore;
+}

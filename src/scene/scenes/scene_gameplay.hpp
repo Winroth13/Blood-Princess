@@ -6,10 +6,13 @@
 
 #include <format>
 
-static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
+static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entity *spawnerEntity)
 {
     Entity* playerEntity = outScene.AddEntity("player");
-    playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
+    PlayerControllerComponent *playerController = playerEntity->AddComponent<PlayerControllerComponent>();
+    playerController->SetActive(true);
+    playerController->SetEnemySpawner(spawnerEntity->GetComponent<EnemySpawnerComponent>());
+    playerController->SetEnemyDatabase(spawnerEntity->GetComponent<EnemyDatabaseComponent>());
     playerEntity->AddComponent<TransformComponent>();
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
     transform->SetWorldPosition({-17.0f, 1.6f, -8.0f});
@@ -198,7 +201,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 // Not final!!!!!
-static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController) {
+static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController, LevelComponent *level) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -243,6 +246,45 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     controller->GetOnDashCooldownChanged().Connect([dashBar](float timer) {
         dashBar->SetValue(dashBar->GetMaxValue() - timer);
+    });
+
+    // Score
+    Entity *scorePanel = ui.CreatePanel(hud, { 250.0f, 150.0f }, "score_panel");
+    UI::Factory::Place(scorePanel, UI::Anchor::TOP_RIGHT, { -40.0f, 40.0f });
+
+    UITextComponent *scoreLabel = ui.CreateText(scorePanel, "Score: 0", 22.0f, "combo_score_label");
+    UI::Factory::Place(scoreLabel, UI::Anchor::TOP_LEFT, { 20.0f, 10.0f });
+    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+    level->GetOnScoreChanged().Connect([scoreLabel](uint32_t score)
+    {
+        scoreLabel->SetText("Score: " + std::to_string(score));
+    });
+
+    UITextComponent *comboScoreLabel = ui.CreateText(scorePanel, "Combo Score: 0", 22.0f, "combo_score_label");
+    UI::Factory::Place(comboScoreLabel, UI::Anchor::TOP_LEFT, { 20.0f, 40.0f });
+    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+    controller->GetOnScoreChanged().Connect([comboScoreLabel](uint32_t score)
+    {
+        comboScoreLabel->SetText("Combo Score: " + std::to_string(score));
+    });
+
+    UITextComponent *comboLabel = ui.CreateText(scorePanel, "Combo: 0", 22.0f, "combo_label");
+    UI::Factory::Place(comboLabel, UI::Anchor::TOP_LEFT, { 20.0f, 70.0f });
+    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+    controller->GetOnComboChanged().Connect([comboLabel](uint32_t combo)
+        {
+            comboLabel->SetText("Combo: " + std::to_string(combo));
+        });
+
+    UIBarComponent *comboBar = ui.CreateBar(scorePanel, 0.0f, controller->GetComboDuration(), "combo_bar");
+    UI::Factory::Place(comboBar, UI::Anchor::TOP_LEFT, { 20.0f, 110.0f });
+
+    controller->GetOnComboRemainingTimeChanged().Connect([comboBar](float comboTimeRemaining)
+    {
+        comboBar->SetValue(comboTimeRemaining);
     });
 
     ui.style.barSize = {420.0f, 15.0f};
@@ -565,10 +607,6 @@ namespace Scenes
         //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
         //musicComponent->SetVolume(0.2f);
 
-        Entity *playerEntity = CreatePlayer(outScene, appContext);
-
-        Health *health = playerEntity->GetComponent<Health>();
-
         // Gibs
         Entity *gibsEntity = CreateGibs(outScene, appContext);
 
@@ -578,10 +616,15 @@ namespace Scenes
         spawnerEntity->AddComponent<EnvironmentComponent>();
         spawnerEntity->AddComponent<EnemyDatabaseComponent>();
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
-        auto waveController = spawnerEntity->AddComponent<WaveController>();
-        spawnerEntity->AddComponent<LevelComponent>();
+        WaveController *waveController = spawnerEntity->AddComponent<WaveController>();
+        LevelComponent *level = spawnerEntity->AddComponent<LevelComponent>();
 
-        CreateHUD(outScene, appContext, playerEntity, waveController);
+        // Player
+        Entity *playerEntity = CreatePlayer(outScene, appContext, spawnerEntity);
+        Health *health = playerEntity->GetComponent<Health>();
+        level->SetPlayerController(playerEntity->GetComponent<PlayerControllerComponent>());
+
+        CreateHUD(outScene, appContext, playerEntity, waveController, level);
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
