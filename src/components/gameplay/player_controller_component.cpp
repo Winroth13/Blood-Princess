@@ -28,6 +28,9 @@
 #include "components/core/particle_system_component.hpp"
 #include "components/lights/point_light_component.hpp"
 #include "core/application.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
+#include "components/gameplay/enemy_database_component.hpp"
+#include "components/gameplay/wave_controller.hpp"
 
 #include "core/math.hpp"
 
@@ -84,6 +87,9 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	Input::SetMouseMode(MouseMode::CAPTURED);
 
     this->dashCooldownTimer = this->dashCooldownDuration;
+
+	if (!this->ConnectComboSignals())
+		return;
 }
 
 void PlayerControllerComponent::Update(const AppContext& context, float deltaTime)
@@ -179,6 +185,22 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	{
 		this->audioManager->SetPitchModifier(1.0f);
 	}
+
+	if (this->comboRemainingTime != -1.0f)
+	{
+		if (this->comboRemainingTime < deltaTime)
+		{
+			this->comboRemainingTime = -1.0f;
+			this->onComboRemainingTimeChanged.Emit(0.0f);
+			this->onComboEnd.Emit(this->GetScore());
+		}
+		else
+		{
+			this->comboRemainingTime -= deltaTime;
+			this->onComboRemainingTimeChanged.Emit(this->comboRemainingTime);
+		}
+	}
+}
 
 	/* Handle Parry Reset */
 	if (this->parryCountResetTimer > 0.0f)
@@ -611,6 +633,8 @@ void PlayerControllerComponent::OnAttackHit(const AttackHitEvent& event)
 	{
 		this->hitStopTimer = HIT_STOP_TIME;
 	}
+
+	IncrementCombo();
 }
 
 void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
@@ -765,6 +789,7 @@ void PlayerControllerComponent::SpawnSpark(XMFLOAT3 position)
 		pointLight->SetRadius(5.0f);
 	}
 
+	IncrementCombo();
 }
 
 void PlayerControllerComponent::OnDeath()
@@ -792,3 +817,45 @@ void PlayerControllerComponent::OnDeath()
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
 
+bool PlayerControllerComponent::ConnectComboSignals()
+{
+	if (!this->enemySpawner)
+	{
+		LogError("Player Controller needs Enemy Spawner");
+		return false;
+	}
+
+	if (!this->enemyDatabase)
+	{
+		LogError("Player Controller needs Enemy Databse");
+		return false;
+	}
+
+	this->enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
+	{
+		auto enemy = this->enemyDatabase->GetEnemy(type);
+		this->score += enemy->score;
+		this->comboRemainingTime = this->comboDuration;
+		this->onScoreChanged.Emit(this->score);
+	});
+
+	return true;
+}
+
+void PlayerControllerComponent::IncrementCombo()
+{
+	this->scoreCombo++;
+	this->comboRemainingTime = this->comboDuration;
+	this->onComboChanged.Emit(this->scoreCombo);
+}
+
+uint32_t PlayerControllerComponent::ClaimScore()
+{
+	int resultScore = this->score * this->scoreCombo;
+	this->score = 0;
+	this->onScoreChanged.Emit(this->score);
+	this->scoreCombo = 0;
+	this->onComboChanged.Emit(this->scoreCombo);
+	this->comboRemainingTime = -1.0f;
+	return resultScore;
+}

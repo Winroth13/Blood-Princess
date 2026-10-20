@@ -12,6 +12,9 @@ class Sound;
 class Health;
 class HurtboxComponent;
 class AudioManager;
+class EnemySpawnerComponent;
+class EnemyDatabaseComponent;
+class WaveController;
 
 struct AttackData
 {
@@ -63,6 +66,15 @@ class PlayerControllerComponent : public Component
 
 	// health
 	ExportProperty(float, maxHealth, 200);
+
+	// Combo
+	uint32_t score = 0;
+	uint32_t scoreCombo = 0;
+	float comboRemainingTime = -1.0f;
+	ExportProperty(float, comboDuration, 5.0f);
+
+	EnemySpawnerComponent *enemySpawner = nullptr;
+	EnemyDatabaseComponent *enemyDatabase = nullptr;
 
 	// movement
 	XMFLOAT3 velcoity = { 0.0f,0.0f,0.0f };
@@ -156,6 +168,10 @@ class PlayerControllerComponent : public Component
 	AudioManager *audioManager = nullptr;
 
     Signal<float> onDashCooldownChanged;
+	Signal<uint32_t> onScoreChanged;
+	Signal<uint32_t> onComboChanged;
+	Signal<uint32_t> onComboEnd;
+	Signal<float> onComboRemainingTimeChanged;
 
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
@@ -173,6 +189,9 @@ private:
 	void OnAttackHit(const struct AttackHitEvent& event);
 	void OnDamageTaken(const DamageTakenEvent& event);
 	void OnHitBlocked(HitboxComponent* hitbox);
+	bool ConnectComboSignals();
+	void IncrementCombo();
+
 
 	void SpawnSpark(XMFLOAT3 position);
 
@@ -182,6 +201,8 @@ public:
 	CameraComponent *camera = nullptr;
 
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
+	void SetEnemySpawner(EnemySpawnerComponent *enemnySpawner) { this->enemySpawner = enemnySpawner; }
+	void SetEnemyDatabase(EnemyDatabaseComponent *enemyDatabase) { this->enemyDatabase = enemyDatabase; }
 
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
@@ -217,6 +238,14 @@ public:
 	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
 
     float GetDashCooldownDuration() const { return this->dashCooldownDuration; }
+	uint32_t ClaimScore();
+	uint32_t GetScore() const { return this->score; }
+	uint32_t GetCombo() const { return this->combo; }
+	float GetComboDuration() const { return this->comboDuration; }
 
-    Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
+	Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
+	Signal<uint32_t> &GetOnScoreChanged() { return this->onScoreChanged; }
+	Signal<uint32_t> &GetOnComboChanged() { return this->onComboChanged; }
+	Signal<uint32_t> &GetOnComboEnd() { return this->onComboEnd; }
+	Signal<float> &GetOnComboRemainingTimeChanged() { return this->onComboRemainingTimeChanged; }
 };
