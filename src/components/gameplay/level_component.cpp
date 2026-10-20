@@ -5,6 +5,7 @@
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/wave_controller.hpp"
 #include "assets/types/floor.hpp"
+#include "scene/scene_manager.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
 {
@@ -35,6 +36,8 @@ void LevelComponent::OnStart(const AppContext &context)
 	);
 
 	waveController->StartFloor(context.assetManager->Get<Floor>("assets/floors/floor_one.yaml"));
+
+	this->sceneManager = context.sceneManager;
 }
 
 void LevelComponent::OnDestroy(const AppContext &context)
@@ -49,6 +52,7 @@ void LevelComponent::OnDestroy(const AppContext &context)
 void LevelComponent::OnPlayerDied(const PlayerDiedEvent &event)
 {
 	this->GatherScore();
+	this->sceneManager->RequestSceneChange("death_screen");
 }
 
 void LevelComponent::GatherScore()
