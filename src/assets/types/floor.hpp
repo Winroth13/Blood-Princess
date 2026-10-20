@@ -24,6 +24,8 @@ class Floor : public Asset
 {
 private:
 	XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float fogStartDepth = 0.0f;
+	float fogEndDepth = 1.0f;
 	std::vector<Wave> waves = {};
 
 public:
@@ -32,6 +34,12 @@ public:
 
 	XMFLOAT4 GetHSV() const { return this->hsv; }
 	void SetHSV(XMFLOAT4 hsv) { this->hsv = hsv; }
+
+	float GetFogStartDepth() const { return this->fogStartDepth; }
+	void SetFogStartDepth(float depth) { this->fogStartDepth = depth; }
+
+	float GetFogEndDepth() const { return this->fogEndDepth; }
+	void SetFogEndDepth(float depth) { this->fogEndDepth = depth; }
 
 	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }

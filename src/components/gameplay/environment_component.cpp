@@ -6,6 +6,8 @@ void EnvironmentComponent::Render(const RenderView &view, RenderQueue &queue)
     EnvironmentCommand environmentCommand{};
 
     environmentCommand.hsvShift = this->hsvShift;
+    environmentCommand.fogStartDepth = this->fogStartDepth;
+    environmentCommand.fogEndDepth = this->fogEndDepth;
 
     uint32_t flags = 0;
 

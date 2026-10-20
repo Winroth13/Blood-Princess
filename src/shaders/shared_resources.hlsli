@@ -100,7 +100,9 @@ cbuffer Environment : register(b7)
 {
     float4 hsvShift;
     uint environmentFlags;
-    float3 pad6;
+    float fogStartDepth;
+    float fogEndDepth;
+    float pad6;
 }
 
 #define ENVIRONMENT_FLAG_HAS_SKYBOX 1 << 0
