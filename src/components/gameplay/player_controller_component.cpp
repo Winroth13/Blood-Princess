@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "collision/collision_manager.hpp"
 #include "components/audio/audio_component.hpp"
+#include "audio/audio_manager.hpp"
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
 #include "components/collisions/hit_box_component.hpp"
@@ -32,6 +33,7 @@
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->application = context.application;
+	this->audioManager = context.audioManager;
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
@@ -163,6 +165,12 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 
 		float alpha = 1.0f - Math::easeInOutQuint(this->slowMotionTimer / SLOW_MOTION_TIME);
 		this->application->SetTimeScale(std::lerp(this->slowMotionMin, 1.0f, alpha));
+		if (this->audioManager)
+			this->audioManager->SetPitchModifier(std::lerp(0.4f, 1.0f, alpha));
+	}
+	else if (this->audioManager && this->audioManager->GetPitchModifier() != 1.0f)
+	{
+		this->audioManager->SetPitchModifier(1.0f);
 	}
 }
 
@@ -625,6 +633,8 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	if (ProjectileComponent *projectile = hitbox->GetOwner()->GetComponent<ProjectileComponent>())
 	{
 		this->slowMotionTimer = SLOW_MOTION_TIME;
+		if (this->audioManager)
+			this->audioManager->SetPitchModifier(0.4f);
 
 		hitbox->ClearIgnoreEntities();
 		hitbox->SetDamage(hitbox->GetDamage() * 2);
