@@ -89,6 +89,8 @@ struct EnvironmentCommand
 {
     XMFLOAT4 hsvShift;
     uint32_t environmentFlags;
+    float fogStartDepth;
+    float fogEndDepth;
 };
 
 struct ParticleSystemCommand

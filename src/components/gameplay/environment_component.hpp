@@ -7,6 +7,8 @@ class EnvironmentComponent : public Component {
 	RegisterComponent(EnvironmentComponent);
 
 	ExportProperty(DirectX::XMFLOAT4, hsvShift, { 0.0f, 1.0f, 1.0f, 0.0f });
+	ExportPropertyRanged(float, fogStartDepth, "", 0.0f, 0.99f, 0.005f, 0.0f);
+	ExportPropertyRanged(float, fogEndDepth, "", 0.0f, 1.0f, 0.005f, 1.0f);
 	ExportProperty(std::shared_ptr<TextureCube>, textureCube, nullptr);
 
 public:
