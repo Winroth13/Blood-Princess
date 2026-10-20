@@ -24,7 +24,7 @@ extends_offset: [0.0, 1.05, 0.0]
 
 # sounds
 start_attack_sound: assets/sounds/ogre_attack_01.sound
-attack_sound: assets/sounds/goblin_death_sounds.sound
+attack_sound: assets/sounds/ogre_smash.sound
 footstep_sound: assets/sounds/troll_footstep_sound.sound
 hit_sound: assets/sounds/goblin_hit_sound.sound
 death_sound: assets/sounds/goblin_death_sounds.sound
