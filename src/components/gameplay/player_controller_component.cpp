@@ -403,16 +403,16 @@ void PlayerControllerComponent::PerformLightAttack()
 
 	LogInfo("Attack with light attack.");
 
-	this->currentAttack = this->combo;
+	this->currentAttack = this->attackCombo;
 
 	this->PerformAttack(this->attacks[this->currentAttack]);
 
-	this->combo++;
+	this->attackCombo++;
 	this->attackTimer = 0.0f;
 
-	if (this->combo >= this->numLightAttacks)
+	if (this->attackCombo >= this->numLightAttacks)
 	{
-		this->combo = 0;
+		this->attackCombo = 0;
 	}
 
 	if (auto* characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
@@ -432,7 +432,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 
 	this->PerformAttack(this->attacks[2]); // Heavy attack is attack 2
 
-	this->combo = 0;
+	this->attackCombo = 0;
 	this->attackTimer = 0.0f;
 
 	if (auto *characterAudio = this->GetOwner()->GetComponent<CharacterAudioComponent>())
@@ -471,11 +471,11 @@ bool PlayerControllerComponent::CanAttack()
 	{
 		AttackData &currentAttackData = this->attacks[this->currentAttack];
 
-		bool inComboWindow =
+		bool inAttackComboWindow =
 			this->attackTimer >= currentAttackData.beginCombo &&
 			this->attackTimer <= currentAttackData.endCombo;
 
-		return inComboWindow;
+		return inAttackComboWindow;
 	}
 }
 
@@ -537,7 +537,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 		if (this->viewmodelAnimator->IsFinished())
 		{
 			this->currentAttack = -1;
-			this->combo = 0;
+			this->attackCombo = 0;
 			this->hasActivatedHitboxThisAttack = false;
 			if (this->hitbox)
 			{
@@ -588,7 +588,7 @@ void PlayerControllerComponent::PerformParry()
 
 	this->isParrying = true;
 	this->currentAttack = -1;
-	this->combo = 0;
+	this->attackCombo = 0;
 	this->hasActivatedHitboxThisAttack = false;
 	if (this->hitbox)
 	{
@@ -844,18 +844,18 @@ bool PlayerControllerComponent::ConnectComboSignals()
 
 void PlayerControllerComponent::IncrementCombo()
 {
-	this->scoreCombo++;
+	this->combo++;
 	this->comboRemainingTime = this->comboDuration;
-	this->onComboChanged.Emit(this->scoreCombo);
+	this->onComboChanged.Emit(this->combo);
 }
 
 uint32_t PlayerControllerComponent::ClaimScore()
 {
-	int resultScore = this->score * this->scoreCombo;
+	int resultScore = this->score * this->combo;
 	this->score = 0;
 	this->onScoreChanged.Emit(this->score);
-	this->scoreCombo = 0;
-	this->onComboChanged.Emit(this->scoreCombo);
+	this->combo = 0;
+	this->onComboChanged.Emit(this->combo);
 	this->comboRemainingTime = -1.0f;
 	return resultScore;
 }

@@ -69,7 +69,7 @@ class PlayerControllerComponent : public Component
 
 	// Combo
 	uint32_t score = 0;
-	uint32_t scoreCombo = 0;
+	uint32_t combo = 0;
 	float comboRemainingTime = -1.0f;
 	ExportProperty(float, comboDuration, 5.0f);
 
@@ -121,7 +121,7 @@ class PlayerControllerComponent : public Component
 	const uint32_t numHeavyAttacks = 1;
 
 	uint32_t currentAttack = -1;
-	uint32_t combo = 0;
+	uint32_t attackCombo = 0;
 	float attackTimer = 0.0f;
 	bool hasActivatedHitboxThisAttack = false;
 
