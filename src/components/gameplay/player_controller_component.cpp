@@ -629,11 +629,12 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	if (!this->isParrying)
 		return;
 
+	hitbox->Deactivate();
+
 	this->parryCount++;
 	this->parryCountResetTimer = PARRY_COUNTER_RESET_TIME;
 	this->isParrying = false;
 
-	
 	uint32_t parryAnimIndex = 0;
 	do
 	{
