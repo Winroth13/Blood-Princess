@@ -541,7 +541,7 @@ void PlayerControllerComponent::PerformParry()
 
 	if (this->hurtbox)
 	{
-		this->hurtbox->GrantInvulnerability(0.3f);
+		this->hurtbox->GrantInvulnerability(this->parryWindow);
 	}
 }
 
@@ -625,9 +625,10 @@ void PlayerControllerComponent::OnDeath()
 		hurtbox->SetActive(false);
 
 
-	this->GetOwner()->GetScene()->RemoveEntityFromGroup(
+	// TODO: Maybe enemies shouldn't assume that the player exists
+	/*this->GetOwner()->GetScene()->RemoveEntityFromGroup(
 		this->groupName, this->GetOwner()
-	);
+	);*/
 
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
