@@ -2,6 +2,7 @@
 #include "assets/asset_manager.hpp"
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
+#include "core/application.hpp"
 
 void AudioManager::FixedUpdate(float deltaTime)
 {
@@ -29,6 +30,8 @@ void AudioManager::FixedUpdate(float deltaTime)
 	for (auto& active : this->activeVoices)
 	{
 		if (!active.is3D || !active.voice) continue;
+		
+		active.voice->SetFrequencyRatio(active.pitch * this->application->GetTimeScale());
 
 		const float maxDistance = active.maxDistance > 0.0f ? active.maxDistance : 1.0f;
 
@@ -200,11 +203,12 @@ bool AudioManager::IsSoundPlaying(SoundId id) const
 	return false;
 }
 
-bool AudioManager::Initialize(AssetManager* assetManager)
+bool AudioManager::Initialize(AssetManager* assetManager, Application *application)
 {
 	LogInfo("Creating Audio Manager...");
 	LogIndent();
-
+	
+	this->application = application;
 	this->assetManager = assetManager;
 
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -368,7 +372,7 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume});
+	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume, pitch});
 	return id;
 }
 
@@ -532,7 +536,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume, minDistance, maxDistance, looping });
+	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume, pitch, minDistance, maxDistance, looping });
 	return id;
 }
 

@@ -36,6 +36,7 @@ public:
 
     void SetDestroyOnHit(bool destroy) { this->destroyOnHit = destroy; }
     void IgnoreEntity(Entity* target) { if (target) this->hitEntities[target] = -1.0f; }
+    void ClearIgnoreEntities() { this->hitEntities.clear(); }
 
     bool CanHit(Entity* target) const;
     void OnSuccessfulHit(Entity* victim, const DirectX::XMFLOAT3& hitPoint);

@@ -38,5 +38,7 @@ public:
     void SetFriction(float f) { this->friction = f; }
     void SetGroundY(float y) { this->groundY = y; this->hasCustomGroundY = true; }
     void SetDestroyOnGrounded(bool destroy) { this->destroyOnGrounded = destroy; }
+
+    XMFLOAT3 GetVelocity() const { return this->velocity; }
 };
 

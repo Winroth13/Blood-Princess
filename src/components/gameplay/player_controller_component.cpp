@@ -23,12 +23,15 @@
 #include "components/collisions/hurt_box_component.hpp"
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/projectile_component.hpp"
+#include "core/application.hpp"
+
+#include "core/math.hpp"
 
 #include <cmath>
 
-
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
+	this->application = context.application;
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
@@ -150,6 +153,17 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	HandleCameraLook(deltaTime);
 
 	HandleAttacks(deltaTime);
+
+	/* Handle Slowmotion */
+	if (this->slowMotionTimer >= 0.0f)
+	{
+		// this timer shouldn't be affected by timescale
+		this->slowMotionTimer -= deltaTime / this->application->GetTimeScale();
+
+		float alpha = 1.0f - Math::easeInOutQuint(this->slowMotionTimer / SLOW_MOTION_TIME);
+		LogInfo("%f", alpha);
+		this->application->SetTimeScale(std::lerp(this->slowMotionMin, 1.0f, alpha));
+	}
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
@@ -601,9 +615,22 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 			shake->AddTrauma(1.3f);
 	}
 
-	if (hitbox->GetOwner()->HasComponent<ProjectileComponent>())
+	// did we parry a projectile
+	if (ProjectileComponent *projectile = hitbox->GetOwner()->GetComponent<ProjectileComponent>())
 	{
-		this->GetOwner()->GetScene()->DestroyEntity(hitbox->GetOwner());
+		this->slowMotionTimer = SLOW_MOTION_TIME;
+
+		hitbox->ClearIgnoreEntities();
+		hitbox->SetDamage(hitbox->GetDamage() * 2);
+
+		auto collision = hitbox->GetOwner()->GetComponent<BoxCollisionComponent>();
+		collision->SetLayer(CollisionLayer::PLAYER_ATTACK);
+
+		XMFLOAT3 velocity = projectile->GetVelocity();
+		velocity.x = -velocity.x;
+		velocity.y = -velocity.y;
+		velocity.z = -velocity.z;
+		projectile->Launch(velocity, { 0.0f, 0.0f, 0.0f });
 	}
 }
 

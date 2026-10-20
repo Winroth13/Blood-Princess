@@ -104,7 +104,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->audioManager.Initialize(&this->assetManager)) {
+    if (!this->audioManager.Initialize(&this->assetManager, this)) {
         LogError("Failed to create audio Manager!");
         return false;
     }
@@ -196,17 +196,18 @@ void Application::Run()
         prevTime = currentTime;
 
         this->renderer.NewFrame();
-        this->Update(deltaTime);
+        this->Update(deltaTime * this->timeScale);
 
-        this->PreRender(deltaTime);
+        this->PreRender(deltaTime * this->timeScale);
         Debug::NewFrame();
         Debug::SetStatistic("FPS", 1.0f / deltaTime);
         Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
+        Debug::SetStatistic("timescale", this->timeScale);
 
         if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
             Debug::SetStatistic("Position", primary->cameraPosition);
 
-        this->Render(deltaTime);
+        this->Render(deltaTime * this->timeScale);
     }
 }
 

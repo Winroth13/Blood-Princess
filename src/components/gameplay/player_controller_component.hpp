@@ -127,6 +127,13 @@ class PlayerControllerComponent : public Component
 		)
 	};
 
+	// Slowmotion
+	const float SLOW_MOTION_TIME = 0.45f;
+	float slowMotionTimer = -1.0f;
+	float slowMotionMin = 0.01f;
+
+	Application *application = nullptr;
+
     Signal<float> onDashCooldownChanged;
 
 public:

@@ -8,11 +8,11 @@
 #include <string>
 #include <DirectXMath.h>
 
+class Application;
 class AssetManager;
 class AudioClip;
 
 using SoundId = uint32_t;
-
 
 struct ActiveSound
 {
@@ -22,6 +22,7 @@ struct ActiveSound
 	bool is3D = false;
 	DirectX::XMFLOAT3 position{ 0.0f, 0.0f, 0.0f };
 	float volume = 1.0f;
+	float pitch = 1.0f;
 	float minDistance = 0.0f;
 	float maxDistance = 5.0f;
 	bool looping = false;
@@ -38,6 +39,7 @@ private:
 	X3DAUDIO_HANDLE x3dAudio = {};
 	uint32_t destinationChannels = 0;
 
+	Application *application = nullptr;
 	AssetManager* assetManager = nullptr;
 
 	DirectX::XMFLOAT3 listenerPosition{ 0.0f, 0.0f, 0.0f };
@@ -54,7 +56,7 @@ public:
 	AudioManager() = default;
 	~AudioManager() = default;
 
-	bool Initialize(AssetManager* assetManager);
+	bool Initialize(AssetManager* assetManager, Application *application);
 	void Shutdown();
 
 	void FixedUpdate(float deltaTime);

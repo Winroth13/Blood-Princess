@@ -463,6 +463,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\debug.hpp" />
+    <ClInclude Include="src\core\math.hpp" />
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
     <ClInclude Include="src\editor\editor.hpp" />
