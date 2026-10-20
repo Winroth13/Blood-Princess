@@ -653,8 +653,6 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	if (!this->isParrying)
 		return;
 
-	hitbox->Deactivate();
-
 	this->parryCount++;
 	this->parryCountResetTimer = PARRY_COUNTER_RESET_TIME;
 	this->isParrying = false;
@@ -691,16 +689,11 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 
 	XMVECTOR lookVectorV = this->rootTransform->GetForwardV();
 
-	XMFLOAT3 sparkPositionF = rootTransform->GetWorldPosition();
-	XMVECTOR sparkPosition = XMLoadFloat3(&sparkPositionF);
-	sparkPosition = XMVectorAdd(sparkPosition, XMVectorScale(lookVectorV, -0.3f));
-	sparkPosition = XMVectorAdd(sparkPosition, XMVectorSet(0, 0.3f, 0, 0));
-	XMStoreFloat3(&sparkPositionF, sparkPosition);
-	this->SpawnSpark(hitbox->GetOwner()->GetComponent<TransformComponent>()->GetWorldPosition());
-
 	// did we parry a projectile
 	if (ProjectileComponent *projectile = hitbox->GetOwner()->GetComponent<ProjectileComponent>())
 	{
+		this->SpawnSpark(hitbox->GetOwner()->GetComponent<TransformComponent>()->GetWorldPosition());
+
 		this->slowMotionTimer = SLOW_MOTION_TIME;
 		if (this->audioManager)
 			this->audioManager->SetPitchModifier(0.4f);
@@ -734,12 +727,22 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	// did we parry an enemy?
 	else if (EnemyControllerComponent *enemyController = hitbox->GetOwner()->GetParent()->GetComponent<EnemyControllerComponent>())
 	{
+		hitbox->Deactivate();
+
 		XMVECTOR knockbackDirectionV = -lookVectorV;
 		knockbackDirectionV = XMVectorSetY(knockbackDirectionV, 0.0f);
 		XMFLOAT3 knockbackDirection = {};
 		XMStoreFloat3(&knockbackDirection, knockbackDirectionV);
 
-		enemyController->ApplyKnockback(knockbackDirection, 8.0f);
+		enemyController->ApplyKnockback(knockbackDirection, 4.0f);
+
+		XMFLOAT3 sparkPositionF = rootTransform->GetWorldPosition();
+		XMVECTOR sparkPosition = XMLoadFloat3(&sparkPositionF);
+		sparkPosition = XMVectorAdd(sparkPosition, XMVectorScale(lookVectorV, -0.3f));
+		sparkPosition = XMVectorAdd(sparkPosition, XMVectorSet(0, 0.3f, 0, 0));
+		XMStoreFloat3(&sparkPositionF, sparkPosition);
+
+		this->SpawnSpark(sparkPositionF);
 	}
 }
 
