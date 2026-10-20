@@ -172,6 +172,17 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	{
 		this->audioManager->SetPitchModifier(1.0f);
 	}
+
+	/* Handle Parry Reset */
+	if (this->parryCountResetTimer > 0.0f)
+	{
+		this->parryCountResetTimer -= deltaTime;
+
+		if (this->parryCountResetTimer <= 0.0f)
+		{
+			this->parryCount = 0;
+		}
+	}
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
@@ -542,7 +553,6 @@ void PlayerControllerComponent::PerformParry()
 		return;
 
 	this->isParrying = true;
-	this->hasParriedThisParry = false;
 	this->currentAttack = -1;
 	this->combo = 0;
 	this->hasActivatedHitboxThisAttack = false;
@@ -604,16 +614,18 @@ void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
 
 void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 {
-	if (!this->isParrying || this->hasParriedThisParry)
+	if (!this->isParrying)
 		return;
 
-	this->hasParriedThisParry = true;
+	this->parryCount++;
+	this->parryCountResetTimer = PARRY_COUNTER_RESET_TIME;
+	this->isParrying = false;
 
 	if (auto* parrySound = this->GetOwner()->GetComponent<AudioComponent>())
 	{
 		parrySound->SetAudio3D(false);
 		parrySound->SetLooping(false);
-		parrySound->SetPitch(RNG::Float(0.95f, 1.05f));
+		parrySound->SetPitch(RNG::Float(0.95f, 1.05f) * (1.0f + (this->parryCount - 1) * 0.3f));
 		parrySound->Play();
 	}
 

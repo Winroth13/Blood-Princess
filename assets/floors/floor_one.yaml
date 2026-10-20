@@ -10,11 +10,11 @@ waves:
   - completion: 0.75
     enemies:
       - type: skeleton
-        amount: 3
+        amount: 2
         time: 0
 
       - type: goblin
-        amount: 10
+        amount: 0
         time: 80
     
   - completion: 0.75

@@ -77,6 +77,11 @@ class PlayerControllerComponent : public Component
 	bool isDead = false;
 	bool isParrying = false;
 	bool hasParriedThisParry = false;
+
+	const float PARRY_COUNTER_RESET_TIME = 1.0f;
+	float parryCountResetTimer = -1.0f;
+	uint32_t parryCount = 0;
+
 	/*
 	*	Sounds
 	*/

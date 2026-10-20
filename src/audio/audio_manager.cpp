@@ -122,7 +122,7 @@ void AudioManager::UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& newP
 	}
 }
 
-void AudioManager::UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume)
+void AudioManager::UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume, float pitch)
 {
 	for (auto& active : this->activeVoices)
 	{
@@ -161,6 +161,7 @@ void AudioManager::UpdateAudio(SoundId id, float minDistance, float maxDistance,
 			active.is3D = is3D;
 			active.volume = volume;
 			active.looping = looping;
+			active.pitch = pitch;
 			break;
 		}
 	}

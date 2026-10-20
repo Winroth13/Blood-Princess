@@ -28,7 +28,7 @@ public:
 
 	void OnDestroy(const AppContext &context) override;
 
-	void Play(float volume = 1.0f);
+	void Play(float volume = 1.0f, float pitch = 1.0f);
 
 	void SetSound(std::shared_ptr<Sound> sound) { this->sound = sound; }
 

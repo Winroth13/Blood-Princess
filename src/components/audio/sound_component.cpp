@@ -89,7 +89,7 @@ bool SoundComponent::StopPlaying()
     return true;
 }
 
-void SoundComponent::Play(float volume)
+void SoundComponent::Play(float volume, float pitch)
 {
 	if (this->sound == nullptr)
 	{
@@ -114,6 +114,6 @@ void SoundComponent::Play(float volume)
     this->PlayClip(
         layer.audioClip,
         RNG::Float(layer.volumeRange.x, layer.volumeRange.y),
-        RNG::Float(layer.pitchRange.x, layer.pitchRange.y)
+        RNG::Float(layer.pitchRange.x, layer.pitchRange.y) * pitch
     );
 }

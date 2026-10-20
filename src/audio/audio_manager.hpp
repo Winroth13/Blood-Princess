@@ -70,7 +70,7 @@ public:
 	// 3D Positional Playback
 	SoundId PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume = 1.0f, float pitch = 1.0f, float minDistance = 0.0f, float maxDistance = 5.0f);
 	void UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& position);
-	void UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume);
+	void UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume, float pitch = 1.0f);
 	void UpdateAudio(SoundId id, float radius, bool looping, bool is3D, float volume);
 	void StopSound(SoundId id);
 	bool IsSoundPlaying(SoundId id) const;
