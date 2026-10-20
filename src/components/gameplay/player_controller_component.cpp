@@ -55,6 +55,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
+	this->parryShoutSound = context.assetManager->Get<Sound>("assets/sounds/player_parry_shout.sound");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
@@ -161,7 +162,6 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		this->slowMotionTimer -= deltaTime / this->application->GetTimeScale();
 
 		float alpha = 1.0f - Math::easeInOutQuint(this->slowMotionTimer / SLOW_MOTION_TIME);
-		LogInfo("%f", alpha);
 		this->application->SetTimeScale(std::lerp(this->slowMotionMin, 1.0f, alpha));
 	}
 }
@@ -607,6 +607,12 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 		parrySound->SetLooping(false);
 		parrySound->SetPitch(RNG::Float(0.95f, 1.05f));
 		parrySound->Play();
+	}
+
+	if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+	{
+		soundComponent->SetSound(this->parryShoutSound);
+		soundComponent->Play();
 	}
 
 	if (this->camera)

@@ -1,0 +1,6 @@
+sound:
+  - file: assets/audio/female_a/voice_female_a_laugh_01.ogg
+    min_pitch: 0.95
+    max_pitch: 1.05
+    min_volume: 2.0
+    max_volume: 2.0
