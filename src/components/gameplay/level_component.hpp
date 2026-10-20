@@ -14,6 +14,8 @@ class LevelComponent : public Component
 
 	ConnectionId playerDiedConnection = 0;
 
+	SceneManager *sceneManager = nullptr;
+
 	Signal<uint32_t> onScoreChanged;
 
 private:
