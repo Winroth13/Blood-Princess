@@ -104,7 +104,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->audioManager.Initialize(&this->assetManager)) {
+    if (!this->audioManager.Initialize(&this->assetManager, this)) {
         LogError("Failed to create audio Manager!");
         return false;
     }
@@ -164,6 +164,8 @@ bool Application::Initialize()
 
     LogInfo("Bindings path: %s", configPath.c_str());
 
+    this->window.SetIcon("assets/images/test_crown.png");
+
     LogUnindent();
     return true;
 }
@@ -194,17 +196,18 @@ void Application::Run()
         prevTime = currentTime;
 
         this->renderer.NewFrame();
-        this->Update(deltaTime);
+        this->Update(deltaTime * this->timeScale);
 
-        this->PreRender(deltaTime);
+        this->PreRender(deltaTime * this->timeScale);
         Debug::NewFrame();
         Debug::SetStatistic("FPS", 1.0f / deltaTime);
         Debug::SetStatistic("ms/f", 1000.0f * deltaTime);
+        Debug::SetStatistic("timescale", this->timeScale);
 
         if (RenderView *primary = RenderUtils::GetView(this->renderer.GetViews(), ViewType::PRIMARY))
             Debug::SetStatistic("Position", primary->cameraPosition);
 
-        this->Render(deltaTime);
+        this->Render(deltaTime * this->timeScale);
     }
 }
 
@@ -220,11 +223,10 @@ void Application::Shutdown()
     this->sceneManager.Shutdown();
     this->collisionManager.Shutdown();
     this->audioManager.Shutdown();
-    this->assetManager.Shutdown();
     this->renderer.Shutdown();
     this->window.Shutdown(); 
     this->aiManager.Shutdown();
-
+    this->assetManager.Shutdown();
     LogUnindent();
 }
 

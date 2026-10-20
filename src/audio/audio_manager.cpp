@@ -2,6 +2,7 @@
 #include "assets/asset_manager.hpp"
 #include "assets/types/audio_clip.hpp"
 #include "core/logging.hpp"
+#include "core/application.hpp"
 
 void AudioManager::FixedUpdate(float deltaTime)
 {
@@ -29,6 +30,7 @@ void AudioManager::FixedUpdate(float deltaTime)
 	for (auto& active : this->activeVoices)
 	{
 		if (!active.is3D || !active.voice) continue;
+		
 
 		const float maxDistance = active.maxDistance > 0.0f ? active.maxDistance : 1.0f;
 
@@ -200,11 +202,12 @@ bool AudioManager::IsSoundPlaying(SoundId id) const
 	return false;
 }
 
-bool AudioManager::Initialize(AssetManager* assetManager)
+bool AudioManager::Initialize(AssetManager* assetManager, Application *application)
 {
 	LogInfo("Creating Audio Manager...");
 	LogIndent();
-
+	
+	this->application = application;
 	this->assetManager = assetManager;
 
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -339,7 +342,7 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return 0;
 	}
-	sourceVoice->SetFrequencyRatio(pitch);
+	sourceVoice->SetFrequencyRatio(pitch * this->pitchModifier);
 	sourceVoice->SetVolume(volume);
 
 	XAUDIO2_BUFFER buffer = {};
@@ -368,7 +371,7 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume});
+	this->activeVoices.push_back({ id, sourceVoice, clip, false, { 0.0f, 0.0f, 0.0f }, volume, pitch});
 	return id;
 }
 
@@ -418,7 +421,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return 0;
 	}
-	sourceVoice->SetFrequencyRatio(pitch);
+	sourceVoice->SetFrequencyRatio(pitch * this->pitchModifier);
 
 	// Calculate 3D positional audio
 	X3DAUDIO_LISTENER listener = {};
@@ -532,7 +535,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 	}
 
 	SoundId id = this->nextSoundId++;
-	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume, minDistance, maxDistance, looping });
+	this->activeVoices.push_back({ id, sourceVoice, clip, true, position, volume, pitch, minDistance, maxDistance, looping });
 	return id;
 }
 
@@ -682,4 +685,17 @@ void AudioManager::SetMusicVolume(float volume)
 	{
 		this->musicVoice->SetVolume(volume);
 	}
+}
+void AudioManager::SetPitchModifier(float pitch)
+{
+	this->pitchModifier = pitch;
+
+	for (auto& active : this->activeVoices)
+	{
+	if (active.voice)
+		active.voice->SetFrequencyRatio(active.pitch * this->pitchModifier);
+	}
+
+	if (this->musicVoice)
+		this->musicVoice->SetFrequencyRatio(this->pitchModifier);
 }

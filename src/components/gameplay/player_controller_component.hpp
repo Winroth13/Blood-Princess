@@ -11,6 +11,7 @@ class CameraComponent;
 class Sound;
 class Health;
 class HurtboxComponent;
+class AudioManager;
 
 struct AttackData
 {
@@ -29,12 +30,14 @@ class PlayerControllerComponent : public Component
 {
 	RegisterComponent(PlayerControllerComponent);
 
+	ExportPropertyCategory("General");
 	ExportProperty(std::string, groupName, "players");
 	ExportProperty(float, moveSpeed, 5.5f);
 	ExportProperty(XMFLOAT2, mouseSensitivity, {0.1f,0.1f});
 	ExportProperty(float, pitch, 0.0f);
 	ExportProperty(float, yaw, 0.0f);
 
+	ExportPropertyCategory("Dashing");
 	ExportProperty(bool, canUseDash, true);
 	ExportProperty(bool, isDashing, false);
 	ExportProperty(float, dashCooldownTimer, .01f);
@@ -49,6 +52,10 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, minDashDensity, 0.4f);
 	ExportPropertyAngle(float, dashFov, DirectX::XMConvertToRadians(95.0f));
 
+	ExportPropertyCategory("Parry");
+	ExportProperty(float, parryWindow, 0.25f);
+
+	ExportPropertyCategory("Damage Flash");
 	ExportProperty(float, damageFlashDuration, 0.5f);
 	ExportProperty(float, damageFlashLingeringTimer, -1.0f);
 	ExportProperty(float, damageSoundDuration, 0.8f);
@@ -69,12 +76,13 @@ class PlayerControllerComponent : public Component
 	HurtboxComponent* hurtbox = nullptr;
 	bool isDead = false;
 	bool isParrying = false;
-
+	bool hasParriedThisParry = false;
 	/*
 	*	Sounds
 	*/
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
 	std::shared_ptr<Sound> hurtSound = nullptr;
+	std::shared_ptr<Sound> parryShoutSound = nullptr;
 
 	/*
 	*	Attacks
@@ -121,6 +129,14 @@ class PlayerControllerComponent : public Component
 		)
 	};
 
+	// Slowmotion
+	const float SLOW_MOTION_TIME = 0.5f;
+	float slowMotionTimer = -1.0f;
+	float slowMotionMin = 0.01f;
+
+	Application *application = nullptr;
+	AudioManager *audioManager = nullptr;
+
     Signal<float> onDashCooldownChanged;
 
 public:
@@ -138,6 +154,7 @@ private:
 	void OnDeath();
 	void OnAttackHit(const struct AttackHitEvent& event);
 	void OnDamageTaken(const DamageTakenEvent& event);
+	void OnHitBlocked(HitboxComponent* hitbox);
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;

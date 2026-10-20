@@ -1,0 +1,12 @@
+sound:
+  - file: assets/audio/female_a/voice_female_a_battle_shout_11.ogg
+    min_pitch: 0.95
+    max_pitch: 1.05
+    min_volume: 3.0
+    max_volume: 3.0
+
+  - file: assets/audio/female_a/voice_female_a_expression_emote_11.ogg
+    min_pitch: 0.95
+    max_pitch: 1.05
+    min_volume: 3.0
+    max_volume: 3.0

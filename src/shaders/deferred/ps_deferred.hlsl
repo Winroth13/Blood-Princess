@@ -1,4 +1,5 @@
 #include "../shared_resources.hlsli"
+#include "hsv.hlsli"
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -32,6 +33,15 @@ PixelShaderOutput main(PixelShaderInput input)
     float4 metallicRoughnessSample = metallicRoughnessTexture.Sample(samplerLinearWrap, input.uv0);
     
     float3 albedo = albedoSample.rgb * materialTint;
+
+    if ((materialFlags & MATERIAL_FLAG_HSV_ADJUSTED) == MATERIAL_FLAG_HSV_ADJUSTED)
+    {
+        float3 hsvAlbedo = RgbToHsv(albedo);
+        hsvAlbedo.r = lerp(hsvAlbedo.r, hsvShift.r, hsvShift.a);
+        hsvAlbedo.g *= hsvShift.g;
+        hsvAlbedo.b *= hsvShift.b;
+        albedo = HsvToRgb(hsvAlbedo);
+    }
     
     float3 normalSample = normalTexture.Sample(samplerLinearWrap, input.uv0).rgb * 2.0f - 1.0f;
     float3x3 tbnMatrix = float3x3(

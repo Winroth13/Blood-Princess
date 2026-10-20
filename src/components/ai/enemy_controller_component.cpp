@@ -2,7 +2,6 @@
 #include "components/core/transform_component.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
-#include <DirectXMath.h>
 #include "components/ai/target_component.hpp"
 #include "scene/scene.hpp"
 #include "events/event_bus.hpp"
@@ -14,31 +13,34 @@
 #include "components/skeletal/animator_component.hpp"
 #include "core/rng.hpp"
 #include "components/collisions/hit_box_component.hpp"
+#include "components/gameplay/gibs_component.hpp"
+#include "components/collisions/hurt_box_component.hpp"
+#include "scene/scene_manager.hpp"
+#include "assets/types/enemy.hpp"
+
 #include "components/gameplay/projectile_component.hpp"
 #include "components/core/model_component.hpp"
 #include "components/collisions/box_collision_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
+#include "components/core/particle_system_component.hpp"
+#include "components/lights/point_light_component.hpp"
+#include "components/collisions/area_component.hpp"
+#include "components/collisions/sphere_collision_component.hpp"
+#include "audio/audio_manager.hpp"
+#include "assets/types/audio_clip.hpp"
 #include <algorithm>
+#include <DirectXMath.h>
 
 uint32_t s_arrowCounter = 0;
 
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
-    if (!this->hitSound && context.assetManager) {
-        this->hitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_hit_sound.sound");
-    }
-    if (!this->attackHitSound && context.assetManager && this->enemyType == EnemyType::Goblin) {
-        this->attackHitSound = context.assetManager->Get<Sound>("assets/sounds/goblin_attack_hit.sound");
-    }
-
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
 
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    this->sound = this->GetOwner()->GetComponent<SoundComponent>();
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
-
-    this->SetEnemyType(this->enemyType);
-
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -58,12 +60,36 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
         this, &EnemyControllerComponent::OnAttackHit
     );
 
+    this->GetOwner()->GetComponent<Health>()->GetOnDeath().Connect([this, context]() {
+        this->OnDeath(context);
+    });
+
+    // TODO: Fix later so that this doesn't spawn blood when the enemy is healed (respawned)
+    this->GetOwner()->GetComponent<Health>()->GetOnChangedHealth().Connect([this, context](float currentHealth, float maxHealth) {
+
+        XMFLOAT3 position = this->GetPosition();
+        position.y += this->enemy->extends.y;
+
+        this->gibs->SpawnBlood(
+            context.sceneManager->GetCurrentScene(),
+            position,
+            0.4f
+        );
+    });
+
     this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 
     this->thisScene = this->GetOwner()->GetScene();
-    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
-}
 
+    this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
+    this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
+    this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
+    this->arrowPassbySound = context.assetManager->Get<Sound>("assets/sounds/arrow_passby.sound");
+
+    // Some dumb assumptions are made here but it's fine.
+    auto &children = this->GetOwner()->GetChildren();
+    this->hitboxEntity = children[0];
+}
 
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
@@ -82,15 +108,17 @@ void EnemyControllerComponent::OnDestroy(const AppContext & context)
 
 void EnemyControllerComponent::ApplyKnockback(const DirectX::XMFLOAT3& direction, float force)
 {
-    const float totalForce = force * this->knockbackMultiplier;
+    const float totalForce = force * this->enemy->knockbackFactor;
+
     if (totalForce <= 0.0f)
     {
         return;
     }
+
     this->knockbackVelocity.x = direction.x * totalForce;
     this->knockbackVelocity.y = 0.0f;
     this->knockbackVelocity.z = direction.z * totalForce;
-    this->knockbackStunTimer = this->knockbackStunDuration;
+    this->knockbackStunTimer = this->enemy->knockbackStunDuration;
 }
 
 void EnemyControllerComponent::ResetKnockback()
@@ -104,29 +132,10 @@ void EnemyControllerComponent::ResetKnockback()
     this->attackElapsed = 0.0f;
     this->hitboxActivated = false;
 
-    if (this->hitbox)
-        this->hitbox->Deactivate();
-}
+    auto *hitbox = this->hitboxEntity->GetComponent<HitboxComponent>();
 
-void EnemyControllerComponent::SetEnemyType(EnemyType type)
-{
-    this->enemyType = type;
-
-    const EnemyStats s = GetEnemyStats(type);
-
-    this->moveSpeed = s.moveSpeed;
-    this->stopDistance = s.stopDistance;
-    this->knockbackMultiplier = s.knockbackMultiplier;
-    this->attackDamage = s.attackDamage;
-    this->attackKnockback = s.attackKnockback;
-    this->attackHitboxDelay = s.attackHitboxDelay;
-    this->attackHitboxDuration = s.attackHitboxDuration;
-
-    if (this->hitbox)
-    {
-        this->hitbox->SetDamage(s.attackDamage);
-        this->hitbox->SetKnockbackForce(s.attackKnockback);
-    }
+    if (hitbox)
+        hitbox->Deactivate();
 }
 
 void EnemyControllerComponent::ShootAnArrow()
@@ -159,12 +168,19 @@ void EnemyControllerComponent::ShootAnArrow()
 
     // Predict future player position
     XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
-    playerPositionF.y += 0.3f; // Aim at player's center of mass (playerPos.y + 0.5f)
-    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
-
+    playerPositionF.y += 0.1f; // Aim at player's center of mass (playerPos.y + 0.3f)
+    
     XMFLOAT3 playerVelocityF = playerController->GetVelocity();
     XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
 
+    XMVECTOR vectorZero = XMVectorZero();
+    if (!XMVector3Equal(playerVelocityV, vectorZero)) {
+
+        playerPositionF.x += RNG::Float(-0.1f, 0.1f);
+        playerPositionF.z += RNG::Float(-0.1f, 0.1f);
+    }
+
+    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
     // Calculate timeToTarget
     XMVECTOR diffV = XMVectorSubtract(playerPositionV, arrowStartPosV);
     float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
@@ -178,6 +194,7 @@ void EnemyControllerComponent::ShootAnArrow()
 
     // Future position = current position + velocity * timeToTarget
     XMVECTOR futurePositionV = XMVectorAdd(playerPositionV, XMVectorScale(playerVelocityV, timeToTarget));
+
 
     // Ballistic trajectory:
     // displacement = futurePosition - arrowStartPos
@@ -193,7 +210,7 @@ void EnemyControllerComponent::ShootAnArrow()
     launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
 
     // Create arrow entity
-    Entity* arrowEnt = this->thisScene->AddEntity("Arrow_" + std::to_string(s_arrowCounter++));
+    Entity* arrowEnt = this->thisScene->AddEntity("Arrow");
 
     TransformComponent* transform = arrowEnt->AddComponent<TransformComponent>();
     transform->SetWorldPosition(arrowStartPos);
@@ -247,22 +264,85 @@ void EnemyControllerComponent::ShootAnArrow()
     arrowProj->SetRestitution(0.0f);
     arrowProj->SetGroundY(-2.5f);
     arrowProj->SetDestroyOnGrounded(true);
-    arrowProj->SetAliveTime(5.0f);
+    arrowProj->SetAliveTime(50.0f);
     arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
-}
 
+    SoundComponent *arrowSound = arrowEnt->AddComponent<SoundComponent>();
+    arrowSound->SetSound(this->arrowPassbySound);
+    arrowSound->SetIs3d(true);
+    arrowSound->SetMaxDistance(12.0f);
+    arrowSound->SetVolume(5.0f);
+
+    // fire entity
+    Entity* fireEnt = this->thisScene->AddEntity("flame");
+    fireEnt->SetParent(arrowEnt);
+
+    // we attach the audio to fire ent so that it can have it's own collision
+    SphereCollisionComponent *sphereCol = fireEnt->AddComponent<SphereCollisionComponent>();
+    sphereCol->SetRadius(8.0f);
+    sphereCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    sphereCol->SetTrigger(true);
+
+    AreaComponent *area = fireEnt->AddComponent<AreaComponent>();
+    area->GetOnAreaEntered().Connect([area, arrowSound](CollisionComponent* other) {
+        area->SetEnabled(false);
+        arrowSound->Play();
+    });
+
+    PointLightComponent *pointLight = fireEnt->AddComponent<PointLightComponent>();
+    pointLight->SetColour({0.88f, 0.34f, 0.13f});
+    pointLight->SetIntensity(75.0f);
+    pointLight->SetRadius(8.0f);
+
+    TransformComponent* fireTransform = fireEnt->AddComponent<TransformComponent>();
+    XMFLOAT3 arrowLengthOffset = {-0.25f, 0.1f, 0.0f};
+
+    fireTransform->SetLocalPosition(arrowLengthOffset);
+    fireTransform->SetLocalRotationQuaternion({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+    // Flame particle system
+    ParticleSystemComponent* flame = fireEnt->AddComponent<ParticleSystemComponent>();
+    flame->SetAtlasTexture(this->flameTexture);
+    flame->SetAtlasSize({ 12.0f, 6.0f });
+    flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
+    flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    flame->SetLifeTime(timeToTarget+50);
+    flame->SetStartScale(0.4f);
+    flame->SetEndScale(0.4f);
+    flame->SetIsAnimate(true);
+    flame->SetIsAdditive(true);
+    flame->SetSpawnRadius(0.0f);
+    flame->SetAnimationSpeed(1.2f);
+    flame->SetCount(3);
+
+    // Smoke particle system
+    ParticleSystemComponent* smoke = fireEnt->AddComponent<ParticleSystemComponent>();
+    smoke->SetAtlasTexture(this->smokeTexture);
+    smoke->SetAtlasSize({ 8.0f, 8.0f });
+    smoke->SetVelocity({ 0.0f, 0.4f, 0.0f });
+    smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    smoke->SetLifeTime(timeToTarget);
+    smoke->SetStartScale(0.1f);
+    smoke->SetEndScale(0.6f);
+    smoke->SetIsAnimate(true);
+    smoke->SetIsGlobal(true);
+    smoke->SetIsAdditive(false);
+    smoke->SetSpawnRadius(0.05f);
+    smoke->SetCount(25);
+
+    smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
+    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
+
+}
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
-    if (this->hitbox && event.attacker == this->hitbox->GetOwner())
+    if (event.attacker == this->hitboxEntity)
     {
-        if (this->attackHitSound)
+        if (this->enemy->hitSound)
         {
-            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
-            {
-                soundComponent->SetSound(this->attackHitSound);
-                soundComponent->Play();
-            }
+            sound->SetSound(this->enemy->hitSound);
+            sound->Play();
         }
         return;
     }
@@ -346,6 +426,177 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     this->ApplyKnockback(dir, event.knockbackForce);
 }
 
+void EnemyControllerComponent::Move(float deltaTime)
+{
+    XMVECTOR velocityV = XMLoadFloat3(&this->velocity);
+    XMVECTOR knockbackVelocityV = XMLoadFloat3(&this->knockbackVelocity);
+
+    XMFLOAT3 position = this->GetPosition();
+    XMVECTOR positionV = XMLoadFloat3(&position);
+
+    XMVECTOR newPositionV = XMVectorAdd(positionV, velocityV * deltaTime);
+    newPositionV = XMVectorAdd(newPositionV, knockbackVelocityV * deltaTime);
+
+    XMFLOAT3 newPosition = {};
+    XMStoreFloat3(&newPosition, newPositionV);
+
+    this->transform->SetWorldPosition(newPosition);
+}
+
+void EnemyControllerComponent::OnDeath(const AppContext &context)
+{
+    XMFLOAT3 position = this->GetPosition();
+    position.y += this->enemy->extends.y;
+
+    switch (this->enemy->type)
+    {
+        case EnemyType::GOBLIN:
+        case EnemyType::OGRE:
+        {
+            this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::GOBLIN);
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position,1.0f);
+        } break;
+
+        case EnemyType::SKELETON:
+            break;
+    }
+}
+
+bool EnemyControllerComponent::CanAttack(float distanceSq)
+{
+    if (isAttacking)
+         return false;
+
+    const float kbSpeedSq = (this->knockbackVelocity.x * this->knockbackVelocity.x) +
+        (this->knockbackVelocity.z * this->knockbackVelocity.z);
+
+    const bool hasKnockback = kbSpeedSq > 0.001f;
+
+    if (this->knockbackStunTimer > 0.0f || hasKnockback)
+    {
+        return false;
+    }
+
+    float minRangeSq = this->enemy->minRange * this->enemy->minRange;
+    float maxRangeSq = this->enemy->maxRange * this->enemy->maxRange;
+
+    if (!(distanceSq >= minRangeSq && distanceSq <= maxRangeSq))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void EnemyControllerComponent::StartAttack(float deltaTime)
+{
+    this->isAttacking = true;
+    this->hasAttacked = false;
+    this->attackElapsed = 0.0f;
+
+    auto *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
+    this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
+    this->animator->SetSpeed(1.0f);
+
+    if (this->enemy->type == EnemyType::SKELETON)
+    {
+        this->sound->SetMinDistance(25.0f);
+        this->sound->SetMaxDistance(25.0f);
+    }
+
+    this->sound->SetSound(this->enemy->startAttackSound);
+    this->sound->Play();
+
+    this->sound->SetMinDistance(1.0f);
+    this->sound->SetMaxDistance(25.0f);
+}
+
+void EnemyControllerComponent::EndAttack()
+{
+    this->isAttacking = false;
+    this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
+}
+
+void EnemyControllerComponent::UpdateAttack(float deltaTime)
+{
+    if (!this->isAttacking) 
+        return;
+
+    this->attackElapsed += deltaTime;
+
+    if (!hasAttacked && attackElapsed >= this->enemy->attackTime)
+    {
+        this->Attack();
+    }
+
+    if (this->animator->IsFinished())
+    {
+        this->EndAttack();
+    }
+}
+
+void EnemyControllerComponent::Attack()
+{
+    this->hasAttacked = true;
+
+    this->sound->SetSound(this->enemy->attackSound);
+    this->sound->Play();
+
+    switch (this->enemy->type)
+    {
+        case EnemyType::GOBLIN:
+        {
+            this->MeleeAttack(5.0, 0.5f, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+        } break;
+        case EnemyType::OGRE:
+        {
+            this->MeleeAttack(50, 0.5f, {0.0f, 0.73f, 1.45f}, {0.5f, 0.5f, 0.5f});
+
+        } break;
+        case EnemyType::SKELETON:
+        {
+            this->FireProjectile();
+        } break;
+    }
+}
+
+void EnemyControllerComponent::MeleeAttack(float damage, float duration, XMFLOAT3 hitPosition, XMFLOAT3 hitExtends)
+{
+    auto hitbox = this->hitboxEntity->GetComponent<HitboxComponent>();
+    auto transform = this->hitboxEntity->GetComponent<TransformComponent>();
+    auto collision = this->hitboxEntity->GetComponent<BoxCollisionComponent>();
+
+    transform->SetLocalPosition(hitPosition);
+
+    collision->SetExtents(hitExtends);
+
+    hitbox->SetDamage(damage);
+    hitbox->Activate(duration);
+}
+
+void EnemyControllerComponent::FireProjectile()
+{
+    this->ShootAnArrow();
+}
+
+void EnemyControllerComponent::UpdateBark(float deltaTime)
+{
+    if (this->enemy->barkSound)
+    {
+        this->randomSoundTimer -= deltaTime;
+        if (this->randomSoundTimer <= 0.0f)
+        {
+            this->randomSoundTimer = RNG::Float(
+                this->randomSoundMinInterval, 
+                this->randomSoundMaxInterval
+            );
+
+            this->sound->SetSound(this->enemy->barkSound);
+            this->sound->Play();
+        }
+    }
+}
+
 DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
 {
     if (!this->transform)
@@ -354,27 +605,15 @@ DirectX::XMFLOAT3 EnemyControllerComponent::GetPosition() const
     return this->transform->GetWorldPosition();
 }
 
-void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
-    const SpatialGrid& grid)
+void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, const SpatialGrid& grid)
 {
-    if (!this->transform) return;
+    if (!this->transform) 
+        return;
 
-    if (this->randomSound)
-    {
-        this->randomSoundTimer -= deltaTime;
-        if (this->randomSoundTimer <= 0.0f)
-        {
-            this->randomSoundTimer = RNG::Float(this->randomSoundMinInterval, this->randomSoundMaxInterval);
-            if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
-            {
-                soundComponent->SetSound(this->randomSound);
-                soundComponent->Play();
-            }
-        }
-    }
+    this->UpdateBark(deltaTime);
 
     XMFLOAT3 myPosF = this->transform->GetWorldPosition();
-    XMVECTOR myPos = XMLoadFloat3(&myPosF);
+    XMVECTOR positionV = XMLoadFloat3(&myPosF);
 
     XMVECTOR kbVel = XMLoadFloat3(&this->knockbackVelocity);
     const float kbSpeedSq = XMVectorGetX(XMVector3LengthSq(kbVel));
@@ -387,198 +626,92 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex,
 
     if (hasKnockback)
     {
-        myPos = XMVectorAdd(myPos, XMVectorScale(kbVel, deltaTime));
+        positionV = XMVectorAdd(positionV, XMVectorScale(kbVel, deltaTime));
 
-        const float decay = (std::max)(0.0f, 1.0f - this->knockbackDecay * deltaTime);
+        const float decay = (std::max)(0.0f, 1.0f - this->enemy->knockbackDecay * deltaTime);
         kbVel = XMVectorScale(kbVel, decay);
         XMStoreFloat3(&this->knockbackVelocity, kbVel);
     }
 
-    Entity* playerEnt =
-        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    if (!playerEnt)
-    {
-        if (hasKnockback)
-        {
-            myPos = XMVectorSetY(myPos, myPosF.y);
-            XMFLOAT3 outPos;
-            XMStoreFloat3(&outPos, myPos);
-            this->transform->SetWorldPosition(outPos);
-        }
-        return;
-    }
-
-    TransformComponent* playerT = playerEnt->GetComponent<TransformComponent>();
-    if (!playerT)
-    {
-        if (hasKnockback)
-        {
-            myPos = XMVectorSetY(myPos, myPosF.y);
-            XMFLOAT3 outPos;
-            XMStoreFloat3(&outPos, myPos);
-            this->transform->SetWorldPosition(outPos);
-        }
-        return;
-    }
+    Entity* playerEnt = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    TransformComponent* playerTransform = playerEnt->GetComponent<TransformComponent>();
 
     if (!this->animator)
     {
         this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     }
 
-    XMFLOAT3 playerPosF = playerT->GetWorldPosition();
-    XMVECTOR player = XMLoadFloat3(&playerPosF);
+    XMFLOAT3 playerPosF = playerTransform->GetWorldPosition();
+    XMVECTOR playerPos = XMLoadFloat3(&playerPosF);
+    XMVECTOR toPlayerV = XMVectorSetY(XMVectorSubtract(playerPos, positionV), 0.0f);
 
-    XMVECTOR toPlayer = XMVectorSetY(XMVectorSubtract(player, myPos), 0.0f);
-    const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayer));
-    const bool inAttackRange = distSq <= (this->stopDistance * this->stopDistance);
+    const float distSq = XMVectorGetX(XMVector3LengthSq(toPlayerV));
+    
+    XMVECTOR velocityV = {0.0f, 0.0f, 0.0f, 0.0f};
 
-    if (distSq > 1e-4f)
+    if (this->CanAttack(distSq))
     {
-        XMFLOAT3 dir;
-        XMStoreFloat3(&dir, toPlayer);
-        const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
-        this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
+        this->StartAttack(deltaTime);
     }
-
-    EnemyStats stats = GetEnemyStats(this->enemyType);
-
-    if (this->isAttacking)
+    else
     {
-        if (this->enemyType == EnemyType::Skeleton && inAttackRange && this->knockbackStunTimer <= 0.0f)
+        if (!this->isAttacking)
         {
-            this->shootTimer -= deltaTime;
-            if (this->shootTimer <= 0.0f)
+            // enemy should always move towards the player
+            velocityV = XMVector3Normalize(toPlayerV) * this->enemy->moveSpeed;
+
+            if (
+                this->enemy->type == EnemyType::SKELETON 
+                && distSq < this->enemy->minRange * this->enemy->minRange
+            )
             {
-                this->ShootAnArrow();
-                this->shootTimer = this->cooldown;
+                velocityV = -velocityV * 0.75; // enemies should flee
             }
+
+            // enemy should avoid other enemies
+            XMVECTOR avoidV = XMVectorSetY(grid.ComputeAvoidance(myGridIndex, this->enemy->avoidanceRadius), 0.0f);
+            velocityV = XMVectorAdd(velocityV, avoidV);
         }
 
-        this->attackElapsed += deltaTime;
-
-        if (!this->hitboxActivated && this->attackElapsed >= this->attackHitboxDelay)
+        // rotate enemy towards player
+        if ((distSq > 1e-4f && !this->isAttacking) || enemy->type == EnemyType::SKELETON)
         {
-            this->hitboxActivated = true;
-            if (this->hitbox)
-                this->hitbox->Activate(this->attackHitboxDuration);
-        }
-
-        if (!this->animator || this->animator->IsFinished())
-        {
-            if (inAttackRange && this->knockbackStunTimer <= 0.0f && this->animator && this->animator->HasAnimation(stats.attackAnimation))
-            {
-                // restart the swing
-                this->attackElapsed = 0.0f;
-                this->hitboxActivated = false;
-                this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
-            }
-            else
-            {
-                this->isAttacking = false;
-                this->attackElapsed = 0.0f;
-                this->hitboxActivated = false;
-                if (this->hitbox)
-                    this->hitbox->Deactivate();
-
-                if (this->animator && this->animator->HasAnimation(stats.walkAnimation))
-                    this->animator->CrossFade(stats.walkAnimation, 0.15f, true);
-            }
+            XMFLOAT3 dir;
+            XMStoreFloat3(&dir, toPlayerV);
+            const float angleDeg = atan2f(dir.x, dir.z) * (180.0f / XM_PI);
+            this->transform->SetWorldRotation(0.0f, angleDeg, 0.0f);
         }
     }
-    else if (inAttackRange && this->knockbackStunTimer <= 0.0f)
+
+    if (this->enemy->type != EnemyType::GOBLIN)
     {
-        this->isAttacking = true;
-        this->attackElapsed = 0.0f;
-        this->hitboxActivated = false;
-
-        if (this->animator && this->animator->HasAnimation(stats.attackAnimation))
-            this->animator->CrossFade(stats.attackAnimation, 0.1f, false);
-    }
-
-    XMVECTOR steer = XMVectorZero();
-
-    if (!this->isAttacking && !inAttackRange)
-    {
-        XMVECTOR seek = XMVectorZero();
-        if (distSq > 1e-4f && this->knockbackStunTimer <= 0.0f)
+        if (this->animator && !this->isAttacking)
         {
-            seek = XMVector3Normalize(toPlayer);
-        }
-
-        XMVECTOR avoid = XMVectorSetY(grid.ComputeAvoidance(myGridIndex,
-            this->avoidanceRadius),
-            0.0f);
-
-        steer = XMVectorSetY(XMVectorAdd(seek, avoid), 0.0f);
-    }
-
-    const float steerLen = XMVectorGetX(XMVector3Length(steer));
-    if (steerLen > 1e-4f)
-    {
-        float effectiveSteerLen = steerLen;
-        if (steerLen > 1.0f)
-        {
-            steer = XMVectorScale(steer, 1.0f / steerLen);
-            effectiveSteerLen = 1.0f;
-        }
-
-        const float distMoved = effectiveSteerLen * this->moveSpeed * deltaTime;
-        myPos = XMVectorAdd(myPos,
-            XMVectorScale(steer,
-                this->moveSpeed * deltaTime));
-
-        if (this->footstepSound)
-        {
-            if (this->animator && (this->animator->IsPlaying("Walk") || this->animator->IsPlaying("Jog")))
+            const float currAnimTime = this->animator->GetTime();
+            if (this->lastFootstepAnimTime >= 0.0f)
             {
-                const float currAnimTime = this->animator->GetTime();
-                if (this->lastFootstepAnimTime >= 0.0f)
-                {
-                    const float prevAnimTime = this->lastFootstepAnimTime;
-                    auto crossedTime = [prevAnimTime, currAnimTime](float targetTime) {
-                        if (currAnimTime >= prevAnimTime)
-                            return prevAnimTime < targetTime && currAnimTime >= targetTime;
-                        return prevAnimTime < targetTime || currAnimTime >= targetTime;
+                const float prevAnimTime = this->lastFootstepAnimTime;
+                auto crossedTime = [prevAnimTime, currAnimTime](float targetTime) {
+                    if (currAnimTime >= prevAnimTime)
+                        return prevAnimTime < targetTime && currAnimTime >= targetTime;
+                    return prevAnimTime < targetTime || currAnimTime >= targetTime;
                     };
 
-                    if (crossedTime(0.1f) || crossedTime(0.85f))
-                    {
-                        if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
-                        {
-                            soundComponent->SetSound(this->footstepSound);
-                            soundComponent->Play();
-                        }
-                    }
-                }
-                this->lastFootstepAnimTime = currAnimTime;
-            }
-            else if (this->footstepIntervalMeters > 0.0f)
-            {
-                this->movementDistanceAccumulator += distMoved;
-                if (this->movementDistanceAccumulator >= this->footstepIntervalMeters)
+                if (crossedTime(0.1f) || crossedTime(0.85f))
                 {
-                    this->movementDistanceAccumulator = 0.0f;
-                    if (auto* soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+                    if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
                     {
-                        soundComponent->SetSound(this->footstepSound);
+                        soundComponent->SetSound(this->enemy->footstepSound);
                         soundComponent->Play();
                     }
                 }
             }
+            this->lastFootstepAnimTime = currAnimTime;
         }
     }
-    else
-    {
-        this->lastFootstepAnimTime = -1.0f;
-    }
+    
+    XMStoreFloat3(&this->velocity, velocityV);
+    this->Move(deltaTime);
 
-    if (steerLen > 1e-4f || hasKnockback)
-    {
-        myPos = XMVectorSetY(myPos, myPosF.y);
-
-        XMFLOAT3 outPos;
-        XMStoreFloat3(&outPos, myPos);
-        this->transform->SetWorldPosition(outPos);
-    }
+    this->UpdateAttack(deltaTime);
 }

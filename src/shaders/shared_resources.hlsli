@@ -35,12 +35,15 @@ cbuffer PerObject : register(b2)
     float4x4 worldInvTransposeMatrix;
 };
 
+#define MATERIAL_FLAG_HSV_ADJUSTED 1 << 0
+
 cbuffer PerMaterial : register(b3)
 {
     float3 materialTint;
     float materialSpecular;
     float materialSpecularExponent;
-    float3 pad2;
+    uint materialFlags;
+    float2 pad2;
 }
 
 cbuffer Light : register(b4)
@@ -92,6 +95,17 @@ cbuffer PostProcessing : register(b6)
     float damageFlashFeather;
     float2 pad5;
 }
+
+cbuffer Environment : register(b7)
+{
+    float4 hsvShift;
+    uint environmentFlags;
+    float fogStartDepth;
+    float fogEndDepth;
+    float pad6;
+}
+
+#define ENVIRONMENT_FLAG_HAS_SKYBOX 1 << 0
 
 struct DirectionalLight
 {

@@ -35,11 +35,12 @@ void HurtboxComponent::OnDestroy(const AppContext& context)
 
 void HurtboxComponent::OnCollision(const CollisionEvent& e)
 {
-
     if (!e.selfCollider || e.selfCollider->GetOwner() != this->GetOwner())
         return;
-    if (!this->IsActive() || this->IsInvulnerable() || !e.otherCollider)
+
+    if (!this->IsActive() || !e.otherCollider)
         return;
+
     Entity* otherEntity = e.otherCollider->GetOwner();
     if (!otherEntity || !otherEntity->IsActive())
         return;
@@ -52,6 +53,12 @@ void HurtboxComponent::OnCollision(const CollisionEvent& e)
     Entity* victim = this->GetOwner();
     if (!hitbox->CanHit(victim))
         return;
+
+    if (this->IsInvulnerable())
+    {
+        this->onHitBlocked.Emit(hitbox);
+        return;
+    }
 
     TransformComponent* victimTransform = victim->GetComponent<TransformComponent>();
     DirectX::XMFLOAT3 hitPos = victimTransform ? victimTransform->GetWorldPosition() : DirectX::XMFLOAT3(0, 0, 0);
@@ -73,22 +80,23 @@ void HurtboxComponent::OnCollision(const CollisionEvent& e)
         finalDamage,
         hitPos,
         e.normal
-        });
-
-
-
-    LogInfo("The HurtBox is lossing Hp, Max: %f, Current: %f", this->cachedHealth->GetMaxHealth(), this->cachedHealth->GetCurrentHealth());
+    });
 }
-
 
 bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOAT3& hitPoint, const DirectX::XMFLOAT3& hitNormal)
 {
-    if (!this->IsActive() || !hitbox || this->IsInvulnerable())
+    if (!this->IsActive() || !hitbox)
         return false;
 
     Entity* target = this->GetOwner();
     if (!hitbox->CanHit(target))
         return false;
+
+    if (this->IsInvulnerable())
+    {
+        this->onHitBlocked.Emit(hitbox);
+        return false;
+    }
 
     float finalDamage = hitbox->GetDamage() * this->damageMultiplier;
 
@@ -109,7 +117,9 @@ bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOA
         finalDamage,
         hitPoint,
         hitNormal
-        });
+    });
+
+    this->onHurt.Emit();
 
     return true;
 }

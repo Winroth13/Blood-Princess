@@ -18,6 +18,7 @@ public:
     std::vector<SpotLightCommand> spotLightCommands;
 
     std::optional<SkyboxCommand> skyboxCommand;
+    std::optional<EnvironmentCommand> environmentCommand;
 
     std::vector<ParticleSystemCommand> particleSystemCommand;
 
@@ -70,6 +71,11 @@ public:
         this->skyboxCommand = command;
     }
 
+    void Submit(const EnvironmentCommand &command)
+    {
+        this->environmentCommand = command;
+    }
+
     void Submit(const ParticleSystemCommand &command)
     {
         this->particleSystemCommand.push_back(command);
@@ -87,6 +93,7 @@ public:
     const std::vector<DirectionalLightCommand>& GetDirectionalLightCommands() { return this->directionalLightCommands; }
     const std::vector<SpotLightCommand>& GetSpotLightCommands() { return this->spotLightCommands; }
     const std::optional<SkyboxCommand> &GetSkyboxCommand() { return this->skyboxCommand; }
+    const std::optional<EnvironmentCommand> &GetEnvironmentCommand() { return this->environmentCommand; }
     const std::vector<ParticleSystemCommand> &GetParticleSystemCommand() { return this->particleSystemCommand; }
     const std::vector<PaintCommand> &GetPaintCommands() { return this->paintCommands; }
 };

@@ -226,6 +226,15 @@ void DeferredPass::RenderGeometryPass(
 
 	deviceContext->RSSetViewports(1, &viewport);
 
+	std::optional<EnvironmentCommand> environmentCommand = view->queue.environmentCommand;
+	if (environmentCommand.has_value())
+		sharedResources.UploadEnvironmentData(deviceContext, environmentCommand.value());
+	else
+		LogWarn("Environment Command not found in Deferred Geometry Pass");
+
+	ID3D11Buffer *environment = sharedResources.GetEnvironment();
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::ENVIRONMENT, 1, &environment);
+
 	std::array<ID3D11ShaderResourceView *, 4> srvs;
 
     bool isSkinnedBound = false;
@@ -267,6 +276,7 @@ void DeferredPass::RenderGeometryPass(
 		perMaterialData.materialTint = tint;
 		perMaterialData.materialSpecular = 0.8f;
 		perMaterialData.materialSpecularExponent = 80.0f;
+		perMaterialData.materialFlags = command.materialFlags;
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 
@@ -341,13 +351,26 @@ void DeferredPass::RenderLightingPass(
 	 };
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 
+	 std::optional<SkyboxCommand> skybox = view->queue.skyboxCommand;
+	 if (skybox.has_value())
+		 deviceContext->CSSetShaderResources(static_cast<UINT>(srvs.size()), 1, &skybox.value().skyboxSRV);
+
 	 ID3D11Buffer *light = sharedResources.GetLightBuffer();
 	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::LIGHT, 1, &light);
 
 	 deviceContext->CSSetShader(this->computeShader->GetShader(), nullptr, 0);
 
 	 ID3D11Buffer *perView = sharedResources.GetPerView();
-	 deviceContext->CSSetConstantBuffers(0, 1, &perView);
+	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
+
+	 std::optional<EnvironmentCommand> environmentCommand = view->queue.environmentCommand;
+	 if (environmentCommand.has_value())
+		 sharedResources.UploadEnvironmentData(deviceContext, environmentCommand.value());
+	 else
+		 LogWarn("Environment Command not found in Deferred Light Pass");
+
+	 ID3D11Buffer *environment = sharedResources.GetEnvironment();
+	 deviceContext->CSSetConstantBuffers(+ConstantBufferSlot::ENVIRONMENT, 1, &environment);
 
 	 const UINT groupsX = (this->width + 7) / 8;
 	 const UINT groupsY = (this->height + 7) / 8;

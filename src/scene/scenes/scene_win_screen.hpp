@@ -12,6 +12,7 @@ namespace Scenes {
         hud->AddComponent<TransformComponent>();
         hud->AddComponent<CameraComponent>();
         hud->AddComponent<EndScreenComponent>();
+        hud->AddComponent<EnvironmentComponent>();
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);

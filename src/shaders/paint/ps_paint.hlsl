@@ -8,7 +8,7 @@ struct PixelShaderInput
     float3 normal : NORMAL;
 };
 
-cbuffer Paint : register(b7)
+cbuffer Paint : register(b8)
 {
     float3 paintPosition;
     float paintRadius;

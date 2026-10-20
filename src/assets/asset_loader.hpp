@@ -10,6 +10,7 @@ struct ID3D11DeviceContext;
 
 class AssetManager;
 class Texture2D;
+class TextureCube;
 class Model;
 class AudioClip;
 class Sound;
@@ -21,6 +22,9 @@ class ComputeShader;
 class GeometryShader;
 class HullShader;
 class DomainShader;
+
+class Enemy;
+class Floor;
 
 class AssetLoader
 {
@@ -46,6 +50,9 @@ public:
 
 template<>
 std::shared_ptr<Texture2D> AssetLoader::Load<Texture2D>(const std::string &path);
+
+template<>
+std::shared_ptr<TextureCube> AssetLoader::Load<TextureCube>(const std::string &path);
 
 template<>
 std::shared_ptr<Model> AssetLoader::Load<Model>(const std::string &path);
@@ -77,3 +84,9 @@ std::shared_ptr<DomainShader> AssetLoader::Load<DomainShader>(const std::string 
 
 template<>
 std::shared_ptr<Sound> AssetLoader::Load<Sound>(const std::string &path);
+
+template<>
+std::shared_ptr<Enemy> AssetLoader::Load<Enemy>(const std::string &path);
+
+template<>
+std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path);

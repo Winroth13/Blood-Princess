@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "collision/collision_manager.hpp"
 #include "components/audio/audio_component.hpp"
+#include "audio/audio_manager.hpp"
 #include "core/rng.hpp"
 #include "scene/scene.hpp"
 #include "components/collisions/hit_box_component.hpp"
@@ -21,14 +22,28 @@
 #include "core/debug.hpp"
 #include "components/gameplay/health_component.hpp"
 #include "components/collisions/hurt_box_component.hpp"
+#include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/projectile_component.hpp"
+#include "core/application.hpp"
+
+#include "core/math.hpp"
+
 #include <cmath>
 
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
+	this->application = context.application;
+	this->audioManager = context.audioManager;
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
 	this->health = this->GetOwner()->GetComponent<Health>();
 	this->hurtbox = this->GetOwner()->GetComponent<HurtboxComponent>();
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GetOnHitBlocked().Connect(
+			this, &PlayerControllerComponent::OnHitBlocked);
+	}
 
 	if (this->health)
 	{
@@ -42,6 +57,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
+	this->parryShoutSound = context.assetManager->Get<Sound>("assets/sounds/player_parry_shout.sound");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
@@ -140,6 +156,22 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	HandleCameraLook(deltaTime);
 
 	HandleAttacks(deltaTime);
+
+	/* Handle Slowmotion */
+	if (this->slowMotionTimer >= 0.0f)
+	{
+		// this timer shouldn't be affected by timescale
+		this->slowMotionTimer -= deltaTime / this->application->GetTimeScale();
+
+		float alpha = 1.0f - Math::easeInOutQuint(this->slowMotionTimer / SLOW_MOTION_TIME);
+		this->application->SetTimeScale(std::lerp(this->slowMotionMin, 1.0f, alpha));
+		if (this->audioManager)
+			this->audioManager->SetPitchModifier(std::lerp(0.4f, 1.0f, alpha));
+	}
+	else if (this->audioManager && this->audioManager->GetPitchModifier() != 1.0f)
+	{
+		this->audioManager->SetPitchModifier(1.0f);
+	}
 }
 
 void PlayerControllerComponent::OnDestroy(const AppContext& context)
@@ -156,6 +188,11 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 	}
 
 	this->GetOwner()->GetScene()->RemoveEntityFromGroup(this->groupName, this->GetOwner());
+
+	if (this->hurtbox)
+	{
+		this->hurtbox->GetOnHitBlocked().DisconnectObject(this);
+	}
 }
 
 void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
@@ -505,6 +542,7 @@ void PlayerControllerComponent::PerformParry()
 		return;
 
 	this->isParrying = true;
+	this->hasParriedThisParry = false;
 	this->currentAttack = -1;
 	this->combo = 0;
 	this->hasActivatedHitboxThisAttack = false;
@@ -525,16 +563,7 @@ void PlayerControllerComponent::PerformParry()
 
 	if (this->hurtbox)
 	{
-		this->hurtbox->GrantInvulnerability(1.0f);
-	}
-
-	if (auto parrySound = GetOwner()->GetComponent<AudioComponent>())
-	{
-		parrySound->SetAudio3D(false);
-		parrySound->SetLooping(false);
-		float genNumber = RNG::Float(0.95f, 1.05f);
-		parrySound->SetPitch(genNumber);
-		parrySound->Play();
+		this->hurtbox->GrantInvulnerability(this->parryWindow);
 	}
 }
 
@@ -573,6 +602,55 @@ void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
 	}
 }
 
+void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
+{
+	if (!this->isParrying || this->hasParriedThisParry)
+		return;
+
+	this->hasParriedThisParry = true;
+
+	if (auto* parrySound = this->GetOwner()->GetComponent<AudioComponent>())
+	{
+		parrySound->SetAudio3D(false);
+		parrySound->SetLooping(false);
+		parrySound->SetPitch(RNG::Float(0.95f, 1.05f));
+		parrySound->Play();
+	}
+
+	if (auto *soundComponent = this->GetOwner()->GetComponent<SoundComponent>())
+	{
+		soundComponent->SetSound(this->parryShoutSound);
+		soundComponent->Play();
+	}
+
+	if (this->camera)
+	{
+		if (auto* shake = this->camera->GetOwner()->GetComponent<ShakeComponent>())
+			shake->AddTrauma(1.3f);
+	}
+
+	// did we parry a projectile
+	if (ProjectileComponent *projectile = hitbox->GetOwner()->GetComponent<ProjectileComponent>())
+	{
+		this->slowMotionTimer = SLOW_MOTION_TIME;
+		if (this->audioManager)
+			this->audioManager->SetPitchModifier(0.4f);
+
+		hitbox->ClearIgnoreEntities();
+		hitbox->SetDamage(hitbox->GetDamage() * 2);
+
+		auto collision = hitbox->GetOwner()->GetComponent<BoxCollisionComponent>();
+		collision->SetLayer(CollisionLayer::PLAYER_ATTACK);
+
+		XMFLOAT3 velocity = projectile->GetVelocity();
+		velocity.x = -velocity.x;
+		velocity.y = -velocity.y;
+		velocity.z = -velocity.z;
+		projectile->Launch(velocity, { 0.0f, 0.0f, 0.0f });
+	}
+}
+
+
 void PlayerControllerComponent::OnDeath()
 {
 	if (this->isDead)
@@ -590,9 +668,10 @@ void PlayerControllerComponent::OnDeath()
 		hurtbox->SetActive(false);
 
 
-	this->GetOwner()->GetScene()->RemoveEntityFromGroup(
+	// TODO: Maybe enemies shouldn't assume that the player exists
+	/*this->GetOwner()->GetScene()->RemoveEntityFromGroup(
 		this->groupName, this->GetOwner()
-	);
+	);*/
 
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }

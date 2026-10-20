@@ -21,6 +21,8 @@ class Application
     float fixedDeltaTime = 1.0f / 60.0f;
     float deltaTimeElapsed = 0.0f;
 
+    float timeScale = 1.0f;
+
 	Window window;
 	Renderer renderer;
 	AssetManager assetManager;
@@ -68,4 +70,7 @@ public:
     bool IsFullscreen() const { return this->isFullscreen; }
     void SetFullscreen(bool isFullscreen);
     void ToggleFullscreen();
+
+    float GetTimeScale() const { return this->timeScale; }
+    void SetTimeScale(float timescale) { this->timeScale = timescale; }
 };

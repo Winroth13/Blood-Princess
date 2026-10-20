@@ -42,6 +42,7 @@ class ParticleSystemComponent : public Component
 
 public:
     ParticleSystemComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
+    ~ParticleSystemComponent();
 
 private:
     void OnStart(const AppContext &context) override;
@@ -69,4 +70,6 @@ public:
     void SetIsGlobal(const bool isGlobal) { this->isGlobal = isGlobal; }
     void SetIsBurst(const bool isBurst) { this->isBurst = isBurst; }
     void SetIsSpread(const bool isSpread) { this->isSpread = isSpread; }
+
+    void Reset() { this->shouldReset = true; }
 };

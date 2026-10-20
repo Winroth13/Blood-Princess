@@ -2,6 +2,11 @@
 
 #include "scene/component.hpp"
 
+/*
+*   A components that after it's given lifetime is either destroyed or
+*   if owned by a pool is returned back to it.
+*/
+
 class LifeTimeComponent : public Component
 {
     RegisterComponent(LifeTimeComponent);

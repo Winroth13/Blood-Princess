@@ -13,6 +13,7 @@ namespace Scenes {
         hud->AddComponent<CameraComponent>();
         hud->AddComponent<EndScreenComponent>();
         SoundComponent *soundComp = hud->AddComponent<SoundComponent>();
+        hud->AddComponent<EnvironmentComponent>();
 
         soundComp->SetIs3d(false);
         soundComp->SetAutoPlay(true);

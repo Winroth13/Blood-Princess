@@ -12,10 +12,10 @@ Texture2D<float4> depthStencilTexture : register(t2);
 Texture2D<float4> outputTexture : register(t3);
 Texture2D<float4> noiseTexture : register(t4);
 
-cbuffer DebugView : register(b7)
+cbuffer DebugView : register(b8)
 {
     int debugView;
-    float3 pad6;
+    float3 pad7;
 }
 
 float3 Tonemap(float3 hdr)
@@ -140,11 +140,20 @@ void main(uint3 id : SV_DispatchThreadID)
     else
         ldr = Tonemap(outputTexture.SampleLevel(samplerLinearWrap, uv, 0).rgb);
     
-    float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
-    float fogStart = 0.0f;
-    float fogEnd = 15.0f;
+    if (debugMode >= 1 && debugMode <= 6)
+    {
+        backBufferUAV[pixel] = float4(ldr, 1.0f);
+        return;
+    }
+    
+    float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r);
+    
+    float effectiveDepth = clamp(
+        (depth - fogStartDepth) / (fogEndDepth - fogStartDepth),
+        0.0f, 1.0f
+    );
     // S-curve (smoothstep): slow in first 3m, linear between 3m-10m, and smoothly eases into 100% at 15m
-    float fogFactor = smoothstep(fogStart, fogEnd, depth);
+    float fogFactor = smoothstep(0.0f, 1.0f, effectiveDepth);
 
     const float3 fogColor = float3(0.04f, 0.02f, 0.02f);
     float3 afterFogColour = lerp(ldr, fogColor, fogFactor);

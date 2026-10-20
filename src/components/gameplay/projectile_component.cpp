@@ -7,14 +7,6 @@
 
 void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
-    if (this->projectileAliveTime <= 0.0f)
-    {
-        auto scene = this->GetOwner()->GetScene();
-        if (scene) {
-            scene->DestroyEntity(this->GetOwner());
-        }
-        return;
-    }
     this->projectileAliveTime -= deltaTime;
 
     if (this->isGrounded)
@@ -138,15 +130,4 @@ void ProjectileComponent::Launch(const DirectX::XMFLOAT3& vel, const DirectX::XM
 	this->angularVelocity = angVel;
 
     this->isGrounded = false;
-
-    if (!this->hasCustomGroundY)
-    {
-        TransformComponent* transform = this->GetOwner()->GetComponent<TransformComponent>();
-        if (transform) {
-            this->groundY = transform->GetWorldPosition().y - 2.0f;
-        }
-        else {
-            this->groundY = -2.0f;
-        }
-    }
 }

@@ -1,0 +1,4 @@
+sound:
+  - file: assets/audio/sfx/Skeleton/bow_fire.ogg
+    min_volume: 0.95
+    max_volume: 1.05

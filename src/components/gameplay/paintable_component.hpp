@@ -35,6 +35,7 @@ class PaintableComponent : public Component
 
 public:
     PaintableComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); };
+    ~PaintableComponent();
 
 private:
     void OnStart(const AppContext &context) override;

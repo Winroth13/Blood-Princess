@@ -21,6 +21,7 @@ struct GeometryCommand
 
     Material material;
     DirectX::XMFLOAT3 tint;
+    uint32_t materialFlags;
 
     DirectX::XMFLOAT4X4 worldMatrix;
 
@@ -81,7 +82,15 @@ struct SpotLightCommand
 
 struct SkyboxCommand 
 {
-	
+    ID3D11ShaderResourceView *skyboxSRV;
+};
+
+struct EnvironmentCommand
+{
+    XMFLOAT4 hsvShift;
+    uint32_t environmentFlags;
+    float fogStartDepth;
+    float fogEndDepth;
 };
 
 struct ParticleSystemCommand

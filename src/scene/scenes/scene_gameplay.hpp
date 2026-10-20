@@ -1,6 +1,10 @@
 #pragma once
 
 #include "scene_headers.hpp"
+#include "core/rng.hpp"
+#include "assets/asset_manager.hpp"
+
+#include <format>
 
 static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 {
@@ -8,7 +12,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
     playerEntity->AddComponent<PlayerControllerComponent>()->SetActive(true);
     playerEntity->AddComponent<TransformComponent>();
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
-    transform->SetWorldPosition({-17.0f, -1.0f, -8.0f});
+    transform->SetWorldPosition({-17.0f, 1.6f, -8.0f});
     playerEntity->AddComponent<ListenerComponent>();
     PointLightComponent *pointLight = playerEntity->AddComponent<PointLightComponent>();
     pointLight->SetColour({ 228.0f / 255.0f, 119.0f / 255.0f, 37.0f / 255.0f });
@@ -194,7 +198,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext)
 }
 
 // Not final!!!!!
-static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, EnemySpawnerComponent *enemySpawner) {
+static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -244,17 +248,15 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     ui.style.barSize = {420.0f, 15.0f};
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
-    int killed, total;
-    enemySpawner->GetKillCount(killed, total);
-    UIBarComponent *progressBar = ui.CreateBar(hud, static_cast<float>(killed), static_cast<float>(total), "progress_bar");
+    UIBarComponent *progressBar = ui.CreateBar(hud, 0.0f, 1.0f, "progress_bar");
     UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
 
-    enemySpawner->GetOnEnemyKilled().Connect([progressBar](int killed, int total) {
-        progressBar->SetValue(static_cast<float>(killed));
+    waveController->GetOnFloorProgressChanged().Connect([progressBar] (float progress) {
+        progressBar->SetValue(static_cast<float>(progress));
     });
 
     // Tutorial Popup
-    Entity *popupPanel = ui.CreatePanel(hud, { 700.0f, 130.0f }, "tutorial_popup");
+    /*Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
@@ -263,7 +265,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     tutorialText->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
 
     TutorialComponent *tutorialComp = hud->AddComponent<TutorialComponent>();
-    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);
+    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);*/
 
     return hud;
 }
@@ -299,7 +301,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     {
         float theta = static_cast<float>(i) * deltaAngle;
         float posX = center.x + wallRadius * cosf(theta);
-        float posY = center.y;
+        float posY = center.y + 2.5f;
         float posZ = center.z + wallRadius * sinf(theta);
 
         // Yaw in degrees such that local +X points inwards toward the center of the room
@@ -322,6 +324,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
         ModelComponent *wallModelComponent = wallEntity->AddComponent<ModelComponent>();
         wallModelComponent->SetModel(wallModel);
         wallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+        wallModelComponent->SetIsHsvAdjusted(true);
 
         PaintableComponent* wallPaintable = wallEntity->AddComponent<PaintableComponent>();
         wallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
@@ -345,6 +348,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
         ModelComponent *upperWallModelComponent = upperWallEntity->AddComponent<ModelComponent>();
         upperWallModelComponent->SetModel(wallModel);
         upperWallModelComponent->SetTint({150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f});
+        upperWallModelComponent->SetIsHsvAdjusted(true);
 
         PaintableComponent* upperWallPaintable = upperWallEntity->AddComponent<PaintableComponent>();
         upperWallPaintable->SetPaintMask(appContext.assetManager->Get<Texture2D>("assets/images/blood_splat_mask.png"));
@@ -365,6 +369,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
         ModelComponent *torchModelComponent = torchEntity->AddComponent<ModelComponent>();
         torchModelComponent->SetModel(torchModel);
+        torchModelComponent->SetIsHsvAdjusted(true);
 
         // Fire particle entity attached to the torch
         std::string fireName = "FireParticle_" + std::to_string(i);
@@ -428,9 +433,9 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     const float tileSize = 10.0f;
     const float halfTile = tileSize * 0.5f;
     // Floor top surface is flush with the bottom of the lower walls (Y = center.y - 2.5f)
-    const float floorY = center.y - 3.0f;
+    const float floorY = center.y - 0.5f;
     // Ceiling bottom surface is flush with the top of the upper walls (Y = center.y + 7.5f)
-    const float ceilingY = center.y + 8.0f;
+    const float ceilingY = center.y + 10.5f;
 
     Entity *floorRoot = outScene.AddEntity("Floor");
     floorRoot->AddComponent<TransformComponent>()->SetWorldPosition(center.x, floorY, center.z);
@@ -459,6 +464,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
                 ModelComponent *floorComp = floorTile->AddComponent<ModelComponent>();
                 floorComp->SetModel(floorModel);
+                floorComp->SetIsHsvAdjusted(true);
 
                 BoxCollisionComponent *floorCollision = floorTile->AddComponent<BoxCollisionComponent>();
                 floorCollision->SetStatic(true);
@@ -485,6 +491,7 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
 
                 ModelComponent *ceilingComp = ceilingTile->AddComponent<ModelComponent>();
                 ceilingComp->SetModel(ceilingModel);
+                ceilingComp->SetIsHsvAdjusted(true);
 
                 tileIndex++;
             }
@@ -492,36 +499,94 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     }
 }
 
-namespace Scenes {
-    void Gameplay(Scene& outScene, const AppContext& appContext) {
-        Entity *gameEntity = outScene.AddEntity("Game");
-        GameControllerComponent *gameController = gameEntity->AddComponent<GameControllerComponent>();
+static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
+{
+    Entity *gibsEntity = outScene.AddEntity("gibs");
+    gibsEntity->AddComponent<GibsComponent>();
+    auto *gibPool = gibsEntity->AddComponent<PoolComponent>();
 
-        Entity *musicEntity = outScene.AddEntity("music_entity");
-        musicEntity->AddComponent<TransformComponent>();
-        MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Blood_Princess_draft4.ogg"));
-        musicComponent->SetVolume(0.2f);
+    gibPool->SetCreateEntityCallback([&outScene, &appContext]()
+    {
+        Entity *gib = outScene.AddEntity("gib");
+        auto *gibTransform = gib->AddComponent<TransformComponent>();
+        auto *modelComponent = gib->AddComponent<ModelComponent>();
+        auto *gibParticle = gib->AddComponent<ParticleSystemComponent>();
+        auto *projectileGib = gib->AddComponent<ProjectileComponent>();
+        auto *sphereCollisionGib = gib->AddComponent<SphereCollisionComponent>();
+        auto *splatterGib = gib->AddComponent<SplatterComponent>();
+        auto *lifeTimeGib = gib->AddComponent<LifeTimeComponent>();
+
+        gibParticle->SetSpawnRadius(RNG::Float(0.05f, 0.35f));
+        gibParticle->SetCount(RNG::Int(8, 16));
+        gibParticle->SetIsAnimate(true);
+        gibParticle->SetIsGlobal(true);
+        gibParticle->SetIsAdditive(false);
+        gibParticle->SetStartTint({ 0.35f, 0.03f, 0.03f });
+        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
+        gibParticle->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png"));
+        gibParticle->SetAtlasSize({ 8.0f, 8.0f });
+
+        const float pAngle = RNG::Float(0.0f, DirectX::XM_2PI);
+        const float pSpeed = RNG::Float(1.0f, 2.0f);
+        gibParticle->SetVelocity({
+            cosf(pAngle) * pSpeed,
+            RNG::Float(0.1f, 0.3f),
+            sinf(pAngle) * pSpeed
+            });
+        gibParticle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+        const float pScale = RNG::Float(0.3f, 0.65f);
+        gibParticle->SetStartScale(pScale);
+        gibParticle->SetEndScale(pScale);
+
+        projectileGib->SetGravity(9.82f);
+        projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
+
+        sphereCollisionGib->SetRadius(RNG::Float(0.19f, 0.39f));
+        sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
+        sphereCollisionGib->SetActive(true);
+        sphereCollisionGib->SetStatic(false);
+        sphereCollisionGib->SetTrigger(true);
+        
+        splatterGib->SetPaintSpacing(RNG::Float(0.4f, 1.0f));
+
+        return gib;
+    });
+
+    return gibsEntity;
+}
+
+namespace Scenes 
+{
+    void Gameplay(Scene& outScene, const AppContext& appContext) 
+    {
+        //Entity *musicEntity = outScene.AddEntity("music_entity");
+        //musicEntity->AddComponent<TransformComponent>();
+        //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
+        //musicComponent->SetVolume(0.2f);
 
         Entity *playerEntity = CreatePlayer(outScene, appContext);
 
         Health *health = playerEntity->GetComponent<Health>();
-        gameController->SetPlayerHealthComponent(appContext, health);
+
+        // Gibs
+        Entity *gibsEntity = CreateGibs(outScene, appContext);
 
         // Enemy Spawner
-        Entity* spawnerEntity = outScene.AddEntity("Spawner");
-        spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0,-2,0 });
-        EnemySpawnerComponent *enemySpawner = spawnerEntity->AddComponent<EnemySpawnerComponent>();
-        enemySpawner->SetAutoStartWave(false);
+        Entity* spawnerEntity = outScene.AddEntity("level_entity");
+        spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
+        spawnerEntity->AddComponent<EnvironmentComponent>();
+        spawnerEntity->AddComponent<EnemyDatabaseComponent>();
+        spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
+        auto waveController = spawnerEntity->AddComponent<WaveController>();
+        spawnerEntity->AddComponent<LevelComponent>();
 
-        gameController->SetEnemySpawnerComponent(appContext, enemySpawner);
-
-        CreateHUD(outScene, appContext, playerEntity, enemySpawner);
+        CreateHUD(outScene, appContext, playerEntity, waveController);
 
         // Trap Spawner
         Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
         trapSpawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, -2, 0 });
         trapSpawnerEntity->AddComponent<TrapSpawnerComponent>();
-
 
         Entity *lightEntity = outScene.AddEntity("light");
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();

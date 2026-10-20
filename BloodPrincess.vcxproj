@@ -200,11 +200,20 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\stb_vorbis\stb_vorbis.c" />
     <ClCompile Include="external\tinygltf\tiny_gltf_v3.c" />
+    <ClCompile Include="src\assets\types\enemy.cpp" />
+    <ClCompile Include="src\assets\types\floor.cpp" />
+    <ClCompile Include="src\assets\texture.cpp" />
     <ClCompile Include="src\assets\types\sound.cpp" />
+    <ClCompile Include="src\assets\types\texture_cube.cpp" />
     <ClCompile Include="src\components\audio\sound_component.cpp" />
+    <ClCompile Include="src\components\collisions\area_component.cpp" />
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
+    <ClCompile Include="src\components\core\pool_component.cpp" />
+    <ClCompile Include="src\components\gameplay\enemy_database_component.cpp" />
     <ClCompile Include="src\components\gameplay\end_screen_component.cpp" />
-    <ClCompile Include="src\components\gameplay\game_controller_component.cpp" />
+    <ClCompile Include="src\components\gameplay\environment_component.cpp" />
+    <ClCompile Include="src\components\gameplay\gibs_component.cpp" />
+    <ClCompile Include="src\components\gameplay\level_component.cpp" />
     <ClCompile Include="src\components\gameplay\main_menu_component.cpp" />
     <ClCompile Include="src\components\gameplay\splatter_component.cpp" />
     <ClCompile Include="src\components\gameplay\projectile_component.cpp" />
@@ -222,6 +231,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\collision\quad_tree.cpp" />
     <ClCompile Include="src\collision\Rect_2d.cpp" />
     <ClCompile Include="src\components\gameplay\shake_component.cpp" />
+    <ClCompile Include="src\components\gameplay\wave_controller.cpp" />
     <ClCompile Include="src\components\lights\ambient_light_component.cpp" />
     <ClCompile Include="src\components\skeletal\animator_component.cpp" />
     <ClCompile Include="src\components\collisions\box_collision_component.cpp" />
@@ -369,11 +379,20 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\stlemitter.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\traits.h" />
     <ClInclude Include="external\yaml_cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="src\assets\types\enemy.hpp" />
+    <ClInclude Include="src\assets\types\floor.hpp" />
+    <ClInclude Include="src\assets\texture.hpp" />
     <ClInclude Include="src\assets\types\sound.hpp" />
+    <ClInclude Include="src\assets\types\texture_cube.hpp" />
     <ClInclude Include="src\components\audio\sound_component.hpp" />
+    <ClInclude Include="src\components\collisions\area_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />
+    <ClInclude Include="src\components\core\pool_component.hpp" />
     <ClInclude Include="src\components\gameplay\end_screen_component.hpp" />
-    <ClInclude Include="src\components\gameplay\game_controller_component.hpp" />
+    <ClInclude Include="src\components\gameplay\environment_component.hpp" />
+    <ClInclude Include="src\components\gameplay\gibs_component.hpp" />
+    <ClInclude Include="src\components\gameplay\enemy_database_component.hpp" />
+    <ClInclude Include="src\components\gameplay\level_component.hpp" />
     <ClInclude Include="src\components\gameplay\main_menu_component.hpp" />
     <ClInclude Include="src\components\gameplay\splatter_component.hpp" />
     <ClInclude Include="src\components\gameplay\projectile_component.hpp" />
@@ -388,6 +407,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\assets\types\geometry_shader.hpp" />
     <ClInclude Include="src\assets\types\sub_types\skeleton.hpp" />
     <ClInclude Include="src\components\gameplay\shake_component.hpp" />
+    <ClInclude Include="src\components\gameplay\wave_controller.hpp" />
     <ClInclude Include="src\components\lights\ambient_light_component.hpp" />
     <ClInclude Include="src\components\skeletal\animator_component.hpp" />
     <ClInclude Include="src\components\collisions\box_collision_component.hpp" />
@@ -443,6 +463,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\debug.hpp" />
+    <ClInclude Include="src\core\math.hpp" />
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
     <ClInclude Include="src\editor\editor.hpp" />
@@ -645,6 +666,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
+    <None Include="src\shaders\deferred\hsv.hlsli" />
     <None Include="src\shaders\deferred\pbr.hlsli" />
     <None Include="src\shaders\output\damage_flash.hlsli" />
     <None Include="src\shaders\output\speed_lines.hlsli" />

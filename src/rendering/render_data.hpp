@@ -53,7 +53,8 @@ struct PerMaterialData
     XMFLOAT3 materialTint;
     float    materialSpecular;
     float    materialSpecularExponent;
-    float	 pad0[3];
+    uint32_t materialFlags;
+    float	 pad0[2];
 };
 AssertCBufferSize(PerMaterialData);
 
@@ -141,6 +142,16 @@ struct ParticleData
     float scale;
     float lifeTime;
 };
+
+struct EnvironmentData
+{
+    XMFLOAT4 hsvShift;
+    uint32_t environmentFlags;
+    float fogStartDepth;
+    float fogEndDepth;
+    float pad0[1];
+};
+AssertCBufferSize(EnvironmentData);
 
 struct PaintData
 {
