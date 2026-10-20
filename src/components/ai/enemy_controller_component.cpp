@@ -550,7 +550,7 @@ void EnemyControllerComponent::Attack()
         } break;
         case EnemyType::OGRE:
         {
-            //this->MeleeAttack(50, 0.5f, {0.0f, 0.73f, 1.45f}, {0.5f, 0.5f, 0.5f});
+            this->MeleeAttack(50, 0.5f, {0.0f, 0.73f, 1.45f}, {0.5f, 0.5f, 0.5f});
 
         } break;
         case EnemyType::SKELETON:
