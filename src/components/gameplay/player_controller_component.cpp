@@ -200,7 +200,6 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 			this->onComboRemainingTimeChanged.Emit(this->comboRemainingTime);
 		}
 	}
-}
 
 	/* Handle Parry Reset */
 	if (this->parryCountResetTimer > 0.0f)
