@@ -15,6 +15,8 @@ private:
 	std::vector<int> nextEnemy;
 	std::vector<DirectX::XMFLOAT3> positions;
 
+	std::vector<DirectX::XMFLOAT3> trapPositions;
+
 public:
 	SpatialGrid() = default;
 	SpatialGrid(float cellSize, int width, int height, DirectX::XMFLOAT2 origin);
@@ -22,6 +24,11 @@ public:
 
 	void BeginFrame(size_t enemyCount);
 	void Insert(size_t index, const DirectX::XMFLOAT3 &pos);
+
+	void InsertTrap(const DirectX::XMFLOAT3& pos);
+	void ClearTraps();
+	bool IsAreaClearOfTraps(const DirectX::XMFLOAT3& pos, float checkRadius) const;
+	const std::vector<DirectX::XMFLOAT3>& GetTrapPositions() const { return this->trapPositions; }
 
 	DirectX::XMVECTOR ComputeAvoidance(size_t selfIndex, float avoidanceRadius) const;
 	bool IsAreaClear(const DirectX::XMFLOAT3 &pos, float checkRadius) const;

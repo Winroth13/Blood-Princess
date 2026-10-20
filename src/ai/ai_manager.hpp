@@ -14,6 +14,7 @@ private:
 	std::vector<EnemyControllerComponent*> pendingRemovals;
 	SpatialGrid spatialGrid;
 
+	void UnregisterEnemy(EnemyControllerComponent *enemy);
 public:
 	AIManager();
 	~AIManager() = default;
@@ -26,7 +27,6 @@ public:
 
 	void RegisterEnemy(EnemyControllerComponent *enemy);
 	void QueueUnregister(EnemyControllerComponent* enemy);
-	void UnregisterEnemy(EnemyControllerComponent *enemy);
 
 	void FixedUpdate(float deltaTime);
 

@@ -42,6 +42,38 @@ void SpatialGrid::Insert(size_t index, const DirectX::XMFLOAT3& pos)
 	}
 }
 
+void SpatialGrid::InsertTrap(const DirectX::XMFLOAT3& pos)
+{
+    this->trapPositions.push_back(pos);
+}
+
+void SpatialGrid::ClearTraps()
+{
+    this->trapPositions.clear();
+}
+
+bool SpatialGrid::IsAreaClearOfTraps(const DirectX::XMFLOAT3 & pos, float checkRadius) const
+{
+    // 1. Arena boundary check
+    float distFromCenterSq = pos.x * pos.x + pos.z * pos.z;
+    if (distFromCenterSq > (this->arenaRadius * this->arenaRadius))
+    {
+        return false;
+    }
+    // 2. Only check if another trap is within checkRadius
+    float checkRadiusSq = checkRadius * checkRadius;
+    for (const auto& trapPos : this->trapPositions)
+    {
+        float dx = pos.x - trapPos.x;
+        float dz = pos.z - trapPos.z;
+        if ((dx * dx + dz * dz) < checkRadiusSq)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 DirectX::XMVECTOR SpatialGrid::ComputeAvoidance(size_t selfIndex, float avoidanceRadius) const
 {
     XMVECTOR separation = XMVectorZero();

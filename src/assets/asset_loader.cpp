@@ -624,6 +624,17 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 		floor->SetFogStartDepth(file["fog_start"].as<float>(0.0f));
 		floor->SetFogEndDepth(file["fog_end"].as<float>(1.0f));
 
+		if (YAML::Node spikeNode = file["spike_traps"])
+		{
+			SpikeTrapConfig spikeConfig = {};
+			spikeConfig.amount = spikeNode["amount"].as<uint32_t>(0);
+			spikeConfig.telegraph = spikeNode["telegraph"].as<float>(1.2f);
+			spikeConfig.armedDuration = spikeNode["armed_duration"].as<float>(4.0f);
+			spikeConfig.damage = spikeNode["damage"].as<float>(25.0f);
+			spikeConfig.knockback = spikeNode["knockback"].as<float>(3.0f);
+			floor->SetSpikeTraps(spikeConfig);
+		}
+
 		std::vector<Wave> waves = {};
 
 		if (YAML::Node wavesNode = file["waves"])

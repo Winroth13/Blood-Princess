@@ -5,6 +5,7 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
 #include "components/gameplay/environment_component.hpp"
+#include "components/traps/trap_spawner_component.hpp"
 #include "assets/types/enemy.hpp"
 
 #include "imgui/imgui.h"
@@ -22,6 +23,12 @@ void WaveController::StartFloor(std::shared_ptr<Floor> floor)
 		environment->SetHsvShift(floor->GetHSV());
 		environment->SetFogStartDepth(floor->GetFogStartDepth());
 		environment->SetFogEndDepth(floor->GetFogEndDepth());
+	}
+
+	auto *trapSpawner = this->GetOwner()->GetComponent<TrapSpawnerComponent>();
+	if (trapSpawner && this->floor->GetSpikeTraps().amount > 0)
+	{
+		trapSpawner->SpawnSpikeTraps(this->floor->GetSpikeTraps());
 	}
 
 	this->NextWave();

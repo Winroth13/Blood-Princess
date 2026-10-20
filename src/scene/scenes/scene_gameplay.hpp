@@ -616,6 +616,7 @@ namespace Scenes
         spawnerEntity->AddComponent<EnvironmentComponent>();
         spawnerEntity->AddComponent<EnemyDatabaseComponent>();
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
+        spawnerEntity->AddComponent<TrapSpawnerComponent>();
         WaveController *waveController = spawnerEntity->AddComponent<WaveController>();
         LevelComponent *level = spawnerEntity->AddComponent<LevelComponent>();
 
@@ -625,11 +626,6 @@ namespace Scenes
         level->SetPlayerController(playerEntity->GetComponent<PlayerControllerComponent>());
 
         CreateHUD(outScene, appContext, playerEntity, waveController, level);
-
-        // Trap Spawner
-        Entity* trapSpawnerEntity = outScene.AddEntity("TrapSpawner");
-        trapSpawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, -2, 0 });
-        trapSpawnerEntity->AddComponent<TrapSpawnerComponent>();
 
         Entity *lightEntity = outScene.AddEntity("light");
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();

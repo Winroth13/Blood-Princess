@@ -7,6 +7,15 @@ using namespace DirectX;
 
 #include <vector>
 
+struct SpikeTrapConfig
+{
+	uint32_t amount = 0;
+	float telegraph = 1.2f;
+	float armedDuration = 4.0f;
+	float damage = 25.0f;
+	float knockback = 3.0f;
+};
+
 struct WaveEnemy
 {
 	EnemyType type;
@@ -26,6 +35,7 @@ private:
 	XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
 	float fogStartDepth = 0.0f;
 	float fogEndDepth = 1.0f;
+	SpikeTrapConfig spikeTraps = {};
 	std::vector<Wave> waves = {};
 
 public:
@@ -40,6 +50,9 @@ public:
 
 	float GetFogEndDepth() const { return this->fogEndDepth; }
 	void SetFogEndDepth(float depth) { this->fogEndDepth = depth; }
+
+	const SpikeTrapConfig& GetSpikeTraps() const { return this->spikeTraps; }
+	void SetSpikeTraps(const SpikeTrapConfig& config) { this->spikeTraps = config; }
 
 	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }

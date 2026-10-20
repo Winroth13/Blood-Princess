@@ -6,6 +6,15 @@ intensity: 0.0
 fog_start: 0.0
 fog_end: 1.0
 
+
+spike_traps:
+  amount: 5
+  telegraph: 1.2
+  armed_duration: 4.0
+  damage: 25.0
+  knockback: 3.0
+
+
 waves:
   - completion: 0.75
     enemies:
