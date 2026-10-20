@@ -12,7 +12,7 @@ knockback_stun_duration: 0.2
 
 max_range: 1.2
 
-attack_time: 2.0
+attack_time: 0.3
 
 model: assets/models/goblin.glb
 

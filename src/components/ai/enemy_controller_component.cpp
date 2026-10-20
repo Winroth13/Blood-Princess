@@ -546,7 +546,7 @@ void EnemyControllerComponent::Attack()
     {
         case EnemyType::GOBLIN:
         {
-            this->MeleeAttack(5.0, 0.5f, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+            this->MeleeAttack(5.0, 0.5f, {0.0f, 1.02f, 0.65f}, {0.2f, 0.5f, 0.4f});
         } break;
         case EnemyType::OGRE:
         {

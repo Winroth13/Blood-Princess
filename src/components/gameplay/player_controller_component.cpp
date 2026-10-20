@@ -27,6 +27,7 @@
 #include "components/core/lifetime_component.hpp"
 #include "components/core/particle_system_component.hpp"
 #include "components/lights/point_light_component.hpp"
+#include "components/ai/enemy_controller_component.hpp"
 #include "core/application.hpp"
 
 #include "core/math.hpp"
@@ -706,6 +707,16 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 		transform->SetWorldPosition(projectilePositionF);
 
 		projectile->Launch(projectileVelocityF, { 0.0f, 0.0f, 0.0f });
+	}
+	// did we parry an enemy?
+	else if (EnemyControllerComponent *enemyController = hitbox->GetOwner()->GetParent()->GetComponent<EnemyControllerComponent>())
+	{
+		XMVECTOR knockbackDirectionV = -lookVectorV;
+		knockbackDirectionV = XMVectorSetY(knockbackDirectionV, 0.0f);
+		XMFLOAT3 knockbackDirection = {};
+		XMStoreFloat3(&knockbackDirection, knockbackDirectionV);
+
+		enemyController->ApplyKnockback(knockbackDirection, 8.0f);
 	}
 }
 
