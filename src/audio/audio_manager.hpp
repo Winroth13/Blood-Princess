@@ -48,6 +48,7 @@ private:
 
 	float musicVolume = 1.0f;
 	bool isMusicPaused = false;
+	float pitchModifier = 1.0f;
 
 	SoundId nextSoundId = 1;
 	std::vector<ActiveSound> activeVoices;
@@ -75,6 +76,10 @@ public:
 	bool IsSoundPlaying(SoundId id) const;
 
 	void StopAudio(std::shared_ptr<AudioClip> clip);
+
+	// Pitch Modifier
+	void SetPitchModifier(float pitch);
+	float GetPitchModifier() const { return this->pitchModifier; }
 
 	// Music Controls
 	bool PlayMusic(std::shared_ptr<AudioClip> clip, bool loop = true, float volume = 1.0f, float pitch = 1.0f);

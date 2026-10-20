@@ -31,7 +31,6 @@ void AudioManager::FixedUpdate(float deltaTime)
 	{
 		if (!active.is3D || !active.voice) continue;
 		
-		active.voice->SetFrequencyRatio(active.pitch * this->application->GetTimeScale());
 
 		const float maxDistance = active.maxDistance > 0.0f ? active.maxDistance : 1.0f;
 
@@ -343,7 +342,7 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return 0;
 	}
-	sourceVoice->SetFrequencyRatio(pitch);
+	sourceVoice->SetFrequencyRatio(pitch * this->pitchModifier);
 	sourceVoice->SetVolume(volume);
 
 	XAUDIO2_BUFFER buffer = {};
@@ -422,7 +421,7 @@ SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping,
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
 		return 0;
 	}
-	sourceVoice->SetFrequencyRatio(pitch);
+	sourceVoice->SetFrequencyRatio(pitch * this->pitchModifier);
 
 	// Calculate 3D positional audio
 	X3DAUDIO_LISTENER listener = {};
@@ -686,4 +685,17 @@ void AudioManager::SetMusicVolume(float volume)
 	{
 		this->musicVoice->SetVolume(volume);
 	}
+}
+void AudioManager::SetPitchModifier(float pitch)
+{
+	this->pitchModifier = pitch;
+
+	for (auto& active : this->activeVoices)
+	{
+	if (active.voice)
+		active.voice->SetFrequencyRatio(active.pitch * this->pitchModifier);
+	}
+
+	if (this->musicVoice)
+		this->musicVoice->SetFrequencyRatio(this->pitchModifier);
 }

@@ -11,6 +11,7 @@ class CameraComponent;
 class Sound;
 class Health;
 class HurtboxComponent;
+class AudioManager;
 
 struct AttackData
 {
@@ -133,6 +134,7 @@ class PlayerControllerComponent : public Component
 	float slowMotionMin = 0.01f;
 
 	Application *application = nullptr;
+	AudioManager *audioManager = nullptr;
 
     Signal<float> onDashCooldownChanged;
 
