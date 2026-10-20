@@ -19,7 +19,9 @@ void WaveController::StartFloor(std::shared_ptr<Floor> floor)
 
 	if (environment)
 	{
-		environment->SetHSVShift(floor->GetHSV());
+		environment->SetHsvShift(floor->GetHSV());
+		environment->SetFogStartDepth(floor->GetFogStartDepth());
+		environment->SetFogEndDepth(floor->GetFogEndDepth());
 	}
 
 	this->NextWave();

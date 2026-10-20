@@ -3,11 +3,14 @@ saturation: 1.0
 value: 1.0
 intensity: 0.0
 
+fog_start: 0.2
+fog_end: 0.8
+
 waves:
   - completion: 0.75
     enemies:
       - type: skeleton
-        amount: 1
+        amount: 0
         time: 0
 
       - type: goblin
@@ -17,5 +20,5 @@ waves:
   - completion: 0.75
     enemies:
       - type: ogre
-        amount: 1
+        amount: 0
         time: 10

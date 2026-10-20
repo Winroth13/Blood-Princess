@@ -14,10 +14,10 @@ class EnvironmentComponent : public Component {
 public:
 	EnvironmentComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 
-	void SetHSVShift(DirectX::XMFLOAT4 hsvShift) { this->hsvShift = hsvShift; }
-
 	void Render(const RenderView &view, RenderQueue &queue) override;
 
 	void SetHsvShift(DirectX::XMFLOAT4 hsvShift) { this->hsvShift = hsvShift; }
+	void SetFogStartDepth(float depth) { this->fogStartDepth = depth; }
+	void SetFogEndDepth(float depth) { this->fogEndDepth = depth; }
 	void SetSkybox(std::shared_ptr<TextureCube> textureCube) { this->textureCube = textureCube;  }
 };
