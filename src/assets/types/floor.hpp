@@ -12,6 +12,8 @@ struct SpikeTrapConfig
 	uint32_t amount = 0;
 	float telegraph = 1.2f;
 	float armedDuration = 4.0f;
+	float cooldownDuration = 2.0f;
+	float retriggerCooldown = 0.5f; 
 	float damage = 25.0f;
 	float knockback = 3.0f;
 };

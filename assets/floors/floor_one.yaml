@@ -11,6 +11,8 @@ spike_traps:
   amount: 5
   telegraph: 1.2
   armed_duration: 4.0
+  cooldown_duration: 2.0
+  retrigger_cooldown: 0.5 # <--- Skade-intervall (tar skada var 0.5s medan man står på spikarna)
   damage: 25.0
   knockback: 3.0
 

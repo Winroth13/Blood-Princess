@@ -630,6 +630,8 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 			spikeConfig.amount = spikeNode["amount"].as<uint32_t>(0);
 			spikeConfig.telegraph = spikeNode["telegraph"].as<float>(1.2f);
 			spikeConfig.armedDuration = spikeNode["armed_duration"].as<float>(4.0f);
+			spikeConfig.cooldownDuration = spikeNode["cooldown_duration"].as<float>(2.0f);
+			spikeConfig.retriggerCooldown = spikeNode["retrigger_cooldown"].as<float>(0.5f);
 			spikeConfig.damage = spikeNode["damage"].as<float>(25.0f);
 			spikeConfig.knockback = spikeNode["knockback"].as<float>(3.0f);
 			floor->SetSpikeTraps(spikeConfig);

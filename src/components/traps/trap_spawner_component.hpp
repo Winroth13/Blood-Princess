@@ -10,6 +10,7 @@ class Texture2D;
 class AIManager;
 struct SpikeTrapConfig;
 
+
 class TrapSpawnerComponent : public Component
 {
     RegisterComponent(TrapSpawnerComponent);

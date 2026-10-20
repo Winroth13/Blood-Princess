@@ -13,6 +13,7 @@
 #include "ai/ai_manager.hpp"
 #include "core/rng.hpp"
 #include "core/logging.hpp"
+#include "components/skeletal/animator_component.hpp"
 #include "assets/types/floor.hpp"
 
 
@@ -64,21 +65,29 @@ Entity* TrapSpawnerComponent::BuildSpikeTrap(Scene * scene, const std::string & 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->spikeTrapModel);
 
+    auto* animator = trap->AddComponent<AnimatorComponent>();
+    if (this->spikeTrapModel && this->spikeTrapModel->GetAnimations())
+    {
+        animator->AddAnimations(this->spikeTrapModel->GetAnimations());
+    }
+
     auto* boxCollider = trap->AddComponent<BoxCollisionComponent>();
     boxCollider->SetLayer(CollisionLayer::TRIGGER_HAZARD);
     boxCollider->SetTrigger(true);
     boxCollider->SetStatic(false);
-    boxCollider->SetExtents({ 0.3f, 0.4f, 0.3f });
+    boxCollider->SetExtents({ 5.0f, 2.5f, 5.0f });
+    boxCollider->SetCenterOffset({ 0.0f, 2.0f, 0.0f });
 
     auto* hitbox = trap->AddComponent<HitboxComponent>();
     hitbox->SetActive(false);
     hitbox->SetDamage(config.damage);
     hitbox->SetKnockbackForce(config.knockback);
-    hitbox->SetRetriggerCooldown(0.0f);
+    hitbox->SetRetriggerCooldown(config.retriggerCooldown);
 
     auto* trapComponent = trap->AddComponent<TrapComponent>();
     trapComponent->SetTelegraph(config.telegraph);
     trapComponent->SetArmed(config.armedDuration);
+    trapComponent->SetCooldown(config.cooldownDuration);
 
     trap->SetLocallyActive(false);
     return trap;
