@@ -78,9 +78,22 @@ class PlayerControllerComponent : public Component
 	bool isParrying = false;
 	bool hasParriedThisParry = false;
 
+	// Parry
 	const float PARRY_COUNTER_RESET_TIME = 1.0f;
 	float parryCountResetTimer = -1.0f;
 	uint32_t parryCount = 0;
+
+	const float PARRY_FOV = 92.0f;
+
+	std::shared_ptr<Texture2D> sparkTexture = nullptr;
+	std::shared_ptr<Texture2D> parryShockwaveTexture = nullptr;
+
+	uint32_t lastParryAnim = -1;
+	std::array<std::string, 2> parryAnimations = 
+	{ 
+		"parry_success_01", 
+		"parry_success_02" 
+	};
 
 	/*
 	*	Sounds
@@ -160,6 +173,9 @@ private:
 	void OnAttackHit(const struct AttackHitEvent& event);
 	void OnDamageTaken(const DamageTakenEvent& event);
 	void OnHitBlocked(HitboxComponent* hitbox);
+
+	void SpawnSpark(XMFLOAT3 position);
+
 public:
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;

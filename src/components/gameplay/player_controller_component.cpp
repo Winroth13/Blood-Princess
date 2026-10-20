@@ -24,6 +24,9 @@
 #include "components/collisions/hurt_box_component.hpp"
 #include "components/gameplay/shake_component.hpp"
 #include "components/gameplay/projectile_component.hpp"
+#include "components/core/lifetime_component.hpp"
+#include "components/core/particle_system_component.hpp"
+#include "components/lights/point_light_component.hpp"
 #include "core/application.hpp"
 
 #include "core/math.hpp"
@@ -58,6 +61,9 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
 	this->parryShoutSound = context.assetManager->Get<Sound>("assets/sounds/player_parry_shout.sound");
+
+	this->sparkTexture = context.assetManager->Get<Texture2D>("assets/images/sparks_new.png");
+	this->parryShockwaveTexture = context.assetManager->Get<Texture2D>("assets/images/parry_shockwave.png");
 
 	this->damageTakenConnection = EventBus::Subscribe<DamageTakenEvent>(
 		this, &PlayerControllerComponent::OnDamageTaken
@@ -165,6 +171,7 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 
 		float alpha = 1.0f - Math::easeInOutQuint(this->slowMotionTimer / SLOW_MOTION_TIME);
 		this->application->SetTimeScale(std::lerp(this->slowMotionMin, 1.0f, alpha));
+		this->camera->SetFov(XMConvertToRadians(std::lerp(this->PARRY_FOV, 90.0f, alpha)));
 		if (this->audioManager)
 			this->audioManager->SetPitchModifier(std::lerp(0.4f, 1.0f, alpha));
 	}
@@ -182,6 +189,11 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		{
 			this->parryCount = 0;
 		}
+	}
+
+	if (this->viewmodelAnimator->IsFinished())
+	{
+		this->viewmodelAnimator->CrossFade("idle", 0.2f);
 	}
 }
 
@@ -621,6 +633,17 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	this->parryCountResetTimer = PARRY_COUNTER_RESET_TIME;
 	this->isParrying = false;
 
+	
+	uint32_t parryAnimIndex = 0;
+	do
+	{
+		parryAnimIndex = static_cast<uint32_t>(RNG::Int(0, this->parryAnimations.size() - 1));
+	} while (parryAnimIndex == this->lastParryAnim);
+	this->lastParryAnim = parryAnimIndex;
+
+	const std::string &animName = this->parryAnimations[this->lastParryAnim];
+	this->viewmodelAnimator->Play(animName, false);
+
 	if (auto* parrySound = this->GetOwner()->GetComponent<AudioComponent>())
 	{
 		parrySound->SetAudio3D(false);
@@ -641,6 +664,15 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 			shake->AddTrauma(1.3f);
 	}
 
+	XMVECTOR lookVectorV = this->rootTransform->GetForwardV();
+
+	XMFLOAT3 sparkPositionF = rootTransform->GetWorldPosition();
+	XMVECTOR sparkPosition = XMLoadFloat3(&sparkPositionF);
+	sparkPosition = XMVectorAdd(sparkPosition, XMVectorScale(lookVectorV, -0.3f));
+	sparkPosition = XMVectorAdd(sparkPosition, XMVectorSet(0, 0.3f, 0, 0));
+	XMStoreFloat3(&sparkPositionF, sparkPosition);
+	this->SpawnSpark(hitbox->GetOwner()->GetComponent<TransformComponent>()->GetWorldPosition());
+
 	// did we parry a projectile
 	if (ProjectileComponent *projectile = hitbox->GetOwner()->GetComponent<ProjectileComponent>())
 	{
@@ -654,14 +686,85 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 		auto collision = hitbox->GetOwner()->GetComponent<BoxCollisionComponent>();
 		collision->SetLayer(CollisionLayer::PLAYER_ATTACK);
 
-		XMFLOAT3 velocity = projectile->GetVelocity();
-		velocity.x = -velocity.x;
-		velocity.y = -velocity.y;
-		velocity.z = -velocity.z;
-		projectile->Launch(velocity, { 0.0f, 0.0f, 0.0f });
+		XMFLOAT3 velocityF = projectile->GetVelocity();
+		XMVECTOR velocity = XMLoadFloat3(&velocityF);
+		float length = XMVectorGetX(XMVector3Length(velocity));
+
+		// viewmodel is rotated 180 degrees, hence why forward is scaled by minus here.
+		XMVECTOR projectileVelocity = XMVectorScale(lookVectorV, -length * 2.0f); 
+		XMFLOAT3 projectileVelocityF = {};
+		XMStoreFloat3(&projectileVelocityF, projectileVelocity);
+
+		auto transform = hitbox->GetOwner()->GetComponent<TransformComponent>();
+
+		XMFLOAT3 projectilePositionF = rootTransform->GetWorldPosition();
+		XMVECTOR projectilePosition = XMLoadFloat3(&projectilePositionF);
+		projectilePosition = XMVectorAdd(projectilePosition, XMVectorScale(lookVectorV, -0.2f));
+		projectilePosition = XMVectorAdd(projectilePosition, XMVectorSet(0, 0.22f, 0, 0));
+		XMStoreFloat3(&projectilePositionF, projectilePosition);
+		transform->SetWorldPosition(projectilePositionF);
+
+		projectile->Launch(projectileVelocityF, { 0.0f, 0.0f, 0.0f });
 	}
 }
 
+void PlayerControllerComponent::SpawnSpark(XMFLOAT3 position)
+{
+	// sparks
+	{
+		Entity *sparkEntity = this->GetOwner()->GetScene()->AddEntity("spark");
+		sparkEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
+		sparkEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(1.0f);
+
+		auto *particle = sparkEntity->AddComponent<ParticleSystemComponent>();
+		particle->SetSpawnRadius(RNG::Float(0.1f, 0.3f));
+		particle->SetIsBurst(true);
+		particle->SetIsSpread(true);
+		particle->SetCount(120);
+		particle->SetStartTint({ 254.0f / 255.0f, 162.0f / 255.0f, 0.0f });
+		particle->SetEndTint({ 0.0f, 0.0f, 0.0f });
+		particle->SetStartScale(0.0f);
+		particle->SetEndScale(1.5f);
+		particle->SetLifeTime(1.0f);
+
+		particle->SetVelocity({ 3.2f, 3.2f, 3.2f });
+		particle->SetAcceleration({ 0.0f, -8.82f, 0.0f });
+
+		particle->SetIsAnimate(true);
+		particle->SetIsAdditive(true);
+		particle->SetAtlasTexture(this->sparkTexture);
+		particle->SetAnimationSpeed(10.0f);
+		particle->SetAtlasSize({ 2.0f, 2.0f });
+	}
+
+	// shockwave
+	{
+		Entity *shockWaveEntity = this->GetOwner()->GetScene()->AddEntity("shockwave");
+		shockWaveEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
+		shockWaveEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(0.08f);
+
+		auto *particle = shockWaveEntity->AddComponent<ParticleSystemComponent>();
+		particle->SetSpawnRadius(RNG::Float(0.0f, 0.0f));
+		particle->SetIsBurst(true);
+		particle->SetCount(1);
+		particle->SetStartTint({ 254.0f * 0.5f / 255.0f, 162.0f * 0.5f / 255.0f, 0.0f });
+		particle->SetEndTint({ 0.0f, 0.0f, 0.0f });
+		particle->SetStartScale(0.5f);
+		particle->SetEndScale(2.0f);
+		particle->SetLifeTime(0.08f);
+		particle->SetVelocity({ 0.0f, 0.0f, 0.0f });
+		particle->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+
+		particle->SetIsAdditive(true);
+		particle->SetAtlasTexture(this->parryShockwaveTexture);
+
+		auto *pointLight = shockWaveEntity->AddComponent<PointLightComponent>();
+		pointLight->SetColour({ 254.0f / 255.0f, 162.0f / 255.0f, 0.0f });
+		pointLight->SetIntensity(150.0f);
+		pointLight->SetRadius(5.0f);
+	}
+
+}
 
 void PlayerControllerComponent::OnDeath()
 {
