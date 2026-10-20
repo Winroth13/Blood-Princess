@@ -661,7 +661,7 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 	uint32_t parryAnimIndex = 0;
 	do
 	{
-		parryAnimIndex = static_cast<uint32_t>(RNG::Int(0, this->parryAnimations.size() - 1));
+		parryAnimIndex = static_cast<uint32_t>(RNG::Int(0, static_cast<int>(this->parryAnimations.size()) - 1));
 	} while (parryAnimIndex == this->lastParryAnim);
 	this->lastParryAnim = parryAnimIndex;
 
