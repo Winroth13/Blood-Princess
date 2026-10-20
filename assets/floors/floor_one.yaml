@@ -3,6 +3,9 @@ saturation: 1.0
 value: 1.0
 intensity: 0.0
 
+fog_start: 0.0
+fog_end: 1.0
+
 waves:
   - completion: 0.75
     enemies:

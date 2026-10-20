@@ -621,6 +621,9 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 
 		floor->SetHSV(hsv);
 
+		floor->SetFogStartDepth(file["fog_start"].as<float>(0.0f));
+		floor->SetFogEndDepth(file["fog_end"].as<float>(1.0f));
+
 		std::vector<Wave> waves = {};
 
 		if (YAML::Node wavesNode = file["waves"])
