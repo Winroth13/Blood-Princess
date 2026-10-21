@@ -7,6 +7,7 @@
 class Texture2D;
 class AudioClip;
 class UIImageComponent;
+class UITextComponent;
 class AudioManager;
 
 class IntroCutsceneComponent : public Component {
@@ -24,6 +25,7 @@ class IntroCutsceneComponent : public Component {
 
     UIImageComponent *imgComp1 = nullptr;
     UIImageComponent *imgComp2 = nullptr;
+    UITextComponent *txtComp = nullptr;
 
 public:
     IntroCutsceneComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
