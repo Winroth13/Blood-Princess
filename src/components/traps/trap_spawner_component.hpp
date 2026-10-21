@@ -25,9 +25,9 @@ class TrapSpawnerComponent : public Component
     ExportProperty(int, maxFirePool, 10);
 
     // Shared
-    ExportProperty(float, spawnInnerRadius, 3.0f);
+    ExportProperty(float, spawnInnerRadius, 5.0f);
     ExportProperty(float, spawnOuterRadius, 22.0f);
-    ExportProperty(float, minTrapSpacing, 11.0f);
+    ExportProperty(float, minTrapSpacing, 5.0f);
 
     std::shared_ptr<Model>     spikeTrapModel;
     std::shared_ptr<Model>     fireTrapModel;

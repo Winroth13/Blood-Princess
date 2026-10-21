@@ -148,6 +148,7 @@ bool Application::Initialize()
     if (!Action::LoadBindings("bindings.cfg"))
     {
         Action::AddAction("MoveForward", Key::W);
+
         Action::AddAction("MoveBackward", Key::S);
         Action::AddAction("MoveLeft", Key::A);
         Action::AddAction("MoveRight", Key::D);

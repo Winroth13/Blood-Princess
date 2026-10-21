@@ -22,7 +22,7 @@ waves:
   - completion: 0.75
     enemies:
       - type: skeleton
-        amount: 0
+        amount: 2
         time: 10
       - type: ogre
         amount: 0

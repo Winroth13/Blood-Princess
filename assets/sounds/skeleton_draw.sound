@@ -1,4 +1,4 @@
 sound:
-  - file: assets/audio/sfx/Skeleton/bow_draw.ogg
+  - file: assets/audio/sfx/Skeleton/bow_draw_01.ogg
     min_volume: 3.0
     max_volume: 3.0

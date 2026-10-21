@@ -481,9 +481,11 @@ void EnemyControllerComponent::OnDeath(const AppContext &context)
             this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::OGRE);
             this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position,1.0f);
         } break;
-
         case EnemyType::SKELETON:
-            break;
+        {
+            this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::SKELETON);
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 1.0f);
+        } break;
     }
 }
 
