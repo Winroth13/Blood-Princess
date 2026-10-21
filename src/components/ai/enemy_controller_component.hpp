@@ -12,6 +12,7 @@ class AnimatorComponent;
 class HitboxComponent;
 class GibsComponent;
 class SoundComponent;
+class SplatterComponent;
 
 class SpatialGrid;
 class Sound;
@@ -51,6 +52,7 @@ private:
 	AIManager* aiManager = nullptr;
 	AudioManager* audioManager = nullptr;
 	SoundComponent *sound = nullptr;
+	SplatterComponent *splatter = nullptr;
 
 	XMFLOAT3 velocity = {0.0f, 0.0f, 0.0f};
 
@@ -65,6 +67,13 @@ private:
 	float movementDistanceAccumulator = 0.0f;
 	float lastFootstepAnimTime = -1.0f;
 	float randomSoundTimer = 0.0f;
+
+	const float hitBloodRadiusMin = 0.5f;
+	const float hitBloodRadiusMax = 1.5f;
+	const float deathBloodRadiusMin = 1.5f;
+	const float deathBloodRadiusMax = 2.5f;
+
+	const float ogreBloodRediousMult = 1.5f;
 
 	bool isAttacking = false;
 	bool hasAttacked = false;
