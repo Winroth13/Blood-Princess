@@ -5,17 +5,26 @@
 #include "core/logging.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/wave_controller.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
 #include "core/application.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
 {
-	auto *waveController = this->GetOwner()->GetComponent<WaveController>();
+	WaveController *waveController = this->GetOwner()->GetComponent<WaveController>();
 
 	if (!waveController)
 	{
 		LogError("Must have a wave controller");
+		return;
+	}
+
+	EnemySpawnerComponent *enemySpawner = this->GetOwner()->GetComponent<EnemySpawnerComponent>();
+
+	if (!enemySpawner)
+	{
+		LogError("Must have an enemy spawner");
 		return;
 	}
 
@@ -29,9 +38,19 @@ void LevelComponent::OnStart(const AppContext &context)
 		this->endTimer = 0.0f;
 	});
 
-	this->playerController->GetOnComboEnd().Connect([this](uint32_t score)
+	enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
 	{
-		this->GatherScore();
+		this->numKills++;
+	});
+
+	this->playerController->GetOnParry().Connect([this]()
+	{
+		this->numParries++;
+	});
+
+	this->playerController->GetOnComboEnd().Connect([this](uint32_t score, uint32_t combo)
+	{
+		UpdateScore(score, combo);
 	});
 
 	this->playerDiedConnection = EventBus::Subscribe<PlayerDiedEvent>(
@@ -74,14 +93,22 @@ void LevelComponent::OnPlayerDied(const PlayerDiedEvent &event)
 	this->sceneManager->RequestSceneChange("death_screen");
 }
 
-void LevelComponent::GatherScore()
+void LevelComponent::UpdateScore(uint32_t score, uint32_t combo)
 {
-	this->score += this->playerController->ClaimScore();
+	this->score += score;
 	this->onScoreChanged.Emit(this->score);
+
+	if (this->topCombo < combo)
+		this->topCombo = combo;
 }
 
 void LevelComponent::OnLevelEnd()
 {
-	this->GatherScore();
-	gameState->addScore(this->score);
+	auto [newScore, newCombo] = this->playerController->ClaimScore();
+	this->UpdateScore(newScore, newCombo);
+
+	gameState->AddScore(this->score);
+	gameState->AddKills(this->numKills);
+	gameState->AddParries(this->numParries);
+	gameState->SubmitTopCombo(this->topCombo);
 }

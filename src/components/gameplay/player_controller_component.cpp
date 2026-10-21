@@ -195,7 +195,8 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		{
 			this->comboRemainingTime = -1.0f;
 			this->onComboRemainingTimeChanged.Emit(0.0f);
-			this->onComboEnd.Emit(this->GetScore());
+			auto [resultScore, resultCombo] = ClaimScore();
+			this->onComboEnd.Emit(resultScore, resultCombo);
 		}
 		else
 		{
@@ -758,6 +759,8 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 
 		this->SpawnSpark(sparkPositionF);
 	}
+
+	this->onParry.Emit();
 }
 
 void PlayerControllerComponent::SpawnSpark(XMFLOAT3 position)
@@ -875,15 +878,18 @@ void PlayerControllerComponent::IncrementCombo()
 	this->onComboChanged.Emit(this->combo);
 }
 
-uint32_t PlayerControllerComponent::ClaimScore()
+std::pair<uint32_t, uint32_t> PlayerControllerComponent::ClaimScore()
 {
 	int resultScore = this->score * this->combo;
+	std::pair<uint32_t, uint32_t> resturnValue = std::make_pair(resultScore, combo);
+
 	this->score = 0;
 	this->onScoreChanged.Emit(this->score);
 	this->combo = 0;
 	this->onComboChanged.Emit(this->combo);
+
 	this->comboRemainingTime = -1.0f;
-	return resultScore;
+	return resturnValue;
 }
 
 void PlayerControllerComponent::SetIsPaused(bool isPaused) {
