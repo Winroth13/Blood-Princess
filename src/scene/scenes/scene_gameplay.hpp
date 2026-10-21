@@ -4,6 +4,7 @@
 #include "core/rng.hpp"
 #include "assets/asset_manager.hpp"
 
+#include <cstdint>
 #include <format>
 
 static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entity *spawnerEntity)
@@ -312,6 +313,75 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     return hud;
 }
 
+static Entity *CreateLevelEndScreen(
+    Scene &outScene, 
+    const AppContext 
+    &appContext,
+    float time,
+    uint32_t score,
+    uint32_t kills
+)
+{
+    std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
+
+    UI::Factory ui(outScene, font);
+    SetDefaultStyle(ui.style, *appContext.assetManager);
+
+    Entity *canvas = ui.CreateCanvas("level_end_screen_canvas");
+
+    UITextComponent *rubricLabel = ui.CreateText(canvas, "", 48.0f, "rubric_label");
+    rubricLabel->SetText("FLOOR CLEARED");
+    UI::Factory::Place(rubricLabel, UI::Anchor::CENTRE, { 0.0f, -128.0f }, { 0.0f, 0.0f });
+    rubricLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
+    rubricLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+    float startY = 350.0f;
+
+    std::array<std::string, 3> labelRubrics = 
+    {
+        "Time:",
+        "Score:",
+        "Kills:"
+    };
+    
+    for (size_t i = 0; i < 3; ++i)
+    {
+        Entity *timeGroup = ui.CreateGroup(canvas, { 250, 350 }, "time_group");
+        UI::Factory::Place(timeGroup, UI::Anchor::CENTRE, { 0.0f, startY + i * 64.0f });
+        
+        auto leftLabel = UI::Factory::Place(ui.CreateText(timeGroup, labelRubrics[i], 24.0f, "left_label"), UI::Anchor::TOP_LEFT, {0.0f, 125.0f});
+        leftLabel->SetColour({ 1.0f, 0.92f, 0.8f, 0.8f });
+        leftLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+        std::string rightStr = {};
+        if (i == 0) {
+            rightStr = std::to_string(time);
+        }
+        else if (i == 1) {
+            rightStr = std::to_string(score);
+        }
+        else if (i == 2) {
+            rightStr = std::to_string(kills);
+        }
+
+        auto rightLabel = UI::Factory::Place(ui.CreateText(timeGroup, rightStr, 32.0f, "right_label"), UI::Anchor::TOP_RIGHT, { 0.0f, 117.0f });
+        rightLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+        rightLabel->SetColour({ 0.8f, 0.4f, 0.4f, 1.0f });
+        rightLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    }
+
+    /* Continue */
+    {
+        UITextComponent *continueLabel = ui.CreateText(canvas, "", 24.0f, "ascend_label");
+        continueLabel->SetText("Press any key to Ascend");
+        UI::Factory::Place(continueLabel, UI::Anchor::BOTTOM_RIGHT, { -64.0f, -110.0f }, { 0.0f, 0.0f });
+        continueLabel->SetAlignment(UI::AlignHorizontal::RIGHT, UI::AlignVertical::TOP);
+        continueLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    }
+
+    return canvas;
+}
+
 static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, const DirectX::XMFLOAT3 &center, int numSegments)
 {
     if (numSegments <= 0)
@@ -618,7 +688,11 @@ namespace Scenes
         spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
         spawnerEntity->AddComponent<TrapSpawnerComponent>();
         WaveController *waveController = spawnerEntity->AddComponent<WaveController>();
+
         LevelComponent *level = spawnerEntity->AddComponent<LevelComponent>();
+        Entity *endScreen = CreateLevelEndScreen(outScene, appContext, 100.0f, 80, 500);
+        endScreen->SetLocallyActive(false);
+        level->SetEndScreen(endScreen);
 
         // Player
         Entity *playerEntity = CreatePlayer(outScene, appContext, spawnerEntity);
@@ -631,6 +705,9 @@ namespace Scenes
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
         ambientLight->SetIntensity(0.2f);
+
+        
+
         /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
         TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();
         transform->SetWorldPosition(0.0f, 0.0f, 0.0f);

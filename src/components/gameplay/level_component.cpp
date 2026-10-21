@@ -1,5 +1,6 @@
 #include "level_component.hpp"
 
+#include "core/math.hpp"
 #include "scene/entity.hpp"
 #include "core/logging.hpp"
 #include "assets/asset_manager.hpp"
@@ -24,7 +25,8 @@ void LevelComponent::OnStart(const AppContext &context)
 
 	waveController->GetOnFloorCompleted().Connect([this]() {
 		this->OnLevelEnd();
-		this->sceneManager->RequestSceneChange("win_screen");
+		this->endScreen->SetLocallyActive(true);
+		this->endTimer = 0.0f;
 	});
 
 	this->playerController->GetOnComboEnd().Connect([this](uint32_t score)
@@ -48,6 +50,21 @@ void LevelComponent::OnDestroy(const AppContext &context)
 	{
 		EventBus::Unsubscribe<PlayerDiedEvent>(this->playerDiedConnection);
 		this->playerDiedConnection = 0;
+	}
+}
+
+void LevelComponent::Update(const AppContext &context, float deltaTime)
+{
+	if (this->endTimer >= 0.0f)
+	{
+		this->endTimer += deltaTime;
+		float endRatio = this->endTimer / END_TIMER_DURATION;
+		LogInfo("%f", endRatio);
+
+		float alpha = 1.0f - Math::easeOutQuint(endRatio);
+
+		context.application->SetTimeScale(alpha);
+		context.audioManager->SetPitchModifier(alpha);
 	}
 }
 

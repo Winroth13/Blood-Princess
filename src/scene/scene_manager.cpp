@@ -7,7 +7,7 @@
 #include "scene/scenes/scene_death_screen.hpp"
 #include "scene/scenes/scene_win_screen.hpp"
 #include "scene/scenes/scene_settings.hpp"
-#include "scene/scenes/scene_level_trasition.hpp"
+#include "scene/scenes/scene_level_transition.hpp"
 
 void SceneManager::ChangeScene(const std::string &name) {
     if (!this->loader.Load(name, this->scene)) {

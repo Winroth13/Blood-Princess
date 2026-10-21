@@ -32,7 +32,6 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
 #include "components/gameplay/wave_controller.hpp"
-
 #include "core/math.hpp"
 
 #include <cmath>

@@ -17,22 +17,29 @@ class LevelComponent : public Component
 
 	SceneManager *sceneManager = nullptr;
 	GameState *gameState = nullptr;
+	Entity *endScreen = nullptr;
 
 	Signal<uint32_t> onScoreChanged;
+
+	const float END_TIMER_DURATION = 1.5f;
+	float endTimer = -1.0f;
 
 private:
 	void OnStart(const AppContext &context) override;
 	void OnDestroy(const AppContext &context) override;
+	void Update(const AppContext &context, float deltaTime) override;
 
 	void OnPlayerDied(const PlayerDiedEvent &event);
 	void GatherScore();
 	void OnLevelEnd();
 
 public:
-	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { };
+	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~LevelComponent() = default;
 
 	void SetPlayerController(PlayerControllerComponent *playerController) { this->playerController = playerController; }
+
+	void SetEndScreen(Entity *entity) { this->endScreen = entity; }
 
 	uint32_t GetScore() const { return this->score; }
 

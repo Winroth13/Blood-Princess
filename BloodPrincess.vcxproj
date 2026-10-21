@@ -279,6 +279,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\core\debug.cpp" />
     <ClCompile Include="src\core\game_state.cpp" />
+    <ClCompile Include="src\core\math.cpp" />
     <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
     <ClCompile Include="src\editor\editor.cpp" />
@@ -514,7 +515,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
     <ClInclude Include="src\scene\scenes\scene_headers.hpp" />
-    <ClInclude Include="src\scene\scenes\scene_level_trasition.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_level_transition.hpp" />
     <ClInclude Include="src\scene\scenes\scene_main_menu.hpp" />
     <ClInclude Include="src\scene\scenes\scene_settings.hpp" />
     <ClInclude Include="src\scene\scenes\scene_win_screen.hpp" />
