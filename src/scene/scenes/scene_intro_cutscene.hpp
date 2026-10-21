@@ -4,7 +4,9 @@
 
 namespace Scenes {
     void IntroCutscene(Scene &outScene, const AppContext &appContext) {
-        UI::Factory ui(outScene, *appContext.assetManager);
+        std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
+
+        UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
         Entity *canvas = ui.CreateCanvas();
@@ -28,5 +30,11 @@ namespace Scenes {
         UI::Factory::Place(imgCutscene2, UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
         imgCutscene2->SetShouldPreserveAspectRatio(true);
         imgCutscene2->SetOpacity(0.0f);
+
+        ui.style.textOutlineThickness = 2.0f;
+
+        UITextComponent *txt = ui.CreateText(cutsceneGroup, "Click again to skip...");
+        UI::Factory::Place(txt, UI::Anchor::BOTTOM_RIGHT, {-20.0f, -20.0f});
+        txt->SetActive(false);
     }
 }

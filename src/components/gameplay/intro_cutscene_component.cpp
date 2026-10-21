@@ -3,6 +3,7 @@
 #include "input/input.hpp"
 #include "scene/entity.hpp"
 #include "components/ui/ui_image_component.hpp"
+#include "components/ui/ui_text_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "scene/scene_manager.hpp"
 
@@ -36,6 +37,7 @@ void IntroCutsceneComponent::OnStart(const AppContext &context) {
     std::vector<Entity *> children = this->GetOwner()->GetChildren();
     this->imgComp1 = children[0]->GetComponent<UIImageComponent>();
     this->imgComp2 = children[1]->GetComponent<UIImageComponent>();
+    this->txtComp = children[2]->GetComponent<UITextComponent>();
 
     Input::SetMouseMode(MouseMode::CAPTURED);
 }
@@ -45,6 +47,13 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
 
     const float prevTime = this->time;
     this->time += deltaTime;
+
+    if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
+        if (this->txtComp->IsActive())
+            this->time = 99999999.9f;
+        else
+            this->txtComp->SetActive(true);
+    }
 
     auto isAtFunc = [&](float t) { return t >= prevTime && t < this->time; };
     auto isInFunc = [&](float min, float max) { return this->time >= min && this->time < max; };
