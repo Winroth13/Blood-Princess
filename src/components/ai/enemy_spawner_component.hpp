@@ -20,8 +20,6 @@ class EnemySpawnerComponent : public Component
 	ExportProperty(float, spawnOuterRadius, 20.0f);
 	ExportProperty(float, spawnInnerRadius, 14.0f);
 
-	ExportProperty(float, deathBloodRadiusMin, 1.5f);
-	ExportProperty(float, deathBloodRadiusMax, 2.5f);
 	ExportProperty(bool, autoStartWave, true);
 
 	std::array<PoolComponent *, 3> enemyPools = { nullptr };
