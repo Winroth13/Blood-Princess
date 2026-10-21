@@ -2,8 +2,10 @@
 #include "components/core/transform_component.hpp"
 #include "components/collisions/hit_box_component.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "components/audio/sound_component.hpp"
 #include "collision/collision_component.hpp"
 #include "collision/collision_layer.hpp"
+#include "assets/asset_manager.hpp"
 #include "scene/entity.hpp"
 
 
@@ -12,10 +14,16 @@ void TrapComponent::OnStart(const AppContext& context)
 	this->cachedTransform = this->GetOwner()->GetComponent<TransformComponent>();
 	this->cachedHitbox = this->GetOwner()->GetComponent<HitboxComponent>();
 	this->cachedAnimator = this->GetOwner()->GetComponent<AnimatorComponent>();
+	this->cachedSound = this->GetOwner()->GetComponent<SoundComponent>();
 
 	this->collisionEventConn = EventBus::Subscribe<CollisionEvent>(
 		this, &TrapComponent::OnCollision
 	);
+
+	this->trapTelegraph = context.assetManager->Get<Sound>("assets/sounds/trap_telegraph.sound");
+	this->trapArmed = context.assetManager->Get<Sound>("assets/sounds/trap_armed.sound");
+	this->trapCooldown = context.assetManager->Get<Sound>("assets/sounds/trap_cooldown.sound");
+
 }
 
 void TrapComponent::Update(const AppContext& context, float deltaTime)
@@ -45,6 +53,9 @@ void TrapComponent::Update(const AppContext& context, float deltaTime)
 				this->cachedAnimator = this->GetOwner()->GetComponent<AnimatorComponent>();
 
 			this->state = TrapState::COOLDOWN;
+			this->cachedSound->SetSound(this->trapCooldown);
+			this->cachedSound->Play();
+
 			this->cachedAnimator->CrossFade("spikedown", 0, false);
 			this->timer = 0.0f;
 		}
@@ -89,6 +100,10 @@ void TrapComponent::OnCollision(const CollisionEvent & e)
 
 	if (this->telegraphDuration > 0.0f)
 	{
+		this->cachedSound->SetSound(this->trapTelegraph);
+		this->cachedSound->Play();
+
+
 		this->state = TrapState::TELEGRAPH;
 		this->timer = 0.0f;
 		this->cachedAnimator->Play("spiketease", false);
@@ -117,6 +132,9 @@ void TrapComponent::TriggerArmed()
 	{
 		if (this->cachedAnimator->HasAnimation("spikeup"))
 		{
+			this->cachedSound->SetSound(this->trapArmed);
+			this->cachedSound->Play();
+
 			this->cachedAnimator->CrossFade("spikeup", 0, false);
 		}
 	}

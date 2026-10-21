@@ -1,0 +1,18 @@
+sound:
+    - file: assets/audio/sfx/arrow/arrow_passby_01.ogg
+      min_volume: 0.95
+      max_volume: 1.05
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/arrow/arrow_passby_02.ogg
+      min_volume: 0.95
+      max_volume: 1.05
+      min_pitch: 0.95
+      max_pitch: 1.05
+
+    - file: assets/audio/sfx/arrow/arrow_passby_03.ogg
+      min_volume: 0.95
+      max_volume: 1.05
+      min_pitch: 0.95
+      max_pitch: 1.05
