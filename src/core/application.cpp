@@ -74,7 +74,7 @@ bool Application::Initialize()
     LogInfo("Initializing...");
     LogIndent();
 
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
     {
         LogError("SDL could not be initialized! SDL_Error: %s", SDL_GetError());
         return false;
@@ -148,17 +148,22 @@ bool Application::Initialize()
     if (!Action::LoadBindings("bindings.cfg"))
     {
         Action::AddAction("MoveForward", Key::W);
-
         Action::AddAction("MoveBackward", Key::S);
         Action::AddAction("MoveLeft", Key::A);
         Action::AddAction("MoveRight", Key::D);
 
         Action::AddAction("Dash", Key::LEFT_SHIFT);
         Action::AddAction("Dash", Key::SPACE);
+        Action::AddAction("Dash", GamepadButton::EAST);
 
         Action::AddAction("LightAttack", MouseButton::LEFT);
+        Action::AddAction("LightAttack", GamepadButton::LEFT_SHOULDER);
+
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
+        Action::AddAction("HeavyAttack", GamepadButton::RIGHT_SHOULDER);
+
         Action::AddAction("Parry", Key::F);
+        Action::AddAction("Parry", GamepadButton::WEST);
 
         Action::SaveBindings("bindings.cfg");
     }

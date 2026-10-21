@@ -24,7 +24,7 @@ void Action::Shutdown()
 void Action::Update()
 {
 
-	for (auto &[name, binding] : actions)
+	for (auto& [name, binding] : actions)
 	{
 		binding.wasActive = binding.isActive;
 		binding.isActive = false;
@@ -48,15 +48,29 @@ void Action::Update()
 					break;
 				}
 			}
+
 		}
+
+		if (!binding.isActive)
+		{
+			for (const GamepadButton button : binding.gamepadButtons)
+			{
+				if (Input::IsGamepadButtonDown(button))
+				{
+					binding.isActive = true;
+					break;
+				}
+			}
+		}
+
 
 	}
 }
 
 //Example to create action: Action::AddAction( "Jump", Key::SPACE)
-void Action::AddAction(const std::string &name, Key key)
+void Action::AddAction(const std::string& name, Key key)
 {
-	ActionBinding &binding = actions[name];
+	ActionBinding& binding = actions[name];
 
 
 	if (std::find(binding.keys.begin(), binding.keys.end(), key) != binding.keys.end())
@@ -67,9 +81,9 @@ void Action::AddAction(const std::string &name, Key key)
 	binding.keys.push_back(key);
 }
 
-void Action::AddAction(const std::string &name, MouseButton mouseButton)
+void Action::AddAction(const std::string& name, MouseButton mouseButton)
 {
-	ActionBinding &binding = actions[name];
+	ActionBinding& binding = actions[name];
 
 	if (std::find(binding.mouseButtons.begin(), binding.mouseButtons.end(), mouseButton) != binding.mouseButtons.end())
 	{
@@ -79,7 +93,17 @@ void Action::AddAction(const std::string &name, MouseButton mouseButton)
 	binding.mouseButtons.push_back(mouseButton);
 }
 
-bool Action::IsActionDown(const std::string &name)
+void Action::AddAction(const std::string& name, GamepadButton button)
+{
+	ActionBinding& binding = actions[name];
+	if (std::find(binding.gamepadButtons.begin(), binding.gamepadButtons.end(), button) != binding.gamepadButtons.end())
+	{
+		return;
+	}
+	binding.gamepadButtons.push_back(button);
+}
+
+bool Action::IsActionDown(const std::string& name)
 {
 	auto it = actions.find(name);
 
@@ -92,7 +116,7 @@ bool Action::IsActionDown(const std::string &name)
 	return it->second.isActive;
 }
 
-bool Action::IsActionPressed(const std::string &name)
+bool Action::IsActionPressed(const std::string& name)
 {
 	auto it = actions.find(name);
 
@@ -106,7 +130,7 @@ bool Action::IsActionPressed(const std::string &name)
 	return it->second.isActive && !it->second.wasActive;
 }
 
-bool Action::IsActionReleased(const std::string &name)
+bool Action::IsActionReleased(const std::string& name)
 {
 	auto it = actions.find(name);
 
@@ -121,33 +145,33 @@ bool Action::IsActionReleased(const std::string &name)
 
 }
 
-bool Action::SaveBindings(const std::string &path)
+bool Action::SaveBindings(const std::string& path)
 {
 
 	std::ofstream file(path);
-	
+
 	if (!file)
 	{
-		LogWarn("Could not open %s for writing", path.c_str());		
+		LogWarn("Could not open %s for writing", path.c_str());
 		return false;
 	}
-	
+
 	file << "# action key KEYNAME\n";
 	file << "# action mouse BUTTONNAME\n\n";
-
+	file << "# action gamepad BUTTONNAME\n\n";
 
 	// Sorted so the file stays readable, not really necessary but git reasons 
 	std::vector<std::string> sortedNames;
 	sortedNames.reserve(actions.size());
 
-	for (const auto &[name, binding] : actions)
+	for (const auto& [name, binding] : actions)
 	{
 		sortedNames.push_back(name);
 	}
 
 
 
-	for (auto &[name, binding] : actions)
+	for (auto& [name, binding] : actions)
 	{
 		for (const Key key : binding.keys)
 		{
@@ -158,12 +182,22 @@ bool Action::SaveBindings(const std::string &path)
 		{
 			file << name << " mouse " << Input::GetMouseButtonName(mouseButton) << "\n";
 		}
+
+		for (const GamepadButton button : binding.gamepadButtons)
+		{
+			const char* buttonName = Input::GetGamepadButtonName(button);
+			if (buttonName)
+			{
+				file << name << " gamepad " << buttonName << "\n";
+			}
+		}
+
 	}
-	
+
 	return true;
 }
 
-bool Action::LoadBindings(const std::string &path)
+bool Action::LoadBindings(const std::string& path)
 {
 	std::ifstream file(path);
 
@@ -182,7 +216,7 @@ bool Action::LoadBindings(const std::string &path)
 	while (getline(file, line))
 	{
 		lineNumber++;
-		
+
 		if (line.empty() || line[0] == '#')
 		{
 			continue;
@@ -214,7 +248,7 @@ bool Action::LoadBindings(const std::string &path)
 				LogWarn("Line %d: unknown key name \"%s\"", lineNumber, inputName.c_str());
 				continue;
 			}
-			
+
 			AddAction(actionName, key);
 		}
 
@@ -230,6 +264,16 @@ bool Action::LoadBindings(const std::string &path)
 			AddAction(actionName, mouseButton);
 		}
 
+		else if (type == "gamepad")
+		{
+			GamepadButton btn = Input::GetGamepadButtonFromName(inputName);
+			if (btn == GamepadButton::UNKNOWN)
+			{
+				LogWarn("Line %d: unknown gamepad button \"%s\"", lineNumber, inputName.c_str());
+				continue;
+			}
+			AddAction(actionName, btn);
+		}
 		else
 		{
 			LogWarn("Line %d: unknown type \"%s\"", lineNumber, type.c_str());
