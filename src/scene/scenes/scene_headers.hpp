@@ -43,6 +43,7 @@
 #include "components/core/pool_component.hpp"
 
 #include "components/gameplay/health_component.hpp"
+#include "components/gameplay/intro_cutscene_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
 #include "components/gameplay/menu_screen_component.hpp"
 #include "components/gameplay/paintable_component.hpp"

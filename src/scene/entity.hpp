@@ -86,6 +86,21 @@ public:
         return nullptr;
     }
 
+    template <typename T>
+    std::vector<T *> GetComponentsOfType() {
+        std::vector<T *> result;
+
+        for (auto &component : this->components) {
+            if (component->IsPendingDestroy())
+                continue;
+
+            if (T *ptr = dynamic_cast<T *>(component.get()))
+                result.push_back(ptr);
+        }
+
+        return result;
+    }
+
     std::vector<Component *> GetComponents();
 
     template <typename T>

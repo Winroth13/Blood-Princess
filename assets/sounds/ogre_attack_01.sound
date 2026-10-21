@@ -1,5 +1,5 @@
 sound:
-  - file: assets/audio/sfx/troll/ogre_attack_01.ogg
+  - file: assets/audio/sfx/orc/ogre_attack_01.ogg
     min_volume: 1.1
     max_volume: 1.3
     min_pitch: 0.95

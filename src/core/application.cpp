@@ -80,7 +80,7 @@ bool Application::Initialize()
         return false;
     }
 
-    if (!this->window.Initialize("Blood Princess", 1400, 900, SDL_WINDOW_RESIZABLE)) // 1400, 900
+    if (!this->window.Initialize("Blood Princess", 1600, 900, SDL_WINDOW_RESIZABLE)) // 1400, 900
     {
         LogError("Failed to create Window!");
         return false;
