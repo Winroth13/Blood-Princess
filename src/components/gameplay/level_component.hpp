@@ -49,8 +49,6 @@ public:
 	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 	~LevelComponent() = default;
 
-	void Update(const AppContext &context, float deltaTime);
-
 	void SetPlayerController(PlayerControllerComponent *playerController) { this->playerController = playerController; }
 
 	void SetEndScreen(Entity *entity) { this->endScreen = entity; }

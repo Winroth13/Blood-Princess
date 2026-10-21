@@ -79,16 +79,31 @@ void LevelComponent::OnDestroy(const AppContext &context)
 
 void LevelComponent::Update(const AppContext &context, float deltaTime)
 {
-	if (this->endTimer >= 0.0f)
+	switch (this->state)
 	{
-		this->endTimer += deltaTime;
-		float endRatio = this->endTimer / END_TIMER_DURATION;
-		LogInfo("%f", endRatio);
+		case LevelState::SHOULD_COMPLETE:
+		{
+			this->OnLevelEnd();
+			this->state = LevelState::COMPLETED;
+			this->endScreen->SetLocallyActive(true);
+			this->endTimer = 0.0f;
+		} break;
+		case LevelState::COMPLETED:
+		{
+			if (this->endTimer >= 0.0f)
+			{
+				this->endTimer += deltaTime;
+				float endRatio = this->endTimer / END_TIMER_DURATION;
+				LogInfo("%f", endRatio);
 
-		float alpha = 1.0f - Math::easeOutQuint(endRatio);
+				float alpha = 1.0f - Math::easeOutQuint(endRatio);
 
-		context.application->SetTimeScale(alpha);
-		context.audioManager->SetPitchModifier(alpha);
+				context.application->SetTimeScale(alpha);
+				context.audioManager->SetPitchModifier(alpha);
+			}
+		} break;
+		default:
+			break;
 	}
 }
 
@@ -113,15 +128,4 @@ void LevelComponent::OnLevelEnd()
 	gameState->AddKills(this->numKills);
 	gameState->AddParries(this->numParries);
 	gameState->SubmitTopCombo(this->topCombo);
-}
-
-void LevelComponent::Update(const AppContext &context, float deltaTime)
-{
-	if (this->state == LevelState::SHOULD_COMPLETE)
-	{
-		this->OnLevelEnd();
-		this->state = LevelState::COMPLETED;
-		this->endScreen->SetLocallyActive(true);
-		this->endTimer = 0.0f;
-	}
 }
