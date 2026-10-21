@@ -35,6 +35,8 @@ class Floor : public Asset
 {
 private:
 	XMFLOAT4 hsv = { 0.0f, 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 fogColour = { 0.0f, 0.0f, 0.0f };
+	float fogDensity = 1.0f;
 	float fogStartDepth = 0.0f;
 	float fogEndDepth = 1.0f;
 	SpikeTrapConfig spikeTraps = {};
@@ -46,6 +48,12 @@ public:
 
 	XMFLOAT4 GetHSV() const { return this->hsv; }
 	void SetHSV(XMFLOAT4 hsv) { this->hsv = hsv; }
+
+	XMFLOAT3 GetFogColour() const { return this->fogColour; }
+	void SetFogColour(XMFLOAT3 colour) { this->fogColour = colour; }
+
+	float GetFogDensity() const { return this->fogDensity; }
+	void SetFogDensity(float density) { this->fogDensity = density; }
 
 	float GetFogStartDepth() const { return this->fogStartDepth; }
 	void SetFogStartDepth(float depth) { this->fogStartDepth = depth; }

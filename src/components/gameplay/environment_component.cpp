@@ -6,6 +6,8 @@ void EnvironmentComponent::Render(const RenderView &view, RenderQueue &queue)
     EnvironmentCommand environmentCommand{};
 
     environmentCommand.hsvShift = this->hsvShift;
+    environmentCommand.fogColour = this->fogColour;
+    environmentCommand.fogDensity = this->fogDensity;
     environmentCommand.fogStartDepth = this->fogStartDepth;
     environmentCommand.fogEndDepth = this->fogEndDepth;
 

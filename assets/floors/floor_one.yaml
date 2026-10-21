@@ -3,9 +3,10 @@ saturation: 1.0
 value: 1.0
 intensity: 0.0
 
+fog_colour: [0.04, 0.02, 0.02]
+fog_density: 1.0
 fog_start: 0.0
-fog_end: 1.0
-
+fog_end: 15.0
 
 spike_traps:
   amount: 1
@@ -20,10 +21,14 @@ spike_traps:
 waves:
   - completion: 0.75
     enemies:
-      - type: skeleton
+      - type: ogre
         amount: 0
-        time: 0
+        time: 10
 
+      - type: goblin
+        amount: 0
+        time: 10
+    
   - completion: 0.75
     enemies:
       - type: ogre

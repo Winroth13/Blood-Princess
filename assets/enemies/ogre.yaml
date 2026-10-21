@@ -4,7 +4,7 @@ score: 20
 scale: 1.25
 
 avoidance_radius: 1.5
-move_speed: 3.5
+move_speed: 7.0
 
 knockback_factor: 3.0
 knockback_decay: 12.0

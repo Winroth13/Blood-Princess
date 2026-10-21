@@ -147,6 +147,8 @@ struct EnvironmentData
 {
     XMFLOAT4 hsvShift;
     uint32_t environmentFlags;
+    XMFLOAT3 fogColour;
+    float fogDensity;
     float fogStartDepth;
     float fogEndDepth;
     float pad0[1];

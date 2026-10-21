@@ -100,6 +100,8 @@ cbuffer Environment : register(b7)
 {
     float4 hsvShift;
     uint environmentFlags;
+    float3 fogColour;
+    float fogDensity;
     float fogStartDepth;
     float fogEndDepth;
     float pad6;
