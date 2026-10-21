@@ -12,7 +12,7 @@ spike_traps:
   telegraph: 1.5
   armed_duration: 0.5
   cooldown_duration: 5.0
-  retrigger_cooldown: 0.1 # <--- Skade-intervall (tar skada var 0.5s medan man står på spikarna)
+  retrigger_cooldown: 0.1 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
   damage: 1.0
   knockback: 3.0
 
@@ -20,19 +20,24 @@ spike_traps:
 waves:
   - completion: 0.75
     enemies:
-      - type: skeleton
-        amount: 3
-        time: 0
-
-      - type: goblin
-        amount: 200
-        time: 15
-
       - type: ogre
         amount: 3
         time: 10
+
+      - type: goblin
+        amount: 40
+        time: 10
+    
   - completion: 0.75
     enemies:
       - type: ogre
         amount: 1
+        time: 10
+
+      - type: goblin
+        amount: 40
+        time: 20
+
+      - type: skeleton
+        amount: 3
         time: 10

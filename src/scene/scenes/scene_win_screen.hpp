@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene_headers.hpp"
+#include "end_screen.hpp"
 
 namespace Scenes {
     void WinScreen(Scene &outScene, const AppContext &appContext) {
@@ -11,15 +12,19 @@ namespace Scenes {
         hud->AddComponent<UICanvasComponent>();
         hud->AddComponent<TransformComponent>();
         hud->AddComponent<CameraComponent>();
-        hud->AddComponent<EndScreenComponent>();
+        hud->AddComponent<MenuScreenComponent>();
         hud->AddComponent<EnvironmentComponent>();
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
-        UI::Factory::Place(ui.CreateText(hud, "YOU WON", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
+        UI::Factory::Place(ui.CreateText(hud, "YOU WON", 100.0f, "title"), UI::Anchor::TOP, { 0.0f, 200.0f });
 
-        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
+        GameState *gameState = appContext.application->GetGameState();
+
+        DrawScores(hud, gameState, ui, UI::Anchor::CENTRE);
+
+        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
         menuButton->GetOnClick().Connect([appContext]() {
             appContext.sceneManager->RequestSceneChange("main_menu");
             });

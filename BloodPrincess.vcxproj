@@ -210,7 +210,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\core\lifetime_component.cpp" />
     <ClCompile Include="src\components\core\pool_component.cpp" />
     <ClCompile Include="src\components\gameplay\enemy_database_component.cpp" />
-    <ClCompile Include="src\components\gameplay\end_screen_component.cpp" />
+    <ClCompile Include="src\components\gameplay\menu_screen_component.cpp" />
     <ClCompile Include="src\components\gameplay\environment_component.cpp" />
     <ClCompile Include="src\components\gameplay\gibs_component.cpp" />
     <ClCompile Include="src\components\gameplay\level_component.cpp" />
@@ -278,6 +278,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClCompile Include="src\components\core\transform_component.cpp" />
     <ClCompile Include="src\core\application.cpp" />
     <ClCompile Include="src\core\debug.cpp" />
+    <ClCompile Include="src\core\game_state.cpp" />
     <ClCompile Include="src\core\rng.cpp" />
     <ClCompile Include="src\editor\asset_viewer_panel.cpp" />
     <ClCompile Include="src\editor\editor.cpp" />
@@ -388,7 +389,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\components\collisions\area_component.hpp" />
     <ClInclude Include="src\components\core\lifetime_component.hpp" />
     <ClInclude Include="src\components\core\pool_component.hpp" />
-    <ClInclude Include="src\components\gameplay\end_screen_component.hpp" />
+    <ClInclude Include="src\components\gameplay\menu_screen_component.hpp" />
     <ClInclude Include="src\components\gameplay\environment_component.hpp" />
     <ClInclude Include="src\components\gameplay\gibs_component.hpp" />
     <ClInclude Include="src\components\gameplay\enemy_database_component.hpp" />
@@ -463,6 +464,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\core\application.hpp" />
     <ClInclude Include="src\core\app_context.hpp" />
     <ClInclude Include="src\core\debug.hpp" />
+    <ClInclude Include="src\core\game_state.hpp" />
     <ClInclude Include="src\core\math.hpp" />
     <ClInclude Include="src\core\rng.hpp" />
     <ClInclude Include="src\editor\asset_viewer_panel.hpp" />
@@ -508,6 +510,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     <ClInclude Include="src\scene\component.hpp" />
     <ClInclude Include="src\scene\entity.hpp" />
     <ClInclude Include="src\scene\scene.hpp" />
+    <ClInclude Include="src\scene\scenes\end_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_death_screen.hpp" />
     <ClInclude Include="src\scene\scenes\scene_gameplay.hpp" />
     <ClInclude Include="src\scene\scenes\scene_headers.hpp" />

@@ -238,6 +238,8 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 	{
 		this->hurtbox->GetOnHitBlocked().DisconnectObject(this);
 	}
+
+	Debug::SetSetting("damageFlash.intensity", 0.0f);
 }
 
 void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
@@ -812,7 +814,6 @@ void PlayerControllerComponent::OnDeath()
 
 	this->isDead = true;
 	this->isParrying = false;
-	Debug::SetSetting("damageFlash.intensity", 0.0f);
 
 	if (this->hitbox)
 		this->hitbox->Deactivate();

@@ -61,12 +61,14 @@ namespace Scenes {
         UI::Factory::Place(btnQuit, UI::Anchor::TOP_LEFT, {50.0f, 700.0f});
 
         SceneManager *sceneManager = appContext.sceneManager;
-        btnStart->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+        GameState *gameState = appContext.application->GetGameState();
+        btnStart->GetOnClick().Connect([loadingEntity, sceneManager, gameState]() {  
             loadingEntity->SetLocallyActive(true);
+            gameState->clearScores();
             sceneManager->RequestSceneChange("gameplay");
         });
 
-        btnSettings->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+        btnSettings->GetOnClick().Connect([sceneManager]() {  
             sceneManager->RequestSceneChange("settings");
         });
 
@@ -77,8 +79,8 @@ namespace Scenes {
 
         SetDefaultSounds(outScene, appContext, { btnStart, btnSettings, btnCredits, btnQuit });
 
-        //std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nParry: F\nDash: Shift/Space";
-        //UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");
-        //UI::Factory::Place(controls, UI::Anchor::TOP_RIGHT, { -100.0f, 380.0f });
+        std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nParry: F\nDash: Shift/Space";
+        UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");
+        UI::Factory::Place(controls, UI::Anchor::TOP_RIGHT, { -100.0f, 380.0f });
     }
 }

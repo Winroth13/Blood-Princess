@@ -129,11 +129,12 @@
     <ClCompile Include="src\components\gameplay\enemy_database_component.cpp" />
     <ClCompile Include="src\components\gameplay\level_component.cpp" />
     <ClCompile Include="src\components\gameplay\tutorial_component.cpp" />
-    <ClCompile Include="src\components\gameplay\end_screen_component.cpp" />
+    <ClCompile Include="src\components\gameplay\menu_screen_component.cpp" />
     <ClCompile Include="src\components\gameplay\environment_component.cpp" />
     <ClCompile Include="src\assets\types\texture_cube.cpp" />
     <ClCompile Include="src\assets\texture.cpp" />
     <ClCompile Include="src\components\collisions\area_component.cpp" />
+    <ClCompile Include="src\core\game_state.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -337,7 +338,7 @@
     <ClInclude Include="src\components\gameplay\enemy_database_component.hpp" />
     <ClInclude Include="src\components\gameplay\level_component.hpp" />
     <ClInclude Include="src\components\gameplay\tutorial_component.hpp" />
-    <ClInclude Include="src\components\gameplay\end_screen_component.hpp" />
+    <ClInclude Include="src\components\gameplay\menu_screen_component.hpp" />
     <ClInclude Include="src\scene\scenes\scene_settings.hpp" />
     <ClInclude Include="src\components\gameplay\environment_component.hpp" />
     <ClInclude Include="src\assets\types\texture_cube.hpp" />
@@ -345,6 +346,8 @@
     <ClInclude Include="src\components\collisions\area_component.hpp" />
     <ClInclude Include="src\core\math.hpp" />
     <ClInclude Include="src\scene\scenes\scene_level_trasition.hpp" />
+    <ClInclude Include="src\core\game_state.hpp" />
+    <ClInclude Include="src\scene\scenes\end_screen.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
