@@ -621,6 +621,8 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 
 		floor->SetHSV(hsv);
 
+		floor->SetFogColour(file["fog_colour"].as<XMFLOAT3>(XMFLOAT3(0.0f, 0.0f, 0.0f)));
+		floor->SetFogDensity(file["fog_density"].as<float>(1.0f));
 		floor->SetFogStartDepth(file["fog_start"].as<float>(0.0f));
 		floor->SetFogEndDepth(file["fog_end"].as<float>(1.0f));
 
