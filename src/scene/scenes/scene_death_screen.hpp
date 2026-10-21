@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene_headers.hpp"
+#include "end_screen.hpp"
 
 namespace Scenes {
     void DeathScreen(Scene &outScene, const AppContext &appContext) {
@@ -11,7 +12,7 @@ namespace Scenes {
         hud->AddComponent<UICanvasComponent>();
         hud->AddComponent<TransformComponent>();
         hud->AddComponent<CameraComponent>();
-        hud->AddComponent<EndScreenComponent>();
+        hud->AddComponent<MenuScreenComponent>();
         SoundComponent *soundComp = hud->AddComponent<SoundComponent>();
         hud->AddComponent<EnvironmentComponent>();
 
@@ -23,14 +24,19 @@ namespace Scenes {
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
 
-        UI::Factory::Place(ui.CreateText(hud, "YOU DIED", 100.0f, "title"), UI::Anchor::CENTRE, { 0.0f, -200.0f });
+        UI::Factory::Place(ui.CreateText(hud, "YOU DIED", 100.0f, "title"), UI::Anchor::TOP, { 0.0f, 200.0f });
 
-        UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
-        restartButton->GetOnClick().Connect([appContext]() {
+        GameState *gameState = appContext.application->GetGameState();
+
+        DrawScores(hud, gameState, ui, UI::Anchor::CENTRE);
+
+        UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
+        restartButton->GetOnClick().Connect([appContext, gameState]() {
+            gameState->clearScores();
             appContext.sceneManager->RequestSceneChange("gameplay");
             });
 
-        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 300.0f });
+        UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 350.0f });
         menuButton->GetOnClick().Connect([appContext]() {
             appContext.sceneManager->RequestSceneChange("main_menu");
             });

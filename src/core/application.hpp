@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/window.hpp"
+#include "core/game_state.hpp"
 #include "rendering/renderer.hpp"
 #include "assets/asset_manager.hpp"
 #include "scene/scene_manager.hpp"
@@ -32,6 +33,7 @@ class Application
     Editor editor;
     CollisionManager collisionManager;
     AIManager aiManager;
+    GameState gameState;
 
 	bool isRunning = false;
 
@@ -73,4 +75,6 @@ public:
 
     float GetTimeScale() const { return this->timeScale; }
     void SetTimeScale(float timescale) { this->timeScale = timescale; }
+
+    GameState *GetGameState() { return &this->gameState; }
 };

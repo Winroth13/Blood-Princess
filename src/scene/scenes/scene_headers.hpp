@@ -44,7 +44,7 @@
 
 #include "components/gameplay/health_component.hpp"
 #include "components/gameplay/main_menu_component.hpp"
-#include "components/gameplay/end_screen_component.hpp"
+#include "components/gameplay/menu_screen_component.hpp"
 #include "components/gameplay/paintable_component.hpp"
 #include "components/gameplay/player_controller_component.hpp"
 #include "components/gameplay/projectile_component.hpp"

@@ -3,6 +3,7 @@
 #include "assets/types/floor.hpp"
 #include "events/signal.hpp"
 #include "components/gameplay/player_controller_component.hpp"
+#include "core/game_state.hpp"
 
 class LevelComponent : public Component
 {
@@ -15,6 +16,7 @@ class LevelComponent : public Component
 	ConnectionId playerDiedConnection = 0;
 
 	SceneManager *sceneManager = nullptr;
+	GameState *gameState = nullptr;
 
 	Signal<uint32_t> onScoreChanged;
 
@@ -24,6 +26,7 @@ private:
 
 	void OnPlayerDied(const PlayerDiedEvent &event);
 	void GatherScore();
+	void OnLevelEnd();
 
 public:
 	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { };

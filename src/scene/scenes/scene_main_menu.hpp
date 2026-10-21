@@ -61,12 +61,14 @@ namespace Scenes {
         UI::Factory::Place(btnQuit, UI::Anchor::TOP_LEFT, {50.0f, 700.0f});
 
         SceneManager *sceneManager = appContext.sceneManager;
-        btnStart->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+        GameState *gameState = appContext.application->GetGameState();
+        btnStart->GetOnClick().Connect([loadingEntity, sceneManager, gameState]() {  
             loadingEntity->SetLocallyActive(true);
+            gameState->clearScores();
             sceneManager->RequestSceneChange("gameplay");
         });
 
-        btnSettings->GetOnClick().Connect([loadingEntity, sceneManager]() {  
+        btnSettings->GetOnClick().Connect([sceneManager]() {  
             sceneManager->RequestSceneChange("settings");
         });
 
