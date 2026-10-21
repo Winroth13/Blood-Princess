@@ -8,7 +8,6 @@
 #include "scene/scenes/scene_win_screen.hpp"
 #include "scene/scenes/scene_settings.hpp"
 #include "scene/scenes/scene_level_transition.hpp"
-#include "scene/scenes/scene_level_trasition.hpp"
 #include "scene/scenes/scene_intro_cutscene.hpp"
 
 void SceneManager::ChangeScene(const std::string &name) {

@@ -21,7 +21,7 @@ class LevelComponent : public Component
 
 	Signal<uint32_t> onScoreChanged;
 
-	const float END_TIMER_DURATION = 1.5f;
+	const float END_TIMER_DURATION = 2.0f;
 	float endTimer = -1.0f;
 
 private:
@@ -39,6 +39,7 @@ public:
 
 	void SetPlayerController(PlayerControllerComponent *playerController) { this->playerController = playerController; }
 
+	bool IsInEndScreen() { return endTimer > 0.0f; }
 	void SetEndScreen(Entity *entity) { this->endScreen = entity; }
 
 	uint32_t GetScore() const { return this->score; }

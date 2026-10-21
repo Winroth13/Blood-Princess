@@ -5,6 +5,8 @@
 #include "core/logging.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/wave_controller.hpp"
+#include "components/audio/audio_component.hpp"
+#include "components/core/camera_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
 #include "core/application.hpp"
@@ -23,10 +25,13 @@ void LevelComponent::OnStart(const AppContext &context)
 		waveController->NextWave();
 	});
 
-	waveController->GetOnFloorCompleted().Connect([this]() {
+	waveController->GetOnFloorCompleted().Connect([this, context]() {
 		this->OnLevelEnd();
 		this->endScreen->SetLocallyActive(true);
 		this->endTimer = 0.0f;
+		this->GetOwner()->GetComponent<AudioComponent>()->Play();
+
+		this->playerController->SetCanRotate(false);
 	});
 
 	this->playerController->GetOnComboEnd().Connect([this](uint32_t score)
@@ -57,14 +62,21 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 {
 	if (this->endTimer >= 0.0f)
 	{
-		this->endTimer += deltaTime;
-		float endRatio = this->endTimer / END_TIMER_DURATION;
-		LogInfo("%f", endRatio);
+		if (context.application->GetTimeScale() > 0.0001f)
+			this->endTimer += deltaTime / context.application->GetTimeScale();
 
+		float endRatio = this->endTimer / END_TIMER_DURATION;
 		float alpha = 1.0f - Math::easeOutQuint(endRatio);
 
 		context.application->SetTimeScale(alpha);
-		context.audioManager->SetPitchModifier(alpha);
+
+		Entity *player = this->playerController->GetOwner();
+		Entity *viewmodel = player->GetChildren()[0];
+		float fov = std::lerp(90.0f, 110.0f, 1 - alpha);
+		viewmodel->GetChildren()[0]->GetComponent<CameraComponent>()->SetFov(DirectX::XMConvertToRadians(fov));
+		
+		if (alpha > 0.05f)
+			context.audioManager->SetPitchModifier(alpha);
 	}
 }
 

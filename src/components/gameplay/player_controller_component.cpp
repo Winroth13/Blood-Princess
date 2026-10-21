@@ -139,12 +139,16 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		}
 		else
 		{
-			this->lingeringDashTimer = -1;
-			DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
-			dashColour.w = 0.0f;
-			Debug::SetSetting("speedLines.colour", dashColour);
-			Debug::SetSetting("speedLines.density", this->minDashDensity);
-			this->camera->SetFov(DirectX::XM_PIDIV2);
+			// only reset the dash once
+			if (this->lingeringDashTimer != -1.0f)
+			{
+				this->lingeringDashTimer = -1;
+				DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+				dashColour.w = 0.0f;
+				Debug::SetSetting("speedLines.colour", dashColour);
+				Debug::SetSetting("speedLines.density", this->minDashDensity);
+				this->camera->SetFov(DirectX::XM_PIDIV2);
+			}
 		}
 
 		HandleMovement(deltaTime);
@@ -184,10 +188,10 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		if (this->audioManager)
 			this->audioManager->SetPitchModifier(std::lerp(0.4f, 1.0f, alpha));
 	}
-	else if (this->audioManager && this->audioManager->GetPitchModifier() != 1.0f)
+	/*else if (this->audioManager && this->audioManager->GetPitchModifier() != 1.0f)
 	{
 		this->audioManager->SetPitchModifier(1.0f);
-	}
+	}*/
 
 	if (this->comboRemainingTime != -1.0f)
 	{
@@ -344,6 +348,9 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 {
 	if (Input::GetMouseMode() != MouseMode::CAPTURED)
+		return;
+
+	if (!this->canRotate)
 		return;
 
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();

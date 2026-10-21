@@ -712,6 +712,12 @@ namespace Scenes
         WaveController *waveController = spawnerEntity->AddComponent<WaveController>();
 
         LevelComponent *level = spawnerEntity->AddComponent<LevelComponent>();
+        
+        auto *levelAudio = spawnerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/end_level.ogg"));
+        levelAudio->SetAudio3D(false);
+        levelAudio->SetVolume(5.0f);
+        levelAudio->SetPitch(3.0f);
+
         Entity *endScreen = CreateLevelEndScreen(outScene, appContext, 100.0f, 80, 500);
         endScreen->SetLocallyActive(false);
         level->SetEndScreen(endScreen);

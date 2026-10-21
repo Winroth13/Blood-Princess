@@ -67,6 +67,9 @@ class PlayerControllerComponent : public Component
 	// health
 	ExportProperty(float, maxHealth, 200);
 
+	// Looking
+	bool canRotate = true;
+
 	// Combo
 	uint32_t score = 0;
 	uint32_t combo = 0;
@@ -249,6 +252,8 @@ public:
 
     bool GetIsPaused() const { return this->isPaused; }
     void SetIsPaused(bool isPaused);
+
+	void SetCanRotate(bool rotate) { this->canRotate = rotate; }
 
 	Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 	Signal<uint32_t> &GetOnScoreChanged() { return this->onScoreChanged; }
