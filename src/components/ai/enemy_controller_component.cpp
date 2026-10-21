@@ -451,9 +451,13 @@ void EnemyControllerComponent::OnDeath(const AppContext &context)
     switch (this->enemy->type)
     {
         case EnemyType::GOBLIN:
-        case EnemyType::OGRE:
         {
             this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::GOBLIN);
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 1.0f);
+        } break;
+        case EnemyType::OGRE:
+        {
+            this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::OGRE);
             this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position,1.0f);
         } break;
 

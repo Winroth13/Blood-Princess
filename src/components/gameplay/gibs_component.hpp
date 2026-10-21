@@ -33,7 +33,12 @@ class GibsComponent : public Component
 	const size_t GOBLIN_RIBCAGE = 2;
 	const size_t GOBLIN_HEAD = 3;
 
-	std::array<std::shared_ptr<Model>, 4> gibModels = {nullptr};
+	const size_t OGRE_HEAD = 4;
+	const size_t OGRE_BUTT = 5;
+	const size_t OGRE_ARM = 6;
+
+
+	std::array<std::shared_ptr<Model>, 7> gibModels = {nullptr};
 	std::shared_ptr<Texture2D> bloodSpriteSheet = nullptr;
 
 private:

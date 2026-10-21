@@ -61,6 +61,7 @@ Entity* TrapSpawnerComponent::BuildSpikeTrap(Scene * scene, const std::string & 
     Entity* trap = scene->AddEntity(name);
 
     auto* transform = trap->AddComponent<TransformComponent>();
+    transform->SetLocalScale({ 0.5f, 1.0f, 0.5f });
 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->spikeTrapModel);
@@ -97,6 +98,7 @@ Entity* TrapSpawnerComponent::BuildFireTrap(Scene* scene, const std::string& nam
     Entity* trap = scene->AddEntity(name);
 
     auto* transform = trap->AddComponent<TransformComponent>();
+    transform->SetLocalScale({0.4f, 0.4f, 0.4f});
 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->fireTrapModel);

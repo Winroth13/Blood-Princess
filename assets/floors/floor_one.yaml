@@ -8,7 +8,7 @@ fog_end: 1.0
 
 
 spike_traps:
-  amount: 5
+  amount: 0
   telegraph: 1.5
   armed_duration: 0.5
   cooldown_duration: 5.0
@@ -20,14 +20,17 @@ spike_traps:
 waves:
   - completion: 0.75
     enemies:
-      - type: ogre
-        amount: 1
+      - type: skeleton
+        amount: 3
         time: 0
 
       - type: goblin
-        amount: 1
-        time: 2
-    
+        amount: 200
+        time: 15
+
+      - type: ogre
+        amount: 3
+        time: 10
   - completion: 0.75
     enemies:
       - type: ogre
