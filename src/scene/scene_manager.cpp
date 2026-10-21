@@ -8,6 +8,8 @@
 #include "scene/scenes/scene_win_screen.hpp"
 #include "scene/scenes/scene_settings.hpp"
 #include "scene/scenes/scene_level_transition.hpp"
+#include "scene/scenes/scene_level_trasition.hpp"
+#include "scene/scenes/scene_intro_cutscene.hpp"
 
 void SceneManager::ChangeScene(const std::string &name) {
     if (!this->loader.Load(name, this->scene)) {
@@ -28,6 +30,7 @@ void SceneManager::RegisterScenes() {
     this->registry.AddScene("death_screen", Scenes::DeathScreen);
     this->registry.AddScene("win_screen", Scenes::WinScreen);
     this->registry.AddScene("settings", Scenes::Settings);
+    this->registry.AddScene("intro_cutscene", Scenes::IntroCutscene);
 }
 
 bool SceneManager::Initialize(const AppContext &context, const std::string &startSceneName) {

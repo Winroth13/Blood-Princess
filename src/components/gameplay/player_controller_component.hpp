@@ -173,6 +173,10 @@ class PlayerControllerComponent : public Component
 	Signal<uint32_t> onComboEnd;
 	Signal<float> onComboRemainingTimeChanged;
 
+    bool isPaused = false;
+    Signal<> onPaused;
+    Signal<> onUnpaused;
+
 public:
 	PlayerControllerComponent(Entity* owner, bool isActive) :Component(owner, isActive) { UsesUpdate(); }
 
@@ -243,9 +247,14 @@ public:
 	uint32_t GetCombo() const { return this->combo; }
 	float GetComboDuration() const { return this->comboDuration; }
 
+    bool GetIsPaused() const { return this->isPaused; }
+    void SetIsPaused(bool isPaused);
+
 	Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 	Signal<uint32_t> &GetOnScoreChanged() { return this->onScoreChanged; }
 	Signal<uint32_t> &GetOnComboChanged() { return this->onComboChanged; }
 	Signal<uint32_t> &GetOnComboEnd() { return this->onComboEnd; }
 	Signal<float> &GetOnComboRemainingTimeChanged() { return this->onComboRemainingTimeChanged; }
+    Signal<> &GetOnPaused() { return this->onPaused; }
+    Signal<> &GetOnUnpaused() { return this->onUnpaused; }
 };

@@ -9,13 +9,13 @@ fog_start: 0.0
 fog_end: 15.0
 
 spike_traps:
-  amount: 0
-  telegraph: 1.5
+  amount: 1
+  telegraph: 0.7
   armed_duration: 0.5
-  cooldown_duration: 5.0
-  retrigger_cooldown: 0.1 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
-  damage: 1.0
-  knockback: 3.0
+  cooldown_duration: 3.0
+  retrigger_cooldown: 0.0 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
+  damage: 50.0
+  knockback: 2.0
 
 
 waves:

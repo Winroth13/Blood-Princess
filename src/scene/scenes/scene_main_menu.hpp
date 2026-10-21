@@ -29,7 +29,7 @@ namespace Scenes {
         loadingImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
         Entity *loadingEntity = UI::Factory::GetEntity(loadingImage);
         loadingEntity->SetLocallyActive(false);
-        UITextComponent *loadingText = UI::Factory::Place(ui.CreateTitle(loadingEntity, "Loading..."), UI::Anchor::CENTRE, {0.0f, 0.0f}, {0.0f, 0.0f});
+        // UITextComponent *loadingText = UI::Factory::Place(ui.CreateTitle(loadingEntity, "Loading..."), UI::Anchor::CENTRE, {0.0f, 0.0f}, {0.0f, 0.0f});
 
         std::shared_ptr<Texture2D> princessTexture = appContext.assetManager->Get<Texture2D>("assets/images/princess_trans.png");
         UIImageComponent *princessImage = ui.CreateImage(bgEntity, princessTexture, "princess");
@@ -65,7 +65,7 @@ namespace Scenes {
         btnStart->GetOnClick().Connect([loadingEntity, sceneManager, gameState]() {  
             loadingEntity->SetLocallyActive(true);
             gameState->clearScores();
-            sceneManager->RequestSceneChange("gameplay");
+            sceneManager->RequestSceneChange("intro_cutscene");
         });
 
         btnSettings->GetOnClick().Connect([sceneManager]() {  

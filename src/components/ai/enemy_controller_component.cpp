@@ -8,6 +8,7 @@
 #include "events/game_events.hpp"
 #include "components/audio/sound_component.hpp"
 #include "assets/types/sound.hpp"
+#include "components/gameplay/splatter_component.hpp"
 #include "assets/asset_manager.hpp"
 #include "components/gameplay/health_component.hpp"
 #include "components/skeletal/animator_component.hpp"
@@ -40,6 +41,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->transform = this->GetOwner()->GetComponent<TransformComponent>();
     this->animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     this->sound = this->GetOwner()->GetComponent<SoundComponent>();
+    this->splatter = this->GetOwner()->GetComponent<SplatterComponent>();
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
 
     if (!this->transform) {
@@ -424,6 +426,22 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     DirectX::XMStoreFloat3(&dir, knockbackDirV);
 
     this->ApplyKnockback(dir, event.knockbackForce);
+
+    XMFLOAT3 position = this->GetPosition();
+    switch (this->enemy->type)
+    {
+    case EnemyType::GOBLIN:
+    {
+        this->splatter->PaintFloorAtPosition(position, RNG::Float(this->hitBloodRadiusMin, this->hitBloodRadiusMax));
+    } break;
+    case EnemyType::OGRE:
+    {
+        this->splatter->PaintFloorAtPosition(position, RNG::Float(this->hitBloodRadiusMin, this->hitBloodRadiusMax) * this->ogreBloodRediousMult);
+    } break;
+
+    case EnemyType::SKELETON:
+        break;
+    }
 }
 
 void EnemyControllerComponent::Move(float deltaTime)
@@ -446,23 +464,28 @@ void EnemyControllerComponent::Move(float deltaTime)
 void EnemyControllerComponent::OnDeath(const AppContext &context)
 {
     XMFLOAT3 position = this->GetPosition();
+    XMFLOAT3 feetPosition = position;
     position.y += this->enemy->extends.y;
 
     switch (this->enemy->type)
     {
         case EnemyType::GOBLIN:
         {
+            this->splatter->PaintFloorAtPosition(feetPosition, RNG::Float(this->deathBloodRadiusMin, this->deathBloodRadiusMax));
             this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::GOBLIN);
             this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 1.0f);
         } break;
         case EnemyType::OGRE:
         {
+            this->splatter->PaintFloorAtPosition(feetPosition, RNG::Float(this->deathBloodRadiusMin, this->deathBloodRadiusMax) * this->ogreBloodRediousMult);
             this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::OGRE);
             this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position,1.0f);
         } break;
-
         case EnemyType::SKELETON:
-            break;
+        {
+            this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::SKELETON);
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 1.0f);
+        } break;
     }
 }
 

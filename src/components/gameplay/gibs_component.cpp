@@ -98,6 +98,39 @@ const std::vector<GibData> GibsComponent::GetGibModels(GibType type, uint32_t co
             }
 
         } break;
+        case GibType::SKELETON:
+        {
+            bool head = false, spine = false; // head and ribcages can only picked once
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                GibData data = {};
+
+                float roll = RNG::Float();
+
+                if (roll >= 0.85f && !head)
+                {
+                    data.model = this->gibModels[SKELETON_HEAD];
+                    data.scale = RNG::Float(0.5f, 0.7f);
+                    head = true;
+                }
+                else if (roll >= 0.7f && !spine)
+                {
+                    data.model = this->gibModels[SKELETON_SPINE];
+                    data.scale = RNG::Float(1.2f, 1.55f);
+                    spine = true;
+                }
+                else
+                {
+
+                    data.scale = RNG::Float(1.2f, 1.9f);
+                    data.model = this->gibModels[SKELETON_FOOT];
+                }
+
+                gibData.push_back(data);
+            }
+
+        } break;
         default:
         {
             LogWarn("Unsupported gib type: %d", static_cast<int>(type));
@@ -119,6 +152,10 @@ void GibsComponent::OnStart(const AppContext &context)
         context.assetManager->Get<Model>("assets/models/ogregib1.glb"),
         context.assetManager->Get<Model>("assets/models/ogregib2.glb"),
         context.assetManager->Get<Model>("assets/models/ogregib3.glb"),
+
+        context.assetManager->Get<Model>("assets/models/skelegib1.glb"),
+        context.assetManager->Get<Model>("assets/models/skelegib2.glb"),
+        context.assetManager->Get<Model>("assets/models/skelegib3.glb"),
     };
 
     this->bloodSpriteSheet = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
