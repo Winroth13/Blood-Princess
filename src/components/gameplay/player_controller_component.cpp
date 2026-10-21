@@ -195,8 +195,7 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		{
 			this->comboRemainingTime = -1.0f;
 			this->onComboRemainingTimeChanged.Emit(0.0f);
-			auto [resultScore, resultCombo] = ClaimScore();
-			this->onComboEnd.Emit(resultScore, resultCombo);
+			this->EndCombo();
 		}
 		else
 		{
@@ -843,6 +842,7 @@ void PlayerControllerComponent::OnDeath()
 		this->groupName, this->GetOwner()
 	);*/
 
+	this->EndCombo();
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
 
@@ -860,12 +860,24 @@ bool PlayerControllerComponent::ConnectComboSignals()
 		return false;
 	}
 
+	if (!this->waveController)
+	{
+		LogError("Player Controller needs Wave Controller");
+		return false;
+	}
+
 	this->enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
 	{
 		auto enemy = this->enemyDatabase->GetEnemy(type);
 		this->score += enemy->score;
 		this->comboRemainingTime = this->comboDuration;
 		this->onScoreChanged.Emit(this->score);
+
+		if (this->waveController->IsFloorCompleted())
+		{
+			this->combo++;
+			this->EndCombo();
+		}
 	});
 
 	return true;
@@ -878,10 +890,10 @@ void PlayerControllerComponent::IncrementCombo()
 	this->onComboChanged.Emit(this->combo);
 }
 
-std::pair<uint32_t, uint32_t> PlayerControllerComponent::ClaimScore()
+void PlayerControllerComponent::EndCombo()
 {
-	int resultScore = this->score * this->combo;
-	std::pair<uint32_t, uint32_t> resturnValue = std::make_pair(resultScore, combo);
+	uint32_t resultScore = this->score * this->combo;
+	uint32_t resultCombo = this->combo;
 
 	this->score = 0;
 	this->onScoreChanged.Emit(this->score);
@@ -889,7 +901,8 @@ std::pair<uint32_t, uint32_t> PlayerControllerComponent::ClaimScore()
 	this->onComboChanged.Emit(this->combo);
 
 	this->comboRemainingTime = -1.0f;
-	return resturnValue;
+	
+	this->onComboEnd.Emit(resultScore, resultCombo);
 }
 
 void PlayerControllerComponent::SetIsPaused(bool isPaused) {

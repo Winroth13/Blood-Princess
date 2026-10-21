@@ -14,6 +14,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
     playerController->SetActive(true);
     playerController->SetEnemySpawner(spawnerEntity->GetComponent<EnemySpawnerComponent>());
     playerController->SetEnemyDatabase(spawnerEntity->GetComponent<EnemyDatabaseComponent>());
+    playerController->SetWaveController(spawnerEntity->GetComponent<WaveController>());
     playerEntity->AddComponent<TransformComponent>();
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
     transform->SetWorldPosition({-17.0f, 1.6f, -8.0f});

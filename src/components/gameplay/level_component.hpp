@@ -5,6 +5,13 @@
 #include "components/gameplay/player_controller_component.hpp"
 #include "core/game_state.hpp"
 
+enum class LevelState
+{
+	RUNNING,
+	SHOULD_COMPLETE,
+	COMPLETED
+};
+
 class LevelComponent : public Component
 {
 	RegisterComponent(LevelComponent);
@@ -22,6 +29,8 @@ class LevelComponent : public Component
 	GameState *gameState = nullptr;
 	Entity *endScreen = nullptr;
 
+	LevelState state = LevelState::RUNNING;
+
 	Signal<uint32_t> onScoreChanged;
 
 	const float END_TIMER_DURATION = 1.5f;
@@ -37,8 +46,10 @@ private:
 	void OnLevelEnd();
 
 public:
-	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
+	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 	~LevelComponent() = default;
+
+	void Update(const AppContext &context, float deltaTime);
 
 	void SetPlayerController(PlayerControllerComponent *playerController) { this->playerController = playerController; }
 

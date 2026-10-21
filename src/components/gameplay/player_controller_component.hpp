@@ -75,6 +75,7 @@ class PlayerControllerComponent : public Component
 
 	EnemySpawnerComponent *enemySpawner = nullptr;
 	EnemyDatabaseComponent *enemyDatabase = nullptr;
+	WaveController *waveController = nullptr;
 
 	// movement
 	XMFLOAT3 velcoity = { 0.0f,0.0f,0.0f };
@@ -198,6 +199,8 @@ private:
 	bool ConnectComboSignals();
 	void IncrementCombo();
 
+	void EndCombo();
+
 	void SpawnSpark(XMFLOAT3 position);
 
 public:
@@ -208,6 +211,7 @@ public:
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
 	void SetEnemySpawner(EnemySpawnerComponent *enemnySpawner) { this->enemySpawner = enemnySpawner; }
 	void SetEnemyDatabase(EnemyDatabaseComponent *enemyDatabase) { this->enemyDatabase = enemyDatabase; }
+	void SetWaveController(WaveController *waveController) { this->waveController = waveController; }
 
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
@@ -243,7 +247,6 @@ public:
 	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
 
     float GetDashCooldownDuration() const { return this->dashCooldownDuration; }
-	std::pair<uint32_t, uint32_t> ClaimScore();
 	uint32_t GetScore() const { return this->score; }
 	uint32_t GetCombo() const { return this->combo; }
 	float GetComboDuration() const { return this->comboDuration; }

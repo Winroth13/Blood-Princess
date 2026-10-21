@@ -32,10 +32,9 @@ void LevelComponent::OnStart(const AppContext &context)
 		waveController->NextWave();
 	});
 
-	waveController->GetOnFloorCompleted().Connect([this]() {
-		this->OnLevelEnd();
-		this->endScreen->SetLocallyActive(true);
-		this->endTimer = 0.0f;
+	waveController->GetOnFloorCompleted().Connect([this]()
+	{
+		this->state = LevelState::SHOULD_COMPLETE;
 	});
 
 	enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
@@ -52,6 +51,12 @@ void LevelComponent::OnStart(const AppContext &context)
 	{
 		UpdateScore(score, combo);
 	});
+
+	//this->playerController->GetOnLevelCompleted().Connect([this]()
+	//{
+	//	this->OnLevelEnd();
+	//	this->sceneManager->RequestSceneChange("win_screen");
+	//});
 
 	this->playerDiedConnection = EventBus::Subscribe<PlayerDiedEvent>(
 		this, &LevelComponent::OnPlayerDied
@@ -104,11 +109,19 @@ void LevelComponent::UpdateScore(uint32_t score, uint32_t combo)
 
 void LevelComponent::OnLevelEnd()
 {
-	auto [newScore, newCombo] = this->playerController->ClaimScore();
-	this->UpdateScore(newScore, newCombo);
-
 	gameState->AddScore(this->score);
 	gameState->AddKills(this->numKills);
 	gameState->AddParries(this->numParries);
 	gameState->SubmitTopCombo(this->topCombo);
+}
+
+void LevelComponent::Update(const AppContext &context, float deltaTime)
+{
+	if (this->state == LevelState::SHOULD_COMPLETE)
+	{
+		this->OnLevelEnd();
+		this->state = LevelState::COMPLETED;
+		this->endScreen->SetLocallyActive(true);
+		this->endTimer = 0.0f;
+	}
 }
