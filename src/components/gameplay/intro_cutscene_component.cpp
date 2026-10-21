@@ -48,7 +48,7 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
     const float prevTime = this->time;
     this->time += deltaTime;
 
-    if (Input::IsMouseButtonPressed(MouseButton::LEFT)) {
+    if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
         if (this->txtComp->IsActive())
             this->time = 99999999.9f;
         else
