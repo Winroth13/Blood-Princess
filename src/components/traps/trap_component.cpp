@@ -30,6 +30,7 @@ void TrapComponent::Update(const AppContext& context, float deltaTime)
 		if (this->timer >= this->telegraphDuration)
 		{
 			this->TriggerArmed();
+
 		}
 		break;
 	case TrapState::ARMED:
@@ -42,10 +43,9 @@ void TrapComponent::Update(const AppContext& context, float deltaTime)
 				this->cachedHitbox->Deactivate();
 			if (!this->cachedAnimator)
 				this->cachedAnimator = this->GetOwner()->GetComponent<AnimatorComponent>();
-			if (this->cachedAnimator)
-				this->cachedAnimator->Stop();
 
 			this->state = TrapState::COOLDOWN;
+			this->cachedAnimator->CrossFade("spikedown", 0, false);
 			this->timer = 0.0f;
 		}
 		break;
@@ -91,6 +91,7 @@ void TrapComponent::OnCollision(const CollisionEvent & e)
 	{
 		this->state = TrapState::TELEGRAPH;
 		this->timer = 0.0f;
+		this->cachedAnimator->Play("spiketease", false);
 	}
 	else
 	{
@@ -116,7 +117,7 @@ void TrapComponent::TriggerArmed()
 	{
 		if (this->cachedAnimator->HasAnimation("spikeup"))
 		{
-			this->cachedAnimator->Play("spikeup", false);
+			this->cachedAnimator->CrossFade("spikeup", 0, false);
 		}
 	}
 }

@@ -187,7 +187,7 @@ void TrapSpawnerComponent::CleanupExpiredTraps()
 
 void TrapSpawnerComponent::OnStart(const AppContext& context)
 {
-    this->spikeTrapModel = context.assetManager->Get<Model>("assets/models/traps/spike_trap_01.glb"); // TODO: find a spike trap
+    this->spikeTrapModel = context.assetManager->Get<Model>("assets/models/traps/spiketrap.glb"); // TODO: find a spike trap
     this->fireTrapModel = context.assetManager->Get<Model>("assets/models/traps/spike_trap_01.glb"); // TODO: find a fire trap
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/smoke_spritesheet.png");
