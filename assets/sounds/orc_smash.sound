@@ -1,0 +1,12 @@
+sound:
+  - file: assets/audio/sfx/orc/522098__magnuswaker__concrete-smash.ogg
+    min_volume: 1.8
+    max_volume: 2.0
+    min_pitch: 0.95
+    max_pitch: 1.05
+
+  - file: assets/audio/sfx/orc/595494__ljtheunicorn__owi_gun-shot.ogg
+    min_volume: 1.8
+    max_volume: 2.0
+    min_pitch: 0.95
+    max_pitch: 1.05

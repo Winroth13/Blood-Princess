@@ -14,6 +14,7 @@
 #include "core/rng.hpp"
 #include "core/logging.hpp"
 #include "components/skeletal/animator_component.hpp"
+#include "components/audio/sound_component.hpp"
 #include "assets/types/floor.hpp"
 
 
@@ -89,6 +90,11 @@ Entity* TrapSpawnerComponent::BuildSpikeTrap(Scene * scene, const std::string & 
     trapComponent->SetTelegraph(config.telegraph);
     trapComponent->SetArmed(config.armedDuration);
     trapComponent->SetCooldown(config.cooldownDuration);
+
+    auto* arrowSound = trap->AddComponent<SoundComponent>();
+    arrowSound->SetIs3d(true);
+    arrowSound->SetMaxDistance(12.0f);
+    arrowSound->SetVolume(5.0f);
 
     trap->SetLocallyActive(false);
     return trap;

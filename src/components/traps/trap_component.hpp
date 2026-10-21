@@ -6,7 +6,8 @@
 class TransformComponent;
 class HitboxComponent;
 class AnimatorComponent;
-
+class SoundComponent;
+class Sound;
 enum class TrapState
 {
     IDLE,
@@ -37,6 +38,12 @@ class TrapComponent : public Component
     TransformComponent* cachedTransform = nullptr;
     HitboxComponent* cachedHitbox = nullptr;
     AnimatorComponent* cachedAnimator = nullptr;
+    SoundComponent* cachedSound = nullptr;
+    // sounds for trap
+
+    std::shared_ptr<Sound> trapTelegraph;
+    std::shared_ptr<Sound> trapArmed;
+    std::shared_ptr<Sound> trapCooldown;
 
     void OnStart(const AppContext& context) override;
     void Update(const AppContext& context, float deltaTime) override;
