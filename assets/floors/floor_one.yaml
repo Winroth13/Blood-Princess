@@ -12,7 +12,7 @@ spike_traps:
   telegraph: 1.5
   armed_duration: 0.5
   cooldown_duration: 5.0
-  retrigger_cooldown: 0.1 # <--- Skade-intervall (tar skada var 0.5s medan man står på spikarna)
+  retrigger_cooldown: 0.1 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
   damage: 1.0
   knockback: 3.0
 
