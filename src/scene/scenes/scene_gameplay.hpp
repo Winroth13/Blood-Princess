@@ -200,7 +200,6 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
     return playerEntity;
 }
 
-// Not final!!!!!
 static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController, LevelComponent *level) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
@@ -295,6 +294,29 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
 
     waveController->GetOnFloorProgressChanged().Connect([progressBar] (float progress) {
         progressBar->SetValue(static_cast<float>(progress));
+    });
+
+    Entity *blocker = ui.CreateBlocker(hud);
+    blocker->SetLocallyActive(false);
+
+    UIButtonComponent *continueButton = UI::Factory::Place(ui.CreateButton(blocker, "CONTINUE", nullptr, "btn_continue"), UI::Anchor::CENTRE, { 0.0f, -50.0f });
+    continueButton->GetOnClick().Connect([controller]() {
+        controller->SetIsPaused(false);
+    });
+
+    UIButtonComponent *quitButton = UI::Factory::Place(ui.CreateButton(blocker, "QUIT", nullptr, "btn_quit"), UI::Anchor::CENTRE, { 0.0f, 50.0f });
+    quitButton->GetOnClick().Connect([appContext]() {
+        appContext.sceneManager->RequestSceneChange("main_menu");
+    });
+
+    SetDefaultSounds(outScene, appContext, { continueButton, quitButton });
+
+    controller->GetOnPaused().Connect([blocker]() {
+        blocker->SetLocallyActive(true);
+    });
+
+    controller->GetOnUnpaused().Connect([blocker]() {
+        blocker->SetLocallyActive(false);
     });
 
     // Tutorial Popup

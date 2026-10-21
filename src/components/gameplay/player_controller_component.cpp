@@ -98,6 +98,9 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	if (this->isDead)
 		return;
 
+    if (Input::IsKeyPressed(Key::ESCAPE))
+        this->SetIsPaused(!this->isPaused);
+
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
@@ -244,6 +247,9 @@ void PlayerControllerComponent::OnDestroy(const AppContext& context)
 
 void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
 {
+    if (this->isPaused)
+        return;
+
 	auto transform = GetOwner()->GetComponent<TransformComponent>();
 	float yawRad = XMConvertToRadians(this->yaw);
 
@@ -282,6 +288,9 @@ void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
 
 void PlayerControllerComponent::HandleMovement(float deltaTime)
 {
+    if (this->isPaused)
+        return;
+
 	auto transform = GetOwner()->GetComponent<TransformComponent>();
 	float yawRad = XMConvertToRadians(this->yaw);
 
@@ -289,7 +298,6 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
 
 	DirectX::XMVECTOR moveDir = XMVectorZero();
-
 
 	if (Action::IsActionDown("MoveForward")) 
 	{
@@ -356,6 +364,9 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 
 void PlayerControllerComponent::HandleCombat(float deltaTime)
 {
+    if (this->isPaused)
+        return;
+
 	if (Action::IsActionPressed("LightAttack")) 
 	{
 		PerformLightAttack();
@@ -483,11 +494,13 @@ bool PlayerControllerComponent::CanAttack()
 
 void PlayerControllerComponent::HandleAttacks(float deltaTime)
 {
-	if (Action::IsActionDown("LightAttack"))
-		this->PerformLightAttack();
+    if (!this->isPaused) {
+	    if (Action::IsActionDown("LightAttack"))
+		    this->PerformLightAttack();
 
-	if (Action::IsActionPressed("Parry"))
-		this->PerformParry();
+	    if (Action::IsActionPressed("Parry"))
+		    this->PerformParry();
+    }
 
 	if (this->isParrying)
 	{
@@ -872,4 +885,17 @@ uint32_t PlayerControllerComponent::ClaimScore()
 	this->onComboChanged.Emit(this->combo);
 	this->comboRemainingTime = -1.0f;
 	return resultScore;
+}
+
+void PlayerControllerComponent::SetIsPaused(bool isPaused) {
+    this->isPaused = isPaused;
+
+    if (this->isPaused) {
+        this->onPaused.Emit();
+        Input::SetMouseMode(MouseMode::VISIBLE);
+    }
+    else {
+        this->onUnpaused.Emit();
+        Input::SetMouseMode(MouseMode::CAPTURED);
+    }
 }
