@@ -32,7 +32,7 @@ namespace Scenes {
 
         UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
         restartButton->GetOnClick().Connect([appContext, gameState]() {
-            gameState->clearScores();
+            gameState->ClearStats();
             appContext.sceneManager->RequestSceneChange("gameplay");
             });
 

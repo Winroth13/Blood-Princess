@@ -64,7 +64,7 @@ namespace Scenes {
         GameState *gameState = appContext.application->GetGameState();
         btnStart->GetOnClick().Connect([loadingEntity, sceneManager, gameState]() {  
             loadingEntity->SetLocallyActive(true);
-            gameState->clearScores();
+            gameState->ClearStats();
             sceneManager->RequestSceneChange("intro_cutscene");
         });
 

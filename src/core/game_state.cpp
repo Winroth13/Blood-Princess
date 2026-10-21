@@ -1,6 +1,20 @@
 #include "game_state.hpp"
 
-uint32_t GameState::GetTotalScore()
+void GameState::ClearStats()
+{
+	this->floorScores.clear();
+	this->totalKills = 0;
+	this->totalParries = 0;
+	this->topCombo = 0;
+}
+
+void GameState::SubmitTopCombo(uint32_t topCombo)
+{
+	if (this->topCombo < topCombo)
+		this->topCombo = topCombo;
+}
+
+uint32_t GameState::GetTotalScore() const
 {
 	uint32_t totalScore = 0;
 

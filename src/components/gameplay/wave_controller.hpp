@@ -34,8 +34,6 @@ private:
 	float GetWaveProgress(ActiveWave &wave);
 	float GetFloorProgress();
 
-	bool IsFloorCompleted();
-
 	void OnStart(const AppContext &context) override;
 	void Update(const AppContext &context, float deltaTime) override;
 	void Render(const RenderView &view, RenderQueue &queue) override;
@@ -46,6 +44,8 @@ public:
 
 	void StartFloor(std::shared_ptr<Floor> floor);
 	void NextWave();
+
+	bool IsFloorCompleted();
 
 	Signal<> &GetOnWaveCompleted() { return this->onWaveCompleted; }
 	Signal<> &GetOnFloorCompleted() { return this->onFloorCompleted; }

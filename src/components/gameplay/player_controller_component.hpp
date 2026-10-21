@@ -78,6 +78,7 @@ class PlayerControllerComponent : public Component
 
 	EnemySpawnerComponent *enemySpawner = nullptr;
 	EnemyDatabaseComponent *enemyDatabase = nullptr;
+	WaveController *waveController = nullptr;
 
 	// movement
 	XMFLOAT3 velcoity = { 0.0f,0.0f,0.0f };
@@ -173,8 +174,10 @@ class PlayerControllerComponent : public Component
     Signal<float> onDashCooldownChanged;
 	Signal<uint32_t> onScoreChanged;
 	Signal<uint32_t> onComboChanged;
-	Signal<uint32_t> onComboEnd;
+	Signal<uint32_t, uint32_t> onComboEnd;
 	Signal<float> onComboRemainingTimeChanged;
+
+	Signal<> onParry;
 
     bool isPaused = false;
     Signal<> onPaused;
@@ -199,6 +202,7 @@ private:
 	bool ConnectComboSignals();
 	void IncrementCombo();
 
+	void EndCombo();
 
 	void SpawnSpark(XMFLOAT3 position);
 
@@ -210,6 +214,7 @@ public:
 	void SetRootTransform(TransformComponent *transform) { this->rootTransform = transform; }
 	void SetEnemySpawner(EnemySpawnerComponent *enemnySpawner) { this->enemySpawner = enemnySpawner; }
 	void SetEnemyDatabase(EnemyDatabaseComponent *enemyDatabase) { this->enemyDatabase = enemyDatabase; }
+	void SetWaveController(WaveController *waveController) { this->waveController = waveController; }
 
 	void HandleMovement(float deltaTime);
 	void HandleCameraLook(float deltaTime);
@@ -245,7 +250,6 @@ public:
 	void SetDashCooldownTimer(float dodgeCooldownTimer) { this->dashCooldownTimer = dashCooldownTimer; };
 
     float GetDashCooldownDuration() const { return this->dashCooldownDuration; }
-	uint32_t ClaimScore();
 	uint32_t GetScore() const { return this->score; }
 	uint32_t GetCombo() const { return this->combo; }
 	float GetComboDuration() const { return this->comboDuration; }
@@ -258,8 +262,9 @@ public:
 	Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 	Signal<uint32_t> &GetOnScoreChanged() { return this->onScoreChanged; }
 	Signal<uint32_t> &GetOnComboChanged() { return this->onComboChanged; }
-	Signal<uint32_t> &GetOnComboEnd() { return this->onComboEnd; }
+	Signal<uint32_t, uint32_t> &GetOnComboEnd() { return this->onComboEnd; }
 	Signal<float> &GetOnComboRemainingTimeChanged() { return this->onComboRemainingTimeChanged; }
+	Signal<> &GetOnParry() { return this->onParry; }
     Signal<> &GetOnPaused() { return this->onPaused; }
     Signal<> &GetOnUnpaused() { return this->onUnpaused; }
 };

@@ -7,13 +7,14 @@
 #include "components/gameplay/wave_controller.hpp"
 #include "components/audio/audio_component.hpp"
 #include "components/core/camera_component.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
 #include "core/application.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
 {
-	auto *waveController = this->GetOwner()->GetComponent<WaveController>();
+	WaveController *waveController = this->GetOwner()->GetComponent<WaveController>();
 
 	if (!waveController)
 	{
@@ -21,23 +22,43 @@ void LevelComponent::OnStart(const AppContext &context)
 		return;
 	}
 
+	EnemySpawnerComponent *enemySpawner = this->GetOwner()->GetComponent<EnemySpawnerComponent>();
+
+	if (!enemySpawner)
+	{
+		LogError("Must have an enemy spawner");
+		return;
+	}
+
 	waveController->GetOnWaveCompleted().Connect([waveController]() {
 		waveController->NextWave();
 	});
 
-	waveController->GetOnFloorCompleted().Connect([this, context]() {
-		this->OnLevelEnd();
-		this->endScreen->SetLocallyActive(true);
-		this->endTimer = 0.0f;
-		this->GetOwner()->GetComponent<AudioComponent>()->Play();
-
-		this->playerController->SetCanRotate(false);
-	});
-
-	this->playerController->GetOnComboEnd().Connect([this](uint32_t score)
+	waveController->GetOnFloorCompleted().Connect([this]()
 	{
-		this->GatherScore();
+		this->state = LevelState::SHOULD_COMPLETE;
 	});
+
+	enemySpawner->GetOnEnemyKilled().Connect([this](EnemyType type, uint32_t wave)
+	{
+		this->numKills++;
+	});
+
+	this->playerController->GetOnParry().Connect([this]()
+	{
+		this->numParries++;
+	});
+
+	this->playerController->GetOnComboEnd().Connect([this](uint32_t score, uint32_t combo)
+	{
+		UpdateScore(score, combo);
+	});
+
+	//this->playerController->GetOnLevelCompleted().Connect([this]()
+	//{
+	//	this->OnLevelEnd();
+	//	this->sceneManager->RequestSceneChange("win_screen");
+	//});
 
 	this->playerDiedConnection = EventBus::Subscribe<PlayerDiedEvent>(
 		this, &LevelComponent::OnPlayerDied
@@ -60,23 +81,41 @@ void LevelComponent::OnDestroy(const AppContext &context)
 
 void LevelComponent::Update(const AppContext &context, float deltaTime)
 {
-	if (this->endTimer >= 0.0f)
+	switch (this->state)
 	{
-		if (context.application->GetTimeScale() > 0.0001f)
-			this->endTimer += deltaTime / context.application->GetTimeScale();
+		case LevelState::SHOULD_COMPLETE:
+		{
+			this->OnLevelEnd();
+			this->state = LevelState::COMPLETED;
+			this->endScreen->SetLocallyActive(true);
+			this->endTimer = 0.0f;
+			this->GetOwner()->GetComponent<AudioComponent>()->Play();
 
-		float endRatio = this->endTimer / END_TIMER_DURATION;
-		float alpha = 1.0f - Math::easeOutQuint(endRatio);
+			this->playerController->SetCanRotate(false);
+		} break;
+		case LevelState::COMPLETED:
+		{
+			if (this->endTimer >= 0.0f)
+			{
+				if (context.application->GetTimeScale() > 0.0001f)
+					this->endTimer += deltaTime / context.application->GetTimeScale();
 
-		context.application->SetTimeScale(alpha);
+				float endRatio = this->endTimer / END_TIMER_DURATION;
+				float alpha = 1.0f - Math::easeOutQuint(endRatio);
 
-		Entity *player = this->playerController->GetOwner();
-		Entity *viewmodel = player->GetChildren()[0];
-		float fov = std::lerp(90.0f, 110.0f, 1 - alpha);
-		viewmodel->GetChildren()[0]->GetComponent<CameraComponent>()->SetFov(DirectX::XMConvertToRadians(fov));
-		
-		if (alpha > 0.05f)
-			context.audioManager->SetPitchModifier(alpha);
+				context.application->SetTimeScale(alpha);
+
+				Entity *player = this->playerController->GetOwner();
+				Entity *viewmodel = player->GetChildren()[0];
+				float fov = std::lerp(90.0f, 110.0f, 1 - alpha);
+				viewmodel->GetChildren()[0]->GetComponent<CameraComponent>()->SetFov(DirectX::XMConvertToRadians(fov));
+				
+				if (alpha > 0.05f)
+					context.audioManager->SetPitchModifier(alpha);
+			}
+		} break;
+		default:
+			break;
 	}
 }
 
@@ -86,14 +125,19 @@ void LevelComponent::OnPlayerDied(const PlayerDiedEvent &event)
 	this->sceneManager->RequestSceneChange("death_screen");
 }
 
-void LevelComponent::GatherScore()
+void LevelComponent::UpdateScore(uint32_t score, uint32_t combo)
 {
-	this->score += this->playerController->ClaimScore();
+	this->score += score;
 	this->onScoreChanged.Emit(this->score);
+
+	if (this->topCombo < combo)
+		this->topCombo = combo;
 }
 
 void LevelComponent::OnLevelEnd()
 {
-	this->GatherScore();
-	gameState->addScore(this->score);
+	gameState->AddScore(this->score);
+	gameState->AddKills(this->numKills);
+	gameState->AddParries(this->numParries);
+	gameState->SubmitTopCombo(this->topCombo);
 }
