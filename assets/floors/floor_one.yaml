@@ -9,11 +9,11 @@ fog_start: 0.0
 fog_end: 15.0
 
 spike_traps:
-  amount: 0
+  amount: 1
   telegraph: 1.5
   armed_duration: 0.5
   cooldown_duration: 5.0
-  retrigger_cooldown: 0.1 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
+  retrigger_cooldown: 0.0 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
   damage: 1.0
   knockback: 3.0
 
@@ -32,13 +32,13 @@ waves:
   - completion: 0.75
     enemies:
       - type: ogre
-        amount: 1
+        amount: 0
         time: 10
 
       - type: goblin
-        amount: 40
+        amount: 0
         time: 20
 
       - type: skeleton
-        amount: 3
+        amount: 0
         time: 10
