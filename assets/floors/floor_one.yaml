@@ -21,6 +21,6 @@ spike_traps:
 waves:
   - completion: 0.75
     enemies:
-      - type: goblin
+      - type: skeleton
         amount: 1
         time: 2

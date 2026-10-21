@@ -287,6 +287,15 @@ void PlayerControllerComponent::GetDashDirection(XMVECTOR &direction)
 		direction = XMVectorAdd(direction, -right);
 		direction = XMVectorAdd(direction, forward);
 	}
+
+	// Gamepad left analog stick
+	DirectX::XMFLOAT2 stick = Input::GetGamepadLeftStick();
+	if (std::abs(stick.x) > 0.0f || std::abs(stick.y) > 0.0f)
+	{
+		direction = XMVectorAdd(direction, XMVectorScale(forward, stick.y));
+		direction = XMVectorAdd(direction, XMVectorScale(right, stick.x));
+	}
+
 }
 
 void PlayerControllerComponent::HandleMovement(float deltaTime)
@@ -301,6 +310,15 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 	DirectX::XMVECTOR right = XMVectorSet(cosf(yawRad), 0.0f, -sinf(yawRad), 0.0f);
 
 	DirectX::XMVECTOR moveDir = XMVectorZero();
+
+	if (Input::IsGamepadConnected()) {
+		DirectX::XMFLOAT2 stick = Input::GetGamepadLeftStick();
+		if (std::abs(stick.x) > 0.0f || std::abs(stick.y) > 0.0f)
+		{
+			moveDir = XMVectorAdd(moveDir, XMVectorScale(forward, stick.y));
+			moveDir = XMVectorAdd(moveDir, XMVectorScale(right, stick.x));
+		}
+	}
 
 	if (Action::IsActionDown("MoveForward")) 
 	{
@@ -349,23 +367,30 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 {
 	if (Input::GetMouseMode() != MouseMode::CAPTURED)
 		return;
-
 	if (!this->canRotate)
 		return;
-
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	float deltaX = Input::GetMouseDeltaX();
-	float deltaY = Input::GetMouseDeltaY();
+	float deltaX = Input::GetMouseDeltaX() * this->mouseSensitivity.x;
+	float deltaY = -Input::GetMouseDeltaY() * this->mouseSensitivity.y;
 
-	this->yaw += deltaX * this->mouseSensitivity.x;
+	// Add Gamepad Right Stick input
+	if (Input::IsGamepadConnected())
+	{
+		DirectX::XMFLOAT2 rightStick = Input::GetGamepadRightStick();
+		float controllerSens = 120.0f; // degrees per second
+		deltaX += rightStick.x * controllerSens * deltaTime;
+		deltaY += rightStick.y * controllerSens * deltaTime; // Push up to look up
+	}
 
+	// Apply Horizontal (Yaw)
+	this->yaw += deltaX;
+	transform->SetLocalRotation(this->pitch, this->yaw, 0.0f);
+
+	// Apply Vertical (Pitch)
 	XMFLOAT3 rootRotation = this->rootTransform->GetLocalRotation();
-	rootRotation.x += -deltaY * this->mouseSensitivity.y;
+	rootRotation.x += deltaY;
 	rootRotation.x = std::clamp(rootRotation.x, -89.9f, 89.9f);
 	this->rootTransform->SetLocalRotation(rootRotation);
-	
-	transform->SetLocalRotation(this->pitch, this->yaw, 0.0f);
-	
 }
 
 void PlayerControllerComponent::HandleCombat(float deltaTime)

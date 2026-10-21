@@ -181,12 +181,15 @@ void Scene::Update(float deltaTime, float fixedDeltaTime, int numFixedTicks) {
     if (this->isHierarchyDirty)
         this->RebuildEntityUpdateOrder();
 
+    Input::UpdateGamepadCursor(deltaTime);
+
     UI::PointerState pointer{};
     pointer.isEnabled = Input::GetMouseMode() == MouseMode::VISIBLE && !this->context->editor->IsUsingEditor();
     pointer.position = Input::GetMousePositionInPixels();
-    pointer.isDown = Input::IsMouseButtonDown(MouseButton::LEFT); // TODO: ui_click action?
-    pointer.wasPressed = Input::IsMouseButtonPressed(MouseButton::LEFT);
-    pointer.wasReleased = Input::IsMouseButtonReleased(MouseButton::LEFT);
+
+    pointer.isDown = Input::IsMouseButtonDown(MouseButton::LEFT) || Input::IsGamepadButtonDown(GamepadButton::SOUTH) ; // TODO: ui_click action?
+    pointer.wasPressed = Input::IsMouseButtonPressed(MouseButton::LEFT) || Input::IsGamepadButtonPressed(GamepadButton::SOUTH);
+    pointer.wasReleased = Input::IsMouseButtonReleased(MouseButton::LEFT) || Input::IsGamepadButtonReleased(GamepadButton::SOUTH);
     this->ui.ProcessInput(pointer);
 
     for (int i = numFixedTicks; i > 0; i--)

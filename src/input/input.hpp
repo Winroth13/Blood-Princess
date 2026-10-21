@@ -13,7 +13,7 @@ enum class Key
 {
 	//Unknown key
 	UNKNOWN = SDL_SCANCODE_UNKNOWN,
-	
+
 	// Letters
 	A = SDL_SCANCODE_A, B = SDL_SCANCODE_B, C = SDL_SCANCODE_C, D = SDL_SCANCODE_D,
 	E = SDL_SCANCODE_E, F = SDL_SCANCODE_F, G = SDL_SCANCODE_G, H = SDL_SCANCODE_H,
@@ -71,9 +71,9 @@ enum class MouseMode
 
 struct MouseState
 {
-	DirectX::XMFLOAT2 position = {0, 0};
-	DirectX::XMFLOAT2 wheel = {0, 0};
-	DirectX::XMFLOAT2 delta = {0, 0};
+	DirectX::XMFLOAT2 position = { 0, 0 };
+	DirectX::XMFLOAT2 wheel = { 0, 0 };
+	DirectX::XMFLOAT2 delta = { 0, 0 };
 	SDL_MouseButtonFlags buttonFlags = 0;
 	SDL_MouseButtonFlags previousButtonFlags = 0;
 };
@@ -88,6 +88,34 @@ enum class MouseButton
 	X2 = SDL_BUTTON_X2
 };
 
+enum class GamepadButton
+{
+	UNKNOWN = SDL_GAMEPAD_BUTTON_INVALID,
+	SOUTH = SDL_GAMEPAD_BUTTON_SOUTH,           // A (Xbox) / Cross (PS)
+	EAST = SDL_GAMEPAD_BUTTON_EAST,             // B (Xbox) / Circle (PS)
+	WEST = SDL_GAMEPAD_BUTTON_WEST,             // X (Xbox) / Square (PS)
+	NORTH = SDL_GAMEPAD_BUTTON_NORTH,           // Y (Xbox) / Triangle (PS)
+	BACK = SDL_GAMEPAD_BUTTON_BACK,             // View / Select / Share
+	GUIDE = SDL_GAMEPAD_BUTTON_GUIDE,           // Home / Xbox / PS button
+	START = SDL_GAMEPAD_BUTTON_START,           // Menu / Start / Options
+	LEFT_STICK = SDL_GAMEPAD_BUTTON_LEFT_STICK,
+	RIGHT_STICK = SDL_GAMEPAD_BUTTON_RIGHT_STICK,
+	LEFT_SHOULDER = SDL_GAMEPAD_BUTTON_LEFT_SHOULDER,   // LB / L1
+	RIGHT_SHOULDER = SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, // RB / R1
+	DPAD_UP = SDL_GAMEPAD_BUTTON_DPAD_UP,
+	DPAD_DOWN = SDL_GAMEPAD_BUTTON_DPAD_DOWN,
+	DPAD_LEFT = SDL_GAMEPAD_BUTTON_DPAD_LEFT,
+	DPAD_RIGHT = SDL_GAMEPAD_BUTTON_DPAD_RIGHT
+};
+enum class GamepadAxis
+{
+	LEFT_X = SDL_GAMEPAD_AXIS_LEFTX,
+	LEFT_Y = SDL_GAMEPAD_AXIS_LEFTY,
+	RIGHT_X = SDL_GAMEPAD_AXIS_RIGHTX,
+	RIGHT_Y = SDL_GAMEPAD_AXIS_RIGHTY,
+	LEFT_TRIGGER = SDL_GAMEPAD_AXIS_LEFT_TRIGGER,
+	RIGHT_TRIGGER = SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
+};
 
 class Input {
 private:
@@ -96,11 +124,17 @@ private:
 
 	static MouseMode mouseMode;
 	static MouseState lastMouseState;
-	static SDL_Window *sdlWindow;
+	static SDL_Window* sdlWindow;
 
 	static std::array<bool, SDL_SCANCODE_COUNT> savedCurrentKeys;
 	static std::array<bool, SDL_SCANCODE_COUNT> savedPreviousKeys;
 	static MouseState savedMouseState;
+
+	//gamepad
+	static SDL_Gamepad* activeGamepad;
+	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> currentGamepadButtons;
+	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> previousGamepadButtons;
+	static float deadzone;
 
 public:
 	static void Initialize(SDL_Window* sdlWindow);
@@ -115,7 +149,7 @@ public:
 	static bool IsKeyDown(Key key);
 
 	static DirectX::XMFLOAT2 GetMousePosition();
-    static DirectX::XMFLOAT2 GetMousePositionInPixels();
+	static DirectX::XMFLOAT2 GetMousePositionInPixels();
 	static float GetMouseX();
 	static float GetMouseY();
 
@@ -135,12 +169,29 @@ public:
 	static MouseMode GetMouseMode();
 	static void SetMouseMode(MouseMode mode);
 
-	static const char *GetKeyName(Key key);
-	static Key GetKeyFromName(const std::string &name);
-	static const char *GetMouseButtonName(MouseButton button);
-	static MouseButton GetMouseButtonFromName(const std::string &name);
+	static const char* GetKeyName(Key key);
+	static Key GetKeyFromName(const std::string& name);
+	static const char* GetMouseButtonName(MouseButton button);
+	static MouseButton GetMouseButtonFromName(const std::string& name);
 
 	static void ClearState();
 	static void SaveState();
 	static void LoadState();
+
+	//gamepad
+
+	static bool IsGamepadConnected();
+	static bool IsGamepadButtonDown(GamepadButton button);
+	static bool IsGamepadButtonPressed(GamepadButton button);
+	static bool IsGamepadButtonReleased(GamepadButton button);
+
+	static DirectX::XMFLOAT2 GetGamepadLeftStick();
+	static DirectX::XMFLOAT2 GetGamepadRightStick();
+	static float GetGamepadAxis(GamepadAxis axis);
+
+	static const char* GetGamepadButtonName(GamepadButton button);
+	static GamepadButton GetGamepadButtonFromName(const std::string& name);
+
+	static void UpdateGamepadCursor(float deltaTime, float speed = 900.0f);
+
 };
