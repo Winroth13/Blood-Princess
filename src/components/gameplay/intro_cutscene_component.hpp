@@ -21,7 +21,12 @@ class IntroCutsceneComponent : public Component {
 
     std::shared_ptr<AudioClip> sfxLaugh;
     std::shared_ptr<AudioClip> sfxPurr;
+    std::shared_ptr<AudioClip> sfxBonk;
     std::shared_ptr<AudioClip> sfxScream;
+    std::shared_ptr<AudioClip> sfxGoblin;
+    std::shared_ptr<AudioClip> sfxMjau;
+    std::shared_ptr<AudioClip> sfxCough;
+    std::shared_ptr<AudioClip> sfxBreathing;
 
     UIImageComponent *imgComp1 = nullptr;
     UIImageComponent *imgComp2 = nullptr;

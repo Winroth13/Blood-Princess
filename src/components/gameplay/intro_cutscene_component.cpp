@@ -26,13 +26,18 @@ namespace {
 }
 
 void IntroCutsceneComponent::OnStart(const AppContext &context) {
-    this->imgCuddle = context.assetManager->Get<Texture2D>("assets/images/story_1a.png");
-    this->imgProne = context.assetManager->Get<Texture2D>("assets/images/story_1b_1.png");
-    this->imgKidnap = context.assetManager->Get<Texture2D>("assets/images/story_1b_2.png");
+    this->imgCuddle = context.assetManager->Get<Texture2D>("assets/images/story/story_1a.png");
+    this->imgProne = context.assetManager->Get<Texture2D>("assets/images/story/story_1b_1.png");
+    this->imgKidnap = context.assetManager->Get<Texture2D>("assets/images/story/story_1b_2.png");
 
     this->sfxLaugh = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_laugh_12.ogg");
     this->sfxPurr = context.assetManager->Get<AudioClip>("assets/audio/sfx/dog.ogg");
+    this->sfxBonk = context.assetManager->Get<AudioClip>("assets/audio/sfx/HeavyAttack/impact_1.ogg");
     this->sfxScream = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_hurt_pain_05.ogg");
+    this->sfxGoblin = context.assetManager->Get<AudioClip>("assets/audio/sfx/Goblin/202096__spookymodem__goblin-cackle.ogg");
+    this->sfxMjau = context.assetManager->Get<AudioClip>("assets/audio/sfx/meow2_2.ogg");
+    this->sfxCough = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_cough_06.ogg");
+    this->sfxBreathing = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_breath_deep_out_01.ogg");
 
     std::vector<Entity *> children = this->GetOwner()->GetChildren();
     this->imgComp1 = children[0]->GetComponent<UIImageComponent>();
@@ -75,6 +80,10 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
 
     if (isAtFunc(9.0f)) {
         this->imgComp1->SetOpacity(0.0f);
+        context.audioManager->PlaySoundEffect(this->sfxBonk, false, 1.0f);
+    }
+
+    if (isAtFunc(9.5f)) {
         context.audioManager->PlaySoundEffect(this->sfxScream, false, 1.0f);
     }
 
@@ -85,11 +94,31 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
         this->imgComp1->SetOpacity(t * t);
     }
 
+    if (isAtFunc(14.0f)) {
+        context.audioManager->PlaySoundEffect(this->sfxCough, false, 1.0f);
+    }
+
+    if (isAtFunc(15.0f)) {
+        context.audioManager->PlaySoundEffect(this->sfxGoblin, false, 1.0f);
+    }
+
+    if (isAtFunc(17.0f)) {
+        context.audioManager->PlaySoundEffect(this->sfxBreathing, false, 1.0f);
+    }
+
     if (isInFunc(18.0f, 23.0f)) {
         this->imgComp2->SetTexture(this->imgKidnap);
 
         float t = Ramp(18.0f, 23.0f, this->time);
         this->imgComp2->SetOpacity(t * t);
+    }
+
+    if (isAtFunc(20.0f)) {
+        context.audioManager->PlaySoundEffect(this->sfxMjau, false, 1.0f);
+    }
+
+    if (isAtFunc(21.0f)) {
+        context.audioManager->PlaySoundEffect(this->sfxGoblin, false, 0.8f, 0.7f);
     }
 
     if (isInFunc(25.0f, 30.0f)) {
