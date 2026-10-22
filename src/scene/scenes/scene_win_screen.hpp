@@ -23,7 +23,7 @@ namespace Scenes {
 
         GameState *gameState = appContext.application->GetGameState();
 
-        DrawScores(hud, gameState, ui, UI::Anchor::CENTRE);
+        DrawStats(hud, gameState, ui, UI::Anchor::CENTRE);
 
         UIButtonComponent *menuButton = UI::Factory::Place(ui.CreateButton(hud, "MAIN MENU", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
         menuButton->GetOnClick().Connect([appContext]() {
