@@ -158,17 +158,29 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 		HandleCombat(deltaTime); 
 	}
 
+	float hitFlash = 0.0f;
 	if (this->damageFlashLingeringTimer >= 0.0f)
 	{
-		float lingeringFactor = this->damageFlashLingeringTimer / this->damageFlashDuration;
-		Debug::SetSetting("damageFlash.intensity", lingeringFactor);
+		hitFlash = this->damageFlashLingeringTimer / this->damageFlashDuration;
 		this->damageFlashLingeringTimer -= deltaTime;
 	}
 	else
 	{
 		this->damageFlashLingeringTimer = -1.0f;
-		Debug::SetSetting("damageFlash.intensity", 0.0f);
 	}
+
+	float lowHealthFlash = 0.0f;
+	if (this->health && this->health->GetMaxHealth() > 0.0f)
+	{
+		float healthRatio = this->health->GetCurrentHealth() / this->health->GetMaxHealth();
+		float lowHealth = std::clamp(1.0f - healthRatio / this->lowHealthThreshold, 0.0f, 1.0f);
+
+		this->lowHealthPulseTimer += deltaTime;
+		float pulse = 0.6f + 0.4f * std::sin(this->lowHealthPulseTimer * this->lowHealthPulseSpeed);
+		lowHealthFlash = lowHealth * pulse * this->lowHealthFlashIntensity;
+	}
+
+	Debug::SetSetting("damageFlash.intensity", (std::max)(hitFlash, lowHealthFlash));
 
 	if (this->damageSoundReminingTime >= 0)
 		this->damageSoundReminingTime -= deltaTime;

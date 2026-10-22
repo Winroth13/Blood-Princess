@@ -64,6 +64,9 @@ class PlayerControllerComponent : public Component
 	ExportProperty(float, damageFlashLingeringTimer, -1.0f);
 	ExportProperty(float, damageSoundDuration, 0.8f);
 	ExportProperty(float, damageSoundReminingTime, -1.0f);
+	ExportProperty(float, lowHealthThreshold, 0.3f);
+	ExportProperty(float, lowHealthFlashIntensity, 0.6f);
+	ExportProperty(float, lowHealthPulseSpeed, 6.0f);
 
 	// health
 	ExportProperty(float, maxHealth, 200);
@@ -94,6 +97,8 @@ class PlayerControllerComponent : public Component
 	bool isDead = false;
 	bool isParrying = false;
 	bool hasParriedThisParry = false;
+
+    float lowHealthPulseTimer = 0.0f;
 
 	// Parry
 	const float PARRY_COUNTER_RESET_TIME = 1.0f;
