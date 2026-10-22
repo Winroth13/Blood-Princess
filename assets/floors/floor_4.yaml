@@ -12,12 +12,6 @@ is_final: true
 
 spike_traps:
   amount: 6
-  telegraph: 0.7
-  armed_duration: 0.6
-  cooldown_duration: 2.2
-  retrigger_cooldown: 0.5
-  damage: 45.0
-  knockback: 3.5
 
 waves:
   - completion: 0.70

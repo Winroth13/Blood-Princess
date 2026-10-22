@@ -13,13 +13,7 @@ is_tutorial: false
 is_final: false
 
 spike_traps:
-  amount: 1
-  telegraph: 1.0
-  armed_duration: 0.6
-  cooldown_duration: 3.5
-  retrigger_cooldown: 0.5
-  damage: 25.0
-  knockback: 2.0
+  amount: 20
 
 waves:
 
