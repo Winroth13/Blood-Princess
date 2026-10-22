@@ -15,6 +15,7 @@ class AudioManager;
 class EnemySpawnerComponent;
 class EnemyDatabaseComponent;
 class WaveController;
+class AudioClip;
 
 struct AttackData
 {
@@ -117,6 +118,7 @@ class PlayerControllerComponent : public Component
 	std::shared_ptr<Sound> attackShoutSound = nullptr;
 	std::shared_ptr<Sound> hurtSound = nullptr;
 	std::shared_ptr<Sound> parryShoutSound = nullptr;
+    std::shared_ptr<AudioClip> sfxDash = nullptr;
 
 	/*
 	*	Attacks

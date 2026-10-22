@@ -34,6 +34,7 @@
 #include "components/gameplay/wave_controller.hpp"
 #include "collision/collision_component.hpp"
 #include "core/math.hpp"
+#include "assets/types/audio_clip.hpp"
 
 #include <cmath>
 
@@ -65,6 +66,7 @@ void PlayerControllerComponent::OnStart(const AppContext& context)
 	this->attackShoutSound = context.assetManager->Get<Sound>("assets/sounds/attack_shout.sound");
 	this->hurtSound = context.assetManager->Get<Sound>("assets/sounds/player_hurt.sound");
 	this->parryShoutSound = context.assetManager->Get<Sound>("assets/sounds/player_parry_shout.sound");
+    this->sfxDash = context.assetManager->Get<AudioClip>("assets/audio/sfx/Other/737748__squirrel_404__large-sword-swing.ogg");
 
 	this->sparkTexture = context.assetManager->Get<Texture2D>("assets/images/sparks_new.png");
 	this->parryShockwaveTexture = context.assetManager->Get<Texture2D>("assets/images/parry_shockwave.png");
@@ -428,6 +430,8 @@ void PlayerControllerComponent::HandleCombat(float deltaTime)
 			this->lingeringDashTimer = this->lingeringDashDuration;
 
 			this->camera->SetFov(this->dashFov);
+
+            this->audioManager->PlaySoundEffect(this->sfxDash, false);
 		}
 	}
 }
