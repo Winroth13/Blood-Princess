@@ -150,7 +150,7 @@ bool EnemySpawnerComponent::SpawnEnemy(size_t type, uint32_t wave)
     TransformComponent *transform = playerEntity->GetComponent<TransformComponent>();
 
     XMFLOAT3 origin = transform->GetWorldPosition();
-    origin.y = 0.0f;
+    origin.y = 0.01f;
 
     uint32_t tries = 0;
 

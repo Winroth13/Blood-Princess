@@ -5,6 +5,11 @@
 #include "components/gameplay/player_controller_component.hpp"
 #include "core/game_state.hpp"
 
+#include <memory>
+
+class AudioClip;
+class Floor;
+
 enum class LevelState
 {
 	STARTING,
@@ -41,6 +46,9 @@ class LevelComponent : public Component
 
 	const float END_TIMER_DURATION = 3.0f;
 	float endTimer = -1.0f;
+
+	std::shared_ptr<AudioClip> nextFloorAudio = nullptr;
+	std::shared_ptr<Floor> currentFloor = nullptr;
 
 private:
 	void OnStart(const AppContext &context) override;

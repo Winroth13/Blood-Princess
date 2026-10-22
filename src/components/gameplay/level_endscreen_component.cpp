@@ -14,6 +14,14 @@ void LevelEndscreenComponent::OnStart(const AppContext &context)
 
 	this->tickAudio = context.assetManager->Get<AudioClip>("assets/audio/sfx/endscreen_tick.ogg");
 	this->tickDoneAudio = context.assetManager->Get<AudioClip>("assets/audio/sfx/LightAttack/sword_parry_1.ogg");
+
+	if (this->isFinal)
+	{
+		this->rubricLabel->SetColour({ 0.9f, 0.0f, 0.0f, 1.0f });
+		this->rubricLabel->SetText("WIZARD DEFEATED");
+
+		this->ascendLabel->SetText("Press Space to Rescue the Cat");
+	}
 }
 
 void LevelEndscreenComponent::Update(const AppContext &context, float deltaTime)
@@ -179,4 +187,17 @@ void LevelEndscreenComponent::AdvanceStat(float &current, float target, float ad
 	}
 
 	statLabel->SetText(std::format("{}", static_cast<uint32_t>(current)));
+}
+
+void LevelEndscreenComponent::SetIsFinal(bool value)
+{
+	this->isFinal = value;
+
+	if (value)
+	{
+		this->rubricLabel->SetColour({ 0.9f, 0.0f, 0.0f, 1.0f });
+		this->rubricLabel->SetText("WIZARD DEFEATED");
+
+		this->ascendLabel->SetText("Press Space to Rescue the Cat");
+	}
 }

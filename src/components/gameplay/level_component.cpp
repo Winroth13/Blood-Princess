@@ -12,6 +12,7 @@
 #include "components/ui/ui_image_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
+#include "assets/types/audio_clip.hpp"
 #include "core/math.hpp"
 #include "core/application.hpp"
 
@@ -68,18 +69,27 @@ void LevelComponent::OnStart(const AppContext &context)
 	);
 
 	auto endScreenComponent = this->endScreen->GetComponent<LevelEndscreenComponent>();
-	endScreenComponent->GetOnAscend().Connect([this]() {
+	endScreenComponent->GetOnAscend().Connect([this, context]() {
 		if (this->state == LevelState::COMPLETED)
 		{
 			this->state = LevelState::ENDING;
 			this->gameTimer = 0.0f;
+
+			context.audioManager->PlaySoundEffect(
+				this->nextFloorAudio,
+				false,
+				1.0f,
+				1.0f / (context.application->GetTimeScale() < 0.25f ? 0.25f : context.application->GetTimeScale())
+			);
 		}
 	});
 
+	this->nextFloorAudio = context.assetManager->Get<AudioClip>("assets/audio/sfx/scene_next_floor.ogg");
+
 	// Load the next floor and play it!
 	std::string path = std::format("assets/floors/floor_{}.yaml", context.application->GetGameState()->GetNumFloorsComplete());
-	auto floor = context.assetManager->Get<Floor>(path);
-	waveController->StartFloor(floor);
+	this->currentFloor = context.assetManager->Get<Floor>(path);
+	waveController->StartFloor(this->currentFloor);
 
 	this->sceneManager = context.sceneManager;
 	this->gameState = context.application->GetGameState();
@@ -87,6 +97,9 @@ void LevelComponent::OnStart(const AppContext &context)
 
 void LevelComponent::OnDestroy(const AppContext &context)
 {
+	context.application->SetTimeScale(1.0f);
+	context.audioManager->SetPitchModifier(1.0f);
+
 	if (this->playerDiedConnection != 0)
 	{
 		EventBus::Unsubscribe<PlayerDiedEvent>(this->playerDiedConnection);
@@ -142,6 +155,7 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 			endScreenComponent->SetTime(this->gameTimer);
 			endScreenComponent->SetScore(this->score);
 			endScreenComponent->SetKills(this->numKills);
+			endScreenComponent->SetIsFinal(this->currentFloor->GetIsFinal());
 
 			this->hudEntity->SetLocallyActive(false);
 		} break;
@@ -169,6 +183,7 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 		case LevelState::ENDING:
 		{
 			constexpr float FADE_OUT_TIME = 1.0f;
+			constexpr float NEXT_FLOOR_TIME = 6.0f;
 
 			// This is bad but I can't be bothered to change what entity is sent in here so we just get the child.
 			float alpha = this->gameTimer / FADE_OUT_TIME;
@@ -178,6 +193,18 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 			if (this->gameTimer >= FADE_OUT_TIME)
 			{
 				fadeImage->SetColour({ 0.0f, 0.0f, 0.0f, 1.0f});
+			}
+
+			if (this->gameTimer >= NEXT_FLOOR_TIME)
+			{
+				if (this->currentFloor->GetIsFinal())
+				{
+					context.sceneManager->RequestSceneChange("win_screen");
+				}
+				else
+				{
+					context.sceneManager->ReloadCurrentScene();
+				}
 			}
 		} break;
 

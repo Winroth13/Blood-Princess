@@ -25,6 +25,7 @@ class LevelEndscreenComponent : public Component
 
 	UITextComponent *rubricLabel = nullptr;
 	bool rubricLanded = false;
+	bool isFinal = false;
 
 	UITextComponent *timeLabel = nullptr;
 	UITextComponent *scoreLabel = nullptr;
@@ -61,6 +62,7 @@ public:
 	void SetScoreLabel(UITextComponent *label) { this->scoreLabel = label; }
 	void SetKillsLabel(UITextComponent *label) { this->killsLabel = label; }
 	void SetAscendLabel(UITextComponent *label) { this->ascendLabel = label; }
+	void SetIsFinal(bool value);
 
 	Signal<> &GetOnAscend() { return this->onAscend; }
 };
