@@ -19,7 +19,7 @@ namespace Scenes {
 
         Entity *cutsceneGroup = ui.CreateGroup(canvas, {0.0f, 0.0f}, "cutscene_group");
         UI::Factory::GetRect(cutsceneGroup)->SetAnchorPreset(UI::Anchor::STRETCH);
-        cutsceneGroup->AddComponent<IntroCutsceneComponent>();
+        IntroCutsceneComponent *cutscene = cutsceneGroup->AddComponent<IntroCutsceneComponent>();
 
         UIImageComponent *imgCutscene1 = ui.CreateImage(cutsceneGroup, nullptr, "image_1");
         UI::Factory::Place(imgCutscene1, UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
@@ -36,5 +36,10 @@ namespace Scenes {
         UITextComponent *txt = ui.CreateText(cutsceneGroup, "Click again to skip...");
         UI::Factory::Place(txt, UI::Anchor::BOTTOM_RIGHT, {-20.0f, -20.0f});
         txt->SetActive(false);
+
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::INTRO);
+        cutscene->AddImgComp(imgCutscene1);
+        cutscene->AddImgComp(imgCutscene2);
+        cutscene->AddTxtComp(txt);
     }
 }
