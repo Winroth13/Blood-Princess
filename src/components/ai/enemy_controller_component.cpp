@@ -93,6 +93,16 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->hitboxEntity = children[0];
 }
 
+void EnemyControllerComponent::Update(const AppContext &context, float deltaTime) {
+    ModelComponent *modelComp = this->GetOwner()->GetComponent<ModelComponent>();
+
+    modelComp->SetEmissive(0.0f);
+    if (this->emissiveTimer > 0.0f) {
+        this->emissiveTimer -= deltaTime;
+        modelComp->SetEmissive(10.0f);
+    }
+}
+
 void EnemyControllerComponent::OnDestroy(const AppContext & context)
 {
     if (this->attackHitConnection != 0)
@@ -442,6 +452,8 @@ void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
     case EnemyType::SKELETON:
         break;
     }
+
+    this->emissiveTimer = this->emissiveDuration;
 }
 
 void EnemyControllerComponent::Move(float deltaTime)
@@ -463,6 +475,9 @@ void EnemyControllerComponent::Move(float deltaTime)
 
 void EnemyControllerComponent::OnDeath(const AppContext &context)
 {
+    this->GetOwner()->GetComponent<ModelComponent>()->SetEmissive(0.0f);
+    this->emissiveTimer = 0.0f;
+
     XMFLOAT3 position = this->GetPosition();
     XMFLOAT3 feetPosition = position;
     position.y += this->enemy->extends.y;

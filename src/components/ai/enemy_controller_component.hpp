@@ -107,7 +107,9 @@ private:
 	Scene* thisScene = nullptr;
 
 	void OnStart(const AppContext &context) override;
+    void Update(const AppContext &context, float deltaTime) override;
 	void OnDestroy(const AppContext &context) override;
+
 	void OnAttackHit(const AttackHitEvent& event);
 
 	void Move(float deltaTime);
@@ -129,7 +131,10 @@ private:
 	void UpdateKnockback(float deltaTime);
 
 public:
-	EnemyControllerComponent(Entity* owner, bool isActive) : Component(owner, isActive) {};
+    float emissiveTimer = 0.0f;
+    float emissiveDuration = 0.1f;
+
+    EnemyControllerComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); };
 	~EnemyControllerComponent() = default;
 
 	DirectX::XMFLOAT3 GetPosition() const;

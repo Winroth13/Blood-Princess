@@ -32,5 +32,8 @@ public:
     bool GetIsHsvAdjusted() const { return this->isHsvAdjusted; }
     void SetIsHsvAdjusted(bool isHsvAdjusted) { this->isHsvAdjusted = isHsvAdjusted; }
 
+    float GetEmissive() const { return this->emissive; }
+    void SetEmissive(float emissive) { this->emissive = emissive; }
+
     bool GetWorldBounds(DirectX::BoundingBox &outBounds) override;
 };

@@ -74,9 +74,6 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
 
     auto *enemyTransform = entity->AddComponent<TransformComponent>();
     enemyTransform->SetWorldScale(enemy->scale);
-    
-    auto *modelComponent = entity->AddComponent<ModelComponent>();
-    modelComponent->SetModel(enemy->model);
 
     auto *animator = entity->AddComponent<AnimatorComponent>();
     animator->AddAnimations(enemy->model->GetAnimations());
@@ -97,8 +94,6 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     enemyController->SetGibs(this->gibs);
     enemyController->SetEnemy(enemy);
 
-    auto *enemySplatter = entity->AddComponent<SplatterComponent>();
-
     auto *enemySoundComponent = entity->AddComponent<SoundComponent>();
     enemySoundComponent->SetSound(enemy->hitSound);
 
@@ -114,6 +109,11 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
 
     auto *hitbox = hitboxEntity->AddComponent<HitboxComponent>();
     hitbox->SetActive(false);
+
+    auto *modelComponent = entity->AddComponent<ModelComponent>();
+    modelComponent->SetModel(enemy->model);
+
+    auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
     return entity;
 }
@@ -180,7 +180,11 @@ bool EnemySpawnerComponent::SpawnEnemy(size_t type, uint32_t wave)
     auto health = entity->GetComponent<Health>();
     health->SetCurrentHealth(health->GetMaxHealth());
 
-    entity->GetComponent<EnemyControllerComponent>()->SetWave(wave);
+    EnemyControllerComponent *controller = entity->GetComponent<EnemyControllerComponent>();
+    controller->SetWave(wave);
+    controller->emissiveTimer = 0.0f;
+
+    entity->GetComponent<ModelComponent>()->SetEmissive(0.0f);
 
     return true;
 }
