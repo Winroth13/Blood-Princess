@@ -4,6 +4,7 @@
 #include "core/debug.hpp"
 #include "editor/editor.hpp"
 #include "input/input.hpp"
+#include "ai/ai_manager.hpp"
 
 #include <memory>
 #include <algorithm>
@@ -232,6 +233,9 @@ void Scene::Clear() {
     for (auto &entity : this->entities)
         if (entity->HasStarted())
             entity->OnDestroy(*this->context);
+
+    if (this->context && this->context->aiManager)
+        this->context->aiManager->Clear();
 
     this->culler.Clear();
     this->ui.Clear();

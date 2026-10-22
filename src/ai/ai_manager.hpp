@@ -24,6 +24,7 @@ public:
 
 	bool Initialize();
 	void Shutdown();
+	void Clear();
 
 	void RegisterEnemy(EnemyControllerComponent *enemy);
 	void QueueUnregister(EnemyControllerComponent* enemy);
