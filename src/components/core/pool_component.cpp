@@ -25,6 +25,12 @@ Entity *PoolComponent::Grab()
 
 void PoolComponent::Put(Entity *entity)
 {
+	if (!entity->IsLocallyActive())
+	{
+		LogWarn("Tried to put an inactive entity back into the pool");
+		return;
+	}
+
 	entity->SetLocallyActive(false);
 	this->inactive.push(entity);
 }

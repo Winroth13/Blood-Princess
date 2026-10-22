@@ -181,10 +181,13 @@ void GibsComponent::SpawnGibs(XMFLOAT3 position, uint32_t count, GibType type)
         gibTransform->SetWorldPosition(position);
         gibTransform->SetLocalScale({data[i].scale, data[i].scale, data[i].scale});
 
+        float lifeTime = RNG::Float(4.0f, 8.0f);
+
         LifeTimeComponent *lifeTimeGib = gibEntity->GetComponent<LifeTimeComponent>();
-        lifeTimeGib->SetLifeTime(RNG::Float(4.0f, 8.0f));
+        lifeTimeGib->SetLifeTime(lifeTime);
 
         ProjectileComponent *projectileGib = gibEntity->GetComponent<ProjectileComponent>();
+        projectileGib->SetAliveTime(lifeTime + 1.0f);
         const float gAngle = RNG::Float(0.0f, DirectX::XM_2PI);
         const float horizontalSpeed = RNG::Float(1.5f, 4.5f);
         const float upwardSpeed = RNG::Float(4.0f, 6.0f);
