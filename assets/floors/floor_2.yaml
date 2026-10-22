@@ -1,9 +1,9 @@
-hue: 135.0
-saturation: 1.1
-value: 1.05
-intensity: 0.40
+hue: 0.0
+saturation: 1.4
+value: 0.95
+intensity: 0.55
 
-fog_colour: [0.015, 0.028, 0.020]
+fog_colour: [0.05, 0.01, 0.01]
 fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
