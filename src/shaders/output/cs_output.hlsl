@@ -146,6 +146,11 @@ void main(uint3 id : SV_DispatchThreadID)
         return;
     }
     
+    const float strength = 0.8f;
+    const float radius = 0.45f;
+    const float softness = 0.4f;
+    ldr *= 1.0f - strength * smoothstep(radius, radius + softness, length(uv - float2(0.5f, 0.5f)));
+    
     float4 damageFlashColour = DamageFlash(noiseTexture, uv);
     ldr = lerp(ldr, damageFlashColour.rgb, damageFlashColour.a);
     
