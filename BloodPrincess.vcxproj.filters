@@ -135,6 +135,9 @@
     <ClCompile Include="src\assets\texture.cpp" />
     <ClCompile Include="src\components\collisions\area_component.cpp" />
     <ClCompile Include="src\core\game_state.cpp" />
+    <ClCompile Include="src\components\gameplay\intro_cutscene_component.cpp" />
+    <ClCompile Include="src\core\math.cpp" />
+    <ClCompile Include="src\components\gameplay\level_endscreen_component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image\stb_image.h" />
@@ -348,6 +351,10 @@
     <ClInclude Include="src\scene\scenes\scene_level_trasition.hpp" />
     <ClInclude Include="src\core\game_state.hpp" />
     <ClInclude Include="src\scene\scenes\end_screen.hpp" />
+    <ClInclude Include="src\components\gameplay\intro_cutscene_component.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_level_transition.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_intro_cutscene.hpp" />
+    <ClInclude Include="src\components\gameplay\level_endscreen_component.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />

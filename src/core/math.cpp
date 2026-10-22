@@ -4,6 +4,11 @@
 
 namespace Math
 {
+	float Lerp(float a, float b, float x)
+	{
+		return a + x * (b - a);
+	}
+
 	float easeInElastic(float x)
 	{
 		const float c4 = (2 * 3.14f) / 3;
@@ -13,6 +18,17 @@ namespace Math
 			: x == 1.0f
 			? 1
 			: -std::pow(2.0f, 10.0f * x - 10.0f) * std::sin((x * 10.0f - 10.75f) * c4);
+	}
+
+	float easeOutElastic(float x)
+	{
+		const float c4 = (2.0f * 3.14) / 3.0f;
+
+		return x == 0.0f
+			? 0.0f
+			: x == 1.0f
+			? 1.0f
+			: std::powf(2.0f, -10.0f * x) * std::sin((x * 10.0f - 0.75f) * c4) + 1.0f;
 	}
 
 	float easeInOutQuint(float x)

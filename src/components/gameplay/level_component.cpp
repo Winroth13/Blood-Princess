@@ -8,6 +8,7 @@
 #include "components/audio/audio_component.hpp"
 #include "components/core/camera_component.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
+#include "components/gameplay/level_endscreen_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
 #include "core/application.hpp"
@@ -83,6 +84,11 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 {
 	switch (this->state)
 	{
+		case LevelState::RUNNING:
+		{
+			this->gameTimer += deltaTime;
+		} break;
+
 		case LevelState::SHOULD_COMPLETE:
 		{
 			this->OnLevelEnd();
@@ -90,30 +96,36 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 			this->endScreen->SetLocallyActive(true);
 			this->endTimer = 0.0f;
 			this->GetOwner()->GetComponent<AudioComponent>()->Play();
-
 			this->playerController->SetCanRotate(false);
+
+			auto endScreenComponent = this->endScreen->GetComponent<LevelEndscreenComponent>();
+			endScreenComponent->SetTime(this->gameTimer);
+			endScreenComponent->SetScore(this->score);
+			endScreenComponent->SetKills(this->numKills);
+
+			this->hudEntity->SetLocallyActive(false);
 		} break;
+
 		case LevelState::COMPLETED:
 		{
-			if (this->endTimer >= 0.0f)
-			{
-				if (context.application->GetTimeScale() > 0.0001f)
-					this->endTimer += deltaTime / context.application->GetTimeScale();
+			if (context.application->GetTimeScale() > 0.0001f)
+				this->endTimer += deltaTime / context.application->GetTimeScale();
 
-				float endRatio = this->endTimer / END_TIMER_DURATION;
-				float alpha = 1.0f - Math::easeOutQuint(endRatio);
+			float endRatio = this->endTimer / END_TIMER_DURATION;
+			float alpha = 1.0f - Math::easeOutQuint(endRatio);
 
-				context.application->SetTimeScale(alpha);
+			context.application->SetTimeScale(alpha);
 
-				Entity *player = this->playerController->GetOwner();
-				Entity *viewmodel = player->GetChildren()[0];
-				float fov = std::lerp(90.0f, 110.0f, 1 - alpha);
-				viewmodel->GetChildren()[0]->GetComponent<CameraComponent>()->SetFov(DirectX::XMConvertToRadians(fov));
+			Entity *player = this->playerController->GetOwner();
+			Entity *viewmodel = player->GetChildren()[0];
+			float fov = std::lerp(90.0f, 110.0f, 1 - alpha);
+			viewmodel->GetChildren()[0]->GetComponent<CameraComponent>()->SetFov(DirectX::XMConvertToRadians(fov));
 				
-				if (alpha > 0.05f)
-					context.audioManager->SetPitchModifier(alpha);
-			}
+			if (alpha > 0.05f)
+				context.audioManager->SetPitchModifier(std::clamp(alpha, 0.25f, 1.0f));
+
 		} break;
+
 		default:
 			break;
 	}

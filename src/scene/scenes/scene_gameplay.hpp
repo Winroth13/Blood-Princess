@@ -351,12 +351,14 @@ static Entity *CreateLevelEndScreen(
     SetDefaultStyle(ui.style, *appContext.assetManager);
 
     Entity *canvas = ui.CreateCanvas("level_end_screen_canvas");
+    auto levelEndScreen = canvas->AddComponent<LevelEndscreenComponent>();
 
     UITextComponent *rubricLabel = ui.CreateText(canvas, "", 48.0f, "rubric_label");
     rubricLabel->SetText("FLOOR CLEARED");
     UI::Factory::Place(rubricLabel, UI::Anchor::CENTRE, { 0.0f, -128.0f }, { 0.0f, 0.0f });
     rubricLabel->SetAlignment(UI::AlignHorizontal::CENTRE, UI::AlignVertical::CENTRE);
     rubricLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    levelEndScreen->SetRubricLabel(rubricLabel);
 
     float startY = 350.0f;
 
@@ -389,8 +391,19 @@ static Entity *CreateLevelEndScreen(
 
         auto rightLabel = UI::Factory::Place(ui.CreateText(timeGroup, rightStr, 32.0f, "right_label"), UI::Anchor::TOP_RIGHT, { 0.0f, 117.0f });
         rightLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+        rightLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
         rightLabel->SetColour({ 0.8f, 0.4f, 0.4f, 1.0f });
         rightLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+
+        if (i == 0) {
+            levelEndScreen->SetTimeLabel(rightLabel);
+        }
+        else if (i == 1) {
+            levelEndScreen->SetScoreLabel(rightLabel);
+        }
+        else if (i == 2) {
+            levelEndScreen->SetKillsLabel(rightLabel);
+        }
     }
 
     /* Continue */
@@ -400,6 +413,7 @@ static Entity *CreateLevelEndScreen(
         UI::Factory::Place(continueLabel, UI::Anchor::BOTTOM_RIGHT, { -64.0f, -110.0f }, { 0.0f, 0.0f });
         continueLabel->SetAlignment(UI::AlignHorizontal::RIGHT, UI::AlignVertical::TOP);
         continueLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+        levelEndScreen->SetAscendLabel(continueLabel);
     }
 
     return canvas;
@@ -716,8 +730,9 @@ namespace Scenes
         
         auto *levelAudio = spawnerEntity->AddComponent<AudioComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/end_level.ogg"));
         levelAudio->SetAudio3D(false);
-        levelAudio->SetVolume(5.0f);
-        levelAudio->SetPitch(3.0f);
+        levelAudio->SetVolume(4.0f);
+        levelAudio->SetPitch(1.0f);
+        levelAudio->SetLooping(false);
 
         Entity *endScreen = CreateLevelEndScreen(outScene, appContext, 100.0f, 80, 500);
         endScreen->SetLocallyActive(false);
@@ -728,7 +743,8 @@ namespace Scenes
         Health *health = playerEntity->GetComponent<Health>();
         level->SetPlayerController(playerEntity->GetComponent<PlayerControllerComponent>());
 
-        CreateHUD(outScene, appContext, playerEntity, waveController, level);
+        Entity *hud = CreateHUD(outScene, appContext, playerEntity, waveController, level);
+        level->SetHUDEntity(hud);
 
         Entity *lightEntity = outScene.AddEntity("light");
         AmbientLightComponent *ambientLight = lightEntity->AddComponent<AmbientLightComponent>();

@@ -22,6 +22,7 @@ class LevelComponent : public Component
 	uint32_t topCombo = 0;
 
 	PlayerControllerComponent *playerController = nullptr;
+	Entity *hudEntity = nullptr;
 
 	ConnectionId playerDiedConnection = 0;
 
@@ -33,7 +34,9 @@ class LevelComponent : public Component
 
 	Signal<uint32_t> onScoreChanged;
 
-	const float END_TIMER_DURATION = 2.0f;
+	float gameTimer = 0.0f;
+
+	const float END_TIMER_DURATION = 3.0f;
 	float endTimer = -1.0f;
 
 private:
@@ -53,6 +56,8 @@ public:
 
 	bool IsInEndScreen() { return endTimer > 0.0f; }
 	void SetEndScreen(Entity *entity) { this->endScreen = entity; }
+
+	void SetHUDEntity(Entity *entity) { this->hudEntity = entity; }
 
 	uint32_t GetScore() const { return this->score; }
 	uint32_t GetNumKills() const { return this->numKills; }

@@ -9,7 +9,7 @@ class FreeCam
 	const float POSITION_LERP_SPEED = 10.0f;
 
 	const float MIN_SPEED = 2.5f;
-	const float MAX_SPEED = 30.0;
+	const float MAX_SPEED = 100.0;
 	const float WHEEL_SENSITIVITY = 1.0f;
 
 	float fov = XM_PIDIV2;

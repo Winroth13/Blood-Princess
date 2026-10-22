@@ -14,6 +14,8 @@ public:
     CameraComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 
     void SetFov(float fov) { this->fieldOfView = fov; }
+    void SetFarPlane(float farPlane) { this->farPlane = farPlane; }
+
 private:
     void Update(const AppContext &context, float deltaTime) override;
 };
