@@ -100,7 +100,7 @@ const std::vector<GibData> GibsComponent::GetGibModels(GibType type, uint32_t co
         } break;
         case GibType::SKELETON:
         {
-            bool head = false, spine = false; // head and ribcages can only picked once
+            bool head = false, bow = false; // head and ribcages can only picked once
 
             for (uint32_t i = 0; i < count; ++i)
             {
@@ -111,20 +111,20 @@ const std::vector<GibData> GibsComponent::GetGibModels(GibType type, uint32_t co
                 if (roll >= 0.85f && !head)
                 {
                     data.model = this->gibModels[SKELETON_HEAD];
-                    data.scale = RNG::Float(0.5f, 0.7f);
+                    data.scale = RNG::Float(2.0f, 2.0f);
                     head = true;
                 }
-                else if (roll >= 0.7f && !spine)
+                else if (roll >= 0.7f && !bow)
                 {
-                    data.model = this->gibModels[SKELETON_SPINE];
+                    data.model = this->gibModels[SKELETON_BOW];
                     data.scale = RNG::Float(1.2f, 1.55f);
-                    spine = true;
+                    bow = true;
                 }
                 else
                 {
 
                     data.scale = RNG::Float(1.2f, 1.9f);
-                    data.model = this->gibModels[SKELETON_FOOT];
+                    data.model = this->gibModels[SKELETON_ARM];
                 }
 
                 gibData.push_back(data);

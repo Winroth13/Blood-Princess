@@ -692,6 +692,8 @@ void PlayerControllerComponent::OnDamageTaken(const DamageTakenEvent& event)
 	{
 		this->OnDeath();
 	}
+
+	this->EndCombo();
 }
 
 void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
