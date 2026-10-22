@@ -79,7 +79,10 @@ void main(uint3 id : SV_DispatchThreadID)
     
     if (emissiveSample > 0.0f)
     {
-        backBufferUAV[pixel] = float4(albedoColour * emissiveSample * 10.0f, 1.0f);
+        const float emissiveFogFactor = 0.5f;
+        float3 emissiveColour = albedoColour * emissiveSample * 10.0f;
+        float fog = ComputeFog(positionWorld) * (1.0f - emissiveSample * emissiveFogFactor);
+        backBufferUAV[pixel] = float4(lerp(emissiveColour, fogColour * 1.5f, fog), 1.0f);
         return;
     }
     
