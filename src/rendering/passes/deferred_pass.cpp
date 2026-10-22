@@ -4,6 +4,7 @@
 #include "rendering/render_data.hpp"
 #include "assets/asset_manager.hpp"
 #include "assets/types/model.hpp"
+#include "core/debug.hpp"
 
 #include <d3d11.h>
 #include <array>
@@ -22,7 +23,9 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			DXGI_FORMAT_R8G8B8A8_UNORM,		// Albedo | Metallic
 			DXGI_FORMAT_R8G8B8A8_UNORM,		// Encoded Normal | Roughness
 
-            DXGI_FORMAT_R32G32B32A32_FLOAT	// Output
+            DXGI_FORMAT_R32G32B32A32_FLOAT,	// Output
+
+            DXGI_FORMAT_R8_UNORM            // Emissive
 		};
 
 		std::string names[] =
@@ -30,7 +33,9 @@ bool DeferredPass::Create(ID3D11Device *device, uint32_t width, uint32_t height)
 			"Albedo and Metallic",			// Albedo | Metallic
 			"Normal and Roughness",			// Encoded Normal | Roughness
 
-            "Output"						// Output
+            "Output",						// Output
+
+            "Emissive"                      // Emissive
 		};
 
 		for (size_t i = 0; i < +GBufferType::COUNT; ++i)
@@ -195,19 +200,22 @@ void DeferredPass::RenderGeometryPass(
 	sharedResources.BindSamplers(deviceContext);
 	sharedResources.UploadPerViewData(deviceContext, *view);
 
-	ID3D11RenderTargetView *rtvs[2] = {
+	ID3D11RenderTargetView *rtvs[] = {
 		this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetRenderTargetView(),
-		this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetRenderTargetView()
+		this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetRenderTargetView(),
+        this->GetGBuffer(GBufferType::EMISSIVE).GetRenderTargetView()
 	};
 
 	const float clearAlbedoSpecularExponent[4] = { 0.0f, 0.0f, 0.0f, 70.0f / 1000.0f };
 	const float clearNormalSpecular[4] = { 0.5f, 0.5f, 1.0f, 0.7f };
+    const float clearEmissive[1] = { 0.0f };
 
 	deviceContext->ClearRenderTargetView(rtvs[0], clearAlbedoSpecularExponent);
 	deviceContext->ClearRenderTargetView(rtvs[1], clearNormalSpecular);
+    deviceContext->ClearRenderTargetView(rtvs[2], clearEmissive);
 	deviceContext->ClearDepthStencilView(backBuffer.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceContext->OMSetRenderTargets(2, rtvs, backBuffer.GetDepthStencilView());
+	deviceContext->OMSetRenderTargets(3, rtvs, backBuffer.GetDepthStencilView());
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetInputLayout(this->inputLayout);
@@ -277,6 +285,7 @@ void DeferredPass::RenderGeometryPass(
 		perMaterialData.materialSpecular = 0.8f;
 		perMaterialData.materialSpecularExponent = 80.0f;
 		perMaterialData.materialFlags = command.materialFlags;
+        perMaterialData.materialEmissive = command.emissive / 10.0f;
 
 		RenderUtils::UploadConstantBuffer(deviceContext, sharedResources.GetPerMaterial(), perMaterialData);
 
@@ -335,7 +344,7 @@ void DeferredPass::RenderLightingPass(
 	 ID3D11UnorderedAccessView *outputUAV = this->GetGBuffer(GBufferType::OUTPUT).GetUnorderedAccessView();
 	 deviceContext->CSSetUnorderedAccessViews(0, 1, &outputUAV, nullptr);
 
-	 std::array<ID3D11ShaderResourceView *, 9> srvs = {
+	 std::array<ID3D11ShaderResourceView *, 10> srvs = {
 		 // GBuffers
 		 this->GetGBuffer(GBufferType::ALBEDO_METALLIC).GetShaderResourceView(),
 		 this->GetGBuffer(GBufferType::NORMAL_ROUGHNESS).GetShaderResourceView(),
@@ -347,7 +356,9 @@ void DeferredPass::RenderLightingPass(
 		 // Shadow Textures
 		 sharedResources.GetDirectionalShadowsSRV(),
 		 sharedResources.GetSpotShadowsSRV(),
-		 sharedResources.GetPointShadowsSRV()
+		 sharedResources.GetPointShadowsSRV(),
+         // Emissive
+         this->GetGBuffer(GBufferType::EMISSIVE).GetShaderResourceView()
 	 };
 	 deviceContext->CSSetShaderResources(0, static_cast<UINT>(srvs.size()), srvs.data());
 

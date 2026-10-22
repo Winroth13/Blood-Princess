@@ -32,7 +32,7 @@ namespace Math
 
 	float easeOutElastic(float x)
 	{
-		const float c4 = (2.0f * 3.14) / 3.0f;
+		const float c4 = (2.0f * 3.14f) / 3.0f;
 
 		return x == 0.0f
 			? 0.0f

@@ -1,0 +1,6 @@
+telegraph: 1.0
+armed_duration: 0.5
+cooldown_duration: 2.0
+retrigger_cooldown: 0.0
+damage: 45.0
+knockback: 0.0

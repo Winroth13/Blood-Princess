@@ -17,16 +17,6 @@ void Application::Update(float deltaTime)
 {
     Debug::BeginTimedStatistic("Update");
 
-    this->totalTime += deltaTime;
-    this->deltaTimeElapsed += deltaTime;
-    int numFixedTicks = 0;
-
-    while (this->deltaTimeElapsed > this->fixedDeltaTime)
-    {
-        numFixedTicks++;
-        this->deltaTimeElapsed -= this->fixedDeltaTime;
-    }
-
     if (this->editor.IsUsingEditor())
     {
         Input::SaveState();
@@ -34,14 +24,29 @@ void Application::Update(float deltaTime)
         Action::Update();
     }
 
-    for (int i = numFixedTicks; i > 0; i--)
-    {
-        this->audioManager.FixedUpdate(this->fixedDeltaTime);
-        this->collisionManager.FixedUpdate(this->fixedDeltaTime);
-        this->aiManager.FixedUpdate(this->fixedDeltaTime);
-    }
+    if (!Debug::GetSetting("app.forceDeltaTimeZero", false)) {
+        this->totalTime += deltaTime;
+        this->deltaTimeElapsed += deltaTime;
+        int numFixedTicks = 0;
 
-    this->sceneManager.Update(deltaTime, this->fixedDeltaTime, numFixedTicks);
+        while (this->deltaTimeElapsed > this->fixedDeltaTime)
+        {
+            numFixedTicks++;
+            this->deltaTimeElapsed -= this->fixedDeltaTime;
+        }
+
+        for (int i = numFixedTicks; i > 0; i--)
+        {
+            this->audioManager.FixedUpdate(this->fixedDeltaTime);
+            this->collisionManager.FixedUpdate(this->fixedDeltaTime);
+            this->aiManager.FixedUpdate(this->fixedDeltaTime);
+        }
+
+        this->sceneManager.Update(deltaTime, this->fixedDeltaTime, numFixedTicks);
+    }
+    else {
+        this->sceneManager.Update(0.0f, 0.0f, 0.0);
+    }
 
     if (this->editor.IsUsingEditor())
     {

@@ -15,6 +15,7 @@ namespace Scenes {
         hud->AddComponent<MenuScreenComponent>();
         SoundComponent *soundComp = hud->AddComponent<SoundComponent>();
         hud->AddComponent<EnvironmentComponent>();
+        IntroCutsceneComponent *cutscene = hud->AddComponent<IntroCutsceneComponent>();
 
         soundComp->SetIs3d(false);
         soundComp->SetAutoPlay(true);
@@ -28,7 +29,7 @@ namespace Scenes {
 
         GameState *gameState = appContext.application->GetGameState();
 
-        DrawScores(hud, gameState, ui, UI::Anchor::CENTRE);
+        DrawStats(hud, gameState, ui, UI::Anchor::CENTRE);
 
         UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
         restartButton->GetOnClick().Connect([appContext, gameState]() {
@@ -42,5 +43,27 @@ namespace Scenes {
             });
 
         SetDefaultSounds(outScene, appContext, { restartButton, menuButton });
+
+        UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(hud, nullptr, "black"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        blackImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
+        Entity *blackEntity = UI::Factory::GetEntity(blackImage);
+
+        std::shared_ptr<Texture2D> princess = appContext.assetManager->Get<Texture2D>("assets/images/story/story_2.png");
+        UIImageComponent *imgPrincess = UI::Factory::Place(ui.CreateImage(blackEntity, princess), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        imgPrincess->SetShouldPreserveAspectRatio(true);
+        imgPrincess->SetOpacity(0.0f);
+
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
+        cutscene->AddImgComp(blackImage);
+        cutscene->AddImgComp(imgPrincess);
+
+        UITextComponent *txt = ui.CreateText(hud, "Click again to skip...");
+        UI::Factory::Place(txt, UI::Anchor::BOTTOM_RIGHT, { -20.0f, -20.0f });
+        txt->SetActive(false);
+
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
+        cutscene->AddImgComp(blackImage);
+        cutscene->AddImgComp(imgPrincess);
+        cutscene->AddTxtComp(txt);
     }
 }

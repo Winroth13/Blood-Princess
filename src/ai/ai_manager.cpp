@@ -20,6 +20,12 @@ void AIManager::Shutdown()
     this->enemies.clear();
 }
 
+void AIManager::Clear()
+{
+    this->enemies.clear();
+    this->pendingRemovals.clear();
+}
+
 void AIManager::RegisterEnemy(EnemyControllerComponent* enemy)
 {
     if (enemy == nullptr)

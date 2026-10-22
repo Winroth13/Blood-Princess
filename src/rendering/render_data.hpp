@@ -54,7 +54,8 @@ struct PerMaterialData
     float    materialSpecular;
     float    materialSpecularExponent;
     uint32_t materialFlags;
-    float	 pad0[2];
+    float    materialEmissive;
+    float	 pad0;
 };
 AssertCBufferSize(PerMaterialData);
 

@@ -202,7 +202,14 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
     return playerEntity;
 }
 
-static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *player, WaveController *waveController, LevelComponent *level) {
+static Entity* CreateHUD(
+    Scene &outScene,
+    const AppContext &appContext,
+    Entity *player,
+    WaveController *waveController,
+    LevelComponent *level,
+    EnemySpawnerComponent *enemySpawner
+) {
     std::shared_ptr<Font> font = appContext.assetManager->Get<Font>("assets/fonts/YoungSerif-Regular.ttf");
 
     UI::Factory ui(outScene, font);
@@ -301,7 +308,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
 
     UIBarComponent *progressBar = ui.CreateBar(hud, 0.0f, 1.0f, "progress_bar");
-    UI::Factory::Place(progressBar, UI::Anchor::BOTTOM, {0.0f, -40.0f});
+    UI::Factory::Place(progressBar, UI::Anchor::TOP, {0.0f, 40.0f});
 
     waveController->GetOnFloorProgressChanged().Connect([progressBar] (float progress) {
         progressBar->SetValue(static_cast<float>(progress));
@@ -331,7 +338,7 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     });
 
     // Tutorial Popup
-    /*Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
+    Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
@@ -340,7 +347,9 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     tutorialText->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
 
     TutorialComponent *tutorialComp = hud->AddComponent<TutorialComponent>();
-    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner);*/
+    tutorialComp->Setup(popupPanel, tutorialText, enemySpawner, controller, waveController);
+
+    waveController->SetTutorialComponent(tutorialComp);
 
     return hud;
 }
@@ -741,7 +750,8 @@ namespace Scenes
         spawnerEntity->AddComponent<TransformComponent>()->SetWorldPosition({ 0, 0, 0 });
         spawnerEntity->AddComponent<EnvironmentComponent>();
         spawnerEntity->AddComponent<EnemyDatabaseComponent>();
-        spawnerEntity->AddComponent<EnemySpawnerComponent>()->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
+        EnemySpawnerComponent* enemySpawner = spawnerEntity->AddComponent<EnemySpawnerComponent>();
+        enemySpawner->SetGibsComponent(gibsEntity->GetComponent<GibsComponent>());
         spawnerEntity->AddComponent<TrapSpawnerComponent>();
         WaveController *waveController = spawnerEntity->AddComponent<WaveController>();
 
@@ -762,7 +772,7 @@ namespace Scenes
         Health *health = playerEntity->GetComponent<Health>();
         level->SetPlayerController(playerEntity->GetComponent<PlayerControllerComponent>());
 
-        Entity *hud = CreateHUD(outScene, appContext, playerEntity, waveController, level);
+        Entity *hud = CreateHUD(outScene, appContext, playerEntity, waveController, level, enemySpawner);
         level->SetHUDEntity(hud);
 
         Entity *lightEntity = outScene.AddEntity("light");

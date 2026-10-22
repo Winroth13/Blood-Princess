@@ -2,6 +2,7 @@
 #include "scene/component.hpp"
 #include "assets/types/floor.hpp"
 #include "events/signal.hpp"
+#include "components/gameplay/tutorial_component.hpp"
 
 struct ActiveWave
 {
@@ -30,6 +31,8 @@ private:
 
 	int32_t nextWave = 0;
 
+	TutorialComponent *tutorialComp = nullptr;
+
 	void CompleteWave(uint32_t waveIndex);
 	float GetWaveProgress(ActiveWave &wave);
 	float GetFloorProgress();
@@ -46,6 +49,8 @@ public:
 	void NextWave();
 
 	bool IsFloorCompleted();
+
+	void SetTutorialComponent(TutorialComponent *tutorialComp) { this->tutorialComp = tutorialComp; }
 
 	Signal<> &GetOnWaveCompleted() { return this->onWaveCompleted; }
 	Signal<> &GetOnFloorCompleted() { return this->onFloorCompleted; }

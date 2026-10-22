@@ -44,6 +44,7 @@ private:
 
 	SpikeTrapConfig spikeTraps = {};
 	std::vector<Wave> waves = {};
+	bool isTutorial = false;
 
 public:
 	Floor() = default;
@@ -69,6 +70,9 @@ public:
 
 	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }
+
+	bool GetIsTutorial() const { return this->isTutorial; }
+	void SetIsTurorial(bool isTutorial) { this->isTutorial = isTutorial; }
 
 	bool GetIsFinal() const { return this->isFinal; }
 	void SetIsFinal(bool value) { this->isFinal = value; }
