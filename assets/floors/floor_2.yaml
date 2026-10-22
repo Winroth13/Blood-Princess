@@ -1,0 +1,51 @@
+hue: 135.0
+saturation: 1.8
+value: 1.1
+intensity: 0.75
+
+fog_colour: [0.01, 0.045, 0.018]
+fog_density: 1.0
+fog_start: 0.0
+fog_end: 15.0
+
+is_final: false
+
+spike_traps:
+  amount: 4
+  telegraph: 0.8
+  armed_duration: 0.6
+  cooldown_duration: 2.8
+  retrigger_cooldown: 0.5
+  damage: 35.0
+  knockback: 2.5
+
+waves:
+  - completion: 0.70
+    enemies:
+      - type: goblin
+        amount: 20
+        time: 16.0
+      - type: skeleton
+        amount: 4
+        time: 16.0
+
+  - completion: 0.75
+    enemies:
+      - type: goblin
+        amount: 22
+        time: 18.0
+      - type: skeleton
+        amount: 2
+        time: 10.0
+      - type: ogre
+        amount: 2
+        time: 14.0
+
+  - completion: 0.80
+    enemies:
+      - type: goblin
+        amount: 25
+        time: 20.0
+      - type: skeleton
+        amount: 5
+        time: 18.0

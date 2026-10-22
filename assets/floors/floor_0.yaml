@@ -1,27 +1,37 @@
 hue: 0.0
-saturation: 1.0
-value: 1.0
-intensity: 0.0
+saturation: 1.4
+value: 0.95
+intensity: 0.55
 
-fog_colour: [0.04, 0.02, 0.02]
+fog_colour: [0.05, 0.01, 0.01]
 fog_density: 1.0
 fog_start: 0.0
-fog_end: 15.0
+fog_end: 18.0
 
 is_tutorial: true
+is_final: false
 
 spike_traps:
   amount: 1
-  telegraph: 0.7
-  armed_duration: 0.5
-  cooldown_duration: 3.0
-  retrigger_cooldown: 0.0 # <--- Damage-interval (take damage ever 0.5s while standing on the spikes)
-  damage: 50.0
+  telegraph: 1.0
+  armed_duration: 0.6
+  cooldown_duration: 3.5
+  retrigger_cooldown: 0.5
+  damage: 25.0
   knockback: 2.0
 
 waves:
   - completion: 0.75
     enemies:
       - type: goblin
-        amount: 1 
-        time: 3
+        amount: 12
+        time: 15.0
+
+  - completion: 0.75
+    enemies:
+      - type: goblin
+        amount: 18
+        time: 20.0
+      - type: skeleton
+        amount: 2
+        time: 12.0
