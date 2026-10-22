@@ -1,12 +1,12 @@
 hue: 42.0
 saturation: 1.6
 value: 1.45
-intensity: 0.65
+intensity: 0.6
 
-fog_colour: [0.055, 0.035, 0.01]
+fog_colour: [0.0, 0.017, 0.012]
 fog_density: 1.0
 fog_start: 0.0
-fog_end: 17.0
+fog_end: 15.0
 
 is_final: false
 
