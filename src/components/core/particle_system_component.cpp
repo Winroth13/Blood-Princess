@@ -66,6 +66,11 @@ void ParticleSystemComponent::Render(const RenderView &view, RenderQueue &queue)
         flags |= +ParticleFlags::SPREAD;
     }
 
+    if (isFlat)
+    {
+        flags |= +ParticleFlags::FLAT;
+    }
+
     command.flags = flags;
 
     command.lifeTime = this->lifeTime;

@@ -337,6 +337,227 @@ void EnemyControllerComponent::ShootAnArrow()
 
 }
 
+void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, XMFLOAT2 offesetXandY, bool wall)
+{
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    if (!playerEnt) return;
+
+    TransformComponent* playerTransform = playerEnt->GetComponent<TransformComponent>();
+    PlayerControllerComponent* playerController = playerEnt->GetComponent<PlayerControllerComponent>();
+    if (!playerTransform || !playerController) return;
+
+    XMFLOAT3 fireStartPos;
+
+    XMFLOAT3 wizardPos = this->transform->GetWorldPosition();
+    XMVECTOR wizardPosV = XMLoadFloat3(&wizardPos);
+
+    XMFLOAT3 playerPos = playerTransform->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPos);
+
+    XMVECTOR toPlayer = XMVectorSubtract(playerPosV, wizardPosV);
+    XMVECTOR toPlayerHorizontal = XMVectorSetY(toPlayer, 0.0f);
+    XMVECTOR forwardDir = XMVector3Normalize(toPlayerHorizontal);
+
+    XMVECTOR startPosV = XMVectorAdd(wizardPosV, XMLoadFloat3(&this->fireballOffset));
+    startPosV = XMVectorAdd(startPosV, XMVectorScale(forwardDir, 0.6f));
+    XMStoreFloat3(&fireStartPos, startPosV);
+
+    XMVECTOR arrowStartPosV = XMLoadFloat3(&fireStartPos);
+
+    // Predict future player position
+    XMFLOAT3 playerPositionF = playerTransform->GetWorldPosition();
+    playerPositionF.y += offesetXandY.y == 0.0f ? 0.1f : offesetXandY.y; // Aim at player's center of mass (playerPos.y + 0.3f)
+
+    XMFLOAT3 playerVelocityF = playerController->GetVelocity();
+    XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
+
+    playerPositionF.x += offesetXandY.x;
+
+    XMVECTOR playerPositionV = XMLoadFloat3(&playerPositionF);
+    // Calculate timeToTarget
+    XMVECTOR diffV = XMVectorSubtract(playerPositionV, arrowStartPosV);
+    float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
+    float speed = fireSpeed;
+
+    float timeToTarget = distToPlayer / speed;
+    float arcModifier = 1.5f;
+    timeToTarget *= arcModifier;
+
+    if (timeToTarget < 0.1f) timeToTarget = 0.1f;
+
+    // Future position = current position + velocity * timeToTarget
+    XMVECTOR futurePositionV = XMVectorAdd(playerPositionV, XMVectorScale(playerVelocityV, timeToTarget));
+
+
+    // Ballistic trajectory:
+    // displacement = futurePosition - arrowStartPos
+    XMVECTOR displacementV = XMVectorSubtract(futurePositionV, arrowStartPosV);
+    XMFLOAT3 displacement;
+    XMStoreFloat3(&displacement, displacementV);
+
+    XMFLOAT3 launchVelocity;
+    launchVelocity.x = displacement.x / timeToTarget;
+    launchVelocity.z = displacement.z / timeToTarget;
+
+    float g = gravity;
+    launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
+
+    // Create fire entity
+    Entity* fireballEnt = this->thisScene->AddEntity("Fireball");
+
+    TransformComponent* transform = fireballEnt->AddComponent<TransformComponent>();
+    transform->SetWorldPosition(fireStartPos);
+
+    // Initial rotation facing launch direction
+    DirectX::XMVECTOR launchVelVec = DirectX::XMLoadFloat3(&launchVelocity);
+    DirectX::XMVECTOR f = DirectX::XMVector3Normalize(launchVelVec);
+
+    DirectX::XMVECTOR row0 = DirectX::XMVectorNegate(f);
+
+    DirectX::XMVECTOR worldUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    if (std::abs(DirectX::XMVectorGetY(f)) > 0.99f)
+    {
+        worldUp = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+    }
+
+    DirectX::XMVECTOR row2 = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(row0, worldUp));
+    DirectX::XMVECTOR row1 = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(row2, row0));
+
+    DirectX::XMMATRIX rotMat;
+    rotMat.r[0] = row0;
+    rotMat.r[1] = row1;
+    rotMat.r[2] = row2;
+    rotMat.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+    DirectX::XMVECTOR q = DirectX::XMQuaternionRotationMatrix(rotMat);
+    DirectX::XMFLOAT4 quat;
+    DirectX::XMStoreFloat4(&quat, q);
+    transform->SetWorldRotationQuaternion(quat);
+    // end rotation
+
+    BoxCollisionComponent* sphereCollision = fireballEnt->AddComponent<BoxCollisionComponent>();
+    //sphereCollision->SetRadius(this->fireballRadius);
+    sphereCollision->SetExtents({0.1f,0.1f, 0.1f});
+    sphereCollision->SetLayer(CollisionLayer::PROJECTILE);
+    sphereCollision->SetActive(true);
+    sphereCollision->SetStatic(false);
+    sphereCollision->SetTrigger(true);
+
+    HitboxComponent* hitbox = fireballEnt->AddComponent<HitboxComponent>();
+    hitbox->SetKnockbackForce(3.0f);
+    hitbox->SetDamage(this->fireballDamage);
+    hitbox->ActivateForEver(true);
+    hitbox->SetDestroyOnHit(true);
+    hitbox->IgnoreEntity(this->GetOwner());
+
+    ProjectileComponent* arrowProj = fireballEnt->AddComponent<ProjectileComponent>();
+    arrowProj->SetGravity(gravity);
+    arrowProj->SetRestitution(0.0f);
+    arrowProj->SetGroundY(-2.5f);
+    arrowProj->SetDestroyOnGrounded(true);
+    arrowProj->SetAliveTime(10.0f);
+    arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
+
+    // Flame particle system
+    ParticleSystemComponent* flame = fireballEnt->AddComponent<ParticleSystemComponent>();
+    flame->SetAtlasTexture(this->flameTexture);
+    flame->SetAtlasSize({ 12.0f, 6.0f });
+    flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
+    flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    flame->SetLifeTime(timeToTarget*2.5);
+    flame->SetIsAnimate(true);
+    flame->SetISFlat(false);
+    flame->SetIsAdditive(true);
+    flame->SetAnimationSpeed(1.2f);
+    flame->SetCount(this->fireballRadius * 100);
+    flame->SetSpawnRadius(this->fireballRadius);
+    if (wall) {
+        flame->SetIsSpread(true);
+        flame->SetStartScale(0.8f);
+        flame->SetEndScale(0.8f);
+    }
+    else
+    {
+        flame->SetStartScale(0.4f);
+        flame->SetEndScale(0.4f);
+    }
+
+    // Smoke particle system
+    ParticleSystemComponent* smoke = fireballEnt->AddComponent<ParticleSystemComponent>();
+    smoke->SetAtlasTexture(this->smokeTexture);
+    smoke->SetAtlasSize({ 8.0f, 8.0f });
+    smoke->SetVelocity({ 0.0f, 0.5f, 0.0f });
+    smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    smoke->SetLifeTime(timeToTarget * 2.5);
+    smoke->SetStartScale(0.3f);
+    smoke->SetEndScale(0.3f);
+    smoke->SetIsAnimate(true);
+    smoke->SetIsGlobal(true);
+    smoke->SetISFlat(false);
+    smoke->SetIsAdditive(false);
+    smoke->SetSpawnRadius(this->fireballRadius);
+    smoke->SetCount(this->fireballRadius * 100);
+
+    smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
+    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
+
+    SoundComponent* fireballSound = fireballEnt->AddComponent<SoundComponent>();
+    fireballSound->SetSound(this->arrowPassbySound);
+    fireballSound->SetIs3d(true);
+    fireballSound->SetMaxDistance(12.0f);
+    fireballSound->SetVolume(5.0f);
+
+    // fire entity
+    Entity* fireEnt = this->thisScene->AddEntity("flame");
+    fireEnt->SetParent(fireballEnt);
+
+    // we attach the audio to fire ent so that it can have it's own collision
+    SphereCollisionComponent* sphereCol = fireEnt->AddComponent<SphereCollisionComponent>();
+    sphereCol->SetRadius(8.0f);
+    sphereCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    sphereCol->SetTrigger(true);
+
+    AreaComponent* area = fireEnt->AddComponent<AreaComponent>();
+    area->GetOnAreaEntered().Connect([area, fireballSound](CollisionComponent* other) {
+        area->SetEnabled(false);
+        fireballSound->Play();
+        });
+
+    PointLightComponent* pointLight = fireEnt->AddComponent<PointLightComponent>();
+    pointLight->SetColour({ 0.88f, 0.34f, 0.13f });
+    pointLight->SetIntensity(75.0f);
+    pointLight->SetRadius(8.0f);
+
+}
+
+void EnemyControllerComponent::ShootVerticalRowOfFireball()
+{
+    for (int i = -2; i < 6; i++)
+    {
+        this->ShootAnFireball(this->fireballHorizontalGravity, this->fireballHorizontalSpeed, XMFLOAT2(0.0f, (float)i / 2.0f));
+    }
+}
+
+void EnemyControllerComponent::ShootHorizontalRowOfFireball()
+{
+    for (int i = -3; i < 4; i++)
+    {
+        this->ShootAnFireball(this->fireballVerticalGravity, this->fireballVerticalSpeed, XMFLOAT2((float)i, 0));
+    }
+}
+
+void EnemyControllerComponent::ShootCircleOfFireball()
+{
+    for (int x = -3; x < 4; x++)
+    {
+        for (int y = -3; y < 4; y++)
+        {
+            this->ShootAnFireball(this->fireballVerticalGravity, this->fireballVerticalSpeed, XMFLOAT2((float)x, (float)y / 2.0f), true);
+        }
+    }
+}
+
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
     if (event.attacker == this->hitboxEntity)
@@ -603,7 +824,11 @@ void EnemyControllerComponent::MeleeAttack(float damage, float duration, XMFLOAT
 
 void EnemyControllerComponent::FireProjectile()
 {
-    this->ShootAnArrow();
+
+    //ShootVerticalRowOfFireball();
+    //ShootHorizontalRowOfFireball();
+    //ShootAnFireball(this->fireballGravity, this->fireballSpeed, this->XandY);
+    ShootCircleOfFireball();
 }
 
 void EnemyControllerComponent::UpdateBark(float deltaTime)

@@ -61,6 +61,8 @@ cbuffer Light : register(b4)
 #define PARTICLE_FLAG_GLOBAL 1 << 3
 #define PARTICLE_FLAG_BURST 1 << 4
 #define PARTICLE_FLAG_SPREAD 1 << 5
+#define PARTICLE_FLAG_FLAT 1 << 6
+
 
 cbuffer ParticleSystem : register(b5)
 {

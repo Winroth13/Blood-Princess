@@ -104,6 +104,22 @@ private:
 	std::shared_ptr<Texture2D> flameTexture;
 	std::shared_ptr<Texture2D> smokeTexture;
 
+	// Fireball
+	ExportPropertyCategory("Fireball");
+	ExportProperty(XMFLOAT2, XandY, { 0,0 });
+	ExportProperty(float, fireballRadius, 0.1f);
+	ExportProperty(float, fireballDamage, 50.0f);
+	ExportProperty(XMFLOAT3, fireballOffset, { 0.0f, 1.4f, 0.0f });
+
+	ExportProperty(float, fireballGravity, 16.0f);
+	ExportProperty(float, fireballVerticalGravity, 0.1f);
+	ExportProperty(float, fireballHorizontalGravity, 0.2f);
+
+	ExportProperty(float, fireballSpeed, 25.0f);
+	ExportProperty(float, fireballVerticalSpeed, 21.5f);
+	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
+
+
 	Scene* thisScene = nullptr;
 
 	void OnStart(const AppContext &context) override;
@@ -163,4 +179,9 @@ public:
 	uint32_t GetWave() const { return this->wave; }
 	
 	void ShootAnArrow();
+
+	void ShootAnFireball(float gravity, float fireSpeed, XMFLOAT2 offesetXandY, bool wall = false);
+	void ShootVerticalRowOfFireball();
+	void ShootHorizontalRowOfFireball();
+	void ShootCircleOfFireball();
 };

@@ -32,6 +32,7 @@
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
 #include "components/gameplay/wave_controller.hpp"
+#include "collision/collision_component.hpp"
 #include "core/math.hpp"
 
 #include <cmath>
@@ -747,8 +748,12 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 		hitbox->ClearIgnoreEntities();
 		hitbox->SetDamage(hitbox->GetDamage() * 2);
 
-		auto collision = hitbox->GetOwner()->GetComponent<BoxCollisionComponent>();
-		collision->SetLayer(CollisionLayer::PLAYER_ATTACK);
+		auto collision = hitbox->GetOwner()->GetComponent<CollisionComponent>();
+
+		if (collision)
+		{
+			collision->SetLayer(CollisionLayer::PLAYER_ATTACK);
+		}
 
 		XMFLOAT3 velocityF = projectile->GetVelocity();
 		XMVECTOR velocity = XMLoadFloat3(&velocityF);
