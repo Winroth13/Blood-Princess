@@ -9,6 +9,15 @@ void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 {
     this->projectileAliveTime -= deltaTime;
 
+    if (this->projectileAliveTime <= 0.0f)
+    {
+        if (auto scene = this->GetOwner()->GetScene())
+        {
+            scene->DestroyEntity(this->GetOwner());
+        }
+        return;
+    }
+
     if (this->isGrounded)
     {
         if (this->destroyOnGrounded)
