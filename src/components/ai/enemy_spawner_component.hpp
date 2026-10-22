@@ -22,7 +22,7 @@ class EnemySpawnerComponent : public Component
 
 	ExportProperty(bool, autoStartWave, true);
 
-	std::array<PoolComponent *, 3> enemyPools = { nullptr };
+	std::array<PoolComponent *, 4> enemyPools = { nullptr };
 
 private:
 	GibsComponent *gibs = nullptr;
