@@ -1,9 +1,9 @@
 hue: 135.0
-saturation: 1.8
-value: 1.1
-intensity: 0.75
+saturation: 1.1
+value: 1.05
+intensity: 0.40
 
-fog_colour: [0.01, 0.045, 0.018]
+fog_colour: [0.015, 0.028, 0.020]
 fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
@@ -26,7 +26,7 @@ waves:
         amount: 20
         time: 16.0
       - type: skeleton
-        amount: 4
+        amount: 2
         time: 16.0
 
   - completion: 0.75
@@ -45,7 +45,7 @@ waves:
     enemies:
       - type: goblin
         amount: 25
-        time: 20.0
+        time: 5.0
       - type: skeleton
         amount: 5
-        time: 18.0
+        time: 5.0

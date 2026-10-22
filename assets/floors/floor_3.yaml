@@ -26,7 +26,7 @@ waves:
         amount: 24
         time: 18.0
       - type: skeleton
-        amount: 6
+        amount: 3
         time: 18.0
       - type: ogre
         amount: 1
@@ -36,13 +36,13 @@ waves:
     enemies:
       - type: goblin
         amount: 26
-        time: 20.0
+        time: 3.0
       - type: skeleton
-        amount: 4
-        time: 15.0
+        amount: 2
+        time: 3.0
       - type: ogre
         amount: 3
-        time: 18.0
+        time: 3.0
 
   - completion: 0.75
     enemies:
@@ -50,7 +50,7 @@ waves:
         amount: 30
         time: 22.0
       - type: skeleton
-        amount: 6
+        amount: 2
         time: 18.0
       - type: ogre
         amount: 2
