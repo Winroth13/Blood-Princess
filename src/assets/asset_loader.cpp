@@ -626,6 +626,8 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 		floor->SetFogStartDepth(file["fog_start"].as<float>(0.0f));
 		floor->SetFogEndDepth(file["fog_end"].as<float>(1.0f));
 
+		floor->SetIsTurorial(file["is_tutorial"].as<bool>(false));
+
 		floor->SetIsFinal(file["is_final"].as<bool>(false));
 
 		if (YAML::Node spikeNode = file["spike_traps"])

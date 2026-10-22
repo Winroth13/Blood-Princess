@@ -8,6 +8,8 @@ fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
 
+is_tutorial: true
+
 spike_traps:
   amount: 1
   telegraph: 0.7
