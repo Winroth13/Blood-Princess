@@ -21,6 +21,8 @@ enum class GBufferType
 
     OUTPUT,             // Not a Gbuffer but I don't care
 
+    EMISSIVE,
+
 	COUNT
 };
 
@@ -35,6 +37,7 @@ public:
         ID3D11ShaderResourceView *albedoMetallic;
         ID3D11ShaderResourceView *normalRoughness;
         ID3D11ShaderResourceView *output;
+        ID3D11ShaderResourceView *emissive;
     };
 
 private:

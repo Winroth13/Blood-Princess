@@ -22,6 +22,7 @@ struct GeometryCommand
     Material material;
     DirectX::XMFLOAT3 tint;
     uint32_t materialFlags;
+    float emissive;
 
     DirectX::XMFLOAT4X4 worldMatrix;
 

@@ -53,6 +53,8 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 
             command.tint = this->tint;
 
+            command.emissive = this->emissive;
+
             const Material &material = this->model->GetMaterials()[subMesh.materialIndex];
 
             command.material = material;
