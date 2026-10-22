@@ -14,6 +14,7 @@ class ModelComponent : public Component
     ExportProperty(std::shared_ptr<Model>, model, nullptr);
     ExportPropertyColor(DirectX::XMFLOAT3, tint, { 1.0f, 1.0f, 1.0f });
     ExportProperty(bool, isHsvAdjusted, false);
+    ExportPropertyRanged(float, emissive, "", 0.0f, 10.0f, 0.1f, 0.0f);
 
 public:
     ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }

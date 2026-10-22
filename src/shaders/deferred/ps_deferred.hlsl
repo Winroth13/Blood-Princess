@@ -5,6 +5,7 @@ Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
 Texture2D metallicRoughnessTexture : register(t2);
 Texture2D paintMaskTexture : register(t3);
+Texture2D emissiveTexture : register(t4);
 
 struct PixelShaderInput
 {
@@ -20,6 +21,7 @@ struct PixelShaderOutput
 {
     float4 albedoMetallic : SV_Target0;
     float4 normalRoughness : SV_Target1;
+    float emissive : SV_Target2;
 };
 
 PixelShaderOutput main(PixelShaderInput input)
@@ -58,6 +60,7 @@ PixelShaderOutput main(PixelShaderInput input)
     
     output.albedoMetallic = float4(finalAlbedo, metallicRoughnessSample.b);
     output.normalRoughness = float4(normal, finalRoughness);
+    output.emissive = materialEmissive;
     
     return output;
 }

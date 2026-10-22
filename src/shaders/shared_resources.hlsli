@@ -43,7 +43,8 @@ cbuffer PerMaterial : register(b3)
     float materialSpecular;
     float materialSpecularExponent;
     uint materialFlags;
-    float2 pad2;
+    float materialEmissive;
+    float pad2;
 }
 
 cbuffer Light : register(b4)

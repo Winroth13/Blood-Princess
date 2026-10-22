@@ -16,7 +16,9 @@ Texture2DArray<float> directionalLightShadowMaps : register(t6);
 Texture2DArray<float> spotLightShadowMaps : register(t7);
 TextureCubeArray<float> pointLightShadowMaps : register(t8);
 
-TextureCube<float4> skyboxTexture : register(t9);
+Texture2D<float> emissiveTexture : register(t9);
+
+TextureCube<float4> skyboxTexture : register(t10);
 
 float3 ReconstructWorldPosition(float2 uv, float depth)
 {
@@ -60,9 +62,17 @@ void main(uint3 id : SV_DispatchThreadID)
     float4 normalRoughnessSample = normalRoughnessTexture[pixel];
     float3 normalV = normalize(normalRoughnessSample.rgb * 2.0f - 1.0f);
     float roughness = normalRoughnessSample.a;
-    
+        
     float3 baseReflectivity = float3(0.04f, 0.04f, 0.04f);
     baseReflectivity = lerp(baseReflectivity, albedoColour, metallic);
+    
+    float emissiveSample = emissiveTexture[pixel];
+    
+    if (emissiveSample > 0.0f)
+    {
+        backBufferUAV[pixel] = float4(albedoColour * emissiveSample * 10.0f, 1.0f);
+        return;
+    }
     
     float3 outRadiance = float3(0.0f, 0.0f, 0.0f);
     
