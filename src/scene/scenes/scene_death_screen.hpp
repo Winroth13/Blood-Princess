@@ -29,7 +29,7 @@ namespace Scenes {
 
         GameState *gameState = appContext.application->GetGameState();
 
-        DrawScores(hud, gameState, ui, UI::Anchor::CENTRE);
+        DrawStats(hud, gameState, ui, UI::Anchor::CENTRE);
 
         UIButtonComponent *restartButton = UI::Factory::Place(ui.CreateButton(hud, "RESTART", nullptr, "menu_button"), UI::Anchor::CENTRE, { 0.0f, 250.0f });
         restartButton->GetOnClick().Connect([appContext, gameState]() {

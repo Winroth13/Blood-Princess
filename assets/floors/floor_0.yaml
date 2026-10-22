@@ -9,19 +9,14 @@ fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
 
-is_tutorial: true
+is_tutorial: false
 is_final: false
 
 spike_traps:
-  amount: 1
-  telegraph: 1.0
-  armed_duration: 0.6
-  cooldown_duration: 3.5
-  retrigger_cooldown: 0.5
-  damage: 25.0
-  knockback: 2.0
+  amount: 20
 
 waves:
+
   - completion: 0.75
     enemies:
       - type: goblin

@@ -45,7 +45,7 @@ void Application::Update(float deltaTime)
         this->sceneManager.Update(deltaTime, this->fixedDeltaTime, numFixedTicks);
     }
     else {
-        this->sceneManager.Update(0.0f, 0.0f, 0.0f);
+        this->sceneManager.Update(0.0f, 0.0f, 0.0);
     }
 
     if (this->editor.IsUsingEditor())

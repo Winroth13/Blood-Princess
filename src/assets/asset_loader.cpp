@@ -609,6 +609,8 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 {
 	std::shared_ptr<Floor> floor = std::make_shared<Floor>();
 
+	SpikeTrapConfig spikeConfig = {};
+
 	try
 	{
 		YAML::Node file = YAML::LoadFile(path);
@@ -632,15 +634,7 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 
 		if (YAML::Node spikeNode = file["spike_traps"])
 		{
-			SpikeTrapConfig spikeConfig = {};
 			spikeConfig.amount = spikeNode["amount"].as<uint32_t>(0);
-			spikeConfig.telegraph = spikeNode["telegraph"].as<float>(1.2f);
-			spikeConfig.armedDuration = spikeNode["armed_duration"].as<float>(4.0f);
-			spikeConfig.cooldownDuration = spikeNode["cooldown_duration"].as<float>(2.0f);
-			spikeConfig.retriggerCooldown = spikeNode["retrigger_cooldown"].as<float>(0.5f);
-			spikeConfig.damage = spikeNode["damage"].as<float>(25.0f);
-			spikeConfig.knockback = spikeNode["knockback"].as<float>(3.0f);
-			floor->SetSpikeTraps(spikeConfig);
 		}
 
 		std::vector<Wave> waves = {};
@@ -674,6 +668,34 @@ std::shared_ptr<Floor> AssetLoader::Load<Floor>(const std::string &path)
 	catch (const YAML::BadFile e)
 	{
 		LogError("Failed to open file: %s", path.c_str());
+		return floor;
+	}
+	catch (const YAML::ParserException e)
+	{
+		LogError("Failed to parse YAML syntax: %s", e.what());
+		return floor;
+	}
+	catch (const std::exception e)
+	{
+		LogError("An error occurred: %s", e.what());
+		return floor;
+	}
+
+	try
+	{
+		YAML::Node file = YAML::LoadFile("assets/traps/spike.yaml");
+		
+		spikeConfig.telegraph = file["telegraph"].as<float>(1.2f);
+		spikeConfig.armedDuration = file["armed_duration"].as<float>(4.0f);
+		spikeConfig.cooldownDuration = file["cooldown_duration"].as<float>(2.0f);
+		spikeConfig.retriggerCooldown = file["retrigger_cooldown"].as<float>(0.5f);
+		spikeConfig.damage = file["damage"].as<float>(25.0f);
+		spikeConfig.knockback = file["knockback"].as<float>(3.0f);
+		floor->SetSpikeTraps(spikeConfig);
+	}
+	catch (const YAML::BadFile e)
+	{
+		LogError("Failed to open file: %s", "assets/traps/spike.yaml");
 		return floor;
 	}
 	catch (const YAML::ParserException e)

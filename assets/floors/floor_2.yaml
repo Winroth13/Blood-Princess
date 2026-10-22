@@ -1,9 +1,9 @@
-hue: 135.0
-saturation: 1.1
-value: 1.05
-intensity: 0.40
+hue: 0.0
+saturation: 1.4
+value: 0.95
+intensity: 0.55
 
-fog_colour: [0.015, 0.028, 0.020]
+fog_colour: [0.05, 0.01, 0.01]
 fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
@@ -11,13 +11,7 @@ fog_end: 15.0
 is_final: false
 
 spike_traps:
-  amount: 4
-  telegraph: 0.8
-  armed_duration: 0.6
-  cooldown_duration: 2.8
-  retrigger_cooldown: 0.5
-  damage: 35.0
-  knockback: 2.5
+  amount: 3
 
 waves:
   - completion: 0.70
@@ -47,5 +41,5 @@ waves:
         amount: 25
         time: 5.0
       - type: skeleton
-        amount: 5
+        amount: 4
         time: 5.0
