@@ -50,8 +50,22 @@ waves:
         amount: 40
         time: 4.0
       - type: skeleton
-        amount: 4
+        amount: 10
         time: 4.0
       - type: ogre
         amount: 4
         time: 4.0
+  
+  - completion: 1.0
+    enemies:
+      - type: goblin
+        amount: 100
+        time: 10.0
+      - type: skeleton
+        amount: 10
+        time: 10.0
+      - type: ogre
+        amount: 10
+        time: 10.0
+  
+  

@@ -9,7 +9,7 @@ fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
 
-is_tutorial: true
+is_tutorial: false
 is_final: false
 
 spike_traps:
@@ -22,6 +22,7 @@ spike_traps:
   knockback: 2.0
 
 waves:
+
   - completion: 0.75
     enemies:
       - type: goblin

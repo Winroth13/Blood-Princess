@@ -29,7 +29,7 @@ waves:
         amount: 3
         time: 18.0
       - type: ogre
-        amount: 1
+        amount: 2
         time: 8.0
 
   - completion: 0.70
@@ -38,10 +38,10 @@ waves:
         amount: 26
         time: 3.0
       - type: skeleton
-        amount: 2
+        amount: 4
         time: 3.0
       - type: ogre
-        amount: 3
+        amount: 5
         time: 3.0
 
   - completion: 0.75
@@ -50,8 +50,8 @@ waves:
         amount: 30
         time: 22.0
       - type: skeleton
-        amount: 2
+        amount: 3
         time: 18.0
       - type: ogre
-        amount: 2
+        amount: 3
         time: 12.0

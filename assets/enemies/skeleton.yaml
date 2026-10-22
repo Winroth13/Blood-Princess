@@ -1,6 +1,6 @@
 type: skeleton
 health: 100
-score: 20
+score: 10
 scale: 1.0
 
 avoidance_radius: 1.5

@@ -47,5 +47,5 @@ waves:
         amount: 25
         time: 5.0
       - type: skeleton
-        amount: 5
+        amount: 4
         time: 5.0

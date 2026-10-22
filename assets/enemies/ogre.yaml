@@ -1,6 +1,6 @@
 type: ogre
 health: 350
-score: 20
+score: 5
 scale: 1.25
 
 avoidance_radius: 1.5
