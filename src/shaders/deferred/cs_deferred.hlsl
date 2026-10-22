@@ -28,6 +28,13 @@ float3 ReconstructWorldPosition(float2 uv, float depth)
     return positionWorld.xyz / positionWorld.w;
 }
 
+float ComputeFog(float3 positionWorld)
+{
+    float distance = length(positionWorld - cameraPosition);
+    float t = saturate((distance - fogStartDepth) / (fogEndDepth - fogStartDepth));
+    return smoothstep(0.0f, 1.0f, t) * fogDensity;
+}
+
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)
 {
@@ -48,10 +55,12 @@ void main(uint3 id : SV_DispatchThreadID)
     
     if (depth == 1)
     {
+        float3 colour = float3(0.0f, 0.0f, 0.0f);
         if ((environmentFlags & ENVIRONMENT_FLAG_HAS_SKYBOX) == ENVIRONMENT_FLAG_HAS_SKYBOX)
-            backBufferUAV[pixel] = float4(skyboxTexture.SampleLevel(samplerLinearWrap, -viewV, 0).rgb, 1.0f);
-        else
-            backBufferUAV[pixel] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+            colour = skyboxTexture.SampleLevel(samplerLinearWrap, -viewV, 0).rgb;
+        
+        backBufferUAV[pixel] = float4(lerp(colour, fogColour * 1.5, fogDensity), 1.0f);
+        
         return;
     }
     
@@ -196,6 +205,8 @@ void main(uint3 id : SV_DispatchThreadID)
     
     float3 ambient = ambientColour * albedoColour;
     float3 color = ambient + outRadiance;
+    
+    color = lerp(color, fogColour * 1.5f, ComputeFog(positionWorld));
 
     backBufferUAV[pixel] = float4(color, 1.0f);
 }

@@ -146,21 +146,11 @@ void main(uint3 id : SV_DispatchThreadID)
         return;
     }
     
-    float depth = LineariseDepth(depthStencilTexture.SampleLevel(samplerLinearWrap, uv, 0).r) * farPlane;
-    
-    float effectiveDepth = clamp(
-        (depth - fogStartDepth) / (fogEndDepth - fogStartDepth),
-        0.0f, 1.0f
-    );
-    // S-curve (smoothstep): slow in first 3m, linear between 3m-10m, and smoothly eases into 100% at 15m
-    float fogFactor = smoothstep(0.0f, 1.0f, effectiveDepth) * fogDensity;
-    float3 afterFogColour = lerp(ldr, fogColour, fogFactor);
-    
     float4 damageFlashColour = DamageFlash(noiseTexture, uv);
-    afterFogColour = lerp(afterFogColour, damageFlashColour.rgb, damageFlashColour.a);
+    ldr = lerp(ldr, damageFlashColour.rgb, damageFlashColour.a);
     
     float4 speedLineColour = SpeedLines(noiseTexture, uv);
-    afterFogColour = lerp(afterFogColour, speedLineColour.rgb, speedLineColour.a);
+    ldr = lerp(ldr, speedLineColour.rgb, speedLineColour.a);
     
     float ditherSize = 2.0f;
     int2 pixelUV = int2(uv.x * width, uv.y * height);
@@ -168,9 +158,9 @@ void main(uint3 id : SV_DispatchThreadID)
     int colors = MAX_COLORS;
     
     float3 ditherColor = float3(
-        reduceColor(afterFogColour.r, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
-        reduceColor(afterFogColour.g, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
-        reduceColor(afterFogColour.b, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1)
+        reduceColor(ldr.r, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(ldr.g, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1),
+        reduceColor(ldr.b, (ditherAmt - 0.5) * ditherAmt + 0.5, colors - 1)
     );
     
     float3 finalColour = GammaCorrection(ditherColor);
