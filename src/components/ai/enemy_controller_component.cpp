@@ -939,8 +939,7 @@ void EnemyControllerComponent::Attack()
         } break;
         case EnemyType::SKELETON:
         {
-            WizardFireballAttack();
-            //this->FireProjectile();
+            this->FireProjectile();
         } break;
         case EnemyType::WIZARD:
         {
