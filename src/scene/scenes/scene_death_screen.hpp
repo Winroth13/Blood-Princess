@@ -42,5 +42,9 @@ namespace Scenes {
             });
 
         SetDefaultSounds(outScene, appContext, { restartButton, menuButton });
+
+        std::shared_ptr<Texture2D> princess = appContext.assetManager->Get<Texture2D>("assets/images/story/story_2.png");
+        UIImageComponent *imgPrincess = UI::Factory::Place(ui.CreateImage(hud, princess), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        imgPrincess->SetShouldPreserveAspectRatio(true);
     }
 }

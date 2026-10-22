@@ -6,6 +6,8 @@
 #include "components/ui/ui_text_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "scene/scene_manager.hpp"
+#include "components/core/transform_component.hpp"
+#include "components/audio/music_component.hpp"
 
 #include <algorithm>
 
@@ -38,6 +40,8 @@ void IntroCutsceneComponent::OnStart(const AppContext &context) {
     this->sfxMjau = context.assetManager->Get<AudioClip>("assets/audio/sfx/meow2_2.ogg");
     this->sfxCough = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_cough_06.ogg");
     this->sfxBreathing = context.assetManager->Get<AudioClip>("assets/audio/female_a/voice_female_a_breath_deep_out_01.ogg");
+
+    this->musWind = context.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg");
 
     std::vector<Entity *> children = this->GetOwner()->GetChildren();
     this->imgComp1 = children[0]->GetComponent<UIImageComponent>();
@@ -94,6 +98,13 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
         this->imgComp1->SetOpacity(t * t);
     }
 
+    if (isAtFunc(12.0f)) {
+        Entity *wind = context.sceneManager->GetCurrentScene()->AddEntity("wind");
+        wind->AddComponent<TransformComponent>();
+        MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(this->musWind);
+        musicComponent->SetVolume(0.2f);
+    }
+
     if (isAtFunc(14.0f)) {
         context.audioManager->PlaySoundEffect(this->sfxCough, false, 1.0f);
     }
@@ -114,11 +125,11 @@ void IntroCutsceneComponent::Update(const AppContext &context, float deltaTime) 
     }
 
     if (isAtFunc(20.0f)) {
-        context.audioManager->PlaySoundEffect(this->sfxMjau, false, 1.0f);
+        context.audioManager->PlaySoundEffect(this->sfxMjau, false, 2.0f);
     }
 
     if (isAtFunc(21.0f)) {
-        context.audioManager->PlaySoundEffect(this->sfxGoblin, false, 0.8f, 0.7f);
+        context.audioManager->PlaySoundEffect(this->sfxGoblin, false, 1.0f, 0.7f);
     }
 
     if (isInFunc(25.0f, 30.0f)) {

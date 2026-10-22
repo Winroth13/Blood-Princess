@@ -28,6 +28,8 @@ class IntroCutsceneComponent : public Component {
     std::shared_ptr<AudioClip> sfxCough;
     std::shared_ptr<AudioClip> sfxBreathing;
 
+    std::shared_ptr<AudioClip> musWind;
+
     UIImageComponent *imgComp1 = nullptr;
     UIImageComponent *imgComp2 = nullptr;
     UITextComponent *txtComp = nullptr;
