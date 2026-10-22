@@ -672,6 +672,7 @@ static Entity *CreateFade(Scene &outScene, const AppContext &appContext)
     Entity *canvas = ui.CreateCanvas("fade_canvas");
     UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(canvas, nullptr, "black"), UI::Anchor::STRETCH, { 0.0f, 0.0f }, { 0.0f, 0.0f });
     blackImage->SetColour({ 0.0f, 0.0f, 0.0f, 1.0f });
+    blackImage->SetRaycastTarget(false);
 
     return canvas;
 }
