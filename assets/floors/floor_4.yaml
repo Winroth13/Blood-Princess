@@ -11,7 +11,7 @@ fog_end: 14.0
 is_final: true
 
 spike_traps:
-  amount: 6
+  amount: 3
 
 waves:
   - completion: 0.70
