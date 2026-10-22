@@ -26,6 +26,7 @@ class ParticleSystemComponent : public Component
     ExportPropertyRanged(XMFLOAT3, acceleration, "m/s^2", 0.0f, 0.0f, 0.1f, { 0.0f, 1.0f, 0.0f });
 
     ExportPropertyCategory("Scale");
+    ExportProperty(bool, isFlat, true);
     ExportPropertyRanged(float, startScale, "", 0.0f, 0.0f, 0.1f, 0.0f);
     ExportPropertyRanged(float, endScale, "", 0.0f, 0.0f, 0.1f, 1.0f);
 
@@ -70,6 +71,7 @@ public:
     void SetIsGlobal(const bool isGlobal) { this->isGlobal = isGlobal; }
     void SetIsBurst(const bool isBurst) { this->isBurst = isBurst; }
     void SetIsSpread(const bool isSpread) { this->isSpread = isSpread; }
+    void SetISFlat(const bool isFlat) { this->isFlat = isFlat; }
 
     void Reset() { this->shouldReset = true; }
 };

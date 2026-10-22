@@ -51,7 +51,8 @@ enum class ParticleFlags : uint32_t
 	RESET = 1 << 2,
 	GLOBAL = 1 << 3,
 	BURST = 1 << 4,
-	SPREAD = 1 << 5
+	SPREAD = 1 << 5,
+	FLAT = 1 << 6
 };
 
 constexpr uint32_t operator+(ParticleFlags slot) noexcept {

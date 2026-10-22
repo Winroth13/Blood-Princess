@@ -18,7 +18,8 @@
 #include "components/collisions/hurt_box_component.hpp"
 #include "scene/scene_manager.hpp"
 #include "assets/types/enemy.hpp"
-
+#include "components/core/pool_component.hpp"
+#include "components/core/lifetime_component.hpp"
 #include "components/gameplay/projectile_component.hpp"
 #include "components/core/model_component.hpp"
 #include "components/collisions/box_collision_component.hpp"
@@ -347,6 +348,325 @@ void EnemyControllerComponent::ShootAnArrow()
 
 }
 
+void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, XMFLOAT3 offset, bool wall)
+{
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    if (!playerEnt) return;
+
+    TransformComponent* playerTransform = playerEnt->GetComponent<TransformComponent>();
+    PlayerControllerComponent* playerController = playerEnt->GetComponent<PlayerControllerComponent>();
+    if (!playerTransform || !playerController) return;
+
+    XMFLOAT3 fireStartPos;
+
+    XMFLOAT3 wizardPos = this->transform->GetWorldPosition();
+    XMVECTOR wizardPosV = XMLoadFloat3(&wizardPos);
+
+    XMFLOAT3 playerPos = playerTransform->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPos);
+
+    XMVECTOR toPlayer = XMVectorSubtract(playerPosV, wizardPosV);
+    XMVECTOR toPlayerHorizontal = XMVectorSetY(toPlayer, 0.0f);
+    XMVECTOR forwardDir = XMVector3Normalize(toPlayerHorizontal);
+
+    XMVECTOR startPosV = XMVectorAdd(wizardPosV, XMLoadFloat3(&this->fireballOffset));
+    startPosV = XMVectorAdd(startPosV, XMVectorScale(forwardDir, 0.6f));
+    XMStoreFloat3(&fireStartPos, startPosV);
+
+    // Predict future player position & lateral offset
+    XMFLOAT3 playerVelocityF = playerController->GetVelocity();
+    XMVECTOR playerVelocityV = XMLoadFloat3(&playerVelocityF);
+
+    // worldUp is (0, 1, 0)
+    XMVECTOR worldUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR rightDir = XMVector3Cross(worldUp, forwardDir);
+
+    XMVECTOR targetV = XMVectorAdd(
+        playerPosV,
+        XMVectorAdd(
+            XMVectorScale(rightDir, offset.x),   // left / right
+            XMVectorAdd(
+                XMVectorSet(0.0f, offset.y == 0.0f ? 0.1f : offset.y, 0.0f, 0.0f),
+                XMVectorScale(forwardDir, offset.z) // in front / behind
+            )
+        )
+    );
+
+    // Calculate timeToTarget & ballistics
+    XMVECTOR diffV = XMVectorSubtract(targetV, startPosV);
+    float distToPlayer = XMVectorGetX(XMVector3Length(diffV));
+
+    float timeToTarget = distToPlayer / fireSpeed;
+    float arcModifier = 1.5f;
+    timeToTarget *= arcModifier;
+
+    if (timeToTarget < 0.1f) timeToTarget = 0.1f;
+
+    // Future position = current position + velocity * timeToTarget
+    XMVECTOR futurePositionV = XMVectorAdd(targetV, XMVectorScale(playerVelocityV, timeToTarget));
+
+    // Ballistic trajectory:
+    // displacement = futurePosition - startPos
+    XMVECTOR displacementV = XMVectorSubtract(futurePositionV, startPosV);
+    XMFLOAT3 displacement;
+    XMStoreFloat3(&displacement, displacementV);
+
+    XMFLOAT3 launchVelocity;
+    launchVelocity.x = displacement.x / timeToTarget;
+    launchVelocity.z = displacement.z / timeToTarget;
+
+    float g = gravity;
+    launchVelocity.y = (displacement.y / timeToTarget) + (0.5f * g * timeToTarget);
+
+    // Create fire entity
+    Entity* fireballEnt = this->thisScene->AddEntity("Fireball");
+
+    TransformComponent* fireballTransform = fireballEnt->AddComponent<TransformComponent>();
+    fireballTransform->SetWorldPosition(fireStartPos);
+
+    SphereCollisionComponent* sphereCollision = fireballEnt->AddComponent<SphereCollisionComponent>();
+    sphereCollision->SetRadius(this->fireballRadius);
+    sphereCollision->SetLayer(CollisionLayer::PROJECTILE);
+    sphereCollision->SetActive(true);
+    sphereCollision->SetStatic(false);
+    sphereCollision->SetTrigger(true);
+
+    HitboxComponent* hitbox = fireballEnt->AddComponent<HitboxComponent>();
+    hitbox->SetKnockbackForce(3.0f);
+    hitbox->SetDamage(this->fireballDamage);
+    hitbox->ActivateForEver(true);
+    hitbox->SetDestroyOnHit(true);
+    hitbox->IgnoreEntity(this->GetOwner());
+
+    ProjectileComponent* arrowProj = fireballEnt->AddComponent<ProjectileComponent>();
+    arrowProj->SetGravity(gravity);
+    arrowProj->SetRestitution(0.0f);
+    arrowProj->SetGroundY(-2.5f);
+    arrowProj->SetDestroyOnGrounded(true);
+    arrowProj->SetAliveTime(10.0f);
+    arrowProj->Launch(launchVelocity, { 0.0f, 0.0f, 0.0f });
+
+    // Flame particle system
+    ParticleSystemComponent* flame = fireballEnt->AddComponent<ParticleSystemComponent>();
+    flame->SetAtlasTexture(this->flameTexture);
+    flame->SetAtlasSize({ 12.0f, 6.0f });
+    flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
+    flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    flame->SetLifeTime(timeToTarget*2.5);
+    flame->SetIsAnimate(true);
+    flame->SetISFlat(false);
+    flame->SetIsAdditive(true);
+    flame->SetAnimationSpeed(1.2f);
+    flame->SetCount(this->fireballRadius * 100);
+    flame->SetSpawnRadius(this->fireballRadius);
+    if (wall) {
+        flame->SetIsSpread(true);
+        flame->SetStartScale(0.8f);
+        flame->SetEndScale(0.8f);
+    }
+    else
+    {
+        flame->SetStartScale(0.4f);
+        flame->SetEndScale(0.4f);
+    }
+
+    // Smoke particle system
+    ParticleSystemComponent* smoke = fireballEnt->AddComponent<ParticleSystemComponent>();
+    smoke->SetAtlasTexture(this->smokeTexture);
+    smoke->SetAtlasSize({ 8.0f, 8.0f });
+    smoke->SetVelocity({ 0.0f, 0.5f, 0.0f });
+    smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+    smoke->SetLifeTime(timeToTarget * 2.5);
+    smoke->SetStartScale(0.3f);
+    smoke->SetEndScale(0.3f);
+    smoke->SetIsAnimate(true);
+    smoke->SetIsGlobal(true);
+    smoke->SetISFlat(false);
+    smoke->SetIsAdditive(false);
+    smoke->SetSpawnRadius(this->fireballRadius);
+    smoke->SetCount(this->fireballRadius * 100);
+
+    smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
+    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
+
+    SoundComponent* fireballSound = fireballEnt->AddComponent<SoundComponent>();
+    fireballSound->SetSound(this->arrowPassbySound);
+    fireballSound->SetIs3d(true);
+    fireballSound->SetMaxDistance(12.0f);
+    fireballSound->SetVolume(5.0f);
+
+    // fire entity
+    Entity* fireEnt = this->thisScene->AddEntity("flame");
+    fireEnt->SetParent(fireballEnt);
+
+    fireEnt->AddComponent<TransformComponent>()->SetWorldPosition(fireballTransform->GetWorldPosition());
+    // we attach the audio to fire ent so that it can have it's own collision
+    SphereCollisionComponent* sphereCol = fireEnt->AddComponent<SphereCollisionComponent>();
+    sphereCol->SetRadius(8.0f);
+    sphereCol->SetLayer(CollisionLayer::ENEMY_ATTACK);
+    sphereCol->SetTrigger(true);
+
+    AreaComponent* area = fireEnt->AddComponent<AreaComponent>();
+    area->GetOnAreaEntered().Connect([area, fireballSound](CollisionComponent* other) {
+        area->SetEnabled(false);
+        fireballSound->Play();
+        });
+
+    /*
+    PointLightComponent* pointLight = fireEnt->AddComponent<PointLightComponent>();
+    pointLight->SetColour({ 0.88f, 0.34f, 0.13f });
+    pointLight->SetIntensity(75.0f);
+    pointLight->SetRadius(8.0f);
+    */
+}
+
+void EnemyControllerComponent::ShootVerticalRowOfFireball()
+{
+    for (int i = -2; i < 6; i++)
+    {
+        this->ShootAnFireball(this->fireballHorizontalGravity, this->fireballHorizontalSpeed, XMFLOAT3(0.0f, (float)i / 2.0f, 0));
+    }
+}
+
+void EnemyControllerComponent::ShootHorizontalRowOfFireball()
+{
+    for (int i = -3; i < 4; i++)
+    {
+        this->ShootAnFireball(this->fireballVerticalGravity, this->fireballVerticalSpeed, XMFLOAT3((float)i, 0, 0));
+    }
+}
+
+void EnemyControllerComponent::ShootCircleOfFireball()
+{
+    const float angleStep = DirectX::XM_2PI / 8.0f; // 8 fireball
+
+    const int innerCount = 4;
+    const float innerRadius = 0.3f;
+    const float innerAngleStep = DirectX::XM_2PI / static_cast<float>(innerCount);
+    for (int i = 0; i < innerCount; ++i)
+    {
+        float angle = static_cast<float>(i) * innerAngleStep;
+        float offsetX = cosf(angle) * innerRadius;
+        float offsetZ = sinf(angle) * innerRadius;
+
+        this->ShootAnFireball(
+            this->fireballVerticalGravity,
+            this->fireballVerticalSpeed,
+            DirectX::XMFLOAT3(offsetX, 0.0f, offsetZ),
+            true
+        );
+    }
+
+
+    for (int i = 0; i < 8; ++i)
+    {
+        float angle = static_cast<float>(i) * angleStep;
+        float radius = 0.7f;
+
+        // Position fireballs along the circle circumference
+        float offsetX = radius * cosf(angle);
+        float offsetY = radius * sinf(angle);
+
+        this->ShootAnFireball(
+            this->fireballVerticalGravity,
+            this->fireballVerticalSpeed,
+            DirectX::XMFLOAT3(offsetX, offsetY, 0),
+            true
+        );
+    }
+}
+
+void EnemyControllerComponent::ShootRainOfFireball()
+{
+    // 1. Center fireball (directly at player)
+    this->ShootAnFireball(
+        13.0,
+        15.30,
+        DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
+        true
+    );
+
+    // 2. Inner ring of 6 fireballs filling the middle area
+    const int innerCount = 6;
+    const float innerRadius = 1.8f;
+    const float innerAngleStep = DirectX::XM_2PI / static_cast<float>(innerCount);
+    for (int i = 0; i < innerCount; ++i)
+    {
+        float angle = static_cast<float>(i) * innerAngleStep;
+        float offsetX = cosf(angle) * innerRadius;
+        float offsetZ = sinf(angle) * innerRadius;
+
+        this->ShootAnFireball(
+            13.0,
+            15.30,
+            DirectX::XMFLOAT3(offsetX, 0.0f, offsetZ),
+            true
+        );
+    }
+
+    // 3. Outer ring of 12 fireballs landing around the perimeter
+    const int outerCount = 12;
+    const float outerRadius = 3.5f;
+    const float outerAngleStep = DirectX::XM_2PI / static_cast<float>(outerCount);
+    for (int i = 0; i < outerCount; ++i)
+    {
+        float angle = static_cast<float>(i) * outerAngleStep;
+        float offsetX = cosf(angle) * outerRadius;
+        float offsetZ = sinf(angle) * outerRadius;
+
+        this->ShootAnFireball(
+            13.0,
+            15.30,
+            DirectX::XMFLOAT3(offsetX, 0.0f, offsetZ),
+            true
+        );
+    }
+}
+
+void EnemyControllerComponent::ShootWallOfFireball()
+{
+    for (int x = -3; x < 4; x++)
+    {
+        for (int y = -3; y < 4; y++)
+        {
+            this->ShootAnFireball(this->fireballVerticalGravity, this->fireballVerticalSpeed, XMFLOAT3((float)x, (float)y / 2.0f, 0), true);
+        }
+    }
+}
+
+void EnemyControllerComponent::WizardFireballAttack()
+{
+    auto healthComp = this->GetOwner()->GetComponent<Health>();
+    float healthPct = 1.0f;
+    if (healthComp && healthComp->GetMaxHealth() > 0.0f)
+    {
+        healthPct = healthComp->GetCurrentHealth() / healthComp->GetMaxHealth();
+    }
+
+    if (healthPct > 0.75f)
+    {
+        // Phase 1 (HP > 75%): Default attack
+        this->fireballBurstRemaining = this->fireballBurstCount;
+        this->fireballBurstTimer = 0.0f;
+    }
+    else if (healthPct > 0.50f)
+    {
+        // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
+        this->ShootHorizontalRowOfFireball();
+    }
+    else if (healthPct > 0.25f)
+    {
+        // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
+        this->ShootVerticalRowOfFireball();
+    }
+    else
+    {
+        // Phase 4 (HP <= 25%): Desperation attack - Rain of fireballs parabolic artillery ring
+        this->ShootRainOfFireball();
+    }
+}
+
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
     if (event.attacker == this->hitboxEntity)
@@ -501,6 +821,10 @@ void EnemyControllerComponent::OnDeath(const AppContext &context)
             this->gibs->SpawnGibs(position, RNG::Int(3, 6), GibType::SKELETON);
             this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 1.0f);
         } break;
+        case EnemyType::WIZARD:
+        {
+            this->gibs->SpawnBlood(context.sceneManager->GetCurrentScene(), position, 10.0f);
+        }break;
     }
 }
 
@@ -535,6 +859,8 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
     this->isAttacking = true;
     this->hasAttacked = false;
     this->attackElapsed = 0.0f;
+    this->fireballBurstRemaining = 0;
+    this->fireballBurstTimer = 0.0f;
 
     auto *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
@@ -556,6 +882,7 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
 void EnemyControllerComponent::EndAttack()
 {
     this->isAttacking = false;
+    this->fireballBurstRemaining = 0;
     this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
 }
 
@@ -570,8 +897,23 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     {
         this->Attack();
     }
+    if (enemy->type == EnemyType::WIZARD || this->fireballBurstRemaining > 0)
+    {
+        this->fireballBurstTimer -= deltaTime;
+        if (this->fireballBurstTimer <= 0.0f)
+        {
+            this->ShootAnFireball(this->fireballGravity, this->fireballSpeed, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+            this->fireballBurstRemaining--;
+            this->fireballBurstTimer = this->fireballBurstInterval;
+            if (this->enemy->attackSound)
+            {
+                this->sound->SetSound(this->enemy->attackSound);
+                this->sound->Play();
+            }
+        }
+    }
 
-    if (this->animator->IsFinished())
+    if (this->animator->IsFinished() && this->fireballBurstRemaining <= 0)
     {
         this->EndAttack();
     }
@@ -599,6 +941,10 @@ void EnemyControllerComponent::Attack()
         {
             this->FireProjectile();
         } break;
+        case EnemyType::WIZARD:
+        {
+            this->WizardFireballAttack();
+        } break;
     }
 }
 
@@ -618,7 +964,7 @@ void EnemyControllerComponent::MeleeAttack(float damage, float duration, XMFLOAT
 
 void EnemyControllerComponent::FireProjectile()
 {
-    this->ShootAnArrow();
+    ShootAnArrow();
 }
 
 void EnemyControllerComponent::UpdateBark(float deltaTime)

@@ -13,7 +13,6 @@ class HitboxComponent;
 class GibsComponent;
 class SoundComponent;
 class SplatterComponent;
-
 class SpatialGrid;
 class Sound;
 class Enemy;
@@ -45,7 +44,6 @@ class EnemyControllerComponent : public Component
 private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
-
 	Entity *hitboxEntity = nullptr;
 
 	GibsComponent *gibs = nullptr;
@@ -103,6 +101,27 @@ private:
 	std::shared_ptr<Model> arrowModel;
 	std::shared_ptr<Texture2D> flameTexture;
 	std::shared_ptr<Texture2D> smokeTexture;
+
+	// Fireball
+	ExportPropertyCategory("Fireball");
+	ExportProperty(XMFLOAT2, XandY, { 0,0 });
+	ExportProperty(float, fireballRadius, 0.1f);
+	ExportProperty(float, fireballDamage, 50.0f);
+	ExportProperty(XMFLOAT3, fireballOffset, { 0.0f, 1.4f, 0.0f });
+
+	ExportProperty(float, fireballGravity, 16.0f);
+	ExportProperty(float, fireballVerticalGravity, 0.1f);
+	ExportProperty(float, fireballHorizontalGravity, 0.2f);
+
+	ExportProperty(float, fireballSpeed, 25.0f);
+	ExportProperty(float, fireballVerticalSpeed, 21.5f);
+	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
+
+	ExportProperty(int, fireballBurstCount, 3);
+	ExportProperty(float, fireballBurstInterval, 0.25f);
+
+	int fireballBurstRemaining = 0;
+	float fireballBurstTimer = 0.0f;
 
 	Scene* thisScene = nullptr;
 
@@ -168,4 +187,13 @@ public:
 	uint32_t GetWave() const { return this->wave; }
 	
 	void ShootAnArrow();
+
+
+	void ShootAnFireball(float gravity, float fireSpeed, XMFLOAT3 offset, bool wall = false);
+	void ShootVerticalRowOfFireball();
+	void ShootHorizontalRowOfFireball();
+	void ShootCircleOfFireball();
+	void ShootRainOfFireball();
+	void ShootWallOfFireball();
+	void WizardFireballAttack();
 };

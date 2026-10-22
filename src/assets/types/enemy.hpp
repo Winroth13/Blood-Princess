@@ -14,6 +14,7 @@ enum class EnemyType
 	GOBLIN,
 	OGRE,
 	SKELETON,
+	WIZARD,
 	COUNT
 };
 

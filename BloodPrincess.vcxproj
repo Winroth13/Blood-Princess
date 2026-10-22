@@ -678,6 +678,7 @@ xcopy "$(SolutionDir)external\sdl3\lib\x64\SDL3.dll" "$(OutDir)" /y</Command>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\enemies\wizard.yaml" />
     <None Include="src\shaders\deferred\deferred_vertex.hlsli" />
     <None Include="src\shaders\deferred\hsv.hlsli" />
     <None Include="src\shaders\deferred\pbr.hlsli" />
