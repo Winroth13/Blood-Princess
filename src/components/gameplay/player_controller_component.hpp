@@ -259,6 +259,9 @@ public:
 
 	void SetCanRotate(bool rotate) { this->canRotate = rotate; }
 
+	bool IsLightAttack() const { return (this->currentAttack >= 0 && this->currentAttack < this->numLightAttacks); }
+	bool IsHeavyAttack() const { return (this->currentAttack >= this->numLightAttacks && this->currentAttack < this->numLightAttacks + this->numHeavyAttacks); }
+
 	Signal<float> &GetOnDashCooldownChanged() { return this->onDashCooldownChanged; }
 	Signal<uint32_t> &GetOnScoreChanged() { return this->onScoreChanged; }
 	Signal<uint32_t> &GetOnComboChanged() { return this->onComboChanged; }
