@@ -64,8 +64,6 @@ private:
 
 	bool CreateInputLayout(ID3D11Device *device);
 
-	GBuffer &GetGBuffer(GBufferType type) { return this->gBuffers[+type]; }
-
 	void RenderGeometryPass(
 		ID3D11Device *device,
 		ID3D11DeviceContext *deviceContext,
@@ -113,4 +111,5 @@ public:
 	);
 
     OutputTextures GetOutputTextures();
+    GBuffer &GetGBuffer(GBufferType type) { return this->gBuffers[+type]; }
 };

@@ -3,6 +3,7 @@
 struct PixelShaderInput
 {
     float4 clipPosition : SV_POSITION;
+    float3 worldPosition : WORLD_POSITION;
     float3 tint : TINT;
     float lifetime : LIFETIME;
     float2 uv : UV;
@@ -51,6 +52,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
     
     /* Diffuse */
     float3 color = colorSample.rgb * input.tint;
-    
+
+    /* Fog */
+    float fog = ComputeFog(input.worldPosition, 1.6f);
+    if ((flags & PARTICLE_FLAG_ADDITIVE) == PARTICLE_FLAG_ADDITIVE)
+        color *= 1.0f - fog;
+    else
+        color = lerp(color, fogColour * 1.5f, fog);
+
     return float4(color, 1.0f);
 }

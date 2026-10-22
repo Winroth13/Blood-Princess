@@ -11,6 +11,7 @@ struct VertexShaderOutput
 struct GeometryShaderOutput
 {
     float4 clipPosition : SV_POSITION;
+    float3 worldPosition : WORLD_POSITION;
     float3 tint : TINT;
     float lifetime : LIFETIME;
     float2 uv : UV;
@@ -37,6 +38,7 @@ void main(
     }
     
     GeometryShaderOutput toAppend;
+    toAppend.worldPosition = input[0].worldPosition;
     toAppend.tint = input[0].tint;
     toAppend.lifetime = input[0].lifetime;
     

@@ -249,6 +249,15 @@ void Renderer::Render(Scene *scene, float totalTime, float deltaTime)
         this->views
     );
 
+    this->particlePass.Render(
+        this->device,
+        this->deviceContext,
+        this->sharedResources,
+        this->deferredPass.GetGBuffer(GBufferType::OUTPUT).GetRenderTargetView(),
+        this->backBuffer.GetDepthStencilView(),
+        this->views
+    );
+
     int gBufferView = (Debug::GetSetting("render.gBufferView", 0) % +DebugView::COUNT + +DebugView::COUNT) % +DebugView::COUNT;
     this->outputPass.SetDebugView(static_cast<DebugView>(gBufferView));
     Debug::SetSetting("render.gBufferView", gBufferView);
@@ -259,15 +268,6 @@ void Renderer::Render(Scene *scene, float totalTime, float deltaTime)
         this->sharedResources,
         this->deferredPass,
         this->backBuffer,
-        this->views
-    );
-
-    this->particlePass.Render(
-        this->device,
-        this->deviceContext,
-        this->sharedResources,
-        this->backBuffer.GetRenderTargetView(),
-        this->backBuffer.GetDepthStencilView(),
         this->views
     );
 

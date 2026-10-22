@@ -153,4 +153,11 @@ struct Particle
     float lifeTime;
 };
 
+float ComputeFog(float3 positionWorld, float endDepthMultiplier)
+{
+    float distance = length(positionWorld - cameraPosition);
+    float t = saturate((distance - fogStartDepth) / (fogEndDepth * endDepthMultiplier - fogStartDepth));
+    return smoothstep(0.0f, 1.0f, t) * fogDensity;
+}
+
 #endif

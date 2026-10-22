@@ -61,7 +61,7 @@ void ParticlePass::UpdateParticlePass(
 
 		// Dispatch Shader
 		constexpr UINT THREAD_GROUPS_COUNT = 32;
-		UINT threads = static_cast<UINT>(std::ceil(command.count / (float)THREAD_GROUPS_COUNT) * THREAD_GROUPS_COUNT);
+		UINT threads = static_cast<UINT>(std::ceil(command.count / (float)THREAD_GROUPS_COUNT));
 		deviceContext->Dispatch(threads, 1, 1);
 
 		// Unbind Particle SB
@@ -105,6 +105,7 @@ void ParticlePass::RenderDrawPass(
 	ID3D11Buffer *perView = sharedResources.GetPerView();
 	ID3D11Buffer *perObject = sharedResources.GetPerObject();
 	ID3D11Buffer *perMaterial = sharedResources.GetPerMaterial();
+	ID3D11Buffer *environment = sharedResources.GetEnvironment();
 
 	deviceContext->GSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 
@@ -112,7 +113,9 @@ void ParticlePass::RenderDrawPass(
 	deviceContext->VSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
 
 	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_FRAME, 1, &perFrame);
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PER_VIEW, 1, &perView);
 	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::PARTICLE, 1, &this->particleSystemCB);
+	deviceContext->PSSetConstantBuffers(+ConstantBufferSlot::ENVIRONMENT, 1, &environment);
 
 	/* Shaders */
 	deviceContext->VSSetShader(this->vertexShader->GetShader(), nullptr, 0);
@@ -179,6 +182,9 @@ void ParticlePass::RenderDrawPass(
 	UINT sampleMask = 0xffffffff;
 	deviceContext->OMSetBlendState(nullptr, nullptr, sampleMask);
 	deviceContext->OMSetDepthStencilState(nullptr, 0);
+
+	// Unbind targets so the output pass can read them
+	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 	EndAnnotation();
 }

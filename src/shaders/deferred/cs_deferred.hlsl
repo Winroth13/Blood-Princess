@@ -28,13 +28,6 @@ float3 ReconstructWorldPosition(float2 uv, float depth)
     return positionWorld.xyz / positionWorld.w;
 }
 
-float ComputeFog(float3 positionWorld)
-{
-    float distance = length(positionWorld - cameraPosition);
-    float t = saturate((distance - fogStartDepth) / (fogEndDepth - fogStartDepth));
-    return smoothstep(0.0f, 1.0f, t) * fogDensity;
-}
-
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID)
 {
@@ -81,7 +74,7 @@ void main(uint3 id : SV_DispatchThreadID)
     {
         const float emissiveFogFactor = 0.5f;
         float3 emissiveColour = albedoColour * emissiveSample * 10.0f;
-        float fog = ComputeFog(positionWorld) * (1.0f - emissiveSample * emissiveFogFactor);
+        float fog = ComputeFog(positionWorld, 1.0f) * (1.0f - emissiveSample * emissiveFogFactor);
         backBufferUAV[pixel] = float4(lerp(emissiveColour, fogColour * 1.5f, fog), 1.0f);
         return;
     }
@@ -209,7 +202,7 @@ void main(uint3 id : SV_DispatchThreadID)
     float3 ambient = ambientColour * albedoColour;
     float3 color = ambient + outRadiance;
     
-    color = lerp(color, fogColour * 1.5f, ComputeFog(positionWorld));
+    color = lerp(color, fogColour * 1.5f, ComputeFog(positionWorld, 1.0f));
 
     backBufferUAV[pixel] = float4(color, 1.0f);
 }

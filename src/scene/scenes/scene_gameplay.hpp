@@ -553,8 +553,8 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
         flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
         flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
         flame->SetLifeTime(2.0f);
-        flame->SetStartScale(0.3f);
-        flame->SetEndScale(0.3f);
+        flame->SetStartScale(0.5f);
+        flame->SetEndScale(0.5f);
         flame->SetIsAnimate(true);
         flame->SetIsAdditive(true);
         flame->SetSpawnRadius(0.01f);
