@@ -13,7 +13,7 @@ is_tutorial: false
 is_final: false
 
 spike_traps:
-  amount: 20
+  amount: 2
 
 waves:
 
