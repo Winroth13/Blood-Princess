@@ -62,7 +62,7 @@ Entity* TrapSpawnerComponent::BuildSpikeTrap(Scene * scene, const std::string & 
     Entity* trap = scene->AddEntity(name);
 
     auto* transform = trap->AddComponent<TransformComponent>();
-    transform->SetLocalScale({ 0.5f, 1.0f, 0.5f });
+    transform->SetLocalScale({ 0.25f, 1.0f, 0.25f });
 
     auto* model = trap->AddComponent<ModelComponent>();
     model->SetModel(this->spikeTrapModel);
