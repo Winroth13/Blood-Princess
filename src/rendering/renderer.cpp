@@ -249,8 +249,9 @@ void Renderer::Render(Scene *scene, float totalTime, float deltaTime)
         this->views
     );
 
-    if (Input::IsKeyPressed(Key::C))
-        this->outputPass.SetDebugView(static_cast<DebugView>((+this->outputPass.GetDebugView() + 1) % +DebugView::COUNT));
+    int gBufferView = (Debug::GetSetting("render.gBufferView", 0) % +DebugView::COUNT + +DebugView::COUNT) % +DebugView::COUNT;
+    this->outputPass.SetDebugView(static_cast<DebugView>(gBufferView));
+    Debug::SetSetting("render.gBufferView", gBufferView);
 
     this->outputPass.Render(
         this->device, 
