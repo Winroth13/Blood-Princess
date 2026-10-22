@@ -21,5 +21,5 @@ waves:
   - completion: 0.75
     enemies:
       - type: goblin
-        amount: 1 
+        amount: 3
         time: 3

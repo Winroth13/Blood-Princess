@@ -9,6 +9,16 @@ namespace Math
 		return a + x * (b - a);
 	}
 
+	XMFLOAT4 Lerp(XMFLOAT4 a, XMFLOAT4 b, float x)
+	{
+		return {
+			Lerp(a.x, b.x, x),
+			Lerp(a.y, b.y, x),
+			Lerp(a.z, b.z, x),
+			Lerp(a.w, b.w, x),
+		};
+	}
+
 	float easeInElastic(float x)
 	{
 		const float c4 = (2 * 3.14f) / 3;

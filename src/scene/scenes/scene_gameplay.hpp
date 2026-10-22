@@ -250,43 +250,52 @@ static Entity* CreateHUD(Scene &outScene, const AppContext &appContext, Entity *
     });
 
     // Score
-    Entity *scorePanel = ui.CreatePanel(hud, { 250.0f, 150.0f }, "score_panel");
-    UI::Factory::Place(scorePanel, UI::Anchor::TOP_RIGHT, { -40.0f, 40.0f });
+    Entity *scoreGroup = ui.CreateGroup(hud, { 50.0f, 150.0f }, "score_group");
+    UI::Factory::Place(scoreGroup, UI::Anchor::TOP_RIGHT, { -205.0f, 250.0f });
 
-    UITextComponent *scoreLabel = ui.CreateText(scorePanel, "Score: 0", 22.0f, "combo_score_label");
+    auto comboComponent = scoreGroup->AddComponent<ComboUIComponent>();
+
+    /*UITextComponent *scoreLabel = ui.CreateText(scorePanel, "Score: 0", 22.0f, "combo_score_label");
     UI::Factory::Place(scoreLabel, UI::Anchor::TOP_LEFT, { 20.0f, 10.0f });
-    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });*/
 
-    level->GetOnScoreChanged().Connect([scoreLabel](uint32_t score)
+    /*level->GetOnScoreChanged().Connect([scoreLabel](uint32_t score)
     {
         scoreLabel->SetText("Score: " + std::to_string(score));
-    });
+    });*/
 
-    UITextComponent *comboScoreLabel = ui.CreateText(scorePanel, "Combo Score: 0", 22.0f, "combo_score_label");
+    /* UITextComponent *comboScoreLabel = ui.CreateText(scorePanel, "Combo Score: 0", 22.0f, "combo_score_label");
     UI::Factory::Place(comboScoreLabel, UI::Anchor::TOP_LEFT, { 20.0f, 40.0f });
     //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
 
     controller->GetOnScoreChanged().Connect([comboScoreLabel](uint32_t score)
     {
         comboScoreLabel->SetText("Combo Score: " + std::to_string(score));
-    });
+    });*/
 
-    UITextComponent *comboLabel = ui.CreateText(scorePanel, "Combo: 0", 22.0f, "combo_label");
-    UI::Factory::Place(comboLabel, UI::Anchor::TOP_LEFT, { 20.0f, 70.0f });
-    //comboLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    UITextComponent *comboLeftLabel = ui.CreateText(scoreGroup, "x", 30.0f, "combo_x_label");
+    UI::Factory::Place(comboLeftLabel, UI::Anchor::TOP_LEFT, { 0.0f, 70.0f });
+    comboLeftLabel->SetOutline(4.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    comboLeftLabel->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
+    comboLeftLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    comboComponent->SetXLabel(comboLeftLabel);
 
-    controller->GetOnComboChanged().Connect([comboLabel](uint32_t combo)
-        {
-            comboLabel->SetText("Combo: " + std::to_string(combo));
-        });
+    UITextComponent *comboLabel = ui.CreateText(scoreGroup, "3", 50.0f, "combo_label");
+    UI::Factory::Place(comboLabel, UI::Anchor::TOP_RIGHT, { 20.0f, 35.0f });
+    comboLabel->SetOutline(4.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
+    comboLabel->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
+    comboLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    comboComponent->SetComboLabel(comboLabel);
 
-    UIBarComponent *comboBar = ui.CreateBar(scorePanel, 0.0f, controller->GetComboDuration(), "combo_bar");
+    comboComponent->SetPlayerController(controller);
+
+    /*UIBarComponent *comboBar = ui.CreateBar(scorePanel, 0.0f, controller->GetComboDuration(), "combo_bar");
     UI::Factory::Place(comboBar, UI::Anchor::TOP_LEFT, { 20.0f, 110.0f });
 
     controller->GetOnComboRemainingTimeChanged().Connect([comboBar](float comboTimeRemaining)
     {
         comboBar->SetValue(comboTimeRemaining);
-    });
+    });*/
 
     ui.style.barSize = {420.0f, 15.0f};
     ui.style.barColourFill = UI::RGBA{243, 187, 130, 255};
