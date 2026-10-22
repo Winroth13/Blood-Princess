@@ -56,5 +56,14 @@ namespace Scenes {
         cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
         cutscene->AddImgComp(blackImage);
         cutscene->AddImgComp(imgPrincess);
+
+        UITextComponent *txt = ui.CreateText(hud, "Click again to skip...");
+        UI::Factory::Place(txt, UI::Anchor::BOTTOM_RIGHT, { -20.0f, -20.0f });
+        txt->SetActive(false);
+
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
+        cutscene->AddImgComp(blackImage);
+        cutscene->AddImgComp(imgPrincess);
+        cutscene->AddTxtComp(txt);
     }
 }
