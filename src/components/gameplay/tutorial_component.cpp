@@ -38,7 +38,7 @@ void TutorialComponent::OnStart(const AppContext& context)
 		{ "Dash with [Space] or [Shift]", "Dash", 0.0f, 0.0f },
 		{ "Attack with [Left Click]", "LightAttack", 0.0f, 0.0f },
 		{ "Heavy Attack with [Right Click]", "HeavyAttack", 0.0f, 0.0f },
-		{ "Parry with [F], parry projectile to defelct", "Parry", 0.0f, 0.0f },
+		{ "Parry with [F], parry projectile to deflect", "Parry", 0.0f, 0.0f },
 		{ "Survive the oncoming wave!", "", 0.0f, 3.0f }
 	};
 
