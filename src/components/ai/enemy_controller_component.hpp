@@ -13,7 +13,6 @@ class HitboxComponent;
 class GibsComponent;
 class SoundComponent;
 class SplatterComponent;
-
 class SpatialGrid;
 class Sound;
 class Enemy;
@@ -45,7 +44,6 @@ class EnemyControllerComponent : public Component
 private:
 	TransformComponent *transform = nullptr;
 	AnimatorComponent *animator = nullptr;
-
 	Entity *hitboxEntity = nullptr;
 
 	GibsComponent *gibs = nullptr;
@@ -119,6 +117,11 @@ private:
 	ExportProperty(float, fireballVerticalSpeed, 21.5f);
 	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
 
+	ExportProperty(int, fireballBurstCount, 3);
+	ExportProperty(float, fireballBurstInterval, 0.25f);
+
+	int fireballBurstRemaining = 0;
+	float fireballBurstTimer = 0.0f;
 
 	Scene* thisScene = nullptr;
 
@@ -180,8 +183,12 @@ public:
 	
 	void ShootAnArrow();
 
-	void ShootAnFireball(float gravity, float fireSpeed, XMFLOAT2 offesetXandY, bool wall = false);
+
+	void ShootAnFireball(float gravity, float fireSpeed, XMFLOAT3 offset, bool wall = false);
 	void ShootVerticalRowOfFireball();
 	void ShootHorizontalRowOfFireball();
 	void ShootCircleOfFireball();
+	void ShootRainOfFireball();
+	void ShootWallOfFireball();
+	void WizardFireballAttack();
 };

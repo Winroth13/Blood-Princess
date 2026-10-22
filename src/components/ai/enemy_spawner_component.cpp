@@ -60,8 +60,8 @@ void EnemySpawnerComponent::InitializePools(const AppContext &context, Scene *sc
 
         int poolSize = i == 0 ? 256 : 32;
 
-        // TODO: CHANGE TO WIZARD LATER
-        if (i == +EnemyType::COUNT) poolSize = 1;
+        // TODO: CHANGE TO WIZARD LATER // done
+        if (i == +EnemyType::WIZARD) poolSize = 1;
         pool->SetSize(poolSize);
 
         this->enemyPools[i] = pool;

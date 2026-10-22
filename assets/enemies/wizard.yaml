@@ -1,0 +1,25 @@
+type: wizard
+health: 300
+score: 100
+scale: 1.0
+
+avoidance_radius: 2.0
+move_speed: 2.5
+
+min_range: 6.0
+max_range: 20.0
+attack_time: 1.5
+
+model: assets/models/skeleton.glb
+
+walk_animation: Walk
+attack_animation: Bow_Shot
+
+extends: [1.0, 1.5, 1.0]
+extends_offset: [0.0, 1.0, 0.0]
+
+start_attack_sound: assets/sounds/skeleton_draw.sound
+attack_sound: assets/sounds/skeleton_shoot.sound
+hit_sound: assets/sounds/goblin_hit_sound.sound
+death_sound: assets/sounds/goblin_death_sounds.sound
+bark_sound: assets/sounds/goblin_random_sounds.sound

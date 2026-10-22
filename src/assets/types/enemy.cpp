@@ -20,6 +20,10 @@ EnemyType Enemy::GetEnemyTypeFromString(const std::string &str)
     {
         return EnemyType::SKELETON;
     }
+    else if (str == "wizard")
+    {
+        return EnemyType::WIZARD;
+    }
     else
     {
         LogWarn("Unsupported enemy type %s", str.c_str());
@@ -37,6 +41,8 @@ const std::string Enemy::GetStringFromEnemyType(EnemyType type)
         return "ogre";
     case EnemyType::SKELETON:
         return "skeleton";
+    case EnemyType::WIZARD:
+        return "wizard";
     default:
         return "?";
     }
