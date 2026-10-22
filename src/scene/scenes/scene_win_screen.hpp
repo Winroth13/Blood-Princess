@@ -14,6 +14,7 @@ namespace Scenes {
         hud->AddComponent<CameraComponent>();
         hud->AddComponent<MenuScreenComponent>();
         hud->AddComponent<EnvironmentComponent>();
+        IntroCutsceneComponent *cutscene = hud->AddComponent<IntroCutsceneComponent>();
 
         UI::Factory ui(outScene, font);
         SetDefaultStyle(ui.style, *appContext.assetManager);
@@ -31,8 +32,17 @@ namespace Scenes {
 
         SetDefaultSounds(outScene, appContext, { menuButton });
 
+        UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(hud, nullptr, "black"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        blackImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
+        Entity *blackEntity = UI::Factory::GetEntity(blackImage);
+
         std::shared_ptr<Texture2D> princess = appContext.assetManager->Get<Texture2D>("assets/images/story/story_3.png");
-        UIImageComponent *imgPrincess = UI::Factory::Place(ui.CreateImage(hud, princess), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
+        UIImageComponent *imgPrincess = UI::Factory::Place(ui.CreateImage(blackEntity, princess), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
         imgPrincess->SetShouldPreserveAspectRatio(true);
+        imgPrincess->SetOpacity(0.0f);
+
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
+        cutscene->AddImgComp(blackImage);
+        cutscene->AddImgComp(imgPrincess);
     }
 }
