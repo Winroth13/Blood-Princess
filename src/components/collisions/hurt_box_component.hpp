@@ -36,6 +36,7 @@ public:
     bool ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOAT3& hitPoint, const DirectX::XMFLOAT3& hitNormal);
     void GrantInvulnerability(float duration);
 
+    void SetIsInvunerable(bool isinvunerable) { this->isInvulnerable = isinvunerable; }
     bool IsInvulnerable() const { return this->isInvulnerable || this->invulnerabilityTimer > 0.0f; };
 
     float GetDamageMultiplier() const { return this->damageMultiplier; }

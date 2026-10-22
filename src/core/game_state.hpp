@@ -9,6 +9,8 @@ class GameState
 	uint32_t totalParries = 0;
 	uint32_t topCombo = 0;
 
+	bool isSkipTurorial = false;
+
 public:
 	std::vector<uint32_t> &GetScores() { return this->floorScores; }
 	void ClearStats();
@@ -17,10 +19,12 @@ public:
 	void AddKills(uint32_t numKills) { this->totalKills += numKills; }
 	void AddParries(uint32_t numParries) { this->totalParries += numParries; }
 	void SubmitTopCombo(uint32_t topCombo);
+	void SetIsSkipTutorial(bool isSkipTurorial) { this->isSkipTurorial = isSkipTurorial; }
 
 	uint32_t GetNumFloorsComplete() const { return static_cast<uint32_t>(this->floorScores.size()); }
 	uint32_t GetTotalScore() const;
 	uint32_t GetTotalKills() const { return this->totalKills; }
 	uint32_t GetTotalParries() const { return this->totalParries; }
 	uint32_t GetTopCombo() const { return this->topCombo; }
+	bool GetIsSkipTutorial() const { return this->isSkipTurorial; }
 };

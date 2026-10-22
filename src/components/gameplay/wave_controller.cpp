@@ -33,7 +33,17 @@ void WaveController::StartFloor(std::shared_ptr<Floor> floor)
 		trapSpawner->SpawnSpikeTraps(this->floor->GetSpikeTraps());
 	}
 
-	this->NextWave();
+	if (!this->tutorialComp)
+	{
+		LogError("Wave Controller needs Tutorial Component");
+		return;
+	}
+
+	if (!floor->GetIsTutorial())
+	{
+		this->tutorialComp->SetIsCompleted(true);
+		this->NextWave();
+	}
 }
 
 void WaveController::NextWave()
@@ -133,6 +143,11 @@ void WaveController::OnStart(const AppContext &context)
 
 	spawner->GetOnEnemyKilled().Connect([this, database](EnemyType type, uint32_t wave) 
 	{
+		if (wave == -1)
+		{
+			return;
+		}
+
 		ActiveWave &activeWave = this->activeWaves[wave];
 		
 		auto enemy = database->GetEnemy(type);
