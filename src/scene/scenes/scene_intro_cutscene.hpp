@@ -37,7 +37,7 @@ namespace Scenes {
         UI::Factory::Place(txt, UI::Anchor::BOTTOM_RIGHT, {-20.0f, -20.0f});
         txt->SetActive(false);
 
-        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::DEATH);
+        cutscene->SetWhichCutsceneThatIAmCurrentlyIn(WhichCutsceneAmICurrentlyIn::INTRO);
         cutscene->AddImgComp(imgCutscene1);
         cutscene->AddImgComp(imgCutscene2);
         cutscene->AddTxtComp(txt);
