@@ -74,7 +74,7 @@ class PlayerControllerComponent : public Component
 	uint32_t score = 0;
 	uint32_t combo = 0;
 	float comboRemainingTime = -1.0f;
-	ExportProperty(float, comboDuration, 5.0f);
+	ExportProperty(float, comboDuration, 2.5f);
 
 	EnemySpawnerComponent *enemySpawner = nullptr;
 	EnemyDatabaseComponent *enemyDatabase = nullptr;

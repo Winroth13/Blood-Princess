@@ -58,6 +58,7 @@
 #include "components/gameplay/tutorial_component.hpp"
 #include "components/gameplay/environment_component.hpp"
 #include "components/gameplay/level_endscreen_component.hpp"
+#include "components/gameplay/combo_ui_component.hpp"
 
 #include "components/lights/ambient_light_component.hpp"
 #include "components/lights/directional_light_component.hpp"

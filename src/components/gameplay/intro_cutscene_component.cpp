@@ -122,9 +122,17 @@ void IntroCutsceneComponent::CutsceneIntro(const AppContext &context, float prev
 void IntroCutsceneComponent::CutsceneDeath(const AppContext &context, float prevTime) {
     auto img1 = this->imgComps[0];
     auto img2 = this->imgComps[1];
+    auto txt1 = this->txtComps[0];
 
     auto isAtFunc = [&](float t) { return t >= prevTime && t < this->time; };
     auto isInFunc = [&](float min, float max) { return this->time >= min && this->time < max; };
+
+    if (Input::IsMouseButtonReleased(MouseButton::LEFT) && isInFunc(0.0f, 15.0f)) {
+        if (txt1->IsActive())
+            this->time = 15.0f;
+        else
+            txt1->SetActive(true);
+    }
 
     if (isInFunc(0.0f, 5.0f)) {
         float t = Ramp(0.0f, 5.0f, this->time);
@@ -139,6 +147,7 @@ void IntroCutsceneComponent::CutsceneDeath(const AppContext &context, float prev
     if (isAtFunc(15.0f)) {
         img1->SetActive(false);
         img2->SetActive(false);
+        txt1->SetActive(false);
         Input::SetMouseMode(MouseMode::VISIBLE);
     }
 }
