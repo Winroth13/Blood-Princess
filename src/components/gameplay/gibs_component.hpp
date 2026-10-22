@@ -38,8 +38,8 @@ class GibsComponent : public Component
 	const size_t OGRE_ARM = 6;
 
 	const size_t SKELETON_HEAD = 7;
-	const size_t SKELETON_FOOT = 8;
-	const size_t SKELETON_SPINE = 9;
+	const size_t SKELETON_BOW = 8;
+	const size_t SKELETON_ARM = 9;
 
 	std::array<std::shared_ptr<Model>, 10> gibModels = {nullptr};
 	std::shared_ptr<Texture2D> bloodSpriteSheet = nullptr;
