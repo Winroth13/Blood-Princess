@@ -409,7 +409,7 @@ static Entity *CreateLevelEndScreen(
     /* Continue */
     {
         UITextComponent *continueLabel = ui.CreateText(canvas, "", 24.0f, "ascend_label");
-        continueLabel->SetText("Press any key to Ascend");
+        continueLabel->SetText("Press Space to Ascend");
         UI::Factory::Place(continueLabel, UI::Anchor::BOTTOM_RIGHT, { -64.0f, -110.0f }, { 0.0f, 0.0f });
         continueLabel->SetAlignment(UI::AlignHorizontal::RIGHT, UI::AlignVertical::TOP);
         continueLabel->SetOutline(2.0f, { 0.0f, 0.0f, 0.0f, 1.0f });
@@ -648,6 +648,16 @@ static void CreateCircularRoom(Scene &outScene, const AppContext &appContext, co
     }
 }
 
+static Entity *CreateFade(Scene &outScene, const AppContext &appContext)
+{
+    UI::Factory ui(outScene, nullptr);
+    Entity *canvas = ui.CreateCanvas("fade_canvas");
+    UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(canvas, nullptr, "black"), UI::Anchor::STRETCH, { 0.0f, 0.0f }, { 0.0f, 0.0f });
+    blackImage->SetColour({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+    return canvas;
+}
+
 static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
 {
     Entity *gibsEntity = outScene.AddEntity("gibs");
@@ -751,7 +761,8 @@ namespace Scenes
         ambientLight->SetColour({0.86f, 0.59f, 0.47f});
         ambientLight->SetIntensity(0.2f);
 
-        
+        Entity *fadeCanvas = CreateFade(outScene, appContext);
+        level->SetFadeEntity(fadeCanvas);
 
         /*lightEntity->AddComponent<DirectionalLightComponent>()->SetIntensity(3.0f);
         TransformComponent *transform = lightEntity->AddComponent<TransformComponent>();

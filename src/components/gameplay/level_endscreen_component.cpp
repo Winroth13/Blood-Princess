@@ -23,12 +23,14 @@ void LevelEndscreenComponent::Update(const AppContext &context, float deltaTime)
 	this->UpdateAscendLabel(context, deltaTime);
 	this->UpdateTimeLabel();
 
+	bool isSkipPressed = Input::IsKeyPressed(Key::SPACE) || Input::IsGamepadButtonPressed(GamepadButton::SOUTH);
+
 	if (this->UpdateRubricLabel(context))
 	{
 		/* Advance Score */
 		if (this->score < this->targetScore)
 		{
-			if (Input::IsKeyPressed(Key::SPACE)) {
+			if (isSkipPressed) {
 				this->score = static_cast<float>(this->targetScore);
 			}
 
@@ -44,7 +46,7 @@ void LevelEndscreenComponent::Update(const AppContext &context, float deltaTime)
 		/* Advance Kills */
 		else if (this->kills < this->targetKills)
 		{
-			if (Input::IsKeyPressed(Key::SPACE)) {
+			if (isSkipPressed) {
 				this->kills = static_cast<float>(this->targetKills);
 			}
 
@@ -56,6 +58,13 @@ void LevelEndscreenComponent::Update(const AppContext &context, float deltaTime)
 				deltaTime,
 				context
 			);
+		}
+		else
+		{
+			if (isSkipPressed)
+			{
+				this->onAscend.Emit();
+			}
 		}
 	}
 }

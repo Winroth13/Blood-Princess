@@ -3,6 +3,7 @@
 #include "assets/types/enemy.hpp"
 #include "components/ui/ui_text_component.hpp"
 #include "components/audio/audio_component.hpp"
+#include "events/signal.hpp"
 
 #include <array>
 #include <memory>
@@ -12,6 +13,8 @@ class AudioClip;
 class LevelEndscreenComponent : public Component
 {
 	RegisterComponent(LevelEndscreenComponent);
+
+	Signal<> onAscend;
 
 	float time = 63.0f;
 	uint32_t targetKills = 500;
@@ -58,4 +61,6 @@ public:
 	void SetScoreLabel(UITextComponent *label) { this->scoreLabel = label; }
 	void SetKillsLabel(UITextComponent *label) { this->killsLabel = label; }
 	void SetAscendLabel(UITextComponent *label) { this->ascendLabel = label; }
+
+	Signal<> &GetOnAscend() { return this->onAscend; }
 };

@@ -9,8 +9,10 @@
 #include "components/core/camera_component.hpp"
 #include "components/ai/enemy_spawner_component.hpp"
 #include "components/gameplay/level_endscreen_component.hpp"
+#include "components/ui/ui_image_component.hpp"
 #include "assets/types/floor.hpp"
 #include "scene/scene_manager.hpp"
+#include "core/math.hpp"
 #include "core/application.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
@@ -65,7 +67,19 @@ void LevelComponent::OnStart(const AppContext &context)
 		this, &LevelComponent::OnPlayerDied
 	);
 
-	waveController->StartFloor(context.assetManager->Get<Floor>("assets/floors/floor_one.yaml"));
+	auto endScreenComponent = this->endScreen->GetComponent<LevelEndscreenComponent>();
+	endScreenComponent->GetOnAscend().Connect([this]() {
+		if (this->state == LevelState::COMPLETED)
+		{
+			this->state = LevelState::ENDING;
+			this->gameTimer = 0.0f;
+		}
+	});
+
+	// Load the next floor and play it!
+	std::string path = std::format("assets/floors/floor_{}.yaml", context.application->GetGameState()->GetNumFloorsComplete());
+	auto floor = context.assetManager->Get<Floor>(path);
+	waveController->StartFloor(floor);
 
 	this->sceneManager = context.sceneManager;
 	this->gameState = context.application->GetGameState();
@@ -82,11 +96,37 @@ void LevelComponent::OnDestroy(const AppContext &context)
 
 void LevelComponent::Update(const AppContext &context, float deltaTime)
 {
+	// *Sigh* has to be done this way since we are using slowmotion everywhere!
+	if (this->state == LevelState::STARTING)
+		this->gameTimer += deltaTime > 0.16f ? 0.16f : deltaTime;
+	else if (this->state == LevelState::ENDING)
+		this->gameTimer += deltaTime / context.application->GetTimeScale();
+	else
+		this->gameTimer += deltaTime;
+
 	switch (this->state)
 	{
+		case LevelState::STARTING:
+		{
+			constexpr float FADE_IN_TIME = 4.0f;
+
+			// This is bad but I can't be bothered to change what entity is sent in here so we just get the child.
+			float alpha = 1 - Math::easeOutQuint(this->gameTimer / FADE_IN_TIME);
+			UIImageComponent *fadeImage = this->fadeEntity->GetChildren()[0]->GetComponent<UIImageComponent>();
+			fadeImage->SetColour({ 0.0f, 0.0f, 0.0f, alpha});
+
+			if (this->gameTimer >= FADE_IN_TIME)
+			{
+				this->state = LevelState::RUNNING;
+				fadeImage->SetColour({ 0.0f, 0.0f, 0.0f, 0.0f});
+				this->gameTimer = 0;
+			}
+
+		} break;
+
 		case LevelState::RUNNING:
 		{
-			this->gameTimer += deltaTime;
+			
 		} break;
 
 		case LevelState::SHOULD_COMPLETE:
@@ -124,6 +164,21 @@ void LevelComponent::Update(const AppContext &context, float deltaTime)
 			if (alpha > 0.05f)
 				context.audioManager->SetPitchModifier(std::clamp(alpha, 0.25f, 1.0f));
 
+		} break;
+
+		case LevelState::ENDING:
+		{
+			constexpr float FADE_OUT_TIME = 1.0f;
+
+			// This is bad but I can't be bothered to change what entity is sent in here so we just get the child.
+			float alpha = this->gameTimer / FADE_OUT_TIME;
+			UIImageComponent *fadeImage = this->fadeEntity->GetChildren()[0]->GetComponent<UIImageComponent>();
+			fadeImage->SetColour({ 0.0f, 0.0f, 0.0f, alpha});
+
+			if (this->gameTimer >= FADE_OUT_TIME)
+			{
+				fadeImage->SetColour({ 0.0f, 0.0f, 0.0f, 1.0f});
+			}
 		} break;
 
 		default:

@@ -17,10 +17,9 @@ spike_traps:
   damage: 50.0
   knockback: 2.0
 
-
 waves:
   - completion: 0.75
     enemies:
-      - type: skeleton
-        amount: 1
-        time: 2
+      - type: goblin
+        amount: 1 
+        time: 3

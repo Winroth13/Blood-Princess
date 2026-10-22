@@ -39,6 +39,9 @@ private:
 	float fogDensity = 1.0f;
 	float fogStartDepth = 0.0f;
 	float fogEndDepth = 1.0f;
+
+	bool isFinal = false;
+
 	SpikeTrapConfig spikeTraps = {};
 	std::vector<Wave> waves = {};
 
@@ -66,4 +69,7 @@ public:
 
 	const std::vector<Wave> &GetWaves() const { return this->waves; }
 	void SetWaves(const std::vector<Wave> &waves) { this->waves = waves; }
+
+	bool GetIsFinal() const { return this->isFinal; }
+	void SetIsFinal(bool value) { this->isFinal = value; }
 };

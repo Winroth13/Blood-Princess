@@ -7,9 +7,11 @@
 
 enum class LevelState
 {
+	STARTING,
 	RUNNING,
 	SHOULD_COMPLETE,
-	COMPLETED
+	COMPLETED,
+	ENDING
 };
 
 class LevelComponent : public Component
@@ -23,6 +25,7 @@ class LevelComponent : public Component
 
 	PlayerControllerComponent *playerController = nullptr;
 	Entity *hudEntity = nullptr;
+	Entity *fadeEntity = nullptr;
 
 	ConnectionId playerDiedConnection = 0;
 
@@ -30,7 +33,7 @@ class LevelComponent : public Component
 	GameState *gameState = nullptr;
 	Entity *endScreen = nullptr;
 
-	LevelState state = LevelState::RUNNING;
+	LevelState state = LevelState::STARTING;
 
 	Signal<uint32_t> onScoreChanged;
 
@@ -58,6 +61,7 @@ public:
 	void SetEndScreen(Entity *entity) { this->endScreen = entity; }
 
 	void SetHUDEntity(Entity *entity) { this->hudEntity = entity; }
+	void SetFadeEntity(Entity *entity) { this->fadeEntity = entity; }
 
 	uint32_t GetScore() const { return this->score; }
 	uint32_t GetNumKills() const { return this->numKills; }
