@@ -58,7 +58,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     if ((flags & PARTICLE_FLAG_ADDITIVE) == PARTICLE_FLAG_ADDITIVE)
         color *= 1.0f - fog;
     else
-        color = lerp(color, fogColour * 1.5f, fog);
+        color = lerp(color, fogColour, fog);
 
     return float4(color, 1.0f);
 }

@@ -4,7 +4,7 @@ value: 1.0
 intensity: 0.0
 
 
-fog_colour: [0.04, 0.02, 0.02]
+fog_colour: [0.0469, 0.0302, 0.0302]
 fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0

@@ -3,7 +3,7 @@ saturation: 1.2
 value: 1.55
 intensity: 0.70
 
-fog_colour: [0.01, 0.025, 0.06]
+fog_colour: [0.0194, 0.0348, 0.0608]
 fog_density: 1.0
 fog_start: 0.0
 fog_end: 16.0

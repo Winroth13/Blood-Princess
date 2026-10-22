@@ -52,7 +52,7 @@ void main(uint3 id : SV_DispatchThreadID)
         if ((environmentFlags & ENVIRONMENT_FLAG_HAS_SKYBOX) == ENVIRONMENT_FLAG_HAS_SKYBOX)
             colour = skyboxTexture.SampleLevel(samplerLinearWrap, -viewV, 0).rgb;
         
-        backBufferUAV[pixel] = float4(lerp(colour, fogColour * 1.5, fogDensity), 1.0f);
+        backBufferUAV[pixel] = float4(lerp(colour, fogColour, fogDensity), 1.0f);
         
         return;
     }
@@ -75,7 +75,7 @@ void main(uint3 id : SV_DispatchThreadID)
         const float emissiveFogFactor = 0.5f;
         float3 emissiveColour = albedoColour * emissiveSample * 10.0f;
         float fog = ComputeFog(positionWorld, 1.0f) * (1.0f - emissiveSample * emissiveFogFactor);
-        backBufferUAV[pixel] = float4(lerp(emissiveColour, fogColour * 1.5f, fog), 1.0f);
+        backBufferUAV[pixel] = float4(lerp(emissiveColour, fogColour, fog), 1.0f);
         return;
     }
     
@@ -202,7 +202,7 @@ void main(uint3 id : SV_DispatchThreadID)
     float3 ambient = ambientColour * albedoColour;
     float3 color = ambient + outRadiance;
     
-    color = lerp(color, fogColour * 1.5f, ComputeFog(positionWorld, 1.0f));
+    color = lerp(color, fogColour, ComputeFog(positionWorld, 1.0f));
 
     backBufferUAV[pixel] = float4(color, 1.0f);
 }
