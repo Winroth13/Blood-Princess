@@ -53,7 +53,7 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 
             command.tint = this->tint;
 
-            command.emissive = this->emissive;
+            command.emissive = this->emissive > 1e-5f ? this->emissive : this->meshEmissiveValues[meshIndex];
 
             const Material &material = this->model->GetMaterials()[subMesh.materialIndex];
 
@@ -95,6 +95,7 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 void ModelComponent::SetModel(std::shared_ptr<Model> model)
 {
     this->model = model;
+    this->meshEmissiveValues.resize(this->model->GetMeshes().size());
 }
 
 bool ModelComponent::GetWorldBounds(DirectX::BoundingBox &outBounds)
