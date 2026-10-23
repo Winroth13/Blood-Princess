@@ -32,6 +32,8 @@ namespace Scenes {
 
         SetDefaultSounds(outScene, appContext, { menuButton });
 
+        SetDefaultAmbientSound(outScene, appContext);
+
         UIImageComponent *blackImage = UI::Factory::Place(ui.CreateImage(hud, nullptr, "black"), UI::Anchor::STRETCH, {0.0f, 0.0f}, {0.0f, 0.0f});
         blackImage->SetColour({0.0f, 0.0f, 0.0f, 1.0f});
         Entity *blackEntity = UI::Factory::GetEntity(blackImage);

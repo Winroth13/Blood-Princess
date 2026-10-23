@@ -55,7 +55,6 @@ namespace Scenes {
 
         UIButtonComponent *btnCredits = ui.CreateButton(bgEntity, "CREDITS", nullptr, "btn_credits");
         UI::Factory::Place(btnCredits, UI::Anchor::TOP_LEFT, {50.0f, 600.0f});
-        btnCredits->SetInteractable(false);
 
         UIButtonComponent *btnQuit = ui.CreateButton(bgEntity, "QUIT", nullptr, "btn_quit");
         UI::Factory::Place(btnQuit, UI::Anchor::TOP_LEFT, {50.0f, 700.0f});
@@ -72,12 +71,19 @@ namespace Scenes {
             sceneManager->RequestSceneChange("settings");
         });
 
+        btnCredits->GetOnClick().Connect([sceneManager]()
+        {
+            sceneManager->RequestSceneChange("credits");
+        });
+
         Application *app = appContext.application;
         btnQuit->GetOnClick().Connect([app]() {
             app->Stop();
         });
 
         SetDefaultSounds(outScene, appContext, { btnStart, btnSettings, btnCredits, btnQuit });
+
+        SetDefaultAmbientSound(outScene, appContext);
 
         //std::string controlsText = "Controls\nMovement: WASD\nLight Attack: LMB\nHeavy Attack: RMB\nParry: F\nDash: Shift/Space";
         //UITextComponent *controls = ui.CreateText(bgEntity, controlsText, 30.0f, "controls");

@@ -47,5 +47,7 @@ namespace Scenes {
         });
 
         SetDefaultSounds(outScene, appContext, { backButton });
+
+        SetDefaultAmbientSound(outScene, appContext);
     }
 }

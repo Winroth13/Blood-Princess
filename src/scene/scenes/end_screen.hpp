@@ -2,10 +2,10 @@
 
 #include "scene/scenes/scene_headers.hpp"
 
-inline void DrawStats(Entity *parent, GameState *gameState, UI::Factory &ui, UI::Anchor centre)
+inline void DrawStats(Entity *parent, GameState *gameState, UI::Factory &ui, UI::Anchor anchor)
 {
     Entity *scoresGroup = ui.CreateGroup(parent, { 300, 350 }, "stats_group");
-    UI::Factory::Place(scoresGroup, centre, { 0, 0 });
+    UI::Factory::Place(scoresGroup, anchor, { 0, 0 });
 
     UI::Factory::Place(ui.CreateText(scoresGroup, "Score: " + std::to_string(gameState->GetTotalScore()), 70.0f, "score"), UI::Anchor::TOP, { 0.0f, 0.0f });
 
@@ -31,10 +31,10 @@ inline void DrawStats(Entity *parent, GameState *gameState, UI::Factory &ui, UI:
     UI::Factory::Place(ui.CreateText(scoresGroup, statsTextRight, floorScoreSize, "stats_right"), UI::Anchor::TOP_RIGHT, { 0.0f, 125.0f });
 }
 
-inline void DrawScores(Entity* parent, GameState *gameState, UI::Factory &ui, UI::Anchor centre)
+inline void DrawScores(Entity* parent, GameState *gameState, UI::Factory &ui, UI::Anchor anchor)
 {
     Entity* scoresGroup = ui.CreateGroup(parent, { 250, 350 }, "scores_group");
-    UI::Factory::Place(scoresGroup, centre, { 0, 0 });
+    UI::Factory::Place(scoresGroup, anchor, { 0, 0 });
 
     UI::Factory::Place(ui.CreateText(scoresGroup, "Score: " + std::to_string(gameState->GetTotalScore()), 70.0f, "score"), UI::Anchor::TOP, { 0.0f, 0.0f });
 

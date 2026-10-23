@@ -59,6 +59,7 @@
 #include "components/gameplay/environment_component.hpp"
 #include "components/gameplay/level_endscreen_component.hpp"
 #include "components/gameplay/combo_ui_component.hpp"
+#include "components/gameplay/credits_component.hpp"
 
 #include "components/lights/ambient_light_component.hpp"
 #include "components/lights/directional_light_component.hpp"
@@ -129,9 +130,46 @@ inline void SetDefaultSounds(Scene &outScene, const AppContext &appContext, std:
     for (UIButtonComponent * btn : btnVect)
         btn->GetOnStateChanged().Connect(btnSoundFunc);
 
-    // Ambient sound
+    
+}
+
+inline void SetDefaultAmbientSound(Scene &outScene, const AppContext &appContext)
+{
     Entity *wind = outScene.AddEntity("wind");
     wind->AddComponent<TransformComponent>();
     MusicComponent *musicComponent = wind->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/sfx/wind-01.ogg"));
     musicComponent->SetVolume(0.2f);
+}
+
+inline Entity *CreateTitledList(
+    Entity *parent,
+    UI::Factory &ui,
+    UI::Anchor anchor,
+    XMFLOAT2 postiion,
+    std::string title,
+    std::vector<std::string> listItems,
+    float itemSize = 35.0f,
+    float titleSize = 50.0f
+)
+{
+    float titlePadding = 30.0f;
+    float height = titleSize + titlePadding + itemSize * 1.5f * (static_cast<float>(listItems.size()));
+    Entity *titledList = ui.CreateGroup(parent, { 100.0f, height }, title + "_list_group");
+    UI::Factory::Place(titledList, anchor, postiion);
+
+    UI::Factory::Place(ui.CreateText(titledList, title, titleSize, "title"), UI::Anchor::TOP, { 0.0f, 0.0f });
+
+    std::string listText;
+
+    for (std::string item : listItems)
+    {
+        listText += item + "\n";
+    }
+
+    UITextComponent *textComp = ui.CreateText(titledList, listText, itemSize);
+    textComp->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
+    
+    UI::Factory::Place(textComp, UI::Anchor::TOP, { 0.0f, titleSize + titlePadding });
+
+    return titledList;
 }
