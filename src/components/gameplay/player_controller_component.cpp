@@ -897,6 +897,10 @@ void PlayerControllerComponent::OnDeath()
 		this->groupName, this->GetOwner()
 	);*/
 
+	DirectX::XMFLOAT4 dashColour = Debug::GetSetting("speedLines.colour", DirectX::XMFLOAT4{ 1.0f, 1.0f, 1.0f, 0.0f });
+	dashColour.w = 0.0f;
+	Debug::SetSetting("speedLines.colour", dashColour);
+
 	this->EndCombo();
 	EventBus::Publish(PlayerDiedEvent{ this->GetOwner() });
 }
