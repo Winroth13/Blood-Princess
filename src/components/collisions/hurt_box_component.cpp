@@ -60,6 +60,11 @@ void HurtboxComponent::OnCollision(const CollisionEvent& e)
         return;
     }
 
+    if (this->IsInvincible())
+    {
+        return;
+    }
+
     TransformComponent* victimTransform = victim->GetComponent<TransformComponent>();
     DirectX::XMFLOAT3 hitPos = victimTransform ? victimTransform->GetWorldPosition() : DirectX::XMFLOAT3(0, 0, 0);
     float finalDamage = hitbox->GetDamage() * this->damageMultiplier;
@@ -95,6 +100,11 @@ bool HurtboxComponent::ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOA
     if (this->IsInvulnerable())
     {
         this->onHitBlocked.Emit(hitbox);
+        return false;
+    }
+
+    if (this->IsInvincible())
+    {
         return false;
     }
 

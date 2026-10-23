@@ -16,6 +16,7 @@ public:
     ExportProperty(float, damageMultiplier, 1.0f);
     ExportProperty(bool, isInvulnerable, false);
     ExportProperty(float, invulnerabilityTimer, 0.0f);
+    ExportProperty(bool, isInvincible, false);
 
     Signal<> onHurt;
 
@@ -36,8 +37,10 @@ public:
     bool ReceiveHit(HitboxComponent* hitbox, const DirectX::XMFLOAT3& hitPoint, const DirectX::XMFLOAT3& hitNormal);
     void GrantInvulnerability(float duration);
 
-    void SetIsInvunerable(bool isinvunerable) { this->isInvulnerable = isinvunerable; LogInfo("Invunerable: %s", this->isInvulnerable ? "True" : "False"); }
     bool IsInvulnerable() const { return this->isInvulnerable || this->invulnerabilityTimer > 0.0f; };
+
+    void SetIsInvincible(bool isInvincible) { this->isInvincible = isInvincible; }
+    bool IsInvincible() const { return this->isInvincible; }
 
     float GetDamageMultiplier() const { return this->damageMultiplier; }
     void SetDamageMultiplier(float mult) { this->damageMultiplier = mult; }
