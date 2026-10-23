@@ -186,5 +186,12 @@ bool EnemySpawnerComponent::SpawnEnemy(size_t type, uint32_t wave)
 
     entity->GetComponent<ModelComponent>()->SetEmissive(0.0f);
 
+    auto dataBase = this->GetOwner()->GetComponent<EnemyDatabaseComponent>();
+    auto enemy = dataBase->GetEnemy(static_cast<EnemyType>(type));
+    if (enemy->type == EnemyType::WIZARD)
+    {
+        auto animator = entity->GetComponent<AnimatorComponent>()->Play("wake_up", false);
+    }
+
     return true;
 }

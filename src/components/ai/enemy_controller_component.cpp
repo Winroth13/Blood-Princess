@@ -897,7 +897,7 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     {
         this->Attack();
     }
-    if (enemy->type == EnemyType::WIZARD || this->fireballBurstRemaining > 0)
+    if (enemy->type == EnemyType::WIZARD || this->fireballBurstRemaining > 0 && attackElapsed >= this->enemy->attackTime)
     {
         this->fireballBurstTimer -= deltaTime;
         if (this->fireballBurstTimer <= 0.0f)
@@ -1062,7 +1062,7 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
         }
 
         // rotate enemy towards player
-        if ((distSq > 1e-4f && !this->isAttacking) || enemy->type == EnemyType::SKELETON)
+        if ((distSq > 1e-4f && !this->isAttacking) || enemy->type == EnemyType::SKELETON || enemy->type == EnemyType::WIZARD)
         {
             XMFLOAT3 dir;
             XMStoreFloat3(&dir, toPlayerV);
