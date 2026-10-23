@@ -699,8 +699,8 @@ static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
         gibParticle->SetIsAnimate(true);
         gibParticle->SetIsGlobal(true);
         gibParticle->SetIsAdditive(false);
-        gibParticle->SetStartTint({ 0.35f, 0.03f, 0.03f });
-        gibParticle->SetEndTint({ 0.15f, 0.02f, 0.02f });
+        gibParticle->SetStartTint({ 0.1f, 0.01f, 0.01f });
+        gibParticle->SetEndTint({ 0.05f, 0.0f, 0.0f });
         gibParticle->SetAtlasTexture(appContext.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png"));
         gibParticle->SetAtlasSize({ 8.0f, 8.0f });
 
