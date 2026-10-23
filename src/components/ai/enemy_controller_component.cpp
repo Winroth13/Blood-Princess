@@ -453,12 +453,12 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     flame->SetAtlasSize({ 12.0f, 6.0f });
     flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
     flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
-    flame->SetLifeTime(timeToTarget*2.5);
+    flame->SetLifeTime(timeToTarget * 2.5f);
     flame->SetIsAnimate(true);
     flame->SetISFlat(false);
     flame->SetIsAdditive(true);
     flame->SetAnimationSpeed(1.2f);
-    flame->SetCount(this->fireballRadius * 100);
+    flame->SetCount(static_cast<uint32_t>(this->fireballRadius) * 100);
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);
@@ -477,7 +477,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetAtlasSize({ 8.0f, 8.0f });
     smoke->SetVelocity({ 0.0f, 0.5f, 0.0f });
     smoke->SetAcceleration({ 0.0f, 0.0f, 0.0f });
-    smoke->SetLifeTime(timeToTarget * 2.5);
+    smoke->SetLifeTime(timeToTarget * 2.5f);
     smoke->SetStartScale(0.3f);
     smoke->SetEndScale(0.3f);
     smoke->SetIsAnimate(true);
@@ -485,7 +485,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetISFlat(false);
     smoke->SetIsAdditive(false);
     smoke->SetSpawnRadius(this->fireballRadius);
-    smoke->SetCount(this->fireballRadius * 100);
+    smoke->SetCount(static_cast<uint32_t>(this->fireballRadius) * 100);
 
     smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
     smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
@@ -581,8 +581,8 @@ void EnemyControllerComponent::ShootRainOfFireball()
 {
     // 1. Center fireball (directly at player)
     this->ShootAnFireball(
-        13.0,
-        15.30,
+        13.0f,
+        15.30f,
         DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
         true
     );
@@ -598,8 +598,8 @@ void EnemyControllerComponent::ShootRainOfFireball()
         float offsetZ = sinf(angle) * innerRadius;
 
         this->ShootAnFireball(
-            13.0,
-            15.30,
+            13.0f,
+            15.30f,
             DirectX::XMFLOAT3(offsetX, 0.0f, offsetZ),
             true
         );
@@ -616,8 +616,8 @@ void EnemyControllerComponent::ShootRainOfFireball()
         float offsetZ = sinf(angle) * outerRadius;
 
         this->ShootAnFireball(
-            13.0,
-            15.30,
+            13.0f,
+            15.30f,
             DirectX::XMFLOAT3(offsetX, 0.0f, offsetZ),
             true
         );

@@ -17,7 +17,7 @@ namespace Scenes
 		auto environment = enviromentEntity->AddComponent<EnvironmentComponent>();
 		std::shared_ptr<TextureCube> skyboxTexture = appContext.assetManager->Get<TextureCube>("assets/images/red_skybox/sky.jpg");
 		environment->SetSkybox(skyboxTexture);
-		environment->SetFogColour({0.0165, 0.0402, 0.0299});
+		environment->SetFogColour({0.0165f, 0.0402f, 0.0299f});
 		environment->SetFogEndDepth(1500.0f);
 		enviromentEntity->AddComponent<TransformComponent>();
 

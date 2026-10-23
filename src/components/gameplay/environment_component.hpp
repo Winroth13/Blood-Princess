@@ -7,7 +7,7 @@ class EnvironmentComponent : public Component {
 	RegisterComponent(EnvironmentComponent);
 
 	ExportProperty(DirectX::XMFLOAT4, hsvShift, { 0.0f, 1.0f, 1.0f, 0.0f });
-	ExportPropertyColor(DirectX::XMFLOAT3, fogColour, {0.0469, 0.0302, 0.0302});
+	ExportPropertyColor(DirectX::XMFLOAT3, fogColour, {0.0469f, 0.0302f, 0.0302f});
 	ExportPropertyRanged(float, fogDensity, "", 0.0f, 1.0f, 0.005f, 1.0f);
 	ExportPropertyRanged(float, fogStartDepth, "m", 0.0f, 15.0f, 0.05f, 0.0f);
 	ExportPropertyRanged(float, fogEndDepth, "m", 0.0f, 15.0f, 0.05f, 15.0f);
