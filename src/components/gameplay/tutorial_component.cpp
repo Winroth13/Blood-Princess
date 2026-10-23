@@ -98,7 +98,7 @@ void TutorialComponent::OnStart(const AppContext& context)
 
 		this->hasConnetions = true;
 
-		this->playerController->GetOwner()->GetComponent<HurtboxComponent>()->SetIsInvunerable(true);
+		this->playerController->GetOwner()->GetComponent<HurtboxComponent>()->SetIsInvincible(true);
 	}
 }
 
@@ -191,7 +191,7 @@ void TutorialComponent::CompleteTutorial()
 {
 	this->isCompleted = true;
 
-	this->playerController->GetOwner()->GetComponent<HurtboxComponent>()->SetIsInvunerable(false);
+	this->playerController->GetOwner()->GetComponent<HurtboxComponent>()->SetIsInvincible(false);
 
 	if (this->popupPanel)
 	{
