@@ -7,6 +7,7 @@
 #include "scene/scenes/scene_death_screen.hpp"
 #include "scene/scenes/scene_win_screen.hpp"
 #include "scene/scenes/scene_settings.hpp"
+#include "scene/scenes/scene_credits.hpp"
 #include "scene/scenes/scene_level_transition.hpp"
 #include "scene/scenes/scene_intro_cutscene.hpp"
 
@@ -29,6 +30,7 @@ void SceneManager::RegisterScenes() {
     this->registry.AddScene("death_screen", Scenes::DeathScreen);
     this->registry.AddScene("win_screen", Scenes::WinScreen);
     this->registry.AddScene("settings", Scenes::Settings);
+    this->registry.AddScene("credits", Scenes::Credits);
     this->registry.AddScene("intro_cutscene", Scenes::IntroCutscene);
 }
 

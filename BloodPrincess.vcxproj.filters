@@ -357,6 +357,7 @@
     <ClInclude Include="src\scene\scenes\scene_intro_cutscene.hpp" />
     <ClInclude Include="src\components\gameplay\level_endscreen_component.hpp" />
     <ClInclude Include="src\components\gameplay\combo_ui_component.hpp" />
+    <ClInclude Include="src\scene\scenes\scene_credits.hpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\deferred\cs_deferred.hlsl" />
