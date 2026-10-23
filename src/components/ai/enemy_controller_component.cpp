@@ -458,7 +458,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     flame->SetISFlat(false);
     flame->SetIsAdditive(true);
     flame->SetAnimationSpeed(1.2f);
-    flame->SetCount(static_cast<uint32_t>(this->fireballRadius) * 100);
+    flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 100));
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);
@@ -485,7 +485,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetISFlat(false);
     smoke->SetIsAdditive(false);
     smoke->SetSpawnRadius(this->fireballRadius);
-    smoke->SetCount(static_cast<uint32_t>(this->fireballRadius) * 100);
+    smoke->SetCount(static_cast<uint32_t>(this->fireballRadius * 100));
 
     smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
     smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 

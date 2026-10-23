@@ -9,7 +9,7 @@ fog_density: 1.0
 fog_start: 0.0
 fog_end: 15.0
 
-is_tutorial: true
+is_tutorial: false
 is_final: false
 
 spike_traps:
@@ -19,9 +19,9 @@ waves:
 
   - completion: 0.75
     enemies:
-      - type: goblin
-        amount: 12
-        time: 15.0
+      - type: wizard
+        amount: 1
+        time: 2
 
   - completion: 0.75
     enemies:
