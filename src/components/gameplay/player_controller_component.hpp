@@ -145,6 +145,10 @@ class PlayerControllerComponent : public Component
 	uint32_t attackCounter = 0;
 	float attackCounterTimer = -1.0;
 
+    bool isDoingHeavyAttack = false;
+    const float HEAVY_ATTACK_DURATION = 1.5f;
+    float heavyAttackTimer = HEAVY_ATTACK_DURATION;
+
 	std::array<AttackData, 3> attacks =
 	{
 		/* Light Attacks */
