@@ -71,7 +71,7 @@ void TutorialComponent::OnStart(const AppContext& context)
 					if (this->playerController->IsLightAttack())
 					{
 						this->currentStepDone = true;
-						this->enemyToSpawn = EnemyType::GOBLIN;
+						this->enemyToSpawn = EnemyType::OGRE;
 					}
 					else
 					{

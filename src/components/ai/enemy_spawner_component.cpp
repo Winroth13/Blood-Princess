@@ -166,6 +166,10 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
 
             case EnemyType::OGRE:
                 weaponModel->SetModel(this->clubModel);
+                weaponSocket->SetJointName("Hand_R");
+                weaponSocket->SetOffsetRotation({ 159.0f, 268.0f, -90.0f });
+                weaponSocket->SetOffsetPosition({ 0.02f, 0.30f, 0.0f });
+                weaponSocket->SetOffsetScale({ 4.0f, 4.0f, 4.0f });
                 break;
         }
     }
