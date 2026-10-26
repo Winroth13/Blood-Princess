@@ -10,6 +10,11 @@
 #include "rendering/render_utils.hpp"
 #include "rendering/render_commands.hpp"
 #include "core/logging.hpp"
+#include "components/gameplay/player_controller_component.hpp"
+#include "core/math.hpp"
+
+#include <algorithm>
+#include <cmath>
 
 using namespace DirectX;
 
@@ -22,6 +27,10 @@ void SwordTrailComponent::OnStart(const AppContext &context) {
 
     if (!this->transform || !this->hitbox || !this->viewmodelTransform)
         LogWarn("SwordTrailComponent needs a transform, a hitbox and a parent with a transform");
+
+    this->playerController->GetOnComboChanged().Connect([this](uint32_t combo){
+        this->combo = combo;
+    });
 
     this->albedoTexture = context.assetManager->Get<Texture2D>("assets/images/sword_trail_2.png");
     // this->albedoTexture = context.assetManager->GetDefaultTexture(DefaultTexture::ALBEDO);
@@ -134,6 +143,28 @@ void SwordTrailComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (view.type != ViewType::PRIMARY || this->indexCount == 0)
         return;
 
+    float comboRatio = this->combo / 60.0f;
+
+    float prev = 0;
+    XMFLOAT3 colour = {0.0f, 0.0f, 0.0f};
+    if (comboRatio > 0.33f) {
+        colour = {133 / 255.0f, 57 / 255.0f, 7 / 255.0f}; // 133, 57, 7
+        prev = 1;
+    }
+    if (comboRatio > 0.65f) {
+        colour = {82 / 255.0f, 15 / 255.0f, 0.0f}; // 82, 15, 0
+        prev = 2;
+    }
+    if (comboRatio >= 0.99f) {
+        colour = {109 / 255.0f, 0.0f, 0.0f}; // 109, 0, 0
+        prev = 3;
+    }
+
+    if (this->prev != prev) {
+        this->playerController->slowMotionTimer = 0.4f;
+        this->prev = prev;
+    }
+
     GeometryCommand command{};
 
     command.vertexBuffer = this->vertexBuffer;
@@ -142,7 +173,11 @@ void SwordTrailComponent::Render(const RenderView &view, RenderQueue &queue) {
     command.indexCount = this->indexCount;
 
     command.material = Material{};
-    command.tint = this->tint;
+    command.tint = {
+        colour.x * this->tint.x,
+        colour.y * this->tint.y,
+        colour.z * this->tint.z
+    };
     command.emissive = this->emissive;
 
     command.albedoSRV = this->albedoTexture->GetShaderResourceView();

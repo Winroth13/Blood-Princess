@@ -8,6 +8,7 @@
 class TransformComponent;
 class HitboxComponent;
 class Texture2D;
+class PlayerControllerComponent;
 
 class SwordTrailComponent : public Component {
     RegisterComponent(SwordTrailComponent);
@@ -16,7 +17,7 @@ class SwordTrailComponent : public Component {
     ExportProperty(DirectX::XMFLOAT3, baseOffset, {0.0f, 2.1f, 0.0f});
 
     ExportProperty(float, lifetime, 0.12f);
-    ExportPropertyColor(DirectX::XMFLOAT3, tint, {0.0f, 0.0f, 0.0f});
+    ExportPropertyColor(DirectX::XMFLOAT3, tint, {1.0f, 1.0f, 1.0f});
     ExportPropertyRanged(float, emissive, "", 0.0f, 10.0f, 0.1f, 1.0f);
 
     struct TrailSample {
@@ -33,6 +34,9 @@ class SwordTrailComponent : public Component {
     ID3D11Buffer *indexBuffer = nullptr;
     uint32_t indexCount = 0;
 
+    uint32_t combo = 0;
+    int prev = 0;
+
     std::shared_ptr<Texture2D> albedoTexture;
     std::shared_ptr<Texture2D> normalTexture;
     std::shared_ptr<Texture2D> metallicRoughnessTexture;
@@ -40,6 +44,7 @@ class SwordTrailComponent : public Component {
     TransformComponent *transform = nullptr;
     HitboxComponent *hitbox = nullptr;
     TransformComponent *viewmodelTransform = nullptr;
+    PlayerControllerComponent *playerController = nullptr;
 
     void UploadVertices(ID3D11DeviceContext *deviceContext);
 
@@ -53,5 +58,5 @@ private:
     void OnDestroy(const AppContext &context) override;
 
 public:
-
+    void SetPlayerController(PlayerControllerComponent *playerController) { this->playerController = playerController; }
 };

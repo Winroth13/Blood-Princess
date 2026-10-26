@@ -189,6 +189,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
         socket->SetOffsetRotation({ -90.0f, -90.0f, 12.0f });
         socket->SetOffsetScale({ 1.0f, 1.0f, 1.0f });
         SwordTrailComponent *swordTrail = swordEntity->AddComponent<SwordTrailComponent>();
+        swordTrail->SetPlayerController(playerController);
         swordEntity->SetParent(viewEntity);
 
         auto *collider = swordEntity->AddComponent<BoxCollisionComponent>();
