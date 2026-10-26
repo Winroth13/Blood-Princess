@@ -719,6 +719,7 @@ static Entity *CreateGibs(Scene &outScene, const AppContext &appContext)
 
         projectileGib->SetGravity(9.82f);
         projectileGib->SetRestitution(RNG::Float(0.3f, 0.45f));
+        projectileGib->SetIsMissile(false);
 
         sphereCollisionGib->SetRadius(RNG::Float(0.19f, 0.39f));
         sphereCollisionGib->SetLayer(CollisionLayer::GIBS);
