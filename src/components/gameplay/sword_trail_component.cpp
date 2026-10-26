@@ -143,27 +143,27 @@ void SwordTrailComponent::Render(const RenderView &view, RenderQueue &queue) {
     if (view.type != ViewType::PRIMARY || this->indexCount == 0)
         return;
 
-    float comboRatio = this->combo / 60.0f;
+    float comboRatio = this->combo / 100.0f;
 
     float prev = 0;
     XMFLOAT3 colour = {0.0f, 0.0f, 0.0f};
-    if (comboRatio > 0.33f) {
+    if (comboRatio > 0.2f) {
         colour = {133 / 255.0f, 57 / 255.0f, 7 / 255.0f}; // 133, 57, 7
         prev = 1;
     }
-    if (comboRatio > 0.65f) {
+    if (comboRatio > 0.5f) {
         colour = {82 / 255.0f, 15 / 255.0f, 0.0f}; // 82, 15, 0
         prev = 2;
     }
-    if (comboRatio >= 0.99f) {
+    if (comboRatio >= 0.9f) {
         colour = {109 / 255.0f, 0.0f, 0.0f}; // 109, 0, 0
         prev = 3;
     }
 
-    if (this->prev != prev) {
+    if (this->prev != prev && prev != 0)
         this->playerController->slowMotionTimer = 0.4f;
-        this->prev = prev;
-    }
+
+    this->prev = prev;
 
     GeometryCommand command{};
 
