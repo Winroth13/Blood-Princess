@@ -177,6 +177,7 @@ public:
 	static Key GetAnyKeyPressed();
 	static MouseButton GetAnyMouseButtonPressed();
 
+
 	static void ClearState();
 	static void SaveState();
 	static void LoadState();
@@ -195,6 +196,9 @@ public:
 	static const char* GetGamepadButtonName(GamepadButton button);
 	static GamepadButton GetGamepadButtonFromName(const std::string& name);
 	static GamepadButton GetAnyGamepadButtonPressed();
+
+	static const char* GetGamepadAxisName(GamepadAxis axis);
+	static GamepadAxis GetGamepadAxisFromName(const std::string& name);
 
 	static void UpdateGamepadCursor(float deltaTime, float speed = 900.0f);
 
