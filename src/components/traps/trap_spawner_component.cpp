@@ -24,6 +24,13 @@ bool TrapSpawnerComponent::SampleSpawnPosition(
     float innerR, float outerR,
     DirectX::XMFLOAT3& outPos)
 {
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+
+    if (!playerEnt) return false;
+    XMFLOAT3 playerPosF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPosF);
+
     const int maxAttempts = 30;
     for (int i = 0; i < maxAttempts; ++i)
     {
@@ -35,6 +42,20 @@ bool TrapSpawnerComponent::SampleSpawnPosition(
             origin.y,
             origin.z + sinf(angle) * dist
         };
+
+        // look if the trap near the player
+        XMFLOAT3 positionF = outPos;
+        XMVECTOR positionV = XMLoadFloat3(&positionF);
+
+        XMVECTOR distanceV = XMVectorSubtract(positionV, playerPosV);
+
+        float distance = XMVectorGetX(XMVector3Length(distanceV));
+
+        if (distance < 5.0f) {
+            continue;
+        }
+
+
         if (!this->aiManager || this->aiManager->GetGrid().IsAreaClearOfTraps(outPos, this->minTrapSpacing))
         {
             return true;

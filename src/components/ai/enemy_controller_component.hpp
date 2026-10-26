@@ -105,7 +105,7 @@ private:
 	// Fireball
 	ExportPropertyCategory("Fireball");
 	ExportProperty(XMFLOAT2, XandY, { 0,0 });
-	ExportProperty(float, fireballRadius, 0.1f);
+	ExportProperty(float, fireballRadius, 0.3f);
 	ExportProperty(float, fireballDamage, 50.0f);
 	ExportProperty(XMFLOAT3, fireballOffset, { 0.0f, 1.4f, 0.0f });
 
@@ -117,9 +117,11 @@ private:
 	ExportProperty(float, fireballVerticalSpeed, 21.5f);
 	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
 
+	ExportProperty(float, fireballCooldown, 2.0f);
 	ExportProperty(int, fireballBurstCount, 3);
 	ExportProperty(float, fireballBurstInterval, 0.25f);
 
+	float attackCooldownTimer = 0.0f;
 	int fireballBurstRemaining = 0;
 	float fireballBurstTimer = 0.0f;
 
