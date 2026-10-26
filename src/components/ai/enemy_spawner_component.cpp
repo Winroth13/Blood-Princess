@@ -112,7 +112,9 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
 
     auto *modelComponent = entity->AddComponent<ModelComponent>();
     modelComponent->SetModel(enemy->model);
-    modelComponent->SetSubmeshEmissiveValue(0, 3.0f);
+
+    if (enemy->type == EnemyType::GOBLIN)
+        modelComponent->SetSubmeshEmissiveValue(0, 4.0f);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
