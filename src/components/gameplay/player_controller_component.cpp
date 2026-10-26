@@ -837,6 +837,9 @@ void PlayerControllerComponent::OnHitBlocked(HitboxComponent* hitbox)
 		XMStoreFloat3(&sparkPositionF, sparkPosition);
 
 		this->SpawnSpark(sparkPositionF);
+
+		Health *health = hitbox->GetOwner()->GetParent()->GetComponent<Health>();
+		health->TakeDamage(300.0f);
 	}
 
 	this->onParry.Emit();
