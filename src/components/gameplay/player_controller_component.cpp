@@ -510,6 +510,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 		characterAudio->PlayHeavyAttackShout();
 	}
 
+    this->isDoingHeavyAttack = true;
 }
 
 void PlayerControllerComponent::PerformAttack(AttackData &attackData)
@@ -554,7 +555,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 	    if (Action::IsActionDown("LightAttack"))
 		    this->PerformLightAttack();
 
-	    if (Action::IsActionPressed("Parry"))
+	    if (Action::IsActionPressed("Parry") && !this->isDoingHeavyAttack)
 		    this->PerformParry();
     }
 
@@ -610,6 +611,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 			this->currentAttack = -1;
 			this->attackCombo = 0;
 			this->hasActivatedHitboxThisAttack = false;
+            this->isDoingHeavyAttack = false;
 			if (this->hitbox)
 			{
 				this->hitbox->Deactivate();
