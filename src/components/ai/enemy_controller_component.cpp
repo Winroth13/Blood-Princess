@@ -458,17 +458,18 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     flame->SetISFlat(false);
     flame->SetIsAdditive(true);
     flame->SetAnimationSpeed(1.2f);
-    flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 100));
+    flame->SetIsSpread(true);
+    flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);
-        flame->SetStartScale(0.8f);
-        flame->SetEndScale(0.8f);
+        flame->SetStartScale(0.9f);
+        flame->SetEndScale(0.9f);
     }
     else
     {
-        flame->SetStartScale(0.4f);
-        flame->SetEndScale(0.4f);
+        flame->SetStartScale(0.7f);
+        flame->SetEndScale(0.7f);
     }
 
     // Smoke particle system
@@ -485,7 +486,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetISFlat(false);
     smoke->SetIsAdditive(false);
     smoke->SetSpawnRadius(this->fireballRadius);
-    smoke->SetCount(static_cast<uint32_t>(this->fireballRadius * 100));
+    smoke->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
 
     smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
     smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
@@ -682,7 +683,7 @@ void EnemyControllerComponent::WizardFireballAttack()
 
     float distance = XMVectorGetX(XMVector3Length(distanceV));
 
-    if (distance < 5.0f) {
+    if (distance < 15.0f) {
         ShootWallOfFireball();
     }
 
@@ -947,8 +948,17 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
             }
         }
     }
+    bool attackFinished = false;
+    if (this->enemy->type == EnemyType::WIZARD)
+    {
+        attackFinished = this->hasAttacked && (this->fireballBurstRemaining <= 0);
+    }
+    else 
+    {
+        attackFinished = this->hasAttacked && this->animator->IsFinished();
+    }
 
-    if (this->animator->IsFinished() && this->fireballBurstRemaining <= 0)
+    if (attackFinished)
     {
         this->EndAttack();
     }
