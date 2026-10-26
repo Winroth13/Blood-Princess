@@ -16,7 +16,7 @@ class ModelComponent : public Component
     ExportProperty(bool, isHsvAdjusted, false);
     ExportPropertyRanged(float, emissive, "", 0.0f, 10.0f, 0.1f, 0.0f);
 
-    std::vector<float> meshEmissiveValues;
+    std::vector<float> submeshEmissiveValues;
 
 public:
     ModelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
@@ -37,7 +37,7 @@ public:
     float GetEmissive() const { return this->emissive; }
     void SetEmissive(float emissive) { this->emissive = emissive; }
 
-    void SetMeshEmissiveValue(int index, float emissive) { this->meshEmissiveValues[index] = emissive; }
+    void SetSubmeshEmissiveValue(int index, float emissive) { this->submeshEmissiveValues[index] = emissive; }
 
     bool GetWorldBounds(DirectX::BoundingBox &outBounds) override;
 };
