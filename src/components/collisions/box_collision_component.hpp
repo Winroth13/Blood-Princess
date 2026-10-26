@@ -10,7 +10,7 @@ class BoxCollisionComponent : public CollisionComponent
 	RegisterComponent(BoxCollisionComponent);
 	ExportProperty(XMFLOAT3, extents, { 0.5f, 0.5f, 0.5f });
 	ExportPropertyChanged(extents, UpdateWorldOBB);
-	
+	ExportProperty(XMFLOAT3, offset, this->centerOffset);
 	DirectX::BoundingOrientedBox worldOBB{};
 
 public:
