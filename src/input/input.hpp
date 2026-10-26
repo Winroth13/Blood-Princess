@@ -174,6 +174,9 @@ public:
 	static const char* GetMouseButtonName(MouseButton button);
 	static MouseButton GetMouseButtonFromName(const std::string& name);
 
+	static Key GetAnyKeyPressed();
+	static MouseButton GetAnyMouseButtonPressed();
+
 	static void ClearState();
 	static void SaveState();
 	static void LoadState();
@@ -191,6 +194,7 @@ public:
 
 	static const char* GetGamepadButtonName(GamepadButton button);
 	static GamepadButton GetGamepadButtonFromName(const std::string& name);
+	static GamepadButton GetAnyGamepadButtonPressed();
 
 	static void UpdateGamepadCursor(float deltaTime, float speed = 900.0f);
 

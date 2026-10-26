@@ -436,3 +436,52 @@ void Input::UpdateGamepadCursor(float deltaTime, float speed)
 
 	SDL_WarpMouseInWindow(sdlWindow, currentPos.x, currentPos.y);
 }
+
+
+Key Input::GetAnyKeyPressed()
+{
+	for (int i = 1; i < static_cast<int>(SDL_SCANCODE_COUNT); ++i)
+	{
+		Key key = static_cast<Key>(i);
+		if (IsKeyPressed(key))
+		{
+			return key;
+		}
+	}
+	return Key::UNKNOWN;
+}
+
+MouseButton Input::GetAnyMouseButtonPressed()
+{
+	const MouseButton buttons[] = {
+		MouseButton::LEFT,
+		MouseButton::RIGHT,
+		MouseButton::MIDDLE,
+		MouseButton::X1,
+		MouseButton::X2
+	};
+	for (MouseButton b : buttons)
+	{
+		if (IsMouseButtonPressed(b))
+		{
+			return b;
+		}
+	}
+	return MouseButton::UNKNOWN;
+}
+
+GamepadButton Input::GetAnyGamepadButtonPressed()
+{
+	if (!activeGamepad)
+		return GamepadButton::UNKNOWN;
+
+	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; ++i)
+	{
+		GamepadButton btn = static_cast<GamepadButton>(i);
+		if (IsGamepadButtonPressed(btn))
+		{
+			return btn;
+		}
+	}
+	return GamepadButton::UNKNOWN;
+}
