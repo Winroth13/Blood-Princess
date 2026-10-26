@@ -612,6 +612,7 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 			this->attackCombo = 0;
 			this->hasActivatedHitboxThisAttack = false;
             this->isDoingHeavyAttack = false;
+            this->viewmodelAnimator->SetSpeed(1.0f);
 			if (this->hitbox)
 			{
 				this->hitbox->Deactivate();
