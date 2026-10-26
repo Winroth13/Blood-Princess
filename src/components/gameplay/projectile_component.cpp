@@ -95,7 +95,7 @@ void ProjectileComponent::Update(const AppContext& context, float deltaTime)
 
     // Orient towards velocity if moving (model tip points along local -X)
     float speedSq = this->velocity.x * this->velocity.x + this->velocity.y * this->velocity.y + this->velocity.z * this->velocity.z;
-    if (speedSq > 0.01f)
+    if (this->isMissile && speedSq > 0.01f)
     {
         DirectX::XMVECTOR velVec = DirectX::XMLoadFloat3(&this->velocity);
         DirectX::XMVECTOR f = DirectX::XMVector3Normalize(velVec);

@@ -21,6 +21,7 @@ public:
     bool isGrounded = false;
     bool destroyOnGrounded = false;
     bool hasCustomGroundY = false;
+    bool isMissile = true;
 
 private:
     void Update(const AppContext& context, float deltaTime) override;
@@ -38,7 +39,8 @@ public:
     void SetFriction(float f) { this->friction = f; }
     void SetGroundY(float y) { this->groundY = y; this->hasCustomGroundY = true; }
     void SetDestroyOnGrounded(bool destroy) { this->destroyOnGrounded = destroy; }
+    void SetIsMissile(bool missile) { this->isMissile = missile; }
+    bool IsMissile() const { return this->isMissile; }
 
     XMFLOAT3 GetVelocity() const { return this->velocity; }
 };
-
