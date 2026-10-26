@@ -38,74 +38,138 @@ namespace Scenes {
 
         Application *app = appContext.application;
         UICheckboxComponent *fullscreenCheckbox = UI::Factory::Place(
-            ui.CreateCheckbox(bgEntity, "Fullscreen (F11)", app ? app->IsFullscreen() : false, [app](bool isOn) {
+            ui.CreateCheckbox(bgEntity, "", app ? app->IsFullscreen() : false, [app](bool isOn) {
                 if (app)
                     app->SetFullscreen(isOn);
-            }),
-            UI::Anchor::TOP,
-            {0.0f, 220.0f}
+            }, "fullscreen_checkbox"),
+            UI::Anchor::CENTRE,
+            { 200.0f, -250.0f }
+        );
+
+        UI::Factory::Place(
+            ui.CreateText(bgEntity, "Fullscreeen (F11)", 0.0f, "fullscreen_label"),
+            UI::Anchor::LEFT,
+            {600.0f, -250.0f}
+        );
+
+        // Volume
+        UI::Factory::Place(
+            ui.CreateTitle(bgEntity, "Volume", "volume_title"),
+            UI::Anchor::CENTRE,
+            {0.0f, -175.0f}
+        );
+
+        AudioManager *audioManager = appContext.audioManager;
+
+        float masterVolume = audioManager->GetMasterVolumeModifier();
+        UITextComponent *masterLabel = UI::Factory::Place(
+            ui.CreateText(bgEntity, std::format("{:.0f}%", masterVolume * 100), 0.0f, "master_label"),
+            UI::Anchor::CENTRE,
+            {-60.0f, -100.0f}
+        );
+        masterLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+        UISliderComponent *masterDrag = UI::Factory::Place(
+            ui.CreateSlider(bgEntity, 0.0f, 2.0f, masterVolume, [audioManager, masterLabel](float value)
+                {
+                    audioManager->SetMasterVolumeModifier(value);
+                    masterLabel->SetText(std::format("{:.0f}%", value * 100));
+                }, "master_slider"),
+            UI::Anchor::CENTRE,
+            { 200.0f, -100.f }
+        );
+        UI::Factory::Place(
+            ui.CreateText(bgEntity, "Master", 0.0f, "master_text"),
+            UI::Anchor::LEFT,
+            { 600.0f, -100.0f }
+        );
+
+        float soundVolume = audioManager->GetSoundVolumeModifier();
+        UITextComponent *soundLabel = UI::Factory::Place(
+            ui.CreateText(bgEntity, std::format("{:.0f}%", soundVolume * 100), 0.0f, "sound_label"),
+            UI::Anchor::CENTRE,
+            { -60.0f, -50.0f }
+        );
+        soundLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+        UISliderComponent *soundDrag = UI::Factory::Place(
+            ui.CreateSlider(bgEntity, 0.0f, 2.0f, soundVolume, [audioManager, soundLabel](float value)
+                {
+                    audioManager->SetSoundVolumeModifier(value);
+                    soundLabel->SetText(std::format("{:.0f}%", value * 100));
+                }, "sound_slider"),
+            UI::Anchor::CENTRE,
+            { 200.0f, -50.f }
+        );
+        UI::Factory::Place(ui.CreateText(bgEntity, "Sound", 0.0f, "sound_text"), UI::Anchor::LEFT, { 600.0f, -50.0f });
+
+        float musicVolume = audioManager->GetMusicVolumeModifier();
+        UITextComponent *musicLabel = UI::Factory::Place(
+            ui.CreateText(bgEntity, std::format("{:.0f}%", musicVolume * 100), 0.0f, "music_label"),
+            UI::Anchor::CENTRE,
+            { -60.0f, 0.0f }
+        );
+        musicLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+        UISliderComponent *musicDrag = UI::Factory::Place(
+            ui.CreateSlider(bgEntity, 0.0f, 2.0f, musicVolume, [audioManager, musicLabel](float value)
+                {
+                    audioManager->SetMusicVolumeModifier(value);
+                    musicLabel->SetText(std::format("{:.0f}%", value * 100));
+                }, "music_slider"),
+            UI::Anchor::CENTRE,
+            { 200.0f, 0.f }
+        );
+        UI::Factory::Place(
+            ui.CreateText(bgEntity, "Music", 0.0f, "music_text"),
+            UI::Anchor::LEFT,
+            { 600.0f, 0.0f }
+        );
+
+        //Controls
+        UI::Factory::Place(
+            ui.CreateTitle(bgEntity, "Controls", "controls_title"),
+            UI::Anchor::CENTRE,
+            {0.0f, 75.0f}
         );
 
         float initialSens = app ? app->GetMouseSensitivity() : 0.1f;
         UITextComponent *sensLabel = UI::Factory::Place(
-            ui.CreateText(bgEntity, std::format("Sensitivity: {:.2f}", initialSens), 28.0f, "sens_label"),
-            UI::Anchor::TOP,
-            {0.0f, 290.0f}
+            ui.CreateText(bgEntity, std::format("{:.2f}", initialSens), 0.0f, "sens_label"),
+            UI::Anchor::CENTRE,
+            { -60.0f, 150.0f }
         );
-        sensLabel->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
-
         UISliderComponent *sensSlider = UI::Factory::Place(
-            ui.CreateSlider(bgEntity, 0.01f, 0.50f, initialSens, [app, sensLabel](float value) {
+            ui.CreateSlider(bgEntity, 0.01f, 0.50f, initialSens, [app, sensLabel](float value)
+                {
                 if (app)
                     app->SetMouseSensitivity(value);
-                sensLabel->SetText(std::format("Sensitivity: {:.2f}", value));
-            }, "slider_sens"),
-            UI::Anchor::TOP,
-            {0.0f, 340.0f}
+                sensLabel->SetText(std::format("{:.2f}", value));
+                }, "sens_slider"),
+            UI::Anchor::CENTRE,
+            { 200.0f, 150.0f }
         );
         sensSlider->SetRange(0.01f, 0.50f, 0.01f);
+        UI::Factory::Place(
+            ui.CreateText(bgEntity, "Sensitivity", 28.0f, "sens_text"),
+            UI::Anchor::LEFT,
+            { 600.0f, 150.0f }
+        );
 
         UICheckboxComponent *invertYCheckbox = UI::Factory::Place(
-            ui.CreateCheckbox(bgEntity, "Invert Y-Axis", app ? app->GetInvertY() : false, [app](bool isOn) {
+            ui.CreateCheckbox(bgEntity, "", app ? app->GetInvertY() : false, [app](bool isOn) {
                 if (app)
                     app->SetInvertY(isOn);
-            }),
-            UI::Anchor::TOP,
-            {0.0f, 410.0f}
+                }, "y_axis_checkbox"),
+            UI::Anchor::CENTRE,
+            { 200.0f, 200.0f }
         );
-        UICheckboxComponent *checkbox = UI::Factory::Place(ui.CreateCheckbox(bgEntity, "", false, [app](bool isOn)
-        {
-            app->SetFullscreen(isOn);
-        }), UI::Anchor::CENTRE, { 200.0f, -150.0f });
-
-        UI::Factory::Place(ui.CreateText(bgEntity, "Fullscreeen (F11)"), UI::Anchor::LEFT, { 600.0f, -150.0f });
-
-        UI::Factory::Place(ui.CreateTitle(bgEntity, "Volume"), UI::Anchor::CENTRE, { 0.0f, -75.0f });
-
-        AudioManager *audioManager = appContext.audioManager;
-        UISliderComponent *masterDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetMasterVolumeModifier(), [audioManager](float value)
-        {
-            audioManager->SetMasterVolumeModifier(value);
-        }, "masterSlider"), UI::Anchor::CENTRE, { 200.0f, 0.f });
-
-        UI::Factory::Place(ui.CreateText(bgEntity, "Master"), UI::Anchor::LEFT, { 600.0f, 0.0f });
-
-        UISliderComponent *soundDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetSoundVolumeModifier(), [audioManager](float value)
-        {
-            audioManager->SetSoundVolumeModifier(value);
-        }, "soundSlider"), UI::Anchor::CENTRE, { 200.0f, 50.f });
-
-        UI::Factory::Place(ui.CreateText(bgEntity, "Sound"), UI::Anchor::LEFT, { 600.0f, 50.0f });
-
-        UISliderComponent *musicDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetMusicVolumeModifier(), [audioManager](float value)
-        {
-            audioManager->SetMusicVolumeModifier(value);
-        }, "musicSlider"), UI::Anchor::CENTRE, { 200.0f, 100.f });
-
-        UI::Factory::Place(ui.CreateText(bgEntity, "Music"), UI::Anchor::LEFT, { 600.0f, 100.0f });
+        UI::Factory::Place(
+            ui.CreateText(bgEntity, "Invert Y-Axis", 0.0f, "y_axis_label"),
+            UI::Anchor::LEFT,
+            { 600.0f, 200.0f }
+        );
 
         UIButtonComponent *backButton = UI::Factory::Place(ui.CreateButton(bgEntity, "BACK", nullptr, "btn_back"), UI::Anchor::BOTTOM, { 0.0f, -80.0f });
-        backButton->GetOnClick().Connect([appContext]() {
+        backButton->GetOnClick().Connect([appContext]()
+        {
             appContext.sceneManager->RequestSceneChange("main_menu");
         });
 
