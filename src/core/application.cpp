@@ -10,7 +10,6 @@
 #include "assets/types/pixel_shader.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <d3d11.h>
 #include "SDL3/SDL.h"
 
@@ -174,7 +173,6 @@ bool Application::Initialize()
         Action::SaveBindings("bindings.cfg");
     }
 
-    this->LoadSettings();
     LogInfo("Bindings path: %s", configPath.c_str());
 
     this->window.SetIcon("assets/images/test_crown.png");
@@ -250,37 +248,4 @@ void Application::SetFullscreen(bool isFullscreen) {
 
 void Application::ToggleFullscreen() {
     this->SetFullscreen(!this->isFullscreen);
-}
-void Application::SetMouseSensitivity(float sensitivity) {
-    this->mouseSensitivity = sensitivity;
-    this->SaveSettings();
-}
-
-void Application::SetInvertY(bool invertY) {
-    this->invertY = invertY;
-    this->SaveSettings();
-}
-
-void Application::SaveSettings() {
-    std::ofstream file("settings.cfg");
-    if (!file.is_open())
-        return;
-    file << "mouse_sensitivity " << this->mouseSensitivity << "\n";
-    file << "invert_y " << (this->invertY ? 1 : 0) << "\n";
-}
-
-void Application::LoadSettings() {
-    std::ifstream file("settings.cfg");
-    if (!file.is_open())
-        return;
-    std::string key;
-    while (file >> key) {
-        if (key == "mouse_sensitivity") {
-            file >> this->mouseSensitivity;
-        } else if (key == "invert_y") {
-            int inv = 0;
-            file >> inv;
-            this->invertY = (inv != 0);
-        }
-    }
 }

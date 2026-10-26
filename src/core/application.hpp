@@ -51,8 +51,6 @@ class Application
     };
 
     bool isFullscreen = false;
-    float mouseSensitivity = 0.1f;
-    bool invertY = false;
 
     void Update(float deltaTime);
     void PreRender(float deltaTime);
@@ -74,15 +72,6 @@ public:
     bool IsFullscreen() const { return this->isFullscreen; }
     void SetFullscreen(bool isFullscreen);
     void ToggleFullscreen();
-
-    float GetMouseSensitivity() const { return this->mouseSensitivity; }
-    void SetMouseSensitivity(float sensitivity);
-
-    bool GetInvertY() const { return this->invertY; }
-    void SetInvertY(bool invertY);
-
-    void SaveSettings();
-    void LoadSettings();
 
     float GetTimeScale() const { return this->timeScale; }
     void SetTimeScale(float timescale) { this->timeScale = timescale; }

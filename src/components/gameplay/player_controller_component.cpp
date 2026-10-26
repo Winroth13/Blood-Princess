@@ -41,11 +41,6 @@
 void PlayerControllerComponent::OnStart(const AppContext& context)
 {
 	this->application = context.application;
-	if (this->application)
-	{
-		float sens = this->application->GetMouseSensitivity();
-		this->mouseSensitivity = { sens, sens };
-	}
 	this->audioManager = context.audioManager;
 	this->collisionRef = context.collisionManager;
 	this->GetOwner()->GetScene()->AddEntityToGroup(this->groupName, this->GetOwner());
@@ -390,11 +385,8 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 	if (!this->canRotate)
 		return;
 	auto transform = this->GetOwner()->GetComponent<TransformComponent>();
-	float sensX = this->application ? this->application->GetMouseSensitivity() : this->mouseSensitivity.x;
-	float sensY = this->application ? this->application->GetMouseSensitivity() : this->mouseSensitivity.y;
-	float invertY = (this->application && this->application->GetInvertY()) ? -1.0f : 1.0f;
-	float deltaX = Input::GetMouseDeltaX() * sensX;
-	float deltaY = -Input::GetMouseDeltaY() * sensY * invertY;
+	float deltaX = Input::GetMouseDeltaX() * this->mouseSensitivity.x;
+	float deltaY = -Input::GetMouseDeltaY() * this->mouseSensitivity.y;
 
 	// Add Gamepad Right Stick input
 	if (Input::IsGamepadConnected())
@@ -402,7 +394,7 @@ void PlayerControllerComponent::HandleCameraLook(float deltaTime)
 		DirectX::XMFLOAT2 rightStick = Input::GetGamepadRightStick();
 		float controllerSens = 120.0f; // degrees per second
 		deltaX += rightStick.x * controllerSens * deltaTime;
-		deltaY += rightStick.y * controllerSens * deltaTime * invertY; // Push up to look up
+		deltaY += rightStick.y * controllerSens * deltaTime; // Push up to look up
 	}
 
 	// Apply Horizontal (Yaw)
