@@ -485,3 +485,14 @@ GamepadButton Input::GetAnyGamepadButtonPressed()
 	}
 	return GamepadButton::UNKNOWN;
 }
+
+const char* Input::GetGamepadAxisName(GamepadAxis axis)
+{
+	return SDL_GetGamepadStringForAxis(static_cast<SDL_GamepadAxis>(axis));
+}
+
+GamepadAxis Input::GetGamepadAxisFromName(const std::string& name)
+{
+	SDL_GamepadAxis axis = SDL_GetGamepadAxisFromString(name.c_str());
+	return static_cast<GamepadAxis>(axis);
+}

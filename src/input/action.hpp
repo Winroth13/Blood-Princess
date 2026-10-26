@@ -47,6 +47,12 @@ struct ActionSlot
 	}
 };
 
+struct GamepadAxisBinding
+{
+	GamepadAxis axis;
+	float threshold = 0.5f;
+};
+
 struct ActionBinding
 {
 	ActionSlot input1;
@@ -56,6 +62,7 @@ struct ActionBinding
 	std::vector<Key> keys;
 	std::vector<MouseButton> mouseButtons;
 	std::vector<GamepadButton> gamepadButtons;
+	std::vector<GamepadAxisBinding> gamepadAxes;
 
 	bool isActive = false;
 	bool wasActive = false;
@@ -78,6 +85,7 @@ public:
 	static void AddAction(const std::string& name, Key key);
 	static void AddAction(const std::string& name, MouseButton mouseButton);
 	static void AddAction(const std::string& name, GamepadButton button);
+	static void AddAction(const std::string& name, GamepadAxis axis, float threshold = 0.5f);
 
 	static bool IsActionDown(const std::string& name);
 	static bool IsActionPressed(const std::string& name);
@@ -95,6 +103,7 @@ public:
 	static std::string GetSlotDisplayName(const ActionSlot& slot);
 	static std::string GetGamepadButtonDisplayName(GamepadButton button);
 	static std::string GetActionDisplayName(const std::string& actionName);
+	static std::string GetGamepadAxisDisplayName(GamepadAxis axis);
 
 	static bool SaveBindings(const std::string& filepath);
 	static bool LoadBindings(const std::string& filepath);

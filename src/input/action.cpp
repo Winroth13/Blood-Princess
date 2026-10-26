@@ -27,6 +27,7 @@ void Action::SyncVectors(ActionBinding& binding)
 	binding.keys.clear();
 	binding.mouseButtons.clear();
 	binding.gamepadButtons.clear();
+	binding.gamepadAxes.clear();
 
 	auto addSlot = [&](const ActionSlot& slot) {
 		if (slot.IsKey() && slot.AsKey() != Key::UNKNOWN)
@@ -93,7 +94,23 @@ void Action::Update()
 			}
 		}
 
+		if (!binding.isActive)
+		{
+			for (const auto& axisBind : binding.gamepadAxes)
+			{
+				float val = Input::GetGamepadAxis(axisBind.axis);
 
+				bool isTriggered = (axisBind.threshold >= 0.0f)
+					? (val >= axisBind.threshold)
+					: (val <= axisBind.threshold);
+
+				if (isTriggered)
+				{
+					binding.isActive = true;
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -166,6 +183,25 @@ void Action::AddAction(const std::string& name, GamepadButton button)
 		return;
 	}
 	binding.gamepadButtons.push_back(button);
+}
+
+void Action::AddAction(const std::string& name, GamepadAxis axis, float threshold)
+{
+	if (std::find(actionOrder.begin(), actionOrder.end(), name) == actionOrder.end())
+	{
+		actionOrder.push_back(name);
+	}
+
+	ActionBinding& binding = actions[name];
+
+	// Avoid duplicate bindings for the same axis
+	auto it = std::find_if(binding.gamepadAxes.begin(), binding.gamepadAxes.end(),
+		[axis](const GamepadAxisBinding& b) { return b.axis == axis; });
+
+	if (it == binding.gamepadAxes.end())
+	{
+		binding.gamepadAxes.push_back({ axis, threshold });
+	}
 }
 
 bool Action::IsActionDown(const std::string& name)
@@ -331,9 +367,22 @@ std::string Action::GetActionDisplayName(const std::string& actionName)
 	return actionName;
 }
 
+std::string Action::GetGamepadAxisDisplayName(GamepadAxis axis)
+{
+	switch (axis)
+	{
+	case GamepadAxis::LEFT_TRIGGER:  return "Left Trigger / LT";
+	case GamepadAxis::RIGHT_TRIGGER: return "Right Trigger / RT";
+	case GamepadAxis::LEFT_X:        return "Left Stick X";
+	case GamepadAxis::LEFT_Y:        return "Left Stick Y";
+	case GamepadAxis::RIGHT_X:       return "Right Stick X";
+	case GamepadAxis::RIGHT_Y:       return "Right Stick Y";
+	default:                         return "---";
+	}
+}
+
 bool Action::SaveBindings(const std::string& path)
 {
-
 	std::ofstream file(path);
 
 	if (!file)
@@ -343,17 +392,9 @@ bool Action::SaveBindings(const std::string& path)
 	}
 
 	file << "# action key KEYNAME\n";
-	file << "# action mouse BUTTONNAME\n\n";
-	file << "# action gamepad BUTTONNAME\n\n";
-
-	// Sorted so the file stays readable, not really necessary but git reasons 
-	std::vector<std::string> sortedNames;
-	sortedNames.reserve(actions.size());
-
-	for (const std::string& name : actionOrder)
-	{
-		sortedNames.push_back(name);
-	}
+	file << "# action mouse BUTTONNAME\n";
+	file << "# action gamepad BUTTONNAME\n";
+	file << "# action axis AXISNAME\n\n";
 
 	for (const std::string& name : actionOrder)
 	{
@@ -370,7 +411,7 @@ bool Action::SaveBindings(const std::string& path)
 			{
 				file << name << " mouse " << Input::GetMouseButtonName(slot.AsMouse()) << "\n";
 			}
-		};
+			};
 
 		writeSlot(binding.input1);
 		if (!binding.input2.IsNone() && !(binding.input2 == binding.input1))
@@ -387,11 +428,18 @@ bool Action::SaveBindings(const std::string& path)
 			}
 		}
 
+		for (const auto& axisBind : binding.gamepadAxes)
+		{
+			const char* axisName = Input::GetGamepadAxisName(axisBind.axis);
+			if (axisName && axisName[0] != '\0')
+			{
+				file << name << " axis " << axisName << "\n";
+			}
+		}
 	}
 
 	return true;
 }
-
 bool Action::LoadBindings(const std::string& path)
 {
 	std::ifstream file(path);
@@ -469,6 +517,18 @@ bool Action::LoadBindings(const std::string& path)
 				continue;
 			}
 			AddAction(actionName, btn);
+		}
+		else if (type == "axis")
+		{
+			GamepadAxis axis = Input::GetGamepadAxisFromName(inputName);
+			if (axis != static_cast<GamepadAxis>(SDL_GAMEPAD_AXIS_INVALID))
+			{
+				AddAction(actionName, axis);
+			}
+			else
+			{
+				LogWarn("Line %d: unknown gamepad axis \"%s\"", lineNumber, inputName.c_str());
+			}
 		}
 		else
 		{
