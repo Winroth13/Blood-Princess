@@ -168,9 +168,11 @@ bool Application::Initialize()
 
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
         Action::AddAction("HeavyAttack", GamepadButton::RIGHT_SHOULDER);
+        Action::AddAction("HeavyAttack", GamepadAxis::RIGHT_TRIGGER, 0.5f);
 
         Action::AddAction("Parry", Key::F);
         Action::AddAction("Parry", GamepadButton::WEST);
+        Action::AddAction("Parry", GamepadAxis::LEFT_TRIGGER, 0.5f);
 
         Action::SaveBindings("bindings.cfg");
     }

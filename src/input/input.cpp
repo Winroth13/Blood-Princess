@@ -493,6 +493,8 @@ const char* Input::GetGamepadAxisName(GamepadAxis axis)
 
 GamepadAxis Input::GetGamepadAxisFromName(const std::string& name)
 {
-	SDL_GamepadAxis axis = SDL_GetGamepadAxisFromString(name.c_str());
+	std::string lower = name;
+	std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+	SDL_GamepadAxis axis = SDL_GetGamepadAxisFromString(lower.c_str());
 	return static_cast<GamepadAxis>(axis);
 }
