@@ -10,6 +10,8 @@
 #include "assets/types/pixel_shader.hpp"
 
 #include <iostream>
+#include <fstream>
+#include "yaml-cpp/yaml.h"
 #include <d3d11.h>
 #include "SDL3/SDL.h"
 
@@ -173,6 +175,7 @@ bool Application::Initialize()
         Action::SaveBindings("bindings.cfg");
     }
 
+    this->LoadSettings();
     LogInfo("Bindings path: %s", configPath.c_str());
 
     this->window.SetIcon("assets/images/test_crown.png");
@@ -248,4 +251,58 @@ void Application::SetFullscreen(bool isFullscreen) {
 
 void Application::ToggleFullscreen() {
     this->SetFullscreen(!this->isFullscreen);
+}
+void Application::SetMouseSensitivity(float sensitivity) {
+    this->mouseSensitivity = sensitivity;
+    this->SaveSettings();
+}
+
+void Application::SetInvertY(bool invertY) {
+    this->invertY = invertY;
+    this->SaveSettings();
+}
+
+void Application::SaveSettings() {
+    try {
+        YAML::Node config;
+        std::ifstream check("config.yaml");
+        if (check.is_open()) {
+            check.close();
+            try {
+                config = YAML::LoadFile("config.yaml");
+            } catch (...) {}
+        }
+        config["sensitivity"] = this->mouseSensitivity;
+        config["invert_y"] = this->invertY;
+
+        std::ofstream fout("config.yaml");
+        if (fout.is_open()) {
+            fout << config;
+        }
+    } catch (const std::exception &e) {
+        LogError("Failed to save config.yaml: %s", e.what());
+    }
+}
+
+void Application::LoadSettings() {
+    try {
+        std::ifstream check("config.yaml");
+        if (!check.is_open()) {
+            this->SaveSettings();
+            return;
+        }
+        check.close();
+
+        YAML::Node config = YAML::LoadFile("config.yaml");
+        if (config["sensitivity"]) {
+            this->mouseSensitivity = config["sensitivity"].as<float>();
+        } else if (config["mouse_sensitivity"]) {
+            this->mouseSensitivity = config["mouse_sensitivity"].as<float>();
+        }
+        if (config["invert_y"]) {
+            this->invertY = config["invert_y"].as<bool>();
+        }
+    } catch (const std::exception &e) {
+        LogWarn("Failed to load config.yaml: %s", e.what());
+    }
 }

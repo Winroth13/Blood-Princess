@@ -433,3 +433,6 @@ FodyWeavers.xsd
 
 # Compiled shaders
 *.cso
+
+# Configuration
+config.yaml
