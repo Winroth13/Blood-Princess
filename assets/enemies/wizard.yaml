@@ -7,14 +7,14 @@ avoidance_radius: 15.0
 move_speed: 0.0
 
 min_range: 0.0
-max_range: 20.0
+max_range: 25.0
 attack_time: 0.5
 
 
 model: assets/models/dragon.glb
 
 walk_animation: idle
-attack_animation: Bow_Shot
+attack_animation: idle
 
 extends: [3.0, 3.3, 3.0]
 extends_offset: [0.0, 6.5, 0.0]

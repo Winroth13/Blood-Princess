@@ -22,6 +22,17 @@ class AudioClip;
 class AudioManager;
 struct AttackHitEvent;
 
+enum class WizardAttackType
+{
+	NONE,
+	DEFAULT_BURST,
+	HORIZONTAL_ROW,
+	VERTICAL_ROW,
+	CIRCLE,
+	RAIN,
+	WALL
+};
+
 class EnemyControllerComponent : public Component
 {
 	RegisterComponent(EnemyControllerComponent);
@@ -128,6 +139,7 @@ private:
 	float attackCooldownTimer = 0.0f;
 	int fireballBurstRemaining = 0;
 	float fireballBurstTimer = 0.0f;
+	WizardAttackType currentWizardAttack = WizardAttackType::NONE;
 
 	Scene* thisScene = nullptr;
 

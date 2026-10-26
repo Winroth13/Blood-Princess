@@ -35,7 +35,6 @@
 #include <DirectXMath.h>
 
 uint32_t s_arrowCounter = 0;
-static bool isDefualtAttack = false;
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
@@ -466,6 +465,8 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     flame->SetIsSpread(true);
     flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
 
+
+
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);
@@ -494,8 +495,10 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetSpawnRadius(this->fireballRadius);
     smoke->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
 
-    smoke->SetStartTint({ 0.2f, 0.2f, 0.2f }); // Ljusgrå start
-    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f }); // Mörkgrå slut 
+
+
+    smoke->SetStartTint({ 0.35f, 0.35f, 0.35f });
+    smoke->SetEndTint({ 0.05f, 0.05f, 0.05f });
 
     SoundComponent* fireballSound = fireballEnt->AddComponent<SoundComponent>();
     fireballSound->SetSound(this->arrowPassbySound);
@@ -651,61 +654,92 @@ void EnemyControllerComponent::WizardFireballAttack()
         healthPct = healthComp->GetCurrentHealth() / healthComp->GetMaxHealth();
     }
 
-
-    float attackRoll = RNG::Float(0.0f, 100.0f);
-    if (attackRoll < 30.0f)
+    Entity* playerEnt = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    float playerDistance = 999.0f;
+    if (playerEnt)
     {
-        if (this->fireballBurstRemaining == 0)
-        {
-            isDefualtAttack = true;
-            this->fireballBurstRemaining = this->fireballBurstCount;
-            this->fireballBurstTimer = 0.0f;
-        }
+        XMFLOAT3 positionF = this->transform->GetWorldPosition();
+        XMVECTOR positionV = XMLoadFloat3(&positionF);
+
+        XMFLOAT3 playerPosF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
+        XMVECTOR playerPosV = XMLoadFloat3(&playerPosF);
+
+        XMVECTOR distanceV = XMVectorSubtract(positionV, playerPosV);
+        playerDistance = XMVectorGetX(XMVector3Length(distanceV));
     }
-    else if (attackRoll >= 30.0f && !isDefualtAttack)
-    {
-        if (healthPct > 0.50f)
-        {
-            // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
-            this->ShootHorizontalRowOfFireball();
 
-        }
-        else if (healthPct > 0.25f)
+    // Close-range defensive reaction: wall of fireballs
+    if (playerDistance < 15.0f)
+    {
+        this->currentWizardAttack = WizardAttackType::WALL;
+    }
+    else
+    {
+        // 35% chance to perform default fireball burst, 65% chance for phase attack
+        float attackRoll = RNG::Float(0.0f, 100.0f);
+        if (attackRoll < 35.0f)
         {
-            // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
-            this->ShootVerticalRowOfFireball();
+            this->currentWizardAttack = WizardAttackType::DEFAULT_BURST;
         }
         else
         {
-            // Phase 4 (HP <= 25%): Desperation attack - Rain of fireballs parabolic artillery ring
-            if (this->fireballBurstRemaining % 2) {
-                this->ShootRainOfFireball();
+            if (healthPct > 0.50f)
+            {
+                // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
+                this->currentWizardAttack = WizardAttackType::HORIZONTAL_ROW;
+            }
+            else if (healthPct > 0.25f)
+            {
+                // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
+                this->currentWizardAttack = WizardAttackType::VERTICAL_ROW;
             }
             else
             {
-                this->ShootCircleOfFireball();
+                // Phase 4 (HP <= 25%): Desperation attack - Rain or Circle of fireballs
+                this->currentWizardAttack = (RNG::Float(0.0f, 1.0f) < 0.5f)
+                    ? WizardAttackType::RAIN
+                    : WizardAttackType::CIRCLE;
             }
         }
     }
 
-    Entity* playerEnt =
-        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
-    if (!playerEnt) return;
+    // Execute the selected attack
+    switch (this->currentWizardAttack)
+    {
+        case WizardAttackType::DEFAULT_BURST:
+        {
+            this->fireballBurstRemaining = this->fireballBurstCount;
+            this->fireballBurstTimer = 0.0f;
+        } break;
 
-    XMFLOAT3 positionF = transform->GetWorldPosition();
-    XMVECTOR positionV = XMLoadFloat3(&positionF);
+        case WizardAttackType::HORIZONTAL_ROW:
+        {
+            this->ShootHorizontalRowOfFireball();
+        } break;
 
-    XMFLOAT3 playerPosF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
-    XMVECTOR playerPosV = XMLoadFloat3(&playerPosF);
+        case WizardAttackType::VERTICAL_ROW:
+        {
+            this->ShootVerticalRowOfFireball();
+        } break;
 
-    XMVECTOR distanceV = XMVectorSubtract(positionV, playerPosV);
+        case WizardAttackType::CIRCLE:
+        {
+            this->ShootCircleOfFireball();
+        } break;
 
-    float distance = XMVectorGetX(XMVector3Length(distanceV));
+        case WizardAttackType::RAIN:
+        {
+            this->ShootRainOfFireball();
+        } break;
 
-    if (distance < 15.0f) {
-        ShootWallOfFireball();
+        case WizardAttackType::WALL:
+        {
+            this->ShootWallOfFireball();
+        } break;
+
+        default:
+            break;
     }
-
 }
 
 void EnemyControllerComponent::SpawnSparks(XMFLOAT3 position)
@@ -962,6 +996,7 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
     this->attackElapsed = 0.0f;
     this->fireballBurstRemaining = 0;
     this->fireballBurstTimer = 0.0f;
+    this->currentWizardAttack = WizardAttackType::NONE;
 
     auto *animator = this->GetOwner()->GetComponent<AnimatorComponent>();
     this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
@@ -988,10 +1023,11 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
 void EnemyControllerComponent::EndAttack()
 {
     this->isAttacking = false;
+    this->currentWizardAttack = WizardAttackType::NONE;
     this->fireballBurstRemaining = 0;
     this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
 
-    if (this->fireballBurstRemaining == 0)
+    if (this->enemy->type == EnemyType::WIZARD)
     {
         this->attackCooldownTimer = this->fireballCooldown;
     }
@@ -1015,20 +1051,22 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     }
     // fireball
 
-    if (this->enemy->type == EnemyType::WIZARD && this->fireballBurstRemaining > 0)
+    if (this->enemy->type == EnemyType::WIZARD && this->currentWizardAttack == WizardAttackType::DEFAULT_BURST)
     {
-        isDefualtAttack = true;
-        this->fireballBurstTimer -= deltaTime;
-        if (this->fireballBurstTimer <= 0.0f)
+        if (this->fireballBurstRemaining > 0)
         {
-            this->ShootAnFireball(this->fireballGravity, this->fireballSpeed, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-            this->fireballBurstRemaining--;
-            this->fireballBurstTimer = this->fireballBurstInterval;
-
-            if (this->enemy->attackSound)
+            this->fireballBurstTimer -= deltaTime;
+            if (this->fireballBurstTimer <= 0.0f)
             {
-                this->sound->SetSound(this->enemy->attackSound);
-                this->sound->Play();
+                this->ShootAnFireball(this->fireballGravity, this->fireballSpeed, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+                this->fireballBurstRemaining--;
+                this->fireballBurstTimer = this->fireballBurstInterval;
+
+                if (this->enemy->attackSound)
+                {
+                    this->sound->SetSound(this->enemy->attackSound);
+                    this->sound->Play();
+                }
             }
         }
     }
@@ -1036,7 +1074,6 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     if (this->enemy->type == EnemyType::WIZARD)
     {
         attackFinished = this->hasAttacked && (this->fireballBurstRemaining <= 0);
-        isDefualtAttack = false;
     }
     else 
     {
