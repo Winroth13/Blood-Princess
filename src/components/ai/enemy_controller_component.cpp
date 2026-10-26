@@ -34,7 +34,7 @@
 #include <DirectXMath.h>
 
 uint32_t s_arrowCounter = 0;
-
+static bool isDefualtAttack = false;
 void EnemyControllerComponent::OnStart(const AppContext& context)
 {
     this->randomSoundTimer = RNG::Float(0.0f, 15.0f);
@@ -645,28 +645,41 @@ void EnemyControllerComponent::WizardFireballAttack()
         healthPct = healthComp->GetCurrentHealth() / healthComp->GetMaxHealth();
     }
 
-    if (healthPct > 0.75f)
+
+    float attackRoll = RNG::Float(0.0f, 100.0f);
+    if (attackRoll < 30.0f)
     {
         if (this->fireballBurstRemaining == 0)
         {
+            isDefualtAttack = true;
             this->fireballBurstRemaining = this->fireballBurstCount;
             this->fireballBurstTimer = 0.0f;
         }
     }
-    else if (healthPct > 0.50f)
+    else if (attackRoll >= 30.0f && !isDefualtAttack)
     {
-        // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
-        this->ShootHorizontalRowOfFireball();
-    }
-    else if (healthPct > 0.25f)
-    {
-        // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
-        this->ShootVerticalRowOfFireball();
-    }
-    else
-    {
-        // Phase 4 (HP <= 25%): Desperation attack - Rain of fireballs parabolic artillery ring
-        this->ShootRainOfFireball();
+        if (healthPct > 0.50f)
+        {
+            // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
+            this->ShootHorizontalRowOfFireball();
+
+        }
+        else if (healthPct > 0.25f)
+        {
+            // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
+            this->ShootVerticalRowOfFireball();
+        }
+        else
+        {
+            // Phase 4 (HP <= 25%): Desperation attack - Rain of fireballs parabolic artillery ring
+            if (this->fireballBurstRemaining % 2) {
+                this->ShootRainOfFireball();
+            }
+            else
+            {
+                this->ShootCircleOfFireball();
+            }
+        }
     }
 
     Entity* playerEnt =
@@ -934,6 +947,7 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
 
     if (this->enemy->type == EnemyType::WIZARD && this->fireballBurstRemaining > 0)
     {
+        isDefualtAttack = true;
         this->fireballBurstTimer -= deltaTime;
         if (this->fireballBurstTimer <= 0.0f)
         {
@@ -952,6 +966,7 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     if (this->enemy->type == EnemyType::WIZARD)
     {
         attackFinished = this->hasAttacked && (this->fireballBurstRemaining <= 0);
+        isDefualtAttack = false;
     }
     else 
     {
