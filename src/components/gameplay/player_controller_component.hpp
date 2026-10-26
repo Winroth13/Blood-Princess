@@ -176,7 +176,6 @@ class PlayerControllerComponent : public Component
 
 	// Slowmotion
 	const float SLOW_MOTION_TIME = 0.5f;
-	float slowMotionTimer = -1.0f;
 	float slowMotionMin = 0.01f;
 
 	Application *application = nullptr;
@@ -218,6 +217,8 @@ private:
 	void SpawnSpark(XMFLOAT3 position);
 
 public:
+	float slowMotionTimer = -1.0f;
+
 	AnimatorComponent *viewmodelAnimator = nullptr;
 	HitboxComponent *hitbox = nullptr;
 	CameraComponent *camera = nullptr;

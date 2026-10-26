@@ -247,10 +247,12 @@ void Application::Shutdown()
 void Application::SetFullscreen(bool isFullscreen) {
     this->isFullscreen = isFullscreen;
     SDL_SetWindowFullscreen(this->window.GetSdlWindow(), isFullscreen);
+    this->SaveSettings();
 }
 
 void Application::ToggleFullscreen() {
     this->SetFullscreen(!this->isFullscreen);
+    this->SaveSettings();
 }
 
 void Application::SetMouseSensitivity(float sensitivity) {
@@ -293,6 +295,7 @@ void Application::SaveSettings() {
         config["volume_master"] = this->masterVolume;
         config["volume_sound"] = this->soundVolume;
         config["volume_music"] = this->musicVolume;
+        config["fullscreen"] = this->isFullscreen;
 
         std::ofstream fout("config.yaml");
         if (fout.is_open()) {
@@ -316,6 +319,9 @@ void Application::LoadSettings() {
         if (config["sensitivity"]) {
             this->mouseSensitivity = config["sensitivity"].as<float>();
         }
+        if (config["invert_y"]) {
+            this->invertY = config["invert_y"].as<bool>();
+        }
         if (config["volume_master"]) {
             this->masterVolume = config["volume_master"].as<float>();
         }
@@ -325,8 +331,8 @@ void Application::LoadSettings() {
         if (config["volume_music"]) {
             this->musicVolume = config["volume_music"].as<float>();
         }
-        if (config["invert_y"]) {
-            this->invertY = config["invert_y"].as<bool>();
+        if (config["fullscreen"]) {
+            this->SetFullscreen(config["fullscreen"].as<bool>(false));
         }
     } catch (const std::exception &e) {
         LogWarn("Failed to load config.yaml: %s", e.what());

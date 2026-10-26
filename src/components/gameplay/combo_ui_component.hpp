@@ -12,7 +12,7 @@ class ComboUIComponent : public Component
 
 	float timer = 0.0f;
 
-	const float MAX_COMBO = 99;
+	const float MAX_COMBO = 60;
 	const float COMBO_BOUNCE_TIME = 0.3f;
 
 	PlayerControllerComponent *playerController = nullptr;
