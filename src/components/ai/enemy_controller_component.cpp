@@ -460,6 +460,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     flame->SetAnimationSpeed(1.2f);
     flame->SetIsSpread(true);
     flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
+
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);

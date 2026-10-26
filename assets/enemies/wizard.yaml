@@ -4,7 +4,7 @@ score: 100
 scale: 1.0
 
 avoidance_radius: 15.0
-move_speed: 1.0
+move_speed: 0.0
 
 min_range: 0.0
 max_range: 20.0
@@ -16,8 +16,8 @@ model: assets/models/dragon.glb
 walk_animation: idle
 attack_animation: Bow_Shot
 
-extends: [3.0, 4.0, 3.0]
-extends_offset: [0.0, 3.5, 0.0]
+extends: [3.0, 3.3, 3.0]
+extends_offset: [0.0, 6.5, 0.0]
 
 start_attack_sound: assets/sounds/skeleton_draw.sound
 attack_sound: assets/sounds/skeleton_shoot.sound
