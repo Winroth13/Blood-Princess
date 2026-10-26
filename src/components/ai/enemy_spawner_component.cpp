@@ -22,6 +22,7 @@
 #include "components/audio/sound_component.hpp"
 #include "components/gameplay/gibs_component.hpp"
 #include "components/gameplay/enemy_database_component.hpp"
+#include "components/skeletal/socket_component.hpp"
 #include "assets/types/sound.hpp"
 #include "assets/types/enemy.hpp"
 #include "core/rng.hpp"
@@ -139,6 +140,33 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     eyeModel2->SetTint({1.0f, 0.03f, 0.03f});
     eyeModel2->SetEmissive(3.0f);
 
+    /* Weapon  */
+    if (enemy->type != EnemyType::WIZARD)
+    {
+        Entity *weaponEntity = scene->AddEntity("weapon");
+        weaponEntity->SetParent(entity);
+
+        TransformComponent *weaponTransform = weaponEntity->AddComponent<TransformComponent>();
+
+        SocketComponent *weaponSocket = weaponEntity->AddComponent<SocketComponent>();
+
+        ModelComponent *weaponModel = weaponEntity->AddComponent<ModelComponent>();
+        switch (enemy->type)
+        {
+            case EnemyType::GOBLIN:
+                weaponModel->SetModel(this->knifeModel);
+                weaponSocket->SetJointName("Hand_R");
+                weaponSocket->SetOffsetRotation({ 159.0f, 268.0f, -90.0f });
+                weaponSocket->SetOffsetPosition({ -0.02f, 0.14f, 0.06f });
+                weaponSocket->SetOffsetScale({ 0.5f, 0.5f, 0.5f });
+                break;
+
+            case EnemyType::OGRE:
+                weaponModel->SetModel(this->clubModel);
+                break;
+        }
+    }
+
     return entity;
 }
 
@@ -150,6 +178,8 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
     this->aiManager = context.aiManager;
 
     this->eyeModel = context.assetManager->Get<Model>("assets/models/sphere.glb");
+    this->knifeModel = context.assetManager->Get<Model>("assets/models/goblinknife.glb");
+    this->clubModel = context.assetManager->Get<Model>("assets/models/club.glb");
 
     this->InitializePools(context, context.sceneManager->GetCurrentScene());
 }
