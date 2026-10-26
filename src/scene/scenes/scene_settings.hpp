@@ -37,9 +37,42 @@ namespace Scenes {
         ui.style.fontSizeRegular = 28.0f;
 
         Application *app = appContext.application;
-        UICheckboxComponent *checkbox = ui.CreateCheckbox(bgEntity, "Fullscreeen? (F11)", false, [app](bool isOn) {
-            app->SetFullscreen(isOn);
-        });
+        UICheckboxComponent *fullscreenCheckbox = UI::Factory::Place(
+            ui.CreateCheckbox(bgEntity, "Fullscreen (F11)", app ? app->IsFullscreen() : false, [app](bool isOn) {
+                if (app)
+                    app->SetFullscreen(isOn);
+            }),
+            UI::Anchor::TOP,
+            {0.0f, 220.0f}
+        );
+
+        float initialSens = app ? app->GetMouseSensitivity() : 0.1f;
+        UITextComponent *sensLabel = UI::Factory::Place(
+            ui.CreateText(bgEntity, std::format("Sensitivity: {:.2f}", initialSens), 28.0f, "sens_label"),
+            UI::Anchor::TOP,
+            {0.0f, 290.0f}
+        );
+        sensLabel->SetAlignHorizontal(UI::AlignHorizontal::CENTRE);
+
+        UISliderComponent *sensSlider = UI::Factory::Place(
+            ui.CreateSlider(bgEntity, 0.01f, 0.50f, initialSens, [app, sensLabel](float value) {
+                if (app)
+                    app->SetMouseSensitivity(value);
+                sensLabel->SetText(std::format("Sensitivity: {:.2f}", value));
+            }, "slider_sens"),
+            UI::Anchor::TOP,
+            {0.0f, 340.0f}
+        );
+        sensSlider->SetRange(0.01f, 0.50f, 0.01f);
+
+        UICheckboxComponent *invertYCheckbox = UI::Factory::Place(
+            ui.CreateCheckbox(bgEntity, "Invert Y-Axis", app ? app->GetInvertY() : false, [app](bool isOn) {
+                if (app)
+                    app->SetInvertY(isOn);
+            }),
+            UI::Anchor::TOP,
+            {0.0f, 410.0f}
+        );
 
         UIButtonComponent *backButton = UI::Factory::Place(ui.CreateButton(bgEntity, "BACK", nullptr, "btn_back"), UI::Anchor::BOTTOM, { 0.0f, -80.0f });
         backButton->GetOnClick().Connect([appContext]() {
