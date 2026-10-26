@@ -252,6 +252,7 @@ void Application::SetFullscreen(bool isFullscreen) {
 void Application::ToggleFullscreen() {
     this->SetFullscreen(!this->isFullscreen);
 }
+
 void Application::SetMouseSensitivity(float sensitivity) {
     this->mouseSensitivity = sensitivity;
     this->SaveSettings();
@@ -259,6 +260,21 @@ void Application::SetMouseSensitivity(float sensitivity) {
 
 void Application::SetInvertY(bool invertY) {
     this->invertY = invertY;
+    this->SaveSettings();
+}
+
+void Application::SetMasterVolume(float volume) {
+    this->masterVolume = volume;
+    this->SaveSettings();
+}
+
+void Application::SetSoundVolume(float volume) {
+    this->soundVolume = volume;
+    this->SaveSettings();
+}
+
+void Application::SetMusicVolume(float volume) {
+    this->musicVolume = volume;
     this->SaveSettings();
 }
 
@@ -274,6 +290,9 @@ void Application::SaveSettings() {
         }
         config["sensitivity"] = this->mouseSensitivity;
         config["invert_y"] = this->invertY;
+        config["volume_master"] = this->masterVolume;
+        config["volume_sound"] = this->soundVolume;
+        config["volume_music"] = this->musicVolume;
 
         std::ofstream fout("config.yaml");
         if (fout.is_open()) {
@@ -296,8 +315,15 @@ void Application::LoadSettings() {
         YAML::Node config = YAML::LoadFile("config.yaml");
         if (config["sensitivity"]) {
             this->mouseSensitivity = config["sensitivity"].as<float>();
-        } else if (config["mouse_sensitivity"]) {
-            this->mouseSensitivity = config["mouse_sensitivity"].as<float>();
+        }
+        if (config["volume_master"]) {
+            this->masterVolume = config["volume_master"].as<float>();
+        }
+        if (config["volume_sound"]) {
+            this->soundVolume = config["volume_sound"].as<float>();
+        }
+        if (config["volume_music"]) {
+            this->musicVolume = config["volume_music"].as<float>();
         }
         if (config["invert_y"]) {
             this->invertY = config["invert_y"].as<bool>();

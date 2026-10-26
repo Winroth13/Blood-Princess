@@ -4,6 +4,16 @@
 #include "core/logging.hpp"
 #include "core/application.hpp"
 
+float AudioManager::GetResultingSoundVolume(float volume) const
+{
+	return volume * this->application->GetMasterVolume() * this->application->GetSoundVolume();
+}
+
+float AudioManager::GetResultingMusicVolume(float volume) const
+{
+	return volume * this->application->GetMasterVolume() * this->application->GetMusicVolume();
+}
+
 void AudioManager::FixedUpdate(float deltaTime)
 {
 	for (size_t i = 0; i < this->activeVoices.size(); )

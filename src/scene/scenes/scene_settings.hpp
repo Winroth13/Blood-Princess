@@ -418,9 +418,7 @@ namespace Scenes {
             {0.0f, -175.0f}
         );
 
-        AudioManager *audioManager = appContext.audioManager;
-
-        float masterVolume = audioManager->GetMasterVolumeModifier();
+        float masterVolume = app->GetMasterVolume();
         UITextComponent *masterLabel = UI::Factory::Place(
             ui.CreateText(generalGroup, std::format("{:.0f}%", masterVolume * 100), 0.0f, "master_label"),
             UI::Anchor::CENTRE,
@@ -428,9 +426,9 @@ namespace Scenes {
         );
         masterLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
         UISliderComponent *masterDrag = UI::Factory::Place(
-            ui.CreateSlider(generalGroup, 0.0f, 2.0f, masterVolume, [audioManager, masterLabel](float value)
+            ui.CreateSlider(generalGroup, 0.0f, 2.0f, masterVolume, [app, masterLabel](float value)
                 {
-                    audioManager->SetMasterVolumeModifier(value);
+                    app->SetMasterVolume(value);
                     masterLabel->SetText(std::format("{:.0f}%", value * 100));
                 }, "master_slider"),
             UI::Anchor::CENTRE,
@@ -442,7 +440,7 @@ namespace Scenes {
             { 600.0f, -100.0f }
         );
 
-        float soundVolume = audioManager->GetSoundVolumeModifier();
+        float soundVolume = app->GetSoundVolume();
         UITextComponent *soundLabel = UI::Factory::Place(
             ui.CreateText(generalGroup, std::format("{:.0f}%", soundVolume * 100), 0.0f, "sound_label"),
             UI::Anchor::CENTRE,
@@ -450,9 +448,9 @@ namespace Scenes {
         );
         soundLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
         UISliderComponent *soundDrag = UI::Factory::Place(
-            ui.CreateSlider(generalGroup, 0.0f, 2.0f, soundVolume, [audioManager, soundLabel](float value)
+            ui.CreateSlider(generalGroup, 0.0f, 2.0f, soundVolume, [app, soundLabel](float value)
                 {
-                    audioManager->SetSoundVolumeModifier(value);
+                    app->SetSoundVolume(value);
                     soundLabel->SetText(std::format("{:.0f}%", value * 100));
                 }, "sound_slider"),
             UI::Anchor::CENTRE,
@@ -460,7 +458,7 @@ namespace Scenes {
         );
         UI::Factory::Place(ui.CreateText(generalGroup, "Sound", 0.0f, "sound_text"), UI::Anchor::LEFT, { 600.0f, -50.0f });
 
-        float musicVolume = audioManager->GetMusicVolumeModifier();
+        float musicVolume = app->GetMusicVolume();
         UITextComponent *musicLabel = UI::Factory::Place(
             ui.CreateText(generalGroup, std::format("{:.0f}%", musicVolume * 100), 0.0f, "music_label"),
             UI::Anchor::CENTRE,
@@ -468,9 +466,9 @@ namespace Scenes {
         );
         musicLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
         UISliderComponent *musicDrag = UI::Factory::Place(
-            ui.CreateSlider(generalGroup, 0.0f, 2.0f, musicVolume, [audioManager, musicLabel](float value)
+            ui.CreateSlider(generalGroup, 0.0f, 2.0f, musicVolume, [app, musicLabel](float value)
                 {
-                    audioManager->SetMusicVolumeModifier(value);
+                    app->SetMusicVolume(value);
                     musicLabel->SetText(std::format("{:.0f}%", value * 100));
                 }, "music_slider"),
             UI::Anchor::CENTRE,
