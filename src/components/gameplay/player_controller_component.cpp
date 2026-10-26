@@ -108,6 +108,12 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
     if (Input::IsKeyPressed(Key::ESCAPE))
         this->SetIsPaused(!this->isPaused);
 
+    if (this->isDoingHeavyAttack) {
+        this->heavyAttackTimer += deltaTime;
+        if (this->heavyAttackTimer >= this->HEAVY_ATTACK_DURATION || (Action::IsActionPressed("Parry") && this->heavyAttackTimer < 0.2f))
+            this->isDoingHeavyAttack = false;
+    }
+
 	if (!this->canUseDash)
 	{
 		this->dashCooldownTimer -= deltaTime;
@@ -363,14 +369,18 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 		XMFLOAT3 currentPos = transform->GetLocalPosition();
 		XMVECTOR currentPosV = XMLoadFloat3(&currentPos);
 
-		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * this->moveSpeed);
+        float moveSpeed = this->moveSpeed;
+        if (this->isDoingHeavyAttack)
+            moveSpeed = this->moveSpeed * 0.5f;
+
+		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * moveSpeed);
 		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
 
 		float distMoved = XMVectorGetX(XMVector3Length(newVel));
 		this->GetOwner()->GetComponent<CharacterAudioComponent>()->AddMovementDistance(distMoved);
 
 		// Save the player velocity for arrow prediction (units per second)
-		XMVECTOR actualVelocity = XMVectorScale(moveDir, this->moveSpeed);
+		XMVECTOR actualVelocity = XMVectorScale(moveDir, moveSpeed);
 		XMStoreFloat3(&this->velcoity, actualVelocity);
 
 		XMFLOAT3 newPos;
@@ -511,6 +521,7 @@ void PlayerControllerComponent::PerformHeavyAttack()
 	}
 
     this->isDoingHeavyAttack = true;
+    this->heavyAttackTimer = 0.0f;
 }
 
 void PlayerControllerComponent::PerformAttack(AttackData &attackData)
@@ -611,7 +622,6 @@ void PlayerControllerComponent::HandleAttacks(float deltaTime)
 			this->currentAttack = -1;
 			this->attackCombo = 0;
 			this->hasActivatedHitboxThisAttack = false;
-            this->isDoingHeavyAttack = false;
             this->viewmodelAnimator->SetSpeed(1.0f);
 			if (this->hitbox)
 			{
@@ -671,7 +681,7 @@ void PlayerControllerComponent::PerformParry()
 
 	if (this->viewmodelAnimator)
 	{
-		this->viewmodelAnimator->Play("parry", false);
+		this->viewmodelAnimator->CrossFade("parry", 0.1f, false);
 	}
 
 	if (!this->hurtbox)
