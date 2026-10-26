@@ -646,9 +646,11 @@ void EnemyControllerComponent::WizardFireballAttack()
 
     if (healthPct > 0.75f)
     {
-        // Phase 1 (HP > 75%): Default attack
-        this->fireballBurstRemaining = this->fireballBurstCount;
-        this->fireballBurstTimer = 0.0f;
+        if (this->fireballBurstRemaining == 0)
+        {
+            this->fireballBurstRemaining = this->fireballBurstCount;
+            this->fireballBurstTimer = 0.0f;
+        }
     }
     else if (healthPct > 0.50f)
     {
@@ -665,6 +667,25 @@ void EnemyControllerComponent::WizardFireballAttack()
         // Phase 4 (HP <= 25%): Desperation attack - Rain of fireballs parabolic artillery ring
         this->ShootRainOfFireball();
     }
+
+    Entity* playerEnt =
+        this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+    if (!playerEnt) return;
+
+    XMFLOAT3 positionF = transform->GetWorldPosition();
+    XMVECTOR positionV = XMLoadFloat3(&positionF);
+
+    XMFLOAT3 playerPosF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
+    XMVECTOR playerPosV = XMLoadFloat3(&playerPosF);
+
+    XMVECTOR distanceV = XMVectorSubtract(positionV, playerPosV);
+
+    float distance = XMVectorGetX(XMVector3Length(distanceV));
+
+    if (distance < 5.0f) {
+        ShootWallOfFireball();
+    }
+
 }
 
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
@@ -832,6 +853,13 @@ bool EnemyControllerComponent::CanAttack(float distanceSq)
 {
     if (isAttacking)
          return false;
+    if (enemy->type == EnemyType::WIZARD)
+    {
+        if (this->attackCooldownTimer > 0.0f)
+        {
+            return false;
+        }
+    }
 
     const float kbSpeedSq = (this->knockbackVelocity.x * this->knockbackVelocity.x) +
         (this->knockbackVelocity.z * this->knockbackVelocity.z);
@@ -884,6 +912,10 @@ void EnemyControllerComponent::EndAttack()
     this->isAttacking = false;
     this->fireballBurstRemaining = 0;
     this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
+    if (this->fireballBurstRemaining == 0)
+    {
+        this->attackCooldownTimer = this->fireballCooldown;
+    }
 }
 
 void EnemyControllerComponent::UpdateAttack(float deltaTime)
@@ -897,7 +929,9 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
     {
         this->Attack();
     }
-    if (enemy->type == EnemyType::WIZARD || this->fireballBurstRemaining > 0 && attackElapsed >= this->enemy->attackTime)
+    // fireball
+
+    if (this->enemy->type == EnemyType::WIZARD && this->fireballBurstRemaining > 0)
     {
         this->fireballBurstTimer -= deltaTime;
         if (this->fireballBurstTimer <= 0.0f)
@@ -905,6 +939,7 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
             this->ShootAnFireball(this->fireballGravity, this->fireballSpeed, DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
             this->fireballBurstRemaining--;
             this->fireballBurstTimer = this->fireballBurstInterval;
+
             if (this->enemy->attackSound)
             {
                 this->sound->SetSound(this->enemy->attackSound);
@@ -997,6 +1032,12 @@ void EnemyControllerComponent::UpdateAI(float deltaTime, size_t myGridIndex, con
 {
     if (!this->transform) 
         return;
+
+
+    if (this->attackCooldownTimer > 0.0f)
+    {
+        this->attackCooldownTimer -= deltaTime;
+    }
 
     this->UpdateBark(deltaTime);
 

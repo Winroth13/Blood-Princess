@@ -117,9 +117,11 @@ private:
 	ExportProperty(float, fireballVerticalSpeed, 21.5f);
 	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
 
-	ExportProperty(int, fireballBurstCount, 3);
+	ExportProperty(float, fireballCooldown, 2.0f);
+	ExportProperty(int, fireballBurstCount, 5);
 	ExportProperty(float, fireballBurstInterval, 0.25f);
 
+	float attackCooldownTimer = 0.0f;
 	int fireballBurstRemaining = 0;
 	float fireballBurstTimer = 0.0f;
 
