@@ -7,6 +7,7 @@
 #include "components/gameplay/environment_component.hpp"
 #include "components/traps/trap_spawner_component.hpp"
 #include "assets/types/enemy.hpp"
+#include "core/application.hpp"
 
 #include "imgui/imgui.h"
 
@@ -39,9 +40,9 @@ void WaveController::StartFloor(std::shared_ptr<Floor> floor)
 		return;
 	}
 
-	if (!floor->GetIsTutorial())
+	if (!floor->GetIsTutorial() || (this->app->IsSkipTutorial() && this->app->HasCompletedTutorialOnce()))
 	{
-		this->tutorialComp->SetIsCompleted(true);
+		this->tutorialComp->QueueCompletion();
 		this->NextWave();
 	}
 }
@@ -125,6 +126,8 @@ bool WaveController::IsFloorCompleted()
 
 void WaveController::OnStart(const AppContext &context)
 {
+	this->app = context.application;
+
 	EnemySpawnerComponent *spawner = this->GetOwner()->GetComponent<EnemySpawnerComponent>();
 
 	if (!spawner)

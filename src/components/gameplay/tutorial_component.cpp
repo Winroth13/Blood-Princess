@@ -77,15 +77,11 @@ void TutorialComponent::Setup(Entity* panel, UITextComponent* textComp, EnemySpa
 	this->waveController = waveController;
 }
 
-void TutorialComponent::SetIsCompleted(bool isCompleted)
+void TutorialComponent::QueueCompletion()
 {
-	this->isCompleted = isCompleted;
-	this->manualCompletion = isCompleted;
-
-	if (isCompleted)
-		this->CompleteTutorial();
+	this->isToComplete = true;
+	this->manualCompletion = true;
 }
-
 
 void TutorialComponent::UpdateStepInstructions()
 {
@@ -179,12 +175,19 @@ void TutorialComponent::OnStart(const AppContext& context)
 	this->currentStepIndex = 0;
 	this->stepTimer = 0.0f;
 
-	this->gameState = context.application->GetGameState();
+	this->app = context.application;
 
-	if (this->gameState->GetIsSkipTutorial())
+	if (app->IsSkipTutorial() && app->HasCompletedTutorialOnce())
 		this->isCompleted = true;
 
-	if (!this->isCompleted)
+	if (this->isCompleted)
+	{
+		if (this->popupPanel)
+		{
+			this->popupPanel->SetLocallyActive(false);
+		}
+	}
+	else
 	{
 		if (this->popupPanel)
 		{
@@ -257,6 +260,12 @@ void TutorialComponent::Update(const AppContext& context, float deltaTime)
 {
 	if (this->isCompleted || this->currentStepIndex >= this->steps.size())
 	{
+		return;
+	}
+
+	if (this->isToComplete)
+	{
+		this->CompleteTutorial();
 		return;
 	}
 
@@ -363,6 +372,8 @@ void TutorialComponent::CompleteTutorial()
 	this->isCompleted = true;
 
 	this->playerController->GetOwner()->GetComponent<HurtboxComponent>()->SetIsInvincible(false);
+
+	this->app->SetCompletedTutorial(true);
 
 	if (this->popupPanel)
 	{

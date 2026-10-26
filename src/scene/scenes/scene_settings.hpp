@@ -226,9 +226,9 @@ namespace Scenes {
         )->SetAlignVertical(UI::AlignVertical::CENTRE);
 
         UICheckboxComponent *skipTutorialCheckbox = UI::Factory::Place(
-            ui.CreateCheckbox(generalGroup, "", app ? app->IsFullscreen() : false, [app](bool isOn) {
+            ui.CreateCheckbox(generalGroup, "", app ? app->IsSkipTutorial() : false, [app](bool isOn) {
                 if (app)
-                    app->SetFullscreen(isOn);
+                    app->SetSkipTutorial(isOn);
                 }, "skip_tutorial_checkbox"),
             UI::Anchor::TOP,
             { 200.0f, topY + 76.0f }

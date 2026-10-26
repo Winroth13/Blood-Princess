@@ -58,6 +58,9 @@ class Application
     float soundVolume = 1.0f;
     float musicVolume = 1.0f;
 
+    bool isSkipTutorial = false;
+    bool hasCompeltedTutorialOnce = false;
+
     void Update(float deltaTime);
     void PreRender(float deltaTime);
     void Render(float deltaTime);
@@ -93,6 +96,12 @@ public:
 
     float GetMusicVolume() const { return this->musicVolume; }
     void SetMusicVolume(float volume);
+
+    bool IsSkipTutorial() const { return this->isSkipTutorial; }
+    void SetSkipTutorial(bool skipTutorial);
+
+    bool HasCompletedTutorialOnce() const { return this->hasCompeltedTutorialOnce; }
+    void SetCompletedTutorial(bool compeltedTutorial);
     
     void SaveSettings();
     void LoadSettings();

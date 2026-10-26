@@ -31,7 +31,7 @@ class TutorialComponent : public Component
 	EnemySpawnerComponent *enemySpawner = nullptr;
 	PlayerControllerComponent* playerController = nullptr;
 	WaveController* waveController = nullptr;
-	GameState* gameState = nullptr;
+	Application *app = nullptr;
 
 	ConnectionId attackHitConnection = 0;
 
@@ -45,13 +45,15 @@ class TutorialComponent : public Component
 	bool isUsingGamepad = false;
 	EnemyType enemyToSpawn = EnemyType::COUNT;
 
+	bool isToComplete = false;
+
 public:
 	TutorialComponent(Entity* owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 	~TutorialComponent() = default;
 
 	void Setup(Entity* panel, UITextComponent* textComp, EnemySpawnerComponent* spawner, PlayerControllerComponent* playerController, WaveController* waveController);
 
-	void SetIsCompleted(bool isCompleted);
+	void QueueCompletion();
 
 private:
 	void OnStart(const AppContext& context) override;

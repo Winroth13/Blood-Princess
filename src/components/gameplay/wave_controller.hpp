@@ -32,6 +32,7 @@ private:
 	int32_t nextWave = 0;
 
 	TutorialComponent *tutorialComp = nullptr;
+	Application *app = nullptr;
 
 	void CompleteWave(uint32_t waveIndex);
 	float GetWaveProgress(ActiveWave &wave);

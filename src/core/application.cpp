@@ -280,6 +280,19 @@ void Application::SetMusicVolume(float volume) {
     this->SaveSettings();
 }
 
+void Application::SetSkipTutorial(bool skipTutorial) {
+    this->isSkipTutorial = skipTutorial;
+    this->SaveSettings();
+}
+
+
+void Application::SetCompletedTutorial(bool compeltedTutorial) {
+    if (this->hasCompeltedTutorialOnce == false && compeltedTutorial == true)
+        this->isSkipTutorial = true;
+    this->hasCompeltedTutorialOnce = compeltedTutorial;
+    this->SaveSettings();
+}
+
 void Application::SaveSettings() {
     try {
         YAML::Node config;
@@ -296,6 +309,8 @@ void Application::SaveSettings() {
         config["volume_sound"] = this->soundVolume;
         config["volume_music"] = this->musicVolume;
         config["fullscreen"] = this->isFullscreen;
+        config["skip_tutorial"] = this->isSkipTutorial;
+        config["completed_tutorial_once"] = this->hasCompeltedTutorialOnce;
 
         std::ofstream fout("config.yaml");
         if (fout.is_open()) {
@@ -332,9 +347,17 @@ void Application::LoadSettings() {
             this->musicVolume = config["volume_music"].as<float>();
         }
         if (config["fullscreen"]) {
-            this->SetFullscreen(config["fullscreen"].as<bool>(false));
+            this->isFullscreen = config["fullscreen"].as<bool>();
+        }
+        if (config["skip_tutorial"]) {
+            this->isSkipTutorial = config["skip_tutorial"].as<bool>();
+        }
+        if (config["completed_tutorial_once"]) {
+            this->hasCompeltedTutorialOnce = config["completed_tutorial_once"].as<bool>();
         }
     } catch (const std::exception &e) {
         LogWarn("Failed to load config.yaml: %s", e.what());
     }
+
+    SetFullscreen(this->isFullscreen);
 }
