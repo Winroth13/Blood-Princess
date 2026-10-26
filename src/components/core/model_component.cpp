@@ -32,6 +32,7 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
     }
 
     uint32_t meshIndex = 0;
+    uint32_t submeshIndex = 0;
     const auto &meshes = this->model->GetMeshes();
     for (const auto &mesh : meshes) 
     {
@@ -53,7 +54,7 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 
             command.tint = this->tint;
 
-            command.emissive = this->emissive > 1e-5f ? this->emissive : this->meshEmissiveValues[meshIndex];
+            command.emissive = this->emissive > 1e-5f ? this->emissive : this->submeshEmissiveValues[submeshIndex];
 
             const Material &material = this->model->GetMaterials()[subMesh.materialIndex];
 
@@ -86,6 +87,8 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
             }
 
             queue.Submit(command);
+
+            ++submeshIndex;
         }
 
         meshIndex++;
@@ -95,7 +98,12 @@ void ModelComponent::Render(const RenderView &view, RenderQueue &queue) {
 void ModelComponent::SetModel(std::shared_ptr<Model> model)
 {
     this->model = model;
-    this->meshEmissiveValues.resize(this->model->GetMeshes().size());
+    
+    uint32_t submeshCount = 0;
+    for (auto &mesh : this->model->GetMeshes())
+        submeshCount += mesh->GetSubMeshes().size();
+
+    this->submeshEmissiveValues.resize(submeshCount);
 }
 
 bool ModelComponent::GetWorldBounds(DirectX::BoundingBox &outBounds)

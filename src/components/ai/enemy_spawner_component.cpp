@@ -112,32 +112,33 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
 
     auto *modelComponent = entity->AddComponent<ModelComponent>();
     modelComponent->SetModel(enemy->model);
+    modelComponent->SetSubmeshEmissiveValue(0, 3.0f);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
-    Entity *eyeEntity1 = scene->AddEntity("eye 1");
-    eyeEntity1->SetParent(entity);
+    //Entity *eyeEntity1 = scene->AddEntity("eye 1");
+    //eyeEntity1->SetParent(entity);
 
-    TransformComponent *eyeTransform1 = eyeEntity1->AddComponent<TransformComponent>();
-    eyeTransform1->SetLocalPosition(0.1f, 2.0f, 0.4f);
-    eyeTransform1->SetLocalScale(0.007f, 0.007f, 0.007f);
+    //TransformComponent *eyeTransform1 = eyeEntity1->AddComponent<TransformComponent>();
+    //eyeTransform1->SetLocalPosition(0.1f, 2.0f, 0.4f);
+    //eyeTransform1->SetLocalScale(0.007f, 0.007f, 0.007f);
 
-    ModelComponent *eyeModel1 = eyeEntity1->AddComponent<ModelComponent>();
-    eyeModel1->SetModel(this->eyeModel);
-    eyeModel1->SetTint({1.0f, 0.03f, 0.03f});
-    eyeModel1->SetEmissive(3.0f);
+    //ModelComponent *eyeModel1 = eyeEntity1->AddComponent<ModelComponent>();
+    //eyeModel1->SetModel(this->eyeModel);
+    //eyeModel1->SetTint({1.0f, 0.03f, 0.03f});
+    //eyeModel1->SetEmissive(3.0f);
 
-    Entity *eyeEntity2 = scene->AddEntity("eye 2");
-    eyeEntity2->SetParent(entity);
+    //Entity *eyeEntity2 = scene->AddEntity("eye 2");
+    //eyeEntity2->SetParent(entity);
 
-    TransformComponent *eyeTransform2 = eyeEntity2->AddComponent<TransformComponent>();
-    eyeTransform2->SetLocalPosition(-0.1f, 2.0f, 0.4f);
-    eyeTransform2->SetLocalScale(0.007f, 0.007f, 0.007f);
+    //TransformComponent *eyeTransform2 = eyeEntity2->AddComponent<TransformComponent>();
+    //eyeTransform2->SetLocalPosition(-0.1f, 2.0f, 0.4f);
+    //eyeTransform2->SetLocalScale(0.007f, 0.007f, 0.007f);
 
-    ModelComponent *eyeModel2 = eyeEntity2->AddComponent<ModelComponent>();
-    eyeModel2->SetModel(this->eyeModel);
-    eyeModel2->SetTint({1.0f, 0.03f, 0.03f});
-    eyeModel2->SetEmissive(3.0f);
+    //ModelComponent *eyeModel2 = eyeEntity2->AddComponent<ModelComponent>();
+    //eyeModel2->SetModel(this->eyeModel);
+    //eyeModel2->SetTint({1.0f, 0.03f, 0.03f});
+    //eyeModel2->SetEmissive(3.0f);
 
     return entity;
 }
