@@ -27,6 +27,7 @@ class EnemySpawnerComponent : public Component
     std::shared_ptr<Model> eyeModel = nullptr;
 	std::shared_ptr<Model> knifeModel = nullptr;
 	std::shared_ptr<Model> clubModel = nullptr;
+	std::shared_ptr<Texture2D> sparksTexture;
 
 private:
 	GibsComponent *gibs = nullptr;

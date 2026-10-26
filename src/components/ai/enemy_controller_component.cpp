@@ -28,6 +28,7 @@
 #include "components/lights/point_light_component.hpp"
 #include "components/collisions/area_component.hpp"
 #include "components/collisions/sphere_collision_component.hpp"
+#include "components/gameplay/shake_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "assets/types/audio_clip.hpp"
 #include <algorithm>
@@ -44,6 +45,10 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->sound = this->GetOwner()->GetComponent<SoundComponent>();
     this->splatter = this->GetOwner()->GetComponent<SplatterComponent>();
     this->lastFootstepAnimTime = this->animator ? this->animator->GetTime() : -1.0f;
+
+    this->sparksTexture = context.assetManager->Get<Texture2D>("assets/images/sparks_new.png");
+    this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
+    this->shockwaveTexture = context.assetManager->Get<Texture2D>("assets/images/parry_shockwave.png");
 
     if (!this->transform) {
         LogWarn("EnemyControllerComponent on '%s' has no TransformComponent",
@@ -703,6 +708,59 @@ void EnemyControllerComponent::WizardFireballAttack()
 
 }
 
+void EnemyControllerComponent::SpawnSparks(XMFLOAT3 position)
+{
+    // dust
+    {
+        Entity *sparkEntity = this->GetOwner()->GetScene()->AddEntity("spark");
+        sparkEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
+        sparkEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(1.0f);
+
+        auto *particle = sparkEntity->AddComponent<ParticleSystemComponent>();
+        particle->SetSpawnRadius(0.15f);
+        particle->SetIsBurst(true);
+        particle->SetIsSpread(true);
+        particle->SetCount(30);
+        particle->SetStartTint({ 0.122f * 0.5f, 0.078f * 0.5f, 0.037f * 0.5f });
+        particle->SetEndTint({ 0.122f, 0.078f, 0.037f });
+        particle->SetStartScale(0.4f);
+        particle->SetEndScale(1.25f);
+        particle->SetLifeTime(1.0f);
+
+        particle->SetVelocity({ 2.5f, 4.5f, 2.5f });
+        particle->SetAcceleration({ 0.0f, -9.82f, 0.0f });
+
+        particle->SetIsAnimate(true);
+        particle->SetIsAdditive(false);
+        particle->SetAtlasTexture(this->smokeTexture);
+        particle->SetAnimationSpeed(1.0f);
+        particle->SetAtlasSize({ 8.0f, 8.0f });
+    }
+
+    // shockwave
+    {
+        constexpr float LIFE_TIME = 0.5f;
+        Entity *shockWaveEntity = this->GetOwner()->GetScene()->AddEntity("shockwave");
+        shockWaveEntity->AddComponent<TransformComponent>()->SetWorldPosition(position);
+        shockWaveEntity->AddComponent<LifeTimeComponent>()->SetLifeTime(LIFE_TIME);
+
+        auto *particle = shockWaveEntity->AddComponent<ParticleSystemComponent>();
+        particle->SetSpawnRadius(RNG::Float(0.0f, 0.0f));
+        particle->SetIsBurst(true);
+        particle->SetCount(1);
+        particle->SetStartTint({ 0.122f, 0.078f, 0.037f });
+        particle->SetEndTint({ 0.0f, 0.0f, 0.0f });
+        particle->SetStartScale(0.5f);
+        particle->SetEndScale(5.0f);
+        particle->SetLifeTime(LIFE_TIME);
+        particle->SetVelocity({ 0.0f, 0.0f, 0.0f });
+        particle->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+
+        particle->SetIsAdditive(true);
+        particle->SetAtlasTexture(this->shockwaveTexture);
+    }
+}
+
 void EnemyControllerComponent::OnAttackHit(const AttackHitEvent& event)
 {
     if (event.attacker == this->hitboxEntity)
@@ -920,6 +978,11 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
 
     this->sound->SetMinDistance(1.0f);
     this->sound->SetMaxDistance(25.0f);
+
+    if (this->weaponParticleEntity)
+    {
+        this->weaponParticleEntity->SetLocallyActive(false);
+    }
 }
 
 void EnemyControllerComponent::EndAttack()
@@ -927,9 +990,15 @@ void EnemyControllerComponent::EndAttack()
     this->isAttacking = false;
     this->fireballBurstRemaining = 0;
     this->animator->CrossFade(this->enemy->walkAnimation, 0.1f);
+
     if (this->fireballBurstRemaining == 0)
     {
         this->attackCooldownTimer = this->fireballCooldown;
+    }
+
+    if (this->weaponParticleEntity)
+    {
+        this->weaponParticleEntity->SetLocallyActive(true);
     }
 }
 
@@ -983,7 +1052,6 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
 void EnemyControllerComponent::Attack()
 {
     this->hasAttacked = true;
-
     this->sound->SetSound(this->enemy->attackSound);
     this->sound->Play();
 
@@ -996,6 +1064,16 @@ void EnemyControllerComponent::Attack()
         case EnemyType::OGRE:
         {
             this->MeleeAttack(50, 0.5f, {0.0f, 0.73f, 1.45f}, {0.5f, 0.5f, 1.0f});
+            this->SpawnSparks(this->weaponParticleEntity->GetComponent<TransformComponent>()->GetWorldPosition());
+
+            Entity *playerEnt = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+            Entity *camera = playerEnt->GetChildren()[0]->GetChildren()[0];
+
+            if (camera)
+            {
+                if (auto *shake = camera->GetComponent<ShakeComponent>())
+                    shake->AddTrauma(100.0f);
+            }
 
         } break;
         case EnemyType::SKELETON:

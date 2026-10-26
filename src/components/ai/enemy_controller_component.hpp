@@ -13,6 +13,7 @@ class HitboxComponent;
 class GibsComponent;
 class SoundComponent;
 class SplatterComponent;
+class ParticleSystemComponent;
 class SpatialGrid;
 class Sound;
 class Enemy;
@@ -59,6 +60,10 @@ private:
 	std::shared_ptr<AudioClip> arrowFlying;
 	std::shared_ptr<Sound> arrowPassbySound;
 
+	std::shared_ptr<Texture2D> smokeTexture;
+	std::shared_ptr<Texture2D> sparksTexture;
+	std::shared_ptr<Texture2D> shockwaveTexture;
+
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };
 	float knockbackStunTimer = 0.0f;
@@ -100,7 +105,6 @@ private:
 	Entity* arrow = nullptr;
 	std::shared_ptr<Model> arrowModel;
 	std::shared_ptr<Texture2D> flameTexture;
-	std::shared_ptr<Texture2D> smokeTexture;
 
 	// Fireball
 	ExportPropertyCategory("Fireball");
@@ -152,6 +156,8 @@ private:
 	void UpdateKnockback(float deltaTime);
 
 public:
+	Entity *weaponParticleEntity = nullptr;
+
     float emissiveTimer = 0.0f;
     float emissiveDuration = 0.1f;
 
@@ -198,4 +204,6 @@ public:
 	void ShootRainOfFireball();
 	void ShootWallOfFireball();
 	void WizardFireballAttack();
+
+	void SpawnSparks(XMFLOAT3 position);
 };

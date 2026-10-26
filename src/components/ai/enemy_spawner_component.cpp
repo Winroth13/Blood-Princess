@@ -174,6 +174,32 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
                 weaponSocket->SetOffsetRotation({ 159.0f, 268.0f, -90.0f });
                 weaponSocket->SetOffsetPosition({ 0.02f, 0.30f, 0.0f });
                 weaponSocket->SetOffsetScale({ 4.0f, 4.0f, 4.0f });
+
+                Entity *weaponParticleEntity = scene->AddEntity("weapon_particle");
+                weaponParticleEntity->SetParent(weaponEntity);
+
+                weaponParticleEntity->AddComponent<TransformComponent>()->SetLocalPosition({ 0.0f, 0.4f, 0.0f });
+
+                ParticleSystemComponent *sparksParticle = weaponParticleEntity->AddComponent<ParticleSystemComponent>();
+                sparksParticle->SetSpawnRadius(0.07f);
+                sparksParticle->SetIsSpread(true);
+                sparksParticle->SetCount(90);
+                sparksParticle->SetStartTint({ 0.996f, 0.303f, 0.0f });
+                sparksParticle->SetEndTint({ 0.0f, 0.0f, 0.0f });
+                sparksParticle->SetStartScale(0.0f);
+                sparksParticle->SetEndScale(3.0f);
+                sparksParticle->SetLifeTime(0.8f);
+
+                sparksParticle->SetVelocity({ 0.15f, 0.15f, 0.15f });
+                sparksParticle->SetAcceleration({ 0.0f, 0.0f, 0.0f });
+
+                sparksParticle->SetIsAnimate(true);
+                sparksParticle->SetIsAdditive(true);
+                sparksParticle->SetAtlasTexture(this->sparksTexture);
+                sparksParticle->SetAnimationSpeed(4.0f);
+                sparksParticle->SetAtlasSize({ 2.0f, 2.0f });
+                
+                enemyController->weaponParticleEntity = weaponParticleEntity;
                 break;
         }
     }
@@ -191,6 +217,7 @@ void EnemySpawnerComponent::OnStart(const AppContext& context)
     this->eyeModel = context.assetManager->Get<Model>("assets/models/sphere.glb");
     this->knifeModel = context.assetManager->Get<Model>("assets/models/goblinknife.glb");
     this->clubModel = context.assetManager->Get<Model>("assets/models/club.glb");
+    this->sparksTexture = context.assetManager->Get<Texture2D>("assets/images/sparks_new.png");
 
     this->InitializePools(context, context.sceneManager->GetCurrentScene());
 }
