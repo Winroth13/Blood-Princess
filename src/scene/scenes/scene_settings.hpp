@@ -73,6 +73,36 @@ namespace Scenes {
             UI::Anchor::TOP,
             {0.0f, 410.0f}
         );
+        UICheckboxComponent *checkbox = UI::Factory::Place(ui.CreateCheckbox(bgEntity, "", false, [app](bool isOn)
+        {
+            app->SetFullscreen(isOn);
+        }), UI::Anchor::CENTRE, { 200.0f, -150.0f });
+
+        UI::Factory::Place(ui.CreateText(bgEntity, "Fullscreeen (F11)"), UI::Anchor::LEFT, { 600.0f, -150.0f });
+
+        UI::Factory::Place(ui.CreateTitle(bgEntity, "Volume"), UI::Anchor::CENTRE, { 0.0f, -75.0f });
+
+        AudioManager *audioManager = appContext.audioManager;
+        UISliderComponent *masterDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetMasterVolumeModifier(), [audioManager](float value)
+        {
+            audioManager->SetMasterVolumeModifier(value);
+        }, "masterSlider"), UI::Anchor::CENTRE, { 200.0f, 0.f });
+
+        UI::Factory::Place(ui.CreateText(bgEntity, "Master"), UI::Anchor::LEFT, { 600.0f, 0.0f });
+
+        UISliderComponent *soundDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetSoundVolumeModifier(), [audioManager](float value)
+        {
+            audioManager->SetSoundVolumeModifier(value);
+        }, "soundSlider"), UI::Anchor::CENTRE, { 200.0f, 50.f });
+
+        UI::Factory::Place(ui.CreateText(bgEntity, "Sound"), UI::Anchor::LEFT, { 600.0f, 50.0f });
+
+        UISliderComponent *musicDrag = UI::Factory::Place(ui.CreateSlider(bgEntity, 0.0f, 2.0f, audioManager->GetMusicVolumeModifier(), [audioManager](float value)
+        {
+            audioManager->SetMusicVolumeModifier(value);
+        }, "musicSlider"), UI::Anchor::CENTRE, { 200.0f, 100.f });
+
+        UI::Factory::Place(ui.CreateText(bgEntity, "Music"), UI::Anchor::LEFT, { 600.0f, 100.0f });
 
         UIButtonComponent *backButton = UI::Factory::Place(ui.CreateButton(bgEntity, "BACK", nullptr, "btn_back"), UI::Anchor::BOTTOM, { 0.0f, -80.0f });
         backButton->GetOnClick().Connect([appContext]() {
