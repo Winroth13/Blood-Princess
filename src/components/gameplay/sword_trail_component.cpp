@@ -145,7 +145,7 @@ void SwordTrailComponent::Render(const RenderView &view, RenderQueue &queue) {
 
     float comboRatio = this->combo / 100.0f;
 
-    float prev = 0;
+    int prev = 0;
     XMFLOAT3 colour = {0.0f, 0.0f, 0.0f};
     if (comboRatio > 0.2f) {
         colour = {133 / 255.0f, 57 / 255.0f, 7 / 255.0f}; // 133, 57, 7
