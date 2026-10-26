@@ -50,15 +50,11 @@ private:
 	bool isMusicPaused = false;
 	float pitchModifier = 1.0f;
 
-	float masterVolumeModifier = 1.0f;
-	float soundVolumeModifier = 1.0f;
-	float musicVolumeModifier = 1.0f;
-
 	SoundId nextSoundId = 1;
 	std::vector<ActiveSound> activeVoices;
 
-	float GetResultingSoundVolume(float volume) const { return volume * this->masterVolumeModifier * this->soundVolumeModifier; }
-	float GetResultingMusicVolume(float volume) const { return volume * this->masterVolumeModifier * this->musicVolumeModifier; }
+	float GetResultingSoundVolume(float volume) const;
+	float GetResultingMusicVolume(float volume) const;
 
 public:
 	AudioManager() = default;
@@ -98,12 +94,4 @@ public:
 
 	void SetMusicVolume(float volume);
 	float GetMusicVolume() const { return this->musicVolume; }
-
-	void SetMasterVolumeModifier(float volume) { this->masterVolumeModifier = volume; }
-	void SetSoundVolumeModifier(float volume) { this->soundVolumeModifier = volume; }
-	void SetMusicVolumeModifier(float volume) { this->musicVolumeModifier = volume; }
-
-	float GetMasterVolumeModifier() { return this->masterVolumeModifier; }
-	float GetSoundVolumeModifier() { return this->soundVolumeModifier; }
-	float GetMusicVolumeModifier() { return this->musicVolumeModifier; }
 };

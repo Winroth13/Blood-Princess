@@ -54,6 +54,10 @@ class Application
     float mouseSensitivity = 0.1f;
     bool invertY = false;
 
+    float masterVolume = 1.0f;
+    float soundVolume = 1.0f;
+    float musicVolume = 1.0f;
+
     void Update(float deltaTime);
     void PreRender(float deltaTime);
     void Render(float deltaTime);
@@ -81,6 +85,15 @@ public:
     bool GetInvertY() const { return this->invertY; }
     void SetInvertY(bool invertY);
 
+    float GetMasterVolume() const { return this->masterVolume; }
+    void SetMasterVolume(float volume);
+
+    float GetSoundVolume() const { return this->soundVolume; }
+    void SetSoundVolume(float volume);
+
+    float GetMusicVolume() const { return this->musicVolume; }
+    void SetMusicVolume(float volume);
+    
     void SaveSettings();
     void LoadSettings();
 
