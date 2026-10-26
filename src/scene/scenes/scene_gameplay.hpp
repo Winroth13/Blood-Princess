@@ -148,7 +148,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
         viewTransform->SetLocalRotation({ 0.0f, 180.0f, 0.0f });
         ModelComponent *viewmodelModel = viewEntity->AddComponent<ModelComponent>();
         viewmodelModel->SetModel(appContext.assetManager->Get<Model>("assets/models/princess_viewmodel.glb"));
-        XMFLOAT4 tint = UI::RGBA{222, 99, 63, 255};
+        XMFLOAT4 tint = UI::RGBA{162, 71, 63, 255};
         viewmodelModel->SetTint({tint.x, tint.y, tint.z});
 
         playerEntity->GetComponent<PlayerControllerComponent>()->SetRootTransform(viewTransform);
