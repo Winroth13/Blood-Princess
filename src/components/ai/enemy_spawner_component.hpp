@@ -24,6 +24,8 @@ class EnemySpawnerComponent : public Component
 
 	std::array<PoolComponent *, 4> enemyPools = { nullptr };
 
+    std::shared_ptr<Model> eyeModel;
+
 private:
 	GibsComponent *gibs = nullptr;
 	AIManager *aiManager = nullptr;
