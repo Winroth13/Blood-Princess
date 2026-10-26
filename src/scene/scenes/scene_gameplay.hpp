@@ -207,6 +207,131 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
     return playerEntity;
 }
 
+static void CreatePauseSettings(Application *app, UI::Factory ui, Entity *group, float topY)
+{
+    // Volume
+    UI::Factory::Place(
+        ui.CreateTitle(group, "Volume", "volume_title"),
+        UI::Anchor::TOP,
+        { 0.0f, topY }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    float masterVolume = app->GetMasterVolume();
+    UITextComponent *masterLabel = UI::Factory::Place(
+        ui.CreateText(group, std::format("{:.0f}%", masterVolume * 100), 0.0f, "master_label"),
+        UI::Anchor::TOP,
+        { -60.0f, topY + 75.0f }
+    );
+    masterLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    masterLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+    UISliderComponent *masterDrag = UI::Factory::Place(
+        ui.CreateSlider(group, 0.0f, 2.0f, masterVolume, [app, masterLabel](float value)
+            {
+                app->SetMasterVolume(value);
+                masterLabel->SetText(std::format("{:.0f}%", value * 100));
+            }, "master_slider"),
+        UI::Anchor::TOP,
+        { 200.0f, topY + 75.0f }
+    );
+    UI::Factory::Place(
+        ui.CreateText(group, "Master", 0.0f, "master_text"),
+        UI::Anchor::TOP_LEFT,
+        { 600.0f, topY + 75.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    float soundVolume = app->GetSoundVolume();
+    UITextComponent *soundLabel = UI::Factory::Place(
+        ui.CreateText(group, std::format("{:.0f}%", soundVolume * 100), 0.0f, "sound_label"),
+        UI::Anchor::TOP,
+        { -60.0f, topY + 125.0f }
+    );
+    soundLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    soundLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+    UISliderComponent *soundDrag = UI::Factory::Place(
+        ui.CreateSlider(group, 0.0f, 2.0f, soundVolume, [app, soundLabel](float value)
+            {
+                app->SetSoundVolume(value);
+                soundLabel->SetText(std::format("{:.0f}%", value * 100));
+            }, "sound_slider"),
+        UI::Anchor::TOP,
+        { 200.0f, topY + 125.0f }
+    );
+    UI::Factory::Place(
+        ui.CreateText(group, "Sound", 0.0f, "sound_text"),
+        UI::Anchor::TOP_LEFT,
+        { 600.0f, topY + 125.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    float musicVolume = app->GetMusicVolume();
+    UITextComponent *musicLabel = UI::Factory::Place(
+        ui.CreateText(group, std::format("{:.0f}%", musicVolume * 100), 0.0f, "music_label"),
+        UI::Anchor::TOP,
+        { -60.0f, topY + 175.0f }
+    );
+    musicLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    musicLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+    UISliderComponent *musicDrag = UI::Factory::Place(
+        ui.CreateSlider(group, 0.0f, 2.0f, musicVolume, [app, musicLabel](float value)
+            {
+                app->SetMusicVolume(value);
+                musicLabel->SetText(std::format("{:.0f}%", value * 100));
+            }, "music_slider"),
+        UI::Anchor::TOP,
+        { 200.0f, topY + 175.0f }
+    );
+    UI::Factory::Place(
+        ui.CreateText(group, "Music", 0.0f, "music_text"),
+        UI::Anchor::TOP_LEFT,
+        { 600.0f, topY + 175.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    //Controls
+    UI::Factory::Place(
+        ui.CreateTitle(group, "Controls", "controls_title"),
+        UI::Anchor::TOP,
+        { 0.0f, topY + 250.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    float initialSens = app ? app->GetMouseSensitivity() : 0.1f;
+    UITextComponent *sensLabel = UI::Factory::Place(
+        ui.CreateText(group, std::format("{:.2f}", initialSens), 0.0f, "sens_label"),
+        UI::Anchor::TOP,
+        { -60.0f, topY + 325.0f }
+    );
+    sensLabel->SetAlignVertical(UI::AlignVertical::CENTRE);
+    sensLabel->SetAlignHorizontal(UI::AlignHorizontal::RIGHT);
+    UISliderComponent *sensSlider = UI::Factory::Place(
+        ui.CreateSlider(group, 0.01f, 0.50f, initialSens, [app, sensLabel](float value)
+            {
+                if (app)
+                    app->SetMouseSensitivity(value);
+                sensLabel->SetText(std::format("{:.2f}", value));
+            }, "sens_slider"),
+        UI::Anchor::TOP,
+        { 200.0f, topY + 325.0f }
+    );
+    sensSlider->SetRange(0.01f, 0.50f, 0.01f);
+    UI::Factory::Place(
+        ui.CreateText(group, "Sensitivity", 28.0f, "sens_text"),
+        UI::Anchor::TOP_LEFT,
+        { 600.0f, topY + 325.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+
+    UICheckboxComponent *invertYCheckbox = UI::Factory::Place(
+        ui.CreateCheckbox(group, "", app ? app->GetInvertY() : false, [app](bool isOn) {
+            if (app)
+                app->SetInvertY(isOn);
+            }, "y_axis_checkbox"),
+        UI::Anchor::TOP,
+        { 200.0f, topY + 391.0f }
+    );
+    UI::Factory::Place(
+        ui.CreateText(group, "Invert Y-Axis", 0.0f, "y_axis_label"),
+        UI::Anchor::TOP_LEFT,
+        { 600.0f, topY + 395.0f }
+    )->SetAlignVertical(UI::AlignVertical::CENTRE);
+}
+
 static Entity* CreateHUD(
     Scene &outScene,
     const AppContext &appContext,
@@ -322,12 +447,14 @@ static Entity* CreateHUD(
     Entity *blocker = ui.CreateBlocker(hud);
     blocker->SetLocallyActive(false);
 
-    UIButtonComponent *continueButton = UI::Factory::Place(ui.CreateButton(blocker, "CONTINUE", nullptr, "btn_continue"), UI::Anchor::CENTRE, { 0.0f, -50.0f });
+    CreatePauseSettings(appContext.application, ui, blocker, 200.0f);
+
+    UIButtonComponent *continueButton = UI::Factory::Place(ui.CreateButton(blocker, "CONTINUE", nullptr, "btn_continue"), UI::Anchor::CENTRE, { 0.0f, 200.0f });
     continueButton->GetOnClick().Connect([controller]() {
         controller->SetIsPaused(false);
     });
 
-    UIButtonComponent *quitButton = UI::Factory::Place(ui.CreateButton(blocker, "QUIT", nullptr, "btn_quit"), UI::Anchor::CENTRE, { 0.0f, 50.0f });
+    UIButtonComponent *quitButton = UI::Factory::Place(ui.CreateButton(blocker, "QUIT", nullptr, "btn_quit"), UI::Anchor::CENTRE, { 0.0f, 300.0f });
     quitButton->GetOnClick().Connect([appContext]() {
         appContext.sceneManager->RequestSceneChange("main_menu");
     });
