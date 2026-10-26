@@ -42,6 +42,7 @@ class TutorialComponent : public Component
 	bool currentStepDone = false;
 	bool hasConnetions = false;
 	bool manualCompletion = false;
+	bool isUsingGamepad = false;
 	EnemyType enemyToSpawn = EnemyType::COUNT;
 
 public:
@@ -61,6 +62,7 @@ private:
 
 	void OnAttackHit(const struct AttackHitEvent &event);
 
+	void UpdateStepInstructions();
 	void ShowStep(size_t index);
 	void CompleteTutorial();
 };

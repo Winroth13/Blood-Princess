@@ -118,6 +118,8 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
         modelComponent->SetSubmeshEmissiveValue(0, 4.0f);
     else if (enemy->type == EnemyType::OGRE)
         modelComponent->SetSubmeshEmissiveValue(0, 4.0f);
+    else if (enemy->type == EnemyType::SKELETON)
+        modelComponent->SetSubmeshEmissiveValue(3, 8.0f);
 
     auto *enemySplatter = entity->AddComponent<SplatterComponent>();
 
