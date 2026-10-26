@@ -2,6 +2,7 @@
 
 #include "scene/component.hpp"
 #include "assets/types/texture_cube.hpp"
+#include "audio/audio_manager.hpp"
 
 class EnvironmentComponent : public Component {
 	RegisterComponent(EnvironmentComponent);
@@ -12,7 +13,7 @@ class EnvironmentComponent : public Component {
 	ExportPropertyRanged(float, fogStartDepth, "m", 0.0f, 15.0f, 0.05f, 0.0f);
 	ExportPropertyRanged(float, fogEndDepth, "m", 0.0f, 15.0f, 0.05f, 15.0f);
 	ExportProperty(std::shared_ptr<TextureCube>, textureCube, nullptr);
-	
+
 public:
 	EnvironmentComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesRender(); }
 

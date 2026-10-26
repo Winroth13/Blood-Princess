@@ -4,6 +4,16 @@
 #include "core/logging.hpp"
 #include "core/application.hpp"
 
+float AudioManager::GetResultingSoundVolume(float volume) const
+{
+	return volume * this->application->GetMasterVolume() * this->application->GetSoundVolume();
+}
+
+float AudioManager::GetResultingMusicVolume(float volume) const
+{
+	return volume * this->application->GetMasterVolume() * this->application->GetMusicVolume();
+}
+
 void AudioManager::FixedUpdate(float deltaTime)
 {
 	for (size_t i = 0; i < this->activeVoices.size(); )
@@ -124,6 +134,8 @@ void AudioManager::UpdateSoundPosition(SoundId id, const DirectX::XMFLOAT3& newP
 
 void AudioManager::UpdateAudio(SoundId id, float minDistance, float maxDistance, bool looping, bool is3D, float volume, float pitch)
 {
+	volume = GetResultingSoundVolume(volume);
+
 	for (auto& active : this->activeVoices)
 	{
 		if (active.id == id) {
@@ -298,6 +310,8 @@ void AudioManager::SetListener(const DirectX::XMFLOAT3& listenerPosition, const 
 
 SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
+	volume = GetResultingSoundVolume(volume);
+
 	if (!clip)
 	{
 		LogError("AudioClip is nullptr!");
@@ -336,8 +350,8 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 		&clip->GetWaveFormat(),
 		0,
 		maxFrequencyRatio
-
 	);
+
 	if (FAILED(hr))
 	{
 		LogError("Failed to create Source Voice! HRESULT: 0x%08X", hr);
@@ -379,6 +393,8 @@ SoundId AudioManager::PlaySoundEffect(std::shared_ptr<AudioClip> clip, bool loop
 
 SoundId AudioManager::PlaySoundAt(std::shared_ptr<AudioClip> clip, bool looping, DirectX::XMFLOAT3 position, float volume, float pitch, float minDistance, float maxDistance)
 {
+	volume = GetResultingSoundVolume(volume);
+
 	if (!clip)
 	{
 		LogError("AudioClip is nullptr!");
@@ -565,6 +581,8 @@ void AudioManager::StopAudio(std::shared_ptr<AudioClip> clip)
 
 bool AudioManager::PlayMusic(std::shared_ptr<AudioClip> clip, bool loop, float volume, float pitch)
 {
+	volume = GetResultingMusicVolume(volume);
+
 	if (!clip)
 	{
 		LogError("AudioClip is nullptr for music!");
@@ -681,12 +699,14 @@ bool AudioManager::IsMusicPlaying() const
 
 void AudioManager::SetMusicVolume(float volume)
 {
+	volume = GetResultingMusicVolume(volume);
 	this->musicVolume = volume;
 	if (this->musicVoice)
 	{
 		this->musicVoice->SetVolume(volume);
 	}
 }
+
 void AudioManager::SetPitchModifier(float pitch)
 {
 	this->pitchModifier = pitch;

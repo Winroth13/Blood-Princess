@@ -53,6 +53,9 @@ private:
 	SoundId nextSoundId = 1;
 	std::vector<ActiveSound> activeVoices;
 
+	float GetResultingSoundVolume(float volume) const;
+	float GetResultingMusicVolume(float volume) const;
+
 public:
 	AudioManager() = default;
 	~AudioManager() = default;

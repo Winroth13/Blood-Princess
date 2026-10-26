@@ -101,7 +101,7 @@ void ModelComponent::SetModel(std::shared_ptr<Model> model)
     
     uint32_t submeshCount = 0;
     for (auto &mesh : this->model->GetMeshes())
-        submeshCount += mesh->GetSubMeshes().size();
+        submeshCount += static_cast<uint32_t>(mesh->GetSubMeshes().size());
 
     this->submeshEmissiveValues.resize(submeshCount);
 }
