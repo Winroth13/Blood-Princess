@@ -203,35 +203,3 @@ void WaveController::Update(const AppContext &context, float deltaTime)
 		}
 	}
 }
-
-// MEGA HACK to get some debug ui for the wave controller
-void WaveController::Render(const RenderView &view, RenderQueue &queue)
-{
-	if (view.type != ViewType::PRIMARY)
-		return;
-
-	ImGui::Begin("Wave Info");
-	
-	for (size_t i = 0; i < this->activeWaves.size(); ++i)
-	{
-		ActiveWave &activeWave = this->activeWaves[i];
-
-		ImGui::SeparatorText(std::format("Wave {} ({}%)", i, this->GetWaveProgress(activeWave) * 100).c_str());
-		ImGui::Text("Score: %u / %u", activeWave.currentScore, activeWave.completionScore);
-		ImGui::Text("Total Score: %u / %u", activeWave.currentScore, activeWave.totalScore);
-
-		ImGui::SeparatorText("Spawn");
-
-		for (size_t j = 0; j < +EnemyType::COUNT; ++j)
-		{
-			ImGui::Text(
-				"%s: %d (%.2fs)", 
-				Enemy::GetStringFromEnemyType(static_cast<EnemyType>(j)).c_str(),
-				activeWave.toSpawn[j],
-				activeWave.spawnTimer[j]
-			);
-		}
-	}
-
-	ImGui::End();
-}
