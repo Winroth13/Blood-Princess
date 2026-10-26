@@ -3,6 +3,7 @@
 #include "scene/entity.hpp"
 #include "rendering/renderer.hpp"
 #include "components/gameplay/shake_component.hpp"
+#include "components/gameplay/viewbob_component.hpp"
 
 void CameraComponent::Update(const AppContext &context, float deltaTime) {
     TransformComponent *transform = this->GetOwner()->GetComponent<TransformComponent>();
@@ -29,6 +30,15 @@ void CameraComponent::Update(const AppContext &context, float deltaTime) {
         rotation.z += shakeRotation.z;
 
         shakePosition = transform->TransformDirection(shake->GetPositionOffset());
+    }
+
+    if (ViewBobComponent *viewBob = this->GetOwner()->GetComponent<ViewBobComponent>()) {
+        rotation.z += viewBob->GetRotationOffset().z;
+
+        const XMFLOAT3 bobPosition = transform->TransformDirection(viewBob->GetPositionOffset());
+        shakePosition.x += bobPosition.x;
+        shakePosition.y += bobPosition.y;
+        shakePosition.z += bobPosition.z;
     }
 
     XMMATRIX viewMatrix = XMMatrixRotationRollPitchYaw(

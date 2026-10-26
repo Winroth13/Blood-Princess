@@ -35,6 +35,7 @@
 #include "collision/collision_component.hpp"
 #include "core/math.hpp"
 #include "assets/types/audio_clip.hpp"
+#include "components/gameplay/viewbob_component.hpp"
 
 #include <cmath>
 
@@ -391,6 +392,9 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 	else {
 		this->velcoity = { 0.0f, 0.0f, 0.0f };
 	}
+
+    if (ViewBobComponent *viewBob = this->camera->GetOwner()->GetComponent<ViewBobComponent>())
+        viewBob->SetMoveFactor(XMVectorGetX(XMVector3Length(XMLoadFloat3(&this->velcoity))) / this->moveSpeed);
 }
 
 void PlayerControllerComponent::HandleCameraLook(float deltaTime)

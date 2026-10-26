@@ -166,6 +166,7 @@ static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entit
         cameraEntity->AddComponent<CameraComponent>();
         cameraEntity->AddComponent<TransformComponent>();
         cameraEntity->AddComponent<ShakeComponent>();
+        cameraEntity->AddComponent<ViewBobComponent>();
         cameraEntity->SetParent(viewEntity);
 
         playerEntity->GetComponent<PlayerControllerComponent>()->camera = cameraEntity->GetComponent<CameraComponent>();
