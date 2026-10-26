@@ -13,7 +13,7 @@ knockback_stun_duration: 0.2
 min_range: 5.0
 max_range: 25.0
 
-attack_time: 2.35
+attack_time: 2.65
 
 model: assets/models/skeleton.glb
 
