@@ -110,7 +110,7 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 
     if (this->isDoingHeavyAttack) {
         this->heavyAttackTimer += deltaTime;
-        if (this->heavyAttackTimer >= this->HEAVY_ATTACK_DURATION || (Action::IsActionPressed("Parry") && this->heavyAttackTimer < 0.2f))
+        if (this->heavyAttackTimer >= this->HEAVY_ATTACK_DURATION || (Action::IsActionPressed("Parry") && this->heavyAttackTimer < 0.4f))
             this->isDoingHeavyAttack = false;
     }
 
@@ -371,7 +371,7 @@ void PlayerControllerComponent::HandleMovement(float deltaTime)
 
         float moveSpeed = this->moveSpeed;
         if (this->isDoingHeavyAttack)
-            moveSpeed = this->moveSpeed * 0.5f;
+            moveSpeed = this->moveSpeed * 0.6f;
 
 		XMVECTOR newVel = XMVectorScale(moveDir, deltaTime * moveSpeed);
 		XMVECTOR newPosV = XMVectorAdd(currentPosV, newVel);
