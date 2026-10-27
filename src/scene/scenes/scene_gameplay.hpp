@@ -10,6 +10,7 @@
 static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entity *spawnerEntity)
 {
     Entity* playerEntity = outScene.AddEntity("player");
+    outScene.AddEntityToGroup("players", playerEntity);
     PlayerControllerComponent *playerController = playerEntity->AddComponent<PlayerControllerComponent>();
     playerController->SetActive(true);
     playerController->SetEnemySpawner(spawnerEntity->GetComponent<EnemySpawnerComponent>());
@@ -467,7 +468,7 @@ static Entity* CreateHUD(
     });
 
     // Tutorial Popup
-    Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
+    Entity *popupPanel = ui.CreatePanel(hud, {1000.0f, 130.0f}, "tutorial_popup");
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
@@ -868,10 +869,10 @@ namespace Scenes
 {
     void Gameplay(Scene& outScene, const AppContext& appContext) 
     {
-        //Entity *musicEntity = outScene.AddEntity("music_entity");
-        //musicEntity->AddComponent<TransformComponent>();
-        //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-        //musicComponent->SetVolume(0.2f);
+        Entity *musicEntity = outScene.AddEntity("music_entity");
+        musicEntity->AddComponent<TransformComponent>();
+        MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Blood_Princess_draft4.ogg"));
+        musicComponent->SetVolume(1.0f);
 
         // Gibs
         Entity *gibsEntity = CreateGibs(outScene, appContext);

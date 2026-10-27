@@ -27,9 +27,34 @@ bool TrapSpawnerComponent::SampleSpawnPosition(
     Entity* playerEnt =
         this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
 
-    if (!playerEnt) return false;
-    XMFLOAT3 playerPosF = playerEnt->GetComponent<TransformComponent>()->GetWorldPosition();
-    XMVECTOR playerPosV = XMLoadFloat3(&playerPosF);
+    DirectX::XMFLOAT3 playerPosF = { 0.0f, 0.0f, 0.0f };
+    bool hasPlayer = false;
+
+    if (playerEnt)
+    {
+        if (auto* transform = playerEnt->GetComponent<TransformComponent>())
+        {
+            playerPosF = transform->GetWorldPosition();
+            hasPlayer = true;
+        }
+    }
+    else
+    {
+        for (Entity* ent : this->GetOwner()->GetScene()->GetRootEntities())
+        {
+            if (ent && ent->GetName() == "player")
+            {
+                if (auto* transform = ent->GetComponent<TransformComponent>())
+                {
+                    playerPosF = transform->GetWorldPosition();
+                    hasPlayer = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    DirectX::XMVECTOR playerPosV = DirectX::XMLoadFloat3(&playerPosF);
 
     const int maxAttempts = 30;
     for (int i = 0; i < maxAttempts; ++i)
@@ -43,18 +68,20 @@ bool TrapSpawnerComponent::SampleSpawnPosition(
             origin.z + sinf(angle) * dist
         };
 
-        // look if the trap near the player
-        XMFLOAT3 positionF = outPos;
-        XMVECTOR positionV = XMLoadFloat3(&positionF);
+        if (hasPlayer)
+        {
+            // look if the trap near the player
+            DirectX::XMFLOAT3 positionF = outPos;
+            DirectX::XMVECTOR positionV = DirectX::XMLoadFloat3(&positionF);
 
-        XMVECTOR distanceV = XMVectorSubtract(positionV, playerPosV);
+            DirectX::XMVECTOR distanceV = DirectX::XMVectorSubtract(positionV, playerPosV);
 
-        float distance = XMVectorGetX(XMVector3Length(distanceV));
+            float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(distanceV));
 
-        if (distance < 5.0f) {
-            continue;
+            if (distance < 5.0f) {
+                continue;
+            }
         }
-
 
         if (!this->aiManager || this->aiManager->GetGrid().IsAreaClearOfTraps(outPos, this->minTrapSpacing))
         {
