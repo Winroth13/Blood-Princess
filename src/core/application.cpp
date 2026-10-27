@@ -161,17 +161,15 @@ bool Application::Initialize()
 
         Action::AddAction("Dash", Key::LEFT_SHIFT);
         Action::AddAction("Dash", Key::SPACE);
-        Action::AddAction("Dash", GamepadButton::EAST);
+        Action::AddAction("Dash", GamepadButton::LEFT_SHOULDER);
 
         Action::AddAction("LightAttack", MouseButton::LEFT);
-        Action::AddAction("LightAttack", GamepadButton::LEFT_SHOULDER);
+        Action::AddAction("LightAttack", GamepadAxis::RIGHT_TRIGGER, 0.5f);
 
         Action::AddAction("HeavyAttack", MouseButton::RIGHT);
         Action::AddAction("HeavyAttack", GamepadButton::RIGHT_SHOULDER);
-        Action::AddAction("HeavyAttack", GamepadAxis::RIGHT_TRIGGER, 0.5f);
 
         Action::AddAction("Parry", Key::F);
-        Action::AddAction("Parry", GamepadButton::WEST);
         Action::AddAction("Parry", GamepadAxis::LEFT_TRIGGER, 0.5f);
 
         Action::SaveBindings("bindings.cfg");

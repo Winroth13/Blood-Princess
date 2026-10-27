@@ -104,16 +104,16 @@ void TutorialComponent::UpdateStepInstructions()
 			this->steps[0].instruction = "Move with [Left Stick]";
 		}
 
-		std::string dash = GetActionConsoleSymbol("Dash", "B / Circle");
+		std::string dash = GetActionConsoleSymbol("Dash", "RB / L1");
 		this->steps[1].instruction = std::format("Dash with [{}]", dash);
 
-		std::string atk = GetActionConsoleSymbol("LightAttack", "LB / L1");
+		std::string atk = GetActionConsoleSymbol("LightAttack", "RT / R2");
 		this->steps[2].instruction = std::format("Attack with [{}]", atk);
 
 		std::string heavy = GetActionConsoleSymbol("HeavyAttack", "RB / R1");
 		this->steps[3].instruction = std::format("Heavy Attack with [{}]", heavy);
 
-		std::string parry = GetActionConsoleSymbol("Parry", "X / Square");
+		std::string parry = GetActionConsoleSymbol("Parry", "RT / L2");
 		this->steps[4].instruction = std::format("Parry with [{}], parry projectile to deflect", parry);
 	}
 	else
