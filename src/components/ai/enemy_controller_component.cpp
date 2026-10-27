@@ -91,6 +91,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
+    this->fireballTexture = context.assetManager->Get<Texture2D>("assets/images/explosion.png");
     this->arrowPassbySound = context.assetManager->Get<Sound>("assets/sounds/arrow_passby.sound");
 
     // Some dumb assumptions are made here but it's fine.
@@ -453,30 +454,31 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
 
     // Flame particle system
     ParticleSystemComponent* flame = fireballEnt->AddComponent<ParticleSystemComponent>();
-    flame->SetAtlasTexture(this->flameTexture);
-    flame->SetAtlasSize({ 12.0f, 6.0f });
+    flame->SetAtlasTexture(this->fireballTexture);
+    flame->SetAtlasSize({ 8.0f, 8.0f });
     flame->SetVelocity({ 0.0f, 0.0f, 0.0f });
     flame->SetAcceleration({ 0.0f, 0.0f, 0.0f });
     flame->SetLifeTime(timeToTarget * 2.5f);
     flame->SetIsAnimate(true);
     flame->SetISFlat(false);
     flame->SetIsAdditive(true);
-    flame->SetAnimationSpeed(1.2f);
+    flame->SetAnimationSpeed(1.0f);
     flame->SetIsSpread(true);
-    flame->SetCount(static_cast<uint32_t>(this->fireballRadius * 200));
-
-
+    flame->SetCount(8);
+    
+    flame->SetStartTint({ 0.0f, 0.278f, 1.0f });
+    flame->SetEndTint({ 0.212f, 0.0f, 0.418f });
 
     flame->SetSpawnRadius(this->fireballRadius);
     if (wall) {
         flame->SetIsSpread(true);
-        flame->SetStartScale(0.9f);
-        flame->SetEndScale(0.9f);
+        flame->SetStartScale(3.0f);
+        flame->SetEndScale(3.0f);
     }
     else
     {
-        flame->SetStartScale(0.7f);
-        flame->SetEndScale(0.7f);
+        flame->SetStartScale(2.0f);
+        flame->SetEndScale(2.0f);
     }
 
     // Smoke particle system
@@ -1070,15 +1072,9 @@ void EnemyControllerComponent::UpdateAttack(float deltaTime)
             }
         }
     }
-    bool attackFinished = false;
-    if (this->enemy->type == EnemyType::WIZARD)
-    {
-        attackFinished = this->hasAttacked && (this->fireballBurstRemaining <= 0);
-    }
-    else 
-    {
-        attackFinished = this->hasAttacked && this->animator->IsFinished();
-    }
+
+    bool attackFinished = false; 
+    attackFinished = this->hasAttacked && this->animator->IsFinished();
 
     if (attackFinished)
     {

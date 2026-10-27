@@ -3,6 +3,7 @@
 #include "assets/types/floor.hpp"
 #include "events/signal.hpp"
 #include "components/gameplay/player_controller_component.hpp"
+#include "components/ui/ui_bar_component.hpp"
 #include "core/game_state.hpp"
 
 #include <memory>
@@ -60,6 +61,8 @@ private:
 	void OnLevelEnd();
 
 public:
+	UIBarComponent *progressBar = nullptr;
+
 	LevelComponent(Entity *owner, bool isActive) : Component(owner, isActive) { UsesUpdate(); }
 	~LevelComponent() = default;
 

@@ -74,6 +74,7 @@ private:
 	std::shared_ptr<Texture2D> smokeTexture;
 	std::shared_ptr<Texture2D> sparksTexture;
 	std::shared_ptr<Texture2D> shockwaveTexture;
+	std::shared_ptr<Texture2D> fireballTexture;
 
 	uint64_t attackHitConnection = 0;
 	DirectX::XMFLOAT3 knockbackVelocity{ 0.0f, 0.0f, 0.0f };

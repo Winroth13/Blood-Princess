@@ -439,10 +439,7 @@ static Entity* CreateHUD(
 
     UIBarComponent *progressBar = ui.CreateBar(hud, 0.0f, 1.0f, "progress_bar");
     UI::Factory::Place(progressBar, UI::Anchor::TOP, {0.0f, 40.0f});
-
-    waveController->GetOnFloorProgressChanged().Connect([progressBar] (float progress) {
-        progressBar->SetValue(static_cast<float>(progress));
-    });
+    level->progressBar = progressBar;
 
     Entity *blocker = ui.CreateBlocker(hud);
     blocker->SetLocallyActive(false);

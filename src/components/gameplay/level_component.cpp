@@ -16,6 +16,11 @@
 #include "core/math.hpp"
 #include "core/application.hpp"
 
+#include "ui/ui_factory.hpp"
+#include "components/ui/ui_bar_component.hpp"
+#include "components/ui/ui_rect_component.hpp"
+#include "components/gameplay/health_component.hpp"
+
 void LevelComponent::OnStart(const AppContext &context)
 {
 	WaveController *waveController = this->GetOwner()->GetComponent<WaveController>();
@@ -89,6 +94,29 @@ void LevelComponent::OnStart(const AppContext &context)
 	// Load the next floor and play it!
 	std::string path = std::format("assets/floors/floor_{}.yaml", context.application->GetGameState()->GetNumFloorsComplete());
 	this->currentFloor = context.assetManager->Get<Floor>(path);
+
+	if (this->currentFloor->GetIsFinal())
+	{
+		EnemySpawnerComponent *spawner = this->GetOwner()->GetComponent<EnemySpawnerComponent>();
+		spawner->GetOnEnemySpawned().Connect([this](EnemyType, Entity *entity){
+			auto healthComponent = entity->GetComponent<Health>();
+			healthComponent->GetOnChangedHealth().Connect([this](float health, float maxHealth) {
+				this->progressBar->SetValue(health / maxHealth);
+			});
+		});
+		auto rect = this->progressBar->GetOwner()->GetComponent<UIRectComponent>();
+		rect->SetSizeDelta({ 700.0, 25.0f });
+		this->progressBar->SetMaxValue(1.0f);
+		this->progressBar->SetValue(1.0f);
+		this->progressBar->SetFillColour({ 0.675f, 0.184f, 0.125f, 1.0f });
+	}
+	else
+	{
+		waveController->GetOnFloorProgressChanged().Connect([this](float progress) {
+			this->progressBar->SetValue(static_cast<float>(progress));
+		});
+	}
+
 	waveController->StartFloor(this->currentFloor);
 
 	this->sceneManager = context.sceneManager;
