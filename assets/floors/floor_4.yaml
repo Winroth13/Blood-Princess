@@ -44,7 +44,7 @@ waves:
         amount: 40
         time: 4.0
       - type: skeleton
-        amount: 10
+        amount: 5
         time: 4.0
       - type: ogre
         amount: 4
@@ -56,7 +56,7 @@ waves:
         amount: 100
         time: 10.0
       - type: skeleton
-        amount: 10
+        amount: 5
         time: 10.0
       - type: ogre
         amount: 10
