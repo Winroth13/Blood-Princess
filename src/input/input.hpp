@@ -105,8 +105,12 @@ enum class GamepadButton
 	DPAD_UP = SDL_GAMEPAD_BUTTON_DPAD_UP,
 	DPAD_DOWN = SDL_GAMEPAD_BUTTON_DPAD_DOWN,
 	DPAD_LEFT = SDL_GAMEPAD_BUTTON_DPAD_LEFT,
-	DPAD_RIGHT = SDL_GAMEPAD_BUTTON_DPAD_RIGHT
+	DPAD_RIGHT = SDL_GAMEPAD_BUTTON_DPAD_RIGHT,
+
+	LEFT_TRIGGER = SDL_GAMEPAD_BUTTON_COUNT, // LT / L2
+	RIGHT_TRIGGER = SDL_GAMEPAD_BUTTON_COUNT + 1 // RT / R2
 };
+
 enum class GamepadAxis
 {
 	LEFT_X = SDL_GAMEPAD_AXIS_LEFTX,
@@ -132,8 +136,8 @@ private:
 
 	//gamepad
 	static SDL_Gamepad* activeGamepad;
-	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> currentGamepadButtons;
-	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> previousGamepadButtons;
+	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> currentGamepadButtons;
+	static std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> previousGamepadButtons;
 	static float deadzone;
 
 public:

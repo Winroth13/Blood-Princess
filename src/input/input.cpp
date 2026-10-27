@@ -18,8 +18,8 @@ std::array<bool, SDL_SCANCODE_COUNT> Input::savedPreviousKeys;
 MouseState Input::savedMouseState;
 
 SDL_Gamepad* Input::activeGamepad = nullptr;
-std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> Input::currentGamepadButtons = {};
-std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> Input::previousGamepadButtons = {};
+std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> Input::currentGamepadButtons = {};
+std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> Input::previousGamepadButtons = {};
 float Input::deadzone = 0.15f; // 15% stick deadzone
 
 
@@ -52,9 +52,24 @@ void Input::Update()
 	previousGamepadButtons = currentGamepadButtons;
 	if (activeGamepad)
 	{
-		for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; ++i)
+		for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT + 2; ++i)
 		{
-			currentGamepadButtons[i] = SDL_GetGamepadButton(activeGamepad, static_cast<SDL_GamepadButton>(i));
+			if (i < SDL_GAMEPAD_BUTTON_COUNT)
+			{
+				currentGamepadButtons[i] = SDL_GetGamepadButton(activeGamepad, static_cast<SDL_GamepadButton>(i));
+			}
+			/* Update Trigger Buttons */
+			else
+			{
+				if (i == static_cast<int>(GamepadButton::LEFT_TRIGGER))
+				{
+					currentGamepadButtons[i] = SDL_GetGamepadAxis(activeGamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) > 0.5;
+				}
+				else if (i == static_cast<int>(GamepadButton::RIGHT_TRIGGER))
+				{
+					currentGamepadButtons[i] = SDL_GetGamepadAxis(activeGamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.5;
+				}
+			}
 		}
 	}
 	else
