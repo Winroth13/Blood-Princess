@@ -10,6 +10,7 @@
 static Entity *CreatePlayer(Scene &outScene, const AppContext &appContext, Entity *spawnerEntity)
 {
     Entity* playerEntity = outScene.AddEntity("player");
+    outScene.AddEntityToGroup("players", playerEntity);
     PlayerControllerComponent *playerController = playerEntity->AddComponent<PlayerControllerComponent>();
     playerController->SetActive(true);
     playerController->SetEnemySpawner(spawnerEntity->GetComponent<EnemySpawnerComponent>());
