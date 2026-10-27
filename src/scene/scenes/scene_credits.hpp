@@ -38,7 +38,8 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
         {
             "Illustrations",
             {
-                "Casper Turesson"
+                "Casper Turesson",
+                "Britt-Marie (Cat)"
             }
         },
         {
@@ -46,7 +47,7 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
             {
                 "Britt-Marie (Cat)"
             }
-        },
+        }/*,
         {
             "Assets",
             {
@@ -54,7 +55,7 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
                 "(https://hugo-a-munoz.itch.io/free-low-poly-dragon)"
             },
             25.0f
-        }
+        }*/
     };
 
     float height = 0;
