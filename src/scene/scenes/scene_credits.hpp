@@ -38,7 +38,8 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
         {
             "Illustrations",
             {
-                "Casper Turesson"
+                "Casper Turesson",
+                "Britt-Marie (Cat)"
             }
         },
         {
@@ -50,8 +51,8 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
         {
             "Assets",
             {
-                "'Free Lowpoly Dragon' by Hugo A Munoz is licensed under Creative Commons Attribution",
-                "(https://hugo-a-munoz.itch.io/free-low-poly-dragon)"
+                "'Skeleton Rigged Model' by RosyJoan",
+                "(https://rosyjoan.itch.io/skeleton-riggedmodel)"
             },
             25.0f
         }
