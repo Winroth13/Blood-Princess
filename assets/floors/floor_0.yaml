@@ -1,33 +1,23 @@
 hue: 0.0
-saturation: 1.0
-value: 1.0
-intensity: 0.0
+saturation: 0.2
+value: 0.3
+intensity: 0.5
 
 
-fog_colour: [0.0469, 0.0302, 0.0302]
+fog_colour: [0.017, 0.017, 0.017]
 fog_density: 1.0
 fog_start: 0.0
-fog_end: 15.0
+fog_end: 50.0
 
-is_tutorial: true
-is_final: false
+is_tutorial: false
+is_final: true
 
 spike_traps:
-  amount: 2
+  amount: 0
 
 waves:
-
-  - completion: 0.75
+  - completion: 1.0
     enemies:
-      - type: goblin
-        amount: 12
-        time: 15.0
-
-  - completion: 0.75
-    enemies:
-      - type: goblin
-        amount: 18
-        time: 10.0
-      - type: skeleton
-        amount: 2
-        time: 12.0
+      - type: wizard
+        amount: 1
+        time: 0

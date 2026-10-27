@@ -15,6 +15,7 @@ class EnemySpawnerComponent : public Component
 {
 	RegisterComponent(EnemySpawnerComponent);
 
+	Signal<EnemyType, Entity *> onEnemySpawned;
 	Signal<EnemyType, uint32_t> onEnemyKilled;
 
 	ExportProperty(float, spawnOuterRadius, 20.0f);
@@ -54,4 +55,5 @@ public:
 	void SetGibsComponent(GibsComponent *gibs) { this->gibs = gibs; }
 
 	Signal<EnemyType, uint32_t> &GetOnEnemyKilled() { return this->onEnemyKilled; }
+	Signal<EnemyType, Entity *> &GetOnEnemySpawned() { return this->onEnemySpawned; }
 };

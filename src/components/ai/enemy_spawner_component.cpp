@@ -287,5 +287,7 @@ bool EnemySpawnerComponent::SpawnEnemy(size_t type, uint32_t wave)
         auto animator = entity->GetComponent<AnimatorComponent>()->Play("wake_up", false);
     }
 
+    this->onEnemySpawned.Emit(enemy->type, entity);
+
     return true;
 }

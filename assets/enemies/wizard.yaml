@@ -1,23 +1,22 @@
 type: wizard
 health: 5000
 score: 100
-scale: 1.0
+scale: 1.5
 
 avoidance_radius: 15.0
-move_speed: 0.0
+move_speed: 0.5
 
 min_range: 0.0
 max_range: 25.0
-attack_time: 0.5
+attack_time: 1.6
 
+model: assets/models/wizard.glb
 
-model: assets/models/dragon.glb
+walk_animation: Walk
+attack_animation: AttackFireball
 
-walk_animation: idle
-attack_animation: idle
-
-extends: [3.0, 3.3, 3.0]
-extends_offset: [0.0, 6.5, 0.0]
+extends: [1.0, 1.0, 1.0]
+extends_offset: [0.0, 2.2, 0.0]
 
 start_attack_sound: assets/sounds/skeleton_draw.sound
 attack_sound: assets/sounds/skeleton_shoot.sound
