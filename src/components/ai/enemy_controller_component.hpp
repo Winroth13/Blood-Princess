@@ -70,6 +70,7 @@ private:
 	std::shared_ptr<AudioClip> bowFireClip;
 	std::shared_ptr<AudioClip> arrowFlying;
 	std::shared_ptr<Sound> arrowPassbySound;
+	std::shared_ptr<Sound> fireballPassbySound;
 
 	std::shared_ptr<Texture2D> smokeTexture;
 	std::shared_ptr<Texture2D> sparksTexture;

@@ -18,8 +18,8 @@ attack_animation: AttackFireball
 extends: [1.0, 1.0, 1.0]
 extends_offset: [0.0, 2.2, 0.0]
 
-start_attack_sound: assets/sounds/skeleton_draw.sound
-attack_sound: assets/sounds/skeleton_shoot.sound
-hit_sound: assets/sounds/goblin_hit_sound.sound
-death_sound: assets/sounds/goblin_death_sounds.sound
-bark_sound: assets/sounds/goblin_random_sounds.sound
+start_attack_sound: assets/sounds/wizard_laugh.sound
+attack_sound: 
+hit_sound: 
+death_sound: 
+bark_sound: 
