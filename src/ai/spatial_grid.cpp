@@ -20,7 +20,7 @@ SpatialGrid::SpatialGrid(float cellSize, int width, int height, DirectX::XMFLOAT
 void SpatialGrid::InitCirclePositions()
 {
 	const float wallRadius = 25.0f;
-	const int pointCount = 256;
+	const int pointCount = 1000;
 	const float deltaTheta = DirectX::XM_2PI / static_cast<float>(pointCount);
 	this->circlePositions.clear();
 	this->circlePositions.reserve(pointCount);
