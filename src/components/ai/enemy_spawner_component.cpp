@@ -94,6 +94,7 @@ Entity *EnemySpawnerComponent::CreateEnemyEntity(std::shared_ptr<Enemy> enemy, S
     auto *enemyController = entity->AddComponent<EnemyControllerComponent>();
     enemyController->SetGibs(this->gibs);
     enemyController->SetEnemy(enemy);
+    enemyController->spawner = this;
 
     auto *enemySoundComponent = entity->AddComponent<SoundComponent>();
     enemySoundComponent->SetSound(enemy->hitSound);

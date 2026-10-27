@@ -20,6 +20,8 @@
 #include "components/ui/ui_bar_component.hpp"
 #include "components/ui/ui_rect_component.hpp"
 #include "components/gameplay/health_component.hpp"
+#include "components/gameplay/environment_component.hpp"
+#include "components/gameplay/shake_component.hpp"
 
 void LevelComponent::OnStart(const AppContext &context)
 {
@@ -90,6 +92,7 @@ void LevelComponent::OnStart(const AppContext &context)
 	});
 
 	this->nextFloorAudio = context.assetManager->Get<AudioClip>("assets/audio/sfx/scene_next_floor.ogg");
+	this->nextPhaseAudio = context.assetManager->Get<AudioClip>("assets/audio/sfx/wizard/phase_switch_1.ogg");
 
 	// Load the next floor and play it!
 	std::string path = std::format("assets/floors/floor_{}.yaml", context.application->GetGameState()->GetNumFloorsComplete());
@@ -98,11 +101,35 @@ void LevelComponent::OnStart(const AppContext &context)
 	if (this->currentFloor->GetIsFinal())
 	{
 		EnemySpawnerComponent *spawner = this->GetOwner()->GetComponent<EnemySpawnerComponent>();
-		spawner->GetOnEnemySpawned().Connect([this](EnemyType, Entity *entity){
-			auto healthComponent = entity->GetComponent<Health>();
-			healthComponent->GetOnChangedHealth().Connect([this](float health, float maxHealth) {
-				this->progressBar->SetValue(health / maxHealth);
-			});
+		spawner->GetOnEnemySpawned().Connect([this, context](EnemyType type, Entity *entity){
+			if (type == EnemyType::WIZARD)
+			{
+				auto healthComponent = entity->GetComponent<Health>();
+				healthComponent->GetOnChangedHealth().Connect([this, context](float health, float maxHealth) {
+					this->progressBar->SetValue(health / maxHealth);
+
+					if (health <= maxHealth / 2.0f && !this->secondPhase)
+					{
+						this->secondPhase = true;
+
+						auto environment = this->GetOwner()->GetComponent<EnvironmentComponent>();
+						environment->SetHsvShift({ 0.0f, 2.0f, 1.1f, 1.0f });
+						environment->SetFogColour({ 0.105f, 0.0f, 0.0f });
+
+						Entity *playerEnt = this->GetOwner()->GetScene()->GetFirstEntityInGroup("players");
+						Entity *camera = playerEnt->GetChildren()[0]->GetChildren()[0];
+
+						if (camera)
+						{
+							if (auto *shake = camera->GetComponent<ShakeComponent>())
+								shake->AddTrauma(100.0f);
+						}
+
+						context.audioManager->PlaySoundEffect(this->nextPhaseAudio, false, 1.0f, 1.0f);
+					}
+
+				});
+			}
 		});
 		auto rect = this->progressBar->GetOwner()->GetComponent<UIRectComponent>();
 		rect->SetSizeDelta({ 700.0, 25.0f });

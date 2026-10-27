@@ -29,6 +29,7 @@
 #include "components/collisions/area_component.hpp"
 #include "components/collisions/sphere_collision_component.hpp"
 #include "components/gameplay/shake_component.hpp"
+#include "components/ai/enemy_spawner_component.hpp"
 #include "audio/audio_manager.hpp"
 #include "assets/types/audio_clip.hpp"
 #include <algorithm>
@@ -88,6 +89,7 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
 
     this->thisScene = this->GetOwner()->GetScene();
 
+    this->fireballPassbySound = context.assetManager->Get<Sound>("assets/sounds/fireball_passby.sound");
     this->arrowModel = context.assetManager->Get<Model>("assets/models/arrow.glb");
     this->flameTexture = context.assetManager->Get<Texture2D>("assets/images/flame_spritesheet.png");
     this->smokeTexture = context.assetManager->Get<Texture2D>("assets/images/detailed_smoke_spritesheet.png");
@@ -97,6 +99,8 @@ void EnemyControllerComponent::OnStart(const AppContext& context)
     // Some dumb assumptions are made here but it's fine.
     auto &children = this->GetOwner()->GetChildren();
     this->hitboxEntity = children[0];
+
+    this->hitSound = this->enemy->hitSound;
 }
 
 void EnemyControllerComponent::Update(const AppContext &context, float deltaTime) {
@@ -503,7 +507,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     smoke->SetEndTint({ 0.05f, 0.05f, 0.05f });
 
     SoundComponent* fireballSound = fireballEnt->AddComponent<SoundComponent>();
-    fireballSound->SetSound(this->arrowPassbySound);
+    fireballSound->SetSound(this->fireballPassbySound);
     fireballSound->SetIs3d(true);
     fireballSound->SetMaxDistance(12.0f);
     fireballSound->SetVolume(5.0f);
@@ -523,14 +527,7 @@ void EnemyControllerComponent::ShootAnFireball(float gravity, float fireSpeed, X
     area->GetOnAreaEntered().Connect([area, fireballSound](CollisionComponent* other) {
         area->SetEnabled(false);
         fireballSound->Play();
-        });
-
-    /*
-    PointLightComponent* pointLight = fireEnt->AddComponent<PointLightComponent>();
-    pointLight->SetColour({ 0.88f, 0.34f, 0.13f });
-    pointLight->SetIntensity(75.0f);
-    pointLight->SetRadius(8.0f);
-    */
+    });
 }
 
 void EnemyControllerComponent::ShootVerticalRowOfFireball()
@@ -671,36 +668,42 @@ void EnemyControllerComponent::WizardFireballAttack()
     }
 
     // Close-range defensive reaction: wall of fireballs
-    if (playerDistance < 15.0f)
+    if (playerDistance < 10.0f)
     {
-        this->currentWizardAttack = WizardAttackType::WALL;
-    }
-    else
-    {
-        // 35% chance to perform default fireball burst, 65% chance for phase attack
-        float attackRoll = RNG::Float(0.0f, 100.0f);
-        if (attackRoll < 35.0f)
+        // Should Summon?
+        if (RNG::Int(0, 1) == 0)
         {
-            this->currentWizardAttack = WizardAttackType::DEFAULT_BURST;
+            this->currentWizardAttack = WizardAttackType::SUMMON;
         }
         else
         {
-            if (healthPct > 0.50f)
+            this->currentWizardAttack = WizardAttackType::WALL;
+        }
+    }
+    else
+    {
+        // Should Summon?
+        if (RNG::Int(0, 1) == 0)
+        {
+            this->currentWizardAttack = WizardAttackType::SUMMON;
+        }
+        else
+        {
+            // Second Phase
+            if (healthPct < 0.5f)
             {
-                // Phase 2 (50% < HP <= 75%): Horizontal row of fireballs
-                this->currentWizardAttack = WizardAttackType::HORIZONTAL_ROW;
+                this->currentWizardAttack = static_cast<WizardAttackType>(RNG::Int(
+                    static_cast<int>(WizardAttackType::DEFAULT_BURST),
+                    static_cast<int>(WizardAttackType::RAIN)
+                ));
             }
-            else if (healthPct > 0.25f)
-            {
-                // Phase 3 (25% < HP <= 50%): Vertical column of fireballs
-                this->currentWizardAttack = WizardAttackType::VERTICAL_ROW;
-            }
+            // First Phase
             else
             {
-                // Phase 4 (HP <= 25%): Desperation attack - Rain or Circle of fireballs
-                this->currentWizardAttack = (RNG::Float(0.0f, 1.0f) < 0.5f)
-                    ? WizardAttackType::RAIN
-                    : WizardAttackType::CIRCLE;
+                this->currentWizardAttack = static_cast<WizardAttackType>(RNG::Int(
+                    static_cast<int>(WizardAttackType::DEFAULT_BURST),
+                    static_cast<int>(WizardAttackType::VERTICAL_ROW)
+                ));
             }
         }
     }
@@ -737,6 +740,24 @@ void EnemyControllerComponent::WizardFireballAttack()
         case WizardAttackType::WALL:
         {
             this->ShootWallOfFireball();
+        } break;
+
+        case WizardAttackType::SUMMON:
+        {
+            int howMany = RNG::Int(6, 15);
+
+            if (this->GetOwner()->GetComponent<Health>()->GetCurrentHealth() <= this->GetOwner()->GetComponent<Health>()->GetMaxHealth() / 2.0f)
+            {
+                howMany += RNG::Int(8, 10);
+            }
+
+            for (int i = 0; i < howMany; ++i)
+            {
+                size_t whichEnemy = +EnemyType::GOBLIN;
+                if (RNG::Int(1, 20) == 20)
+                    whichEnemy = +EnemyType::OGRE;
+                this->spawner->SpawnEnemy(whichEnemy, -1);
+            }
         } break;
 
         default:

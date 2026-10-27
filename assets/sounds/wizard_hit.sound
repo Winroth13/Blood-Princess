@@ -1,0 +1,12 @@
+sound:
+    - file: assets/audio/sfx/wizard/wizard_hit_01.ogg
+      min_volume: 2.0
+      max_volume: 2.0
+      min_pitch: 0.7
+      max_pitch: 0.75
+
+    - file: assets/audio/sfx/wizard/wizard_hit_02.ogg
+      min_volume: 2.0
+      max_volume: 2.0
+      min_pitch: 0.7
+      max_pitch: 0.75

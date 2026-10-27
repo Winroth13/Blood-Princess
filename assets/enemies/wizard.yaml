@@ -1,10 +1,10 @@
 type: wizard
-health: 5000
-score: 100
-scale: 1.5
+health: 2500
+score: 200
+scale: 1.7
 
 avoidance_radius: 15.0
-move_speed: 0.5
+move_speed: 1.5
 
 min_range: 0.0
 max_range: 25.0
@@ -19,7 +19,7 @@ extends: [1.0, 1.0, 1.0]
 extends_offset: [0.0, 2.2, 0.0]
 
 start_attack_sound: assets/sounds/wizard_laugh.sound
-attack_sound: 
-hit_sound: 
+attack_sound: assets/sounds/fireball_shoot.sound
+hit_sound: assets/sounds/wizard_hit.sound
 death_sound: 
 bark_sound: 

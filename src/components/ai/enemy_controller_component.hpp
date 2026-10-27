@@ -14,6 +14,7 @@ class GibsComponent;
 class SoundComponent;
 class SplatterComponent;
 class ParticleSystemComponent;
+class EnemySpawnerComponent;
 class SpatialGrid;
 class Sound;
 class Enemy;
@@ -30,7 +31,8 @@ enum class WizardAttackType
 	VERTICAL_ROW,
 	CIRCLE,
 	RAIN,
-	WALL
+	WALL,
+	SUMMON
 };
 
 class EnemyControllerComponent : public Component
@@ -135,7 +137,7 @@ private:
 	ExportProperty(float, fireballHorizontalSpeed, 21.5f);
 
 	ExportProperty(float, fireballCooldown, 2.0f);
-	ExportProperty(int, fireballBurstCount, 3);
+	ExportProperty(int, fireballBurstCount, 5);
 	ExportProperty(float, fireballBurstInterval, 0.25f);
 
 	float attackCooldownTimer = 0.0f;
@@ -171,6 +173,7 @@ private:
 
 public:
 	Entity *weaponParticleEntity = nullptr;
+	EnemySpawnerComponent *spawner = nullptr;
 
     float emissiveTimer = 0.0f;
     float emissiveDuration = 0.1f;

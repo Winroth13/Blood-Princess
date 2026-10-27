@@ -40,6 +40,7 @@ class LevelComponent : public Component
 	Entity *endScreen = nullptr;
 
 	LevelState state = LevelState::STARTING;
+	bool secondPhase = false;
 
 	Signal<uint32_t> onScoreChanged;
 
@@ -49,6 +50,7 @@ class LevelComponent : public Component
 	float endTimer = -1.0f;
 
 	std::shared_ptr<AudioClip> nextFloorAudio = nullptr;
+	std::shared_ptr<AudioClip> nextPhaseAudio = nullptr;
 	std::shared_ptr<Floor> currentFloor = nullptr;
 
 private:
