@@ -872,10 +872,10 @@ namespace Scenes
 {
     void Gameplay(Scene& outScene, const AppContext& appContext) 
     {
-        //Entity *musicEntity = outScene.AddEntity("music_entity");
-        //musicEntity->AddComponent<TransformComponent>();
-        //MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Test2.ogg"));
-        //musicComponent->SetVolume(0.2f);
+        Entity *musicEntity = outScene.AddEntity("music_entity");
+        musicEntity->AddComponent<TransformComponent>();
+        MusicComponent *musicComponent = musicEntity->AddComponent<MusicComponent>(appContext.assetManager->Get<AudioClip>("assets/audio/music/Blood_Princess_draft4.ogg"));
+        musicComponent->SetVolume(1.0f);
 
         // Gibs
         Entity *gibsEntity = CreateGibs(outScene, appContext);
