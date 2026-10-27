@@ -294,16 +294,16 @@ void Action::ResetToDefaults()
 
 	AddAction("Dash", Key::LEFT_SHIFT);
 	AddAction("Dash", Key::SPACE);
-	AddAction("Dash", GamepadButton::EAST);
+	AddAction("Dash", GamepadButton::LEFT_SHOULDER);
 
 	AddAction("LightAttack", MouseButton::LEFT);
-	AddAction("LightAttack", GamepadButton::LEFT_SHOULDER);
+	AddAction("LightAttack", GamepadAxis::RIGHT_TRIGGER, 0.5f);
 
 	AddAction("HeavyAttack", MouseButton::RIGHT);
 	AddAction("HeavyAttack", GamepadButton::RIGHT_SHOULDER);
 
 	AddAction("Parry", Key::F);
-	AddAction("Parry", GamepadButton::WEST);
+	AddAction("Parry", GamepadAxis::LEFT_TRIGGER, 0.5f);
 }
 
 std::string Action::GetSlotDisplayName(const ActionSlot& slot)

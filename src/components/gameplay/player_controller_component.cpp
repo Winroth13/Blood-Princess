@@ -106,7 +106,7 @@ void PlayerControllerComponent::Update(const AppContext& context, float deltaTim
 	if (this->isDead)
 		return;
 
-    if (Input::IsKeyPressed(Key::ESCAPE))
+    if (Input::IsKeyPressed(Key::ESCAPE) || Input::IsGamepadButtonPressed(GamepadButton::START))
         this->SetIsPaused(!this->isPaused);
 
     if (this->isDoingHeavyAttack) {

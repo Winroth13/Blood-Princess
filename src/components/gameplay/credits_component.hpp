@@ -9,6 +9,7 @@ class CreditsComponent : public Component
 	RegisterComponent(CreditsComponent);
 
 	ExportProperty(float, scrollSpeed, 20.0f);
+	ExportProperty(float, fastScrollMult, 10.0f);
 	float topHeight = 0;
 	float bottomHeight = 0;
 	float creditsHeight = 0;
