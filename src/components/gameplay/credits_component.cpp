@@ -20,8 +20,14 @@ void CreditsComponent::Update(const AppContext &context, float deltaTime)
 	UIRectComponent *rectComp = this->GetOwner()->GetComponent<UIRectComponent>();
 	float currentHeight = rectComp->GetPosition().y;
 
+	float resultScrollSpeed = this->scrollSpeed;
+	if ((Input::IsKeyDown(Key::SPACE) || Input::IsGamepadButtonDown(GamepadButton::SOUTH)))
+	{
+		resultScrollSpeed *= this->fastScrollMult;
+	}
+
 	if (currentHeight < this->topHeight - this->creditsHeight)
 		rectComp->SetPosition({ 0.0f, this->bottomHeight });
 	else
-		rectComp->SetPosition({ 0.0f, currentHeight - deltaTime * this->scrollSpeed });
+		rectComp->SetPosition({ 0.0f, currentHeight - deltaTime * resultScrollSpeed });
 }

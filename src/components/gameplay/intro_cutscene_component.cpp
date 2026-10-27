@@ -1,6 +1,7 @@
 #include "intro_cutscene_component.hpp"
 #include "assets/asset_manager.hpp"
 #include "input/input.hpp"
+#include "input/action.hpp"
 #include "scene/entity.hpp"
 #include "components/ui/ui_image_component.hpp"
 #include "components/ui/ui_text_component.hpp"
@@ -32,7 +33,7 @@ void IntroCutsceneComponent::CutsceneIntro(const AppContext &context, float prev
     auto img2 = this->imgComps[1];
     auto txt1 = this->txtComps[0];
 
-    if (Input::IsMouseButtonReleased(MouseButton::LEFT)) {
+    if (Input::IsKeyPressed(Key::SPACE) || Input::IsGamepadButtonPressed(GamepadButton::SOUTH)) {
         if (txt1->IsActive())
             context.sceneManager->RequestSceneChange("gameplay");
         else
@@ -127,7 +128,7 @@ void IntroCutsceneComponent::CutsceneDeath(const AppContext &context, float prev
     auto isAtFunc = [&](float t) { return t >= prevTime && t < this->time; };
     auto isInFunc = [&](float min, float max) { return this->time >= min && this->time < max; };
 
-    if (Input::IsMouseButtonReleased(MouseButton::LEFT) && isInFunc(0.0f, 15.0f)) {
+    if ((Input::IsKeyPressed(Key::SPACE) || Input::IsGamepadButtonPressed(GamepadButton::SOUTH)) && isInFunc(0.0f, 15.0f)) {
         if (txt1->IsActive())
             this->time = 15.0f;
         else
