@@ -975,9 +975,12 @@ bool EnemyControllerComponent::CanAttack(float distanceSq)
 
     const bool hasKnockback = kbSpeedSq > 0.001f;
 
-    if (this->knockbackStunTimer > 0.0f || hasKnockback)
+    if (this->enemy->type != EnemyType::WIZARD)
     {
-        return false;
+        if (this->knockbackStunTimer > 0.0f || hasKnockback)
+        {
+            return false;
+        }
     }
 
     float minRangeSq = this->enemy->minRange * this->enemy->minRange;

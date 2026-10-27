@@ -49,6 +49,12 @@ inline Entity *CreateCredits(Entity *parent, UI::Factory &ui)
             }
         },
         {
+            "Music",
+            {
+                "Edvin Dolk"
+            }
+        },
+        {
             "Assets",
             {
                 "'Skeleton Rigged Model' by RosyJoan",
