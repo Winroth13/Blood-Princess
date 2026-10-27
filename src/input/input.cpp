@@ -18,8 +18,8 @@ std::array<bool, SDL_SCANCODE_COUNT> Input::savedPreviousKeys;
 MouseState Input::savedMouseState;
 
 SDL_Gamepad* Input::activeGamepad = nullptr;
-std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> Input::currentGamepadButtons = {};
-std::array<bool, SDL_GAMEPAD_BUTTON_COUNT> Input::previousGamepadButtons = {};
+std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> Input::currentGamepadButtons = {};
+std::array<bool, SDL_GAMEPAD_BUTTON_COUNT + 2> Input::previousGamepadButtons = {};
 float Input::deadzone = 0.15f; // 15% stick deadzone
 
 
@@ -52,9 +52,24 @@ void Input::Update()
 	previousGamepadButtons = currentGamepadButtons;
 	if (activeGamepad)
 	{
-		for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; ++i)
+		for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT + 2; ++i)
 		{
-			currentGamepadButtons[i] = SDL_GetGamepadButton(activeGamepad, static_cast<SDL_GamepadButton>(i));
+			if (i < SDL_GAMEPAD_BUTTON_COUNT)
+			{
+				currentGamepadButtons[i] = SDL_GetGamepadButton(activeGamepad, static_cast<SDL_GamepadButton>(i));
+			}
+			/* Update Trigger Buttons */
+			else
+			{
+				if (i == static_cast<int>(GamepadButton::LEFT_TRIGGER))
+				{
+					currentGamepadButtons[i] = SDL_GetGamepadAxis(activeGamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) > 0.5;
+				}
+				else if (i == static_cast<int>(GamepadButton::RIGHT_TRIGGER))
+				{
+					currentGamepadButtons[i] = SDL_GetGamepadAxis(activeGamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0.5;
+				}
+			}
 		}
 	}
 	else
@@ -394,6 +409,10 @@ float Input::GetGamepadAxis(GamepadAxis axis)
 
 const char* Input::GetGamepadButtonName(GamepadButton button)
 {
+	if (button == GamepadButton::LEFT_TRIGGER)
+		return GetGamepadAxisName(GamepadAxis::LEFT_TRIGGER);
+	if (button == GamepadButton::RIGHT_TRIGGER)
+		return GetGamepadAxisName(GamepadAxis::RIGHT_TRIGGER);
 	return SDL_GetGamepadStringForButton(static_cast<SDL_GamepadButton>(button));
 }
 
@@ -405,6 +424,8 @@ GamepadButton Input::GetGamepadButtonFromName(const std::string& name)
 	if (lower == "east" || lower == "b" || lower == "circle") return GamepadButton::EAST;
 	if (lower == "west" || lower == "x" || lower == "square") return GamepadButton::WEST;
 	if (lower == "north" || lower == "y" || lower == "triangle") return GamepadButton::NORTH;
+	if (lower == "lefttrigger") return GamepadButton::LEFT_TRIGGER;
+	if (lower == "righttrigger") return GamepadButton::RIGHT_TRIGGER;
 	SDL_GamepadButton btn = SDL_GetGamepadButtonFromString(lower.c_str());
 	if (btn == SDL_GAMEPAD_BUTTON_INVALID)
 	{
@@ -475,7 +496,7 @@ GamepadButton Input::GetAnyGamepadButtonPressed()
 	if (!activeGamepad)
 		return GamepadButton::UNKNOWN;
 
-	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; ++i)
+	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT + 2; ++i)
 	{
 		GamepadButton btn = static_cast<GamepadButton>(i);
 		if (IsGamepadButtonPressed(btn))

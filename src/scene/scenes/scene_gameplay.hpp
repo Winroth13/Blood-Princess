@@ -471,7 +471,7 @@ static Entity* CreateHUD(
     });
 
     // Tutorial Popup
-    Entity *popupPanel = ui.CreatePanel(hud, {700.0f, 130.0f}, "tutorial_popup");
+    Entity *popupPanel = ui.CreatePanel(hud, {1000.0f, 130.0f}, "tutorial_popup");
     UI::Factory::Place(popupPanel, UI::Anchor::CENTRE, { 0.0f, -180.0f });
 
     UITextComponent *tutorialText = ui.CreateText(popupPanel, "", 30.0f, "tutorial_text");
