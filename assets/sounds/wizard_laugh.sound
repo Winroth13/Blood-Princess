@@ -1,0 +1,48 @@
+sound:
+    - file: assets/audio/sfx/wizard/wizard_laugh_01.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_02.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_03.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_04.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+    
+    - file: assets/audio/sfx/wizard/wizard_laugh_05.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_06.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_07.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95
+
+    - file: assets/audio/sfx/wizard/wizard_laugh_08.ogg
+      max_volume: 2.5
+      min_volume: 2.5
+      max_pitch: 1.05
+      min_pitch: 0.95

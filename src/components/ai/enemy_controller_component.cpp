@@ -1007,7 +1007,7 @@ void EnemyControllerComponent::StartAttack(float deltaTime)
     this->animator->CrossFade(this->enemy->attackAnimation, 0.1f, false);
     this->animator->SetSpeed(1.0f);
 
-    if (this->enemy->type == EnemyType::SKELETON)
+    if (this->enemy->type == EnemyType::SKELETON || this->enemy->type == EnemyType::WIZARD)
     {
         this->sound->SetMinDistance(25.0f);
         this->sound->SetMaxDistance(25.0f);
