@@ -16,9 +16,12 @@ private:
 	std::vector<DirectX::XMFLOAT3> positions;
 
 	std::vector<DirectX::XMFLOAT3> trapPositions;
+	std::vector<DirectX::XMFLOAT3> circlePositions;
+
+	void InitCirclePositions();
 
 public:
-	SpatialGrid() = default;
+	SpatialGrid();
 	SpatialGrid(float cellSize, int width, int height, DirectX::XMFLOAT2 origin);
 	~SpatialGrid() = default;
 

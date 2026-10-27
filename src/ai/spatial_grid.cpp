@@ -3,13 +3,36 @@
 #include <algorithm>
 #include <cmath>
 
-
 using namespace DirectX;
+
+SpatialGrid::SpatialGrid()
+{
+	this->InitCirclePositions();
+}
 
 SpatialGrid::SpatialGrid(float cellSize, int width, int height, DirectX::XMFLOAT2 origin)
 	: cellSize(cellSize), gridWidth(width), gridHeight(height), origin(origin)
 {
 	this->cellHead.resize(width * height, -1);
+	this->InitCirclePositions();
+}
+
+void SpatialGrid::InitCirclePositions()
+{
+	const float wallRadius = 25.0f;
+	const int pointCount = 256;
+	const float deltaTheta = DirectX::XM_2PI / static_cast<float>(pointCount);
+	this->circlePositions.clear();
+	this->circlePositions.reserve(pointCount);
+	for (int i = 0; i < pointCount; ++i)
+	{
+		float theta = deltaTheta * static_cast<float>(i);
+		this->circlePositions.push_back({
+			wallRadius * cosf(theta),
+			0.0f,
+			wallRadius * sinf(theta)
+		});
+	}
 }
 
 void SpatialGrid::BeginFrame(size_t enemyCount)
@@ -32,7 +55,6 @@ void SpatialGrid::Insert(size_t index, const DirectX::XMFLOAT3& pos)
 	int gx = static_cast<int>((pos.x - this->origin.x) / this->cellSize);
 	int gz = static_cast<int>((pos.z - this->origin.y) / this->cellSize);
 
-	
 	if (gx >= 0 && gx < this->gridWidth && gz >= 0 && gz < this->gridHeight)
 	{
 		int cellIndex = gz * this->gridWidth + gx;
@@ -91,7 +113,6 @@ DirectX::XMVECTOR SpatialGrid::ComputeAvoidance(size_t selfIndex, float avoidanc
     const int centerGx = static_cast<int>((myPos.x - this->origin.x) / this->cellSize);
     const int centerGz = static_cast<int>((myPos.z - this->origin.y) / this->cellSize);
 
-
     const int cellRange = static_cast<int>(std::ceil(avoidanceRadius / this->cellSize));
 
     for (int dz = -cellRange; dz <= cellRange; ++dz)
@@ -144,12 +165,43 @@ DirectX::XMVECTOR SpatialGrid::ComputeAvoidance(size_t selfIndex, float avoidanc
         }
     }
 
+    // Repel from points forming the circular arena boundary
+    for (const auto& circlePos : this->circlePositions)
+    {
+        XMVECTOR otherPosVec = XMLoadFloat3(&circlePos);
+        XMVECTOR diff = XMVectorSubtract(myPosVec, otherPosVec);
+        diff = XMVectorSetY(diff, 0.0f);
+
+        const float distSq = XMVectorGetX(XMVector3LengthSq(diff));
+        if (distSq < radiusSq)
+        {
+            if (distSq > 1e-6f)
+            {
+                const float dist = sqrtf(distSq);
+                const XMVECTOR dir = XMVectorScale(diff, 1.0f / dist);
+
+                float t = (dist - personalSpace) / (avoidanceRadius - personalSpace);
+                t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+                const float smooth = t * t * (3.0f - 2.0f * t);
+                float strength = 1.0f - smooth;
+
+                separation = XMVectorAdd(separation, XMVectorScale(dir, strength * 4.0f));
+            }
+            else
+            {
+                // Directly on a circle point: push inward toward center
+                XMVECTOR toCenter = XMVectorSet(-myPos.x, 0.0f, -myPos.z, 0.0f);
+                toCenter = XMVector3Normalize(toCenter);
+                separation = XMVectorAdd(separation, XMVectorScale(toCenter, 6.0f));
+            }
+        }
+    }
+
     return separation;
 }
 
 bool SpatialGrid::IsAreaClear(const DirectX::XMFLOAT3& pos, float checkRadius) const
 {
-
     float distFromCenterSq = pos.x * pos.x + pos.z * pos.z;
     if (distFromCenterSq > (this->arenaRadius * this->arenaRadius))
     {
@@ -157,7 +209,6 @@ bool SpatialGrid::IsAreaClear(const DirectX::XMFLOAT3& pos, float checkRadius) c
     }
 
     float radiusSq = checkRadius * checkRadius;
-
 
     int centerGx = static_cast<int>((pos.x - this->origin.x) / this->cellSize);
     int centerGz = static_cast<int>((pos.z - this->origin.y) / this->cellSize);
