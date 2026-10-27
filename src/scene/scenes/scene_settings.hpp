@@ -460,6 +460,14 @@ namespace Scenes {
                 rebindComp->StartRebinding(actionName, SettingsRebindComponent::Column::INPUT2, btn2, label2);
                 });
 
+            const std::vector<std::string> ctrlUnbindableAction = {
+                "MoveForward",
+                "MoveBackward",
+                "MoveLeft",
+                "MoveRight"
+            };
+            if (std::find(ctrlUnbindableAction.begin(), ctrlUnbindableAction.end(), actionName) != ctrlUnbindableAction.end())
+                btnCtrl->SetInteractable(false);
             btnCtrl->GetOnClick().Connect([rebindComp, actionName, btnCtrl, labelCtrl]() {
                 rebindComp->StartRebinding(actionName, SettingsRebindComponent::Column::CONTROLLER, btnCtrl, labelCtrl);
                 });

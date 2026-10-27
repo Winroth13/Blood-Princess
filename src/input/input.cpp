@@ -409,6 +409,10 @@ float Input::GetGamepadAxis(GamepadAxis axis)
 
 const char* Input::GetGamepadButtonName(GamepadButton button)
 {
+	if (button == GamepadButton::LEFT_TRIGGER)
+		return GetGamepadAxisName(GamepadAxis::LEFT_TRIGGER);
+	if (button == GamepadButton::RIGHT_TRIGGER)
+		return GetGamepadAxisName(GamepadAxis::RIGHT_TRIGGER);
 	return SDL_GetGamepadStringForButton(static_cast<SDL_GamepadButton>(button));
 }
 
@@ -420,6 +424,8 @@ GamepadButton Input::GetGamepadButtonFromName(const std::string& name)
 	if (lower == "east" || lower == "b" || lower == "circle") return GamepadButton::EAST;
 	if (lower == "west" || lower == "x" || lower == "square") return GamepadButton::WEST;
 	if (lower == "north" || lower == "y" || lower == "triangle") return GamepadButton::NORTH;
+	if (lower == "lefttrigger") return GamepadButton::LEFT_TRIGGER;
+	if (lower == "righttrigger") return GamepadButton::RIGHT_TRIGGER;
 	SDL_GamepadButton btn = SDL_GetGamepadButtonFromString(lower.c_str());
 	if (btn == SDL_GAMEPAD_BUTTON_INVALID)
 	{
@@ -490,7 +496,7 @@ GamepadButton Input::GetAnyGamepadButtonPressed()
 	if (!activeGamepad)
 		return GamepadButton::UNKNOWN;
 
-	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; ++i)
+	for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT + 2; ++i)
 	{
 		GamepadButton btn = static_cast<GamepadButton>(i);
 		if (IsGamepadButtonPressed(btn))

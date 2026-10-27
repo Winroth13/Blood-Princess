@@ -297,13 +297,13 @@ void Action::ResetToDefaults()
 	AddAction("Dash", GamepadButton::LEFT_SHOULDER);
 
 	AddAction("LightAttack", MouseButton::LEFT);
-	AddAction("LightAttack", GamepadAxis::RIGHT_TRIGGER, 0.5f);
+	AddAction("LightAttack", GamepadButton::RIGHT_TRIGGER);
 
 	AddAction("HeavyAttack", MouseButton::RIGHT);
 	AddAction("HeavyAttack", GamepadButton::RIGHT_SHOULDER);
 
 	AddAction("Parry", Key::F);
-	AddAction("Parry", GamepadAxis::LEFT_TRIGGER, 0.5f);
+	AddAction("Parry", GamepadButton::LEFT_TRIGGER);
 }
 
 std::string Action::GetSlotDisplayName(const ActionSlot& slot)
@@ -350,6 +350,8 @@ std::string Action::GetGamepadButtonDisplayName(GamepadButton button)
 	case GamepadButton::DPAD_DOWN: return "D-Pad Down";
 	case GamepadButton::DPAD_LEFT: return "D-Pad Left";
 	case GamepadButton::DPAD_RIGHT: return "D-Pad Right";
+	case GamepadButton::LEFT_TRIGGER: return GetGamepadAxisDisplayName(GamepadAxis::LEFT_TRIGGER);
+	case GamepadButton::RIGHT_TRIGGER: return GetGamepadAxisDisplayName(GamepadAxis::RIGHT_TRIGGER);
 	default: return "---";
 	}
 }
@@ -371,8 +373,8 @@ std::string Action::GetGamepadAxisDisplayName(GamepadAxis axis)
 {
 	switch (axis)
 	{
-	case GamepadAxis::LEFT_TRIGGER:  return "Left Trigger / LT";
-	case GamepadAxis::RIGHT_TRIGGER: return "Right Trigger / RT";
+	case GamepadAxis::LEFT_TRIGGER:  return "LT / L2";
+	case GamepadAxis::RIGHT_TRIGGER: return "RT / R2";
 	case GamepadAxis::LEFT_X:        return "Left Stick X";
 	case GamepadAxis::LEFT_Y:        return "Left Stick Y";
 	case GamepadAxis::RIGHT_X:       return "Right Stick X";
