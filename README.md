@@ -39,19 +39,19 @@ This game and its custom D3D11-engine was created during the university course '
 
 ### Skeletal Animations
 
-![](https://github.com/Winroth13/Blood-Princess/blob/main/media/skeletal_animation.gif)
+<img src="https://github.com/Winroth13/Blood-Princess/blob/main/media/skeletal_animation.gif" width="400" />
 
 ### Paintable Environemnt
 
-![](https://github.com/Winroth13/Blood-Princess/blob/main/media/paintable_environment.gif)
+<img src="https://github.com/Winroth13/Blood-Princess/blob/main/media/paintable_environment.gif" width="400" />
 
 ### PBR
 
-![](https://github.com/Winroth13/Blood-Princess/blob/main/media/pbr.gif)
+<img src="https://github.com/Winroth13/Blood-Princess/blob/main/media/pbr.gif" width="400" />
 
 ### Particles
 
-![](https://github.com/Winroth13/Blood-Princess/blob/main/media/torch.gif)
+<img src="https://github.com/Winroth13/Blood-Princess/blob/main/media/torch.gif" width="400" />
 
 ## Build Steps
 
