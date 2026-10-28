@@ -4,9 +4,9 @@ Blood Princess is a First Person Hack'n'Slash Roguelike.
 
 The princess must climb the tower annihilating anything who stand in her way, using her comically large sword. Slaughter hordes of goblins, ogres and other vermin. Reach the top, defeat the evil wizard and rescue your beloved cat.
 
-This game and its custom D3D11-engine was created during the university course 'Small Game Project'.
+The game and its custom D3D11-engine was created during the university course 'Small Game Project'.
 
-The game is available on [itch.io](https://johannled05.itch.io/blood-princess).
+You can download the game on [itch.io](https://johannled05.itch.io/blood-princess).
 
 ## Table of Contents
 
