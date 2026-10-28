@@ -35,6 +35,7 @@ You can download the game on [itch.io](https://johannled05.itch.io/blood-princes
 | Heavy Attack | Right Mouse Button | Right Shoulder (RB) |
 | Dash | Left Shift / Space | Left Shoulder (LB) |
 | Parry | F | Left Trigger (LT) |
+| Skip Cutscene | Space | A |
 | Editor | F1 | - |
 
 ## Features
